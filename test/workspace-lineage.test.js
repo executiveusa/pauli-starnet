@@ -20,6 +20,20 @@ try {
   A.eq(v.priorInstallEvidence, false, 'runtime/schema/migration infrastructure, including an empty migration receipt, is a genuine first run');
   A.eq(v.onboardingAllowed, true, 'onboarding is allowed only with zero evidence');
 
+  // E-STOP/scheduler bookkeeping (2026-08-25): the desktop shell fires POST /api/halt on EVERY clean quit,
+  // which writes these files even on a station that was never created. They stranded a fresh install on the
+  // recovery gate after one open+quit. They are INFRA — a file the sidecar writes stationlessly is never
+  // proof a Commander created a station.
+  for (const f of ['loops.halt.json', 'nightshift.state.json', 'cron.halt.json', 'nightshift.state.json.bak']) {
+    fs.writeFileSync(path.join(current, f), '{"halted":true}');
+  }
+  v = inspectWorkspaceLineage({ fs, path, workspaceRoot: current, candidateRoots: [legacy], snapshotsRoot: snapshots, platform: process.platform });
+  A.eq(v.priorInstallEvidence, false, 'quit-path E-STOP bookkeeping (loops/nightshift/cron halt state) is not prior-station evidence');
+  A.eq(v.onboardingAllowed, true, 'a fresh install that was opened and closed once still onboards');
+  for (const f of ['loops.halt.json', 'nightshift.state.json', 'cron.halt.json', 'nightshift.state.json.bak']) {
+    fs.unlinkSync(path.join(current, f));
+  }
+
   fs.writeFileSync(path.join(current, 'future-cache-v2.json'), '{"cache":true}');
   v = inspectWorkspaceLineage({ fs, path, workspaceRoot: current, candidateRoots: [legacy], snapshotsRoot: snapshots, platform: process.platform });
   A.eq(v.priorInstallEvidence, false, 'unknown cache files cannot become prior-station evidence by denylist omission');
@@ -75,7 +89,8 @@ try {
   // next inspection allows onboarding.
   const { startFresh } = require('../sidecar/workspace-lineage.js');
   fs.writeFileSync(path.join(current, 'ledger.jsonl'), '{"event":"failed-first-run"}\n');
-  fs.writeFileSync(path.join(current, 'loops.halt.json'), '{}');
+  fs.writeFileSync(path.join(current, 'loops.json'), '{}');
+  fs.writeFileSync(path.join(current, 'loops.halt.json'), '{}');         // infra (E-STOP bookkeeping): stays put
   fs.writeFileSync(path.join(current, 'liveprices.cache.json'), '{}');   // infra: stays put
   fs.mkdirSync(legacy, { recursive: true });
   fs.writeFileSync(path.join(legacy, 'agent.save.json'), '{"version":5}');
@@ -85,8 +100,9 @@ try {
   A.eq(before.priorInstallEvidence, true, 'fixture: the gate would fire');
   const fresh = startFresh({ fs, path, workspaceRoot: current, candidateRoots: [legacy], snapshotsRoot: snapshots, platform: process.platform, now: () => Date.UTC(2026, 7, 22, 12, 0, 0) });
   A.eq(fresh.ok, true, 'start fresh succeeds');
-  A.ok(fresh.moved.includes('ledger.jsonl') && fresh.moved.includes('loops.halt.json'), 'every current-workspace state file moved');
+  A.ok(fresh.moved.includes('ledger.jsonl') && fresh.moved.includes('loops.json'), 'every current-workspace state file moved');
   A.eq(fresh.moved.includes('liveprices.cache.json'), false, 'infrastructure never moves');
+  A.eq(fresh.moved.includes('loops.halt.json'), false, 'E-STOP bookkeeping is infrastructure and never moves');
   A.eq(fs.existsSync(path.join(fresh.quarantine, 'ledger.jsonl')), true, 'moved files live on in quarantine (never deleted)');
   A.eq(fs.existsSync(path.join(current, 'ledger.jsonl')), false, 'the live workspace no longer holds the stale state');
   A.eq(fs.existsSync(path.join(current, 'liveprices.cache.json')), true, 'infrastructure files are untouched');
