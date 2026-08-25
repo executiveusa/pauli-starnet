@@ -93,15 +93,36 @@
   }
 
   function messagesToInput(messages) {
+    /* TOOL-PAIR REPAIR (2026-08-25). The Responses backend 400-rejects the WHOLE request when the replayed
+       transcript contains a function_call_output with no matching function_call ("No tool call found for
+       function call output with call_id …") — or a function_call with no output. A restart/resume/compaction
+       seam that loses one side of a tool pair therefore doesn't just lose a message: it bricks the chat
+       PERMANENTLY, because every later turn replays the same orphan and dies on the same 400 (the reported
+       Telegram loop). Enforce the invariant here, at the only module that knows this wire's rule:
+         · an orphaned or duplicate tool result is downgraded to a plain user message — content preserved,
+           truthfully labeled as recovered, impossible to 400;
+         · a tool call whose result never made it into the transcript gets a synthesized "no result recorded"
+           output spliced directly after it, so the model reissues the call instead of the request dying.
+       A well-formed transcript passes through byte-identical. */
     const input = [];
+    const open = new Map();      // call_id -> index in `input` of its function_call item (awaiting its output)
+    const answered = new Set();  // call_ids already paired in this request
+    let minted = 0;              // deterministic ids for assistant tool_calls that arrived with none
     for (const msg of (messages || [])) {
       if (!msg || typeof msg !== 'object') continue;
       const role = msg.role;
       if (role === 'system') { input.push({ role: 'user', content: contentToParts(msg.content, 'user') }); continue; }
       if (role === 'tool') {
-        // a chat tool-result message -> a Responses function_call_output item
-        const callId = msg.tool_call_id || msg.call_id || '';
-        input.push({ type: 'function_call_output', call_id: callId, output: String(msg.content == null ? '' : msg.content) });
+        // a chat tool-result message -> a Responses function_call_output item (iff its call is in this request)
+        const callId = String(msg.tool_call_id || msg.call_id || '');
+        const body = String(msg.content == null ? '' : msg.content);
+        if (callId && open.has(callId)) {
+          input.push({ type: 'function_call_output', call_id: callId, output: body });
+          open.delete(callId); answered.add(callId);
+        } else {
+          // orphan (its call was lost from the transcript) or duplicate: keep the information, drop the pairing
+          input.push({ role: 'user', content: [textPart('user', '[recovered tool result' + (callId ? ' ' + callId : '') + ' — its originating call is not in this transcript]\n' + body)] });
+        }
         continue;
       }
       if (role === 'assistant') {
@@ -110,18 +131,25 @@
         if (Array.isArray(msg.tool_calls)) {
           for (const tc of msg.tool_calls) {
             const fn = (tc && tc.function) || {};
+            const callId = String(tc.id || fn.call_id || '') || ('call_local_' + (++minted));
             input.push({
               type: 'function_call',
-              call_id: tc.id || fn.call_id || '',
+              call_id: callId,
               name: fn.name || '',
               arguments: typeof fn.arguments === 'string' ? fn.arguments : JSON.stringify(fn.arguments || {})
             });
+            if (!answered.has(callId)) open.set(callId, input.length - 1);
           }
         }
         continue;
       }
       // default: user (or any other) role -> a user message
       input.push({ role: 'user', content: contentToParts(msg.content, role === 'assistant' ? 'assistant' : 'user') });
+    }
+    // calls that never got a result: pair each in place so the request is valid and the model may reissue it
+    const unpaired = Array.from(open.entries()).sort((a, b) => b[1] - a[1]);   // descending, so splices don't shift earlier positions
+    for (const [callId, pos] of unpaired) {
+      input.splice(pos + 1, 0, { type: 'function_call_output', call_id: callId, output: '[interrupted — this call produced no recorded result. Reissue it if it is still needed.]' });
     }
     return input;
   }
