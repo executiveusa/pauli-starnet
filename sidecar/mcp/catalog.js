@@ -250,6 +250,15 @@
     { id: 'wix', name: 'Wix', category: 'Design', authType: 'oauth', transport: 'http',
       url: 'https://mcp.wix.com/mcp', official: true, homepage: 'https://wix.com',
       blurb: 'Manage Wix sites, stores, and bookings. Needs Wix sign-in (OAuth).' },
+    /* higgsfield (added 2026-08-25, user support report): hosted image/video generation MCP.
+       OAuth+DCR live-probed 2026-08-25: RFC 7591 registration MINTS a public PKCE client (201)
+       against our loopback redirect; PRM at /.well-known/oauth-protected-resource/mcp. Its PRM
+       lists a second authorization server (fnf-device-auth.higgsfield.ai, device-code only,
+       404s AS-metadata discovery) — discover() correctly uses authorization_servers[0]. */
+    { id: 'higgsfield', name: 'Higgsfield', category: 'Design', authType: 'oauth', transport: 'http',
+      url: 'https://mcp.higgsfield.ai/mcp', official: true, homepage: 'https://higgsfield.ai',
+      aliases: ['higgsfield ai', 'image generation', 'video generation', 'sora', 'veo', 'kling', 'soul'],
+      blurb: 'Generate images and video with Higgsfield\'s hosted models (Soul, Veo, Kling, Sora, and more). Needs Higgsfield sign-in (OAuth).' },
     // Payments & Finance
     { id: 'paypal', name: 'PayPal', category: 'Payments & Finance', authType: 'oauth', transport: 'http',
       url: 'https://mcp.paypal.com/mcp', official: true, homepage: 'https://paypal.com',
