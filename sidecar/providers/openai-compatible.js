@@ -13,7 +13,6 @@
   const timeouts = provider.timeouts;
   const isAbort = provider.runtime.isAbort;
   const delay = provider.runtime.abortableDelay;
-  const DEFAULT_BASE = 'https://api.openai.com/v1';
   const RETRY_DELAYS = [400, 1200];
   const REWARM_MIN_MS = 5 * 60 * 1000;
   // Optional request params that "OpenAI-compatible" providers disagree on. When a provider 400s and its
@@ -31,8 +30,13 @@
     return WIRE_EFFORTS.indexOf(v) >= 0 ? v : 'medium';
   }
 
+  // NO default endpoint. This adapter used to fall back to https://api.openai.com/v1 on an empty baseUrl,
+  // which meant a provider whose baseUrl resolves dynamically (starnet: the linked cloud URL) silently sent
+  // its runs — bearer credential and all — to OpenAI's API the moment the link failed to resolve, and the
+  // user got OpenAI's "invalid model ID" for a catalog id that was never meant for that endpoint
+  // (2026-08-25 stranded-user incident). An endpointless provider must refuse loudly, never reroute.
   function cleanBaseUrl(value) {
-    return String(value || DEFAULT_BASE).trim().replace(/\/+$/, '');
+    return String(value || '').trim().replace(/\/+$/, '');
   }
   function cleanPath(value, fallback) {
     const path = String(value || fallback || '').trim();
@@ -67,6 +71,7 @@
     if (!doFetch) throw new Error('openai-compatible provider requires fetch (Node 18+) or opts.fetch');
     const key = opts.key || '';
     const baseUrl = cleanBaseUrl(opts.baseUrl);
+    if (!baseUrl) throw new Error((opts.label || 'openai-compatible') + ' provider has no endpoint configured (empty base URL)');
     const chatPath = cleanPath(opts.chatPath, '/chat/completions');
     const modelsPath = cleanPath(opts.modelsPath, '/models');
     // Usage reporting defaults ON: streams must report token usage so cost accounting and
@@ -268,6 +273,16 @@
         // params. Strip the named param and retry immediately (remembered per model, so later turns in the
         // run never pay the extra round-trip). Does not consume a transient-retry attempt.
         if (dropUnsupportedParam(body, res.status, detail)) { attempt--; continue; }
+        // A vendor API rejecting a slash-prefixed id as an unknown/invalid model means a ROUTED-catalog id
+        // (StarNet managed / OpenRouter, e.g. "openai/gpt-…") reached a direct vendor endpoint. Without this
+        // line the user sees only the vendor's bare "invalid model ID" and has no path back (2026-08-25
+        // stranded-user incident) — name the mismatch and the fix. Slash-native catalogs (together, fireworks,
+        // groq) are safe: their ids resolve on their own endpoints, so this only fires on a real mismatch.
+        if ((res.status === 400 || res.status === 404)
+          && /invalid model|is not a valid model|model .*(does not exist|not found)/i.test(String(detail))
+          && String(body.model || '').indexOf('/') > 0) {
+          detail += ' — "' + body.model + '" is a routed-catalog model id (vendor/model), but this provider calls the vendor API directly. Switch the provider in the model picker (STARNET or OPENROUTER for routed ids), or pick a model from this provider\'s own catalog.';
+        }
         const err = new Error(errLabel + ' http ' + res.status + ' - ' + detail);
         err.status = res.status;
         err.headers = res.headers;

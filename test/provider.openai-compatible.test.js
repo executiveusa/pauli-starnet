@@ -227,7 +227,7 @@ module.exports = (async () => {
       if (!healthy) return { ok: false, status: 500, statusText: 'boom', json: async () => ({}), text: async () => '' };
       return { ok: true, status: 200, json: async () => ({ data: [{ id: 'gpt-x', context_length: 128000, pricing: { prompt: '0.000003', completion: '0.000015' } }] }) };
     };
-    const p = makeOpenAICompatibleProvider({ fetch: fetchImpl, key: 'k', clock: { now: () => t } });
+    const p = makeOpenAICompatibleProvider({ fetch: fetchImpl, key: 'k', baseUrl: 'http://api/v1', clock: { now: () => t } });
     A.eq((await p.listModels()).length, 0, 'a failed boot probe yields an empty catalog');
     A.eq(p.contextLimit('gpt-x'), 0, 'and no context limit');
     A.eq(p.priceOf('gpt-x'), null, 'and no price — every turn would be unpriced');
@@ -236,6 +236,40 @@ module.exports = (async () => {
     A.ok(calls >= 2, 'the /models endpoint was actually probed again');
     A.eq(p.contextLimit('gpt-x'), 128000, 'the context limit recovers');
     A.eq(p.priceOf('gpt-x').in, 3, 'and so does pricing, so the ledger stops recording $0');
+  }
+
+  /* ---- NO silent default endpoint (2026-08-25 stranded-user incident) ----
+     The adapter used to default an empty baseUrl to https://api.openai.com/v1. starnet's baseUrl resolves
+     dynamically from the device link, so the moment the link failed to resolve, a "starnet" run silently
+     left for OpenAI's real API — bearer token and all — and died with OpenAI's bare "invalid model ID".
+     An endpointless provider must refuse at construction, loudly, naming the problem. ---- */
+  {
+    let threw = null;
+    try { makeOpenAICompatibleProvider({ fetch: async () => { throw new Error('must never be called'); } }); }
+    catch (e) { threw = e; }
+    A.ok(threw, 'an empty baseUrl refuses at construction instead of defaulting to api.openai.com');
+    A.ok(/no endpoint configured/i.test(String(threw && threw.message)), 'the refusal names the missing endpoint');
+  }
+
+  /* ---- routed-catalog id on a vendor endpoint gets a way back ----
+     A vendor API 400ing "invalid model ID" for a slash-prefixed id means a STARNET/OpenRouter catalog id
+     (e.g. openai/gpt-…) reached a direct vendor endpoint — the provider/model pair crossed. The bare vendor
+     message is a dead end; the error must name the mismatch and the fix (switch provider in the picker). ---- */
+  {
+    const fetchImpl = async () => new Response(JSON.stringify({ error: { message: 'invalid model ID', code: 400 } }), { status: 400 });
+    const p = makeOpenAICompatibleProvider({ fetch: fetchImpl, key: 'k', baseUrl: 'https://api.vendor.test/v1' });
+    let err = null;
+    try { await collect(p, { model: 'openai/gpt-5.6-terra', messages: [{ role: 'user', content: 'hi' }] }); }
+    catch (e) { err = e; }
+    A.ok(err, 'the 400 still fails the run (no silent recovery)');
+    A.ok(/routed-catalog model id/.test(String(err && err.message)), 'the error names the catalog/endpoint mismatch');
+    A.ok(/Switch the provider/i.test(String(err && err.message)), 'and points at the model-picker remedy');
+    // a slashless unknown model on the same endpoint keeps the vendor's own message untouched
+    const p2 = makeOpenAICompatibleProvider({ fetch: fetchImpl, key: 'k', baseUrl: 'https://api.vendor.test/v1' });
+    let err2 = null;
+    try { await collect(p2, { model: 'gpt-nonexistent', messages: [{ role: 'user', content: 'hi' }] }); }
+    catch (e) { err2 = e; }
+    A.ok(err2 && !/routed-catalog/.test(String(err2.message)), 'a slashless model id gets no mismatch hint (not a crossing)');
   }
 
   A.report('provider.openai-compatible.test');

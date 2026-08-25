@@ -2050,6 +2050,9 @@ function providerCredentialError(provider) {
   const label = (profile && profile.label) || id;
   if (registryProviderUsesCodex(id)) return 'connect ChatGPT first - a signed-in ChatGPT account + model are required';
   if (registryProviderUsesDeviceOAuth(id)) return 'sign in to ' + label + ' first - a signed-in subscription + model are required';
+  // starnet's baseUrl+bearer both come from the device link, so "configure the base URL" / "connect a key"
+  // are remedies that do not exist for it — the one real remedy is (re)linking the station.
+  if (id === 'starnet') return 'link this station to a StarNet account (SETTINGS -> STARNET) to run on credits';
   if (providerRequiresBaseUrl(id)) return 'configure the ' + label + ' base URL';
   if (providerRequiresKey(id)) return 'connect a ' + label + ' API key';
   return 'provider is not configured';

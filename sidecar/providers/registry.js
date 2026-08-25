@@ -156,9 +156,14 @@
       // (index.js providerRuntimeKey), NOT from an env key the user pastes — a linked station needs zero env.
       authType: 'api_key',
       keyRequired: true,
-      // baseUrl is DYNAMIC: the linked cloud URL + '/v1' (index.js providerRuntimeBaseUrl). Static default empty;
-      // requiresBaseUrl stays false because the link flow supplies it, not the user (unlike 'custom').
+      // baseUrl is DYNAMIC: the linked cloud URL + '/v1' (index.js providerRuntimeBaseUrl). Static default empty.
+      // requiresBaseUrl is TRUE even though the LINK flow supplies it (not the user, unlike 'custom'): an
+      // unlinked station resolves an empty baseUrl, and before 2026-08-25 that fell through to the adapter's
+      // api.openai.com default — a starnet run silently left for OpenAI's API and died with that vendor's
+      // "invalid model ID" (the stranded-user incident). With the flag set, hasCredential/listModels/run
+      // admission all read an unresolved link as NOT CONFIGURED and say "link this station" instead.
       baseUrl: '',
+      requiresBaseUrl: true,
       modelsRequireAuth: true,
       modelsPath: '/models',
       defaultReasoningEffort: 'medium',
