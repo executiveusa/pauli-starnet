@@ -4138,10 +4138,12 @@ const connectorOauthAttempts = new Map();  // attemptId -> { id, controller }; c
 const CONNECTOR_OAUTH_LEG_MS = 15000;
 const CONNECTOR_OAUTH_FLOW_MS = 60000;
 // refresh an oauth connector's access token when it's near expiry; returns the freshest access token ('' if not authed).
-async function ensureConnectorOauthToken(id) {
+// `force` (the manager's 401 path) refreshes on the SERVER'S word regardless of the local expiry clock — a live 401
+// outranks needsRefresh, which only guesses from expires_in.
+async function ensureConnectorOauthToken(id, force) {
   const t = connectorOauth.byId[id];
   if (!t || !t.accessToken) return '';
-  if (mcpOauth.needsRefresh(t.expiresAt, Date.now()) && t.refreshToken && t.tokenEndpoint) {
+  if ((force === true || mcpOauth.needsRefresh(t.expiresAt, Date.now())) && t.refreshToken && t.tokenEndpoint) {
     try {
       const nt = await mcpOauth.refreshTokens({ fetchImpl: connectorOauthFetch, tokenEndpoint: t.tokenEndpoint, refreshToken: t.refreshToken,
         clientId: t.clientId, clientSecret: t.clientSecret, tokenEndpointAuthMethod: t.tokenEndpointAuthMethod,
@@ -4170,7 +4172,7 @@ async function configureConnectorCfg(cfg, options) {
     // reconnect / Reload — an oauth connector no longer dies ~1h in when the access token expires. We ALWAYS
     // register + connect (even when signed-out): a missing token yields an HONEST 401/error the panel shows and can
     // re-sign-in from, rather than the connector vanishing from /api/connectors.
-    return connectors.configure(cfg.id, Object.assign({}, cfg, { token: '', tokenProvider: () => ensureConnectorOauthToken(cfg.id) }), options);
+    return connectors.configure(cfg.id, Object.assign({}, cfg, { token: '', tokenProvider: (force) => ensureConnectorOauthToken(cfg.id, force === true) }), options);
   }
   return connectors.configure(cfg.id, cfg, options);
 }
