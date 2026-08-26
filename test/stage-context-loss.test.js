@@ -102,6 +102,19 @@ for (const evName of ['contextlost', 'contextrestored', 'wheel', 'mousedown', 'm
   A.ok(new RegExp("function wireStageInput\\(\\)[\\s\\S]*?addEventListener\\('" + evName + "'").test(w),
     "wireStageInput owns the '" + evName + "' listener (a rebuilt stage keeps full input)");
 }
+/* THE LEAK LOCK (2026-08-26): wireStageInput re-runs on EVERY stage rebuild. A cv-scoped
+   listener dies with the replaced node, but a document/window listener added here survives
+   the swap and stacks forever (proved: the probe re-arm pair leaked one pair per GPU reset).
+   Global listeners belong in init()'s listenersBound one-time block — this function may only
+   ever bind to cv. */
+{
+  const wire = /function wireStageInput\(\)\s*\{([\s\S]*?)\n  \}/.exec(w);
+  A.ok(wire, 'wireStageInput body extractable');
+  const binds = (wire ? wire[1] : '').match(/[\w$.]+\.addEventListener\(/g) || [];
+  const globalBinds = binds.filter(b => !/^cv\./.test(b));
+  A.ok(binds.length > 0 && globalBinds.length === 0,
+    'wireStageInput binds ONLY cv-scoped listeners — a document/window bind here leaks one copy per stage rebuild (rogue: ' + globalBinds.join(', ') + ')');
+}
 
 /* ---- 6. THE FAILURE STAYS REPRODUCIBLE ----
    No JS API loses a 2D context on demand; the hook reproduces its EFFECT (draws no-op, bitmap

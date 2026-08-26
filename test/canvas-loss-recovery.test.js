@@ -80,10 +80,28 @@ A.ok(/return \{[^}]*\binvalidate\b[^}]*\}/.test(terrSrc), 'Terrain exports inval
 A.ok(/function rebake\(\)\s*\{[\s\S]*?recordBakeProbe\(\);[\s\S]*?\n  \}/.test(worldSrc),
   'every rebake re-records the loss sentinel (a stale probe would point into the old plate)');
 A.ok(/function recordBakeProbe\(\)/.test(worldSrc), 'world.js defines recordBakeProbe');
-A.ok(/getImageData\([^)]*\)\.data\[3\] > 0/.test(worldSrc),
+A.ok(/readAlpha1\([^)]*\) > 0/.test(worldSrc),
   'the sentinel is chosen by ALPHA — the one property a zeroed backing store cannot fake');
-A.ok(/function bakeWentBlank\(\)[\s\S]{0,400}?\.data\[3\] === 0/.test(worldSrc),
+A.ok(/function bakeWentBlank\(\)[\s\S]{0,400}?readAlpha1\([^)]*\) === 0/.test(worldSrc),
   'bakeWentBlank reports loss when that opaque pixel has gone transparent');
+/* THE READBACK LAW (2026-08-26 lag escape, shipped in v0.10.10): getImageData on a canvas the
+   frame loop draws trips Chromium's readback heuristic and silently drops THAT canvas to
+   software rasterization — app-wide lag that builds over minutes and resets only on relaunch.
+   Both watchdogs must read their one pixel through the dedicated willReadFrequently probe
+   canvas (readAlpha1), never from the bake plate or the visible stage directly. */
+A.ok(/function readAlpha1\(/.test(worldSrc), 'world.js defines the readAlpha1 probe-canvas reader');
+A.ok(/getContext\('2d', \{ willReadFrequently: true \}\)/.test(worldSrc),
+  'the probe canvas opts into willReadFrequently — IT is the only canvas allowed to be read repeatedly');
+A.ok(/globalCompositeOperation = 'copy'/.test(worldSrc),
+  "the probe blits with 'copy' so a stale opaque probe pixel can never mask a fresh loss");
+{
+  // every getImageData must name one of the dedicated CPU-side contexts (sentinelCtx probe,
+  // pctx GL sample probe, _warpCtx LUT builder) — a bare/ctx./baseCv-derived read is the bug
+  const reads = worldSrc.match(/[\w$.]*getImageData\(/g) || [];
+  const rogue = reads.filter(r => !/^(sentinelCtx|pctx|_warpCtx)\.getImageData\($/.test(r));
+  A.ok(reads.length >= 1 && rogue.length === 0,
+    'every world.js getImageData reads a dedicated probe/offscreen context — NEVER the stage or the bake plate (rogue: ' + rogue.join(', ') + ')');
+}
 A.ok(/catch \(e\) \{ probeOff = true;/.test(worldSrc),
   'an unreadable (tainted) canvas disables the probe instead of throwing every second');
 A.ok(/if \(W < 2 \|\| H < 2\) return;/.test(worldSrc),
