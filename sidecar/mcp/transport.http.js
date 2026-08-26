@@ -154,9 +154,12 @@
           for (const m of parseSse(ev + '\n\n')) route(m);
         }
       };
+      // best-effort cancel: a cancel failure only means the already-answered (or already-dead) stream keeps
+      // draining until the server drops it; the failure is handed back as a value for any caller that cares.
+      const tryCancel = () => { try { return reader.cancel(); } catch (e) { return e; } };
       // the stream read gets the same ceiling as the fetch; on expiry the reader is cancelled and the caller
       // fails promptly below instead of hanging on the client's own timer.
-      const t = setTimeout(() => { try { reader.cancel(); } catch (e) {} }, timeoutMs);
+      const t = setTimeout(tryCancel, timeoutMs);
       if (t && typeof t.unref === 'function') t.unref();
       try {
         const dec = new TextDecoder();
@@ -166,7 +169,7 @@
           if (step.done) break;
           buf += dec.decode(step.value, { stream: true });
           drainComplete();
-          if (answered) { try { reader.cancel(); } catch (e) {} break; }   // reply routed — the rest is keepalive
+          if (answered) { tryCancel(); break; }                        // reply routed — the rest is keepalive
         }
         if (!answered && buf.trim()) { for (const m of parseSse(buf)) route(m); buf = ''; }   // unterminated final event
       } finally { clearTimeout(t); }

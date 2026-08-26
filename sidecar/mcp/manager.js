@@ -458,9 +458,7 @@
     }
     function markAuthRequired(c) {
       bumpEpoch(c);                                             // stale death callbacks from this connection are void
-      if (c.reconnectTimer != null) { try { clearTimeoutImpl(c.reconnectTimer); } catch (_) {} c.reconnectTimer = null; }
-      closeResources(c.client, c.transport, 'credential rejected');
-      c.client = null; c.transport = null;
+      teardown(c);                                              // clears the reconnect timer + closes client/transport
       c.tools = []; c.resources = []; c.prompts = [];
       c.authRequired = true;
       setState(c, 'error', authDetail(c));
@@ -538,9 +536,12 @@
       } catch (e) {
         if (AUTH_401.test((e && e.message) || '')) {
           if (!isRetry && typeof c.tokenProvider === 'function') {
-            try { await c.tokenProvider(true); } catch (_) {}          // force-refresh; a refresh failure just means the retry 401s honestly
-            await connect(c);
-            if (c.client && c.state === 'up') {
+            let refreshed = true;
+            // a failed forced refresh leaves the SAME rejected bearer — retrying with it is pointless, so a
+            // provider throw skips the retry and falls straight through to the honest reauth state.
+            try { await c.tokenProvider(true); } catch (e) { refreshed = false; }
+            if (refreshed) await connect(c);
+            if (refreshed && c.client && c.state === 'up') {
               // the fresh credential was ACCEPTED — this is not an auth outage. Retry once; a vanished tool is
               // its own honest error, not a reauth prompt.
               if (!(c.tools || []).some(t => t && t.name === toolName)) throw new Error('connector tool "' + toolName + '" is no longer published by the current server');
