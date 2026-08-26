@@ -1592,6 +1592,23 @@ const Chat = (() => {
   // ▶/◀ lines, deliverables, consent, turn-in) inserts ABOVE the pinned reply while one is live — so the work
   // log stacks above and the message the agent is actually saying stays at the bottom, never scrolled away.
   let renderingHistory = false;   // true only during renderHistory: mark rows .no-anim so a full replay doesn't fire up to 120 entrance animations at once
+  /* TRANSCRIPT DOM CAP (2026-08-26 lag fix). HISTORY_CAP bounds only the WIRE payload — the
+     rendered #chat-log grew unpruned all session, and every autoscroll() reads scrollHeight
+     (a forced layout of the whole transcript), so a long session got monotonically slower.
+     Past LOG_DOM_CAP rows the oldest DOM rows are shed; the turns themselves stay in
+     ws.history (already capped) and re-render on the next load(). Pruning only runs while
+     stick=true (Commander at the bottom): a reader scrolled up into old rows never has the
+     content shifted out from under them. The live presence card halts the sweep as a
+     belt-and-braces guard (it is always among the newest rows anyway). */
+  const LOG_DOM_CAP = 400;
+  function pruneLog() {
+    if (!log || !stick) return;
+    while (log.children.length > LOG_DOM_CAP) {
+      const n = log.firstElementChild;
+      if (!n || n.id === 'comms-presence' || (n.querySelector && n.querySelector('#comms-presence'))) break;
+      n.remove();
+    }
+  }
   function row(role, opts) {
     clearEmptyState();   // any real row supersedes the first-run hint
     const d = document.createElement('div'); d.className = 'cmsg ' + role + (renderingHistory ? ' no-anim' : '');
@@ -1626,6 +1643,7 @@ const Chat = (() => {
       d.appendChild(cp);
     }
     log.appendChild(d);   // CHRONOLOGICAL: every row lands at the bottom, in the order it happened (classic chat)
+    pruneLog();
     autoscroll();
     return { d, body };
   }
@@ -6023,6 +6041,21 @@ const Chat = (() => {
   // the transcript names the agent that actually produced the text; omitted everywhere else = the focused agent.
   function streamingAgent(whoName) {
     let seg = null, caret = null, raw = '';   // seg: the currently-open agent row; raw: its accumulated prose (so URLs can be linkified as they complete)
+    /* PER-FRAME RENDER COALESCING (2026-08-26 lag fix). Once a paragraph contains any markdown
+       marker or URL, renderProse re-parses and rebuilds the WHOLE accumulated paragraph — doing
+       that on every streamed token is O(n²) per answer and is a real "COMMS gets slower the
+       longer it streams" degradation. raw still accumulates per token (state stays truthful);
+       the DOM render + autoscroll fire at most once per animation frame. Everything that needs
+       the DOM current RIGHT NOW (closeSeg's empty-stub check, error, cleanTaskIntent, a hidden
+       tab where rAF never fires) goes through flushProse() synchronously. */
+    let renderQueued = false;
+    function flushProse() { renderQueued = false; if (seg) renderProse(seg.body, raw); }
+    function queueProse() {
+      if (renderQueued) return;
+      if (typeof requestAnimationFrame !== 'function' || (typeof document !== 'undefined' && document.hidden)) { flushProse(); autoscroll(); return; }
+      renderQueued = true;
+      requestAnimationFrame(() => { if (!renderQueued) return; flushProse(); autoscroll(); });
+    }
     function open() {
       endToolRail();   // a fresh prose paragraph opening below a rail closes it, so the next tool call starts a NEW rail under this prose (keeps chronological "said → did → said → did")
       seg = row('agent', { stamp: true, who: whoName || null }); raw = '';
@@ -6030,6 +6063,7 @@ const Chat = (() => {
       seg.d.appendChild(caret);   // caret is a sibling of .body, so re-rendering .body's content never disturbs it
     }
     function closeSeg() {   // drop the caret, discard an empty stub, and arm the next token to start fresh
+      if (renderQueued) flushProse();   // pending tokens must land before the empty-stub check reads textContent
       if (caret) { caret.remove(); caret = null; }
       if (seg && !seg.body.textContent.trim()) seg.d.remove();
       seg = null; raw = '';
@@ -6044,7 +6078,7 @@ const Chat = (() => {
       r.body.textContent = '[steering] ' + text;
       autoscroll();
     }
-    function plain(t) { if (!t) return; if (!seg) open(); raw += t; renderProse(seg.body, raw); autoscroll(); }
+    function plain(t) { if (!t) return; if (!seg) open(); raw += t; queueProse(); }
     return {
       append(t) {
         if (!t) return;
@@ -6057,14 +6091,14 @@ const Chat = (() => {
         }
       },
       breakSeg() { closeSeg(); },   // an inline action is about to render below — end this paragraph
-      cleanTaskIntent() { if (seg && typeof TaskIntent !== 'undefined' && TaskIntent.strip) { raw = TaskIntent.strip(raw); renderProse(seg.body, raw); } },
+      cleanTaskIntent() { if (seg && typeof TaskIntent !== 'undefined' && TaskIntent.strip) { raw = TaskIntent.strip(raw); flushProse(); } },
       done() { closeSeg(); },
       // m = the plain-language headline to LEAD with; rawDetail (optional) = the original technical text, kept
       // accessible as a dim sub-line + a title tooltip so debugging info isn't lost, just de-emphasized.
       error(m, rawDetail) {
         if (!seg) open();
         seg.d.classList.add('err');
-        raw += (raw ? '\n' : '') + '⚠ ' + m; renderProse(seg.body, raw);
+        raw += (raw ? '\n' : '') + '⚠ ' + m; flushProse();
         if (rawDetail && String(rawDetail).trim() && String(rawDetail).trim() !== String(m).trim()) {
           const sub = document.createElement('span'); sub.className = 'err-detail dim';
           sub.textContent = String(rawDetail).trim();
