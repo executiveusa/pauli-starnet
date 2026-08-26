@@ -270,5 +270,149 @@ const rpc = (id, result) => JSON.stringify({ jsonrpc: '2.0', id, result });
     A.eq(isLoopback('localhost.'), true, 'the FQDN root label does not change the classification');
   }
 
+  /* ---- (D) STREAMED SSE: the reply, not the stream close, completes a request ----
+     `await res.text()` was the Wix bug: a streamable-HTTP server delivers the JSON-RPC response event and
+     then HOLDS THE POST STREAM OPEN (keepalives/progress), so buffering to stream-close never resolved and
+     every request died on the client timeout ("mcp request timed out: tools/list"). */
+  function streamBody(chunks, opts) {
+    opts = opts || {};
+    let i = 0; const state = { cancelled: false };
+    const enc = new TextEncoder();
+    const body = {
+      getReader: () => ({
+        read: () => {
+          if (state.cancelled) return Promise.resolve({ done: true });
+          if (i < chunks.length) return Promise.resolve({ done: false, value: enc.encode(chunks[i++]) });
+          if (opts.hang) return new Promise(() => {});           // the held-open stream: never closes
+          return Promise.resolve({ done: true });
+        },
+        cancel: () => { state.cancelled = true; return Promise.resolve(); }
+      })
+    };
+    return { body, state };
+  }
+  function sseFetch(stream) {
+    return async () => ({
+      status: 200,
+      headers: { get: (k) => String(k).toLowerCase() === 'content-type' ? 'text/event-stream' : null },
+      body: stream.body,
+      text: async () => { throw new Error('streamed response must not be buffered'); }
+    });
+  }
+
+  // the response arrives, the stream stays open forever: send() must still resolve and route the reply.
+  {
+    const stream = streamBody(['data: ' + rpc(9, { tools: [{ name: 'wix_tool' }] }) + '\n\n'], { hang: true });
+    const tp = makeHttpTransport({ url: 'https://mcp.wix.example/mcp', fetchImpl: sseFetch(stream), timeoutMs: 5000 });
+    const got = []; tp.onMessage(m => got.push(m));
+    await tp.send({ jsonrpc: '2.0', id: 9, method: 'tools/list', params: {} });
+    A.eq(got.length, 1, 'held-open SSE stream: the reply is delivered without waiting for stream close');
+    A.eq(got[0].result.tools[0].name, 'wix_tool', 'the streamed reply routed intact');
+    A.eq(stream.state.cancelled, true, 'the remainder of the stream is cancelled once the reply arrived');
+  }
+
+  // an event split across chunk boundaries (mid-JSON) reassembles; notifications before the reply still route.
+  {
+    const notif = 'data: {"jsonrpc":"2.0","method":"notifications/progress"}\n\n';
+    const reply = 'data: ' + rpc(3, { ok: true }) + '\n\n';
+    const stream = streamBody([notif + reply.slice(0, 12), reply.slice(12)], { hang: true });
+    const tp = makeHttpTransport({ url: 'https://mcp.wix.example/mcp', fetchImpl: sseFetch(stream), timeoutMs: 5000 });
+    const got = []; tp.onMessage(m => got.push(m));
+    await tp.send({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: {} });
+    A.eq(got.length, 2, 'chunk-split SSE: both the notification and the reassembled reply routed');
+    A.eq(got[0].method, 'notifications/progress', 'interim notification delivered first');
+    A.eq(got[1].result.ok, true, 'the reply split mid-JSON across reads reassembled');
+  }
+
+  // a stream that ENDS without answering the request synthesizes a prompt JSON-RPC error (no hang, no silence).
+  {
+    const stream = streamBody(['data: {"jsonrpc":"2.0","method":"notifications/x"}\n\n']);
+    const tp = makeHttpTransport({ url: 'https://mcp.wix.example/mcp', fetchImpl: sseFetch(stream), timeoutMs: 5000 });
+    const got = []; tp.onMessage(m => got.push(m));
+    await tp.send({ jsonrpc: '2.0', id: 4, method: 'tools/list', params: {} });
+    const err = got.find(m => m.error);
+    A.ok(err && err.id === 4, 'a closed-without-reply stream fails the request id promptly');
+    A.ok(/without a reply/.test(err.error.message), 'the synthesized error says the stream ended without a reply');
+  }
+
+  /* ---- (E) AUTH TRUTH: a per-call HTTP 401 must reach status as "reauthentication required" ----
+     The Gmail report: an expired/rejected bearer kept the panel on 'up' with a full tool list while every
+     real call died with "connector HTTP 401". A 401 now earns ONE forced-fresh-token reconnect + retry;
+     a second 401 flips the connector to an honest reauth state (and never schedules backoff — retrying
+     cannot mint a credential). */
+  {
+    const timers = [];
+    function makeAuthMgr(spec) {
+      return makeConnectorManager({
+        makeTransport: ({ url }) => ({ url, send() {}, onMessage() {}, close() {} }),
+        makeClient: () => ({
+          initialize: async () => { if (spec.init401) throw new Error('connector HTTP 401'); return { serverInfo: {} }; },
+          listTools: async () => [{ name: 'read_mail', inputSchema: { type: 'object' } }],
+          callTool: async () => { if (spec.call401) throw new Error('connector HTTP 401 — invalid_token'); return { content: [{ type: 'text', text: 'ok' }] }; },
+          close() {}, isClosed: () => false
+        }),
+        setTimeoutImpl: (fn, ms) => { timers.push({ fn, ms }); return timers.length; },
+        clearTimeoutImpl: () => {},
+        onEvent: () => {}
+      });
+    }
+
+    // A. expired bearer, refresh works: 401 -> tokenProvider(true) -> reconnect -> retry succeeds; stays UP.
+    {
+      const spec = { call401: true };
+      const forced = [];
+      const mgr3 = makeAuthMgr(spec);
+      await mgr3.configure('gmail', { url: 'https://gmail.example/mcp', oauth: true,
+        tokenProvider: (force) => { forced.push(force === true); if (force) spec.call401 = false; return 'tok'; } });
+      const r = await mgr3.call('gmail', 'read_mail', {});
+      A.eq(r.content[0].text, 'ok', 'a 401 with a refreshable token recovers transparently (retry after forced refresh)');
+      A.ok(forced.indexOf(true) >= 0, 'the 401 path force-refreshed the bearer (server truth outranks the local clock)');
+      A.eq(mgr3.status('gmail').state, 'up', 'a recovered connector stays honestly up');
+      A.eq(mgr3.status('gmail').authRequired, false, 'no reauth flag after recovery');
+      await mgr3.close();
+    }
+
+    // B. dead credential: retry also 401s -> honest reauth state, tools cleared, NO reconnect scheduled.
+    {
+      timers.length = 0;
+      const mgr3 = makeAuthMgr({ call401: true });
+      await mgr3.configure('gmail', { url: 'https://gmail.example/mcp', oauth: true, tokenProvider: () => 'dead' });
+      let threw = null;
+      try { await mgr3.call('gmail', 'read_mail', {}); } catch (e) { threw = e; }
+      A.ok(threw && /needs reauthentication/.test(threw.message), 'the model-visible error says reauthentication, not unreachable');
+      const s = mgr3.status('gmail');
+      A.eq(s.state, 'error', 'a rejected credential flips status off up');
+      A.eq(s.authRequired, true, 'status carries the reauth flag');
+      A.ok(/reauthentication required/.test(s.detail), 'the detail says sign in again');
+      A.eq(s.toolCount, 0, 'a reauth-required connector projects no tools');
+      A.eq(timers.length, 0, 'no backoff is scheduled for a dead credential (retrying cannot mint one)');
+      await mgr3.close();
+    }
+
+    // C. connect-time 401 (signed-out / expired at handshake): honest reauth state, no reconnect hammering.
+    {
+      timers.length = 0;
+      const mgr3 = makeAuthMgr({ init401: true });
+      const r = await mgr3.configure('gmail', { url: 'https://gmail.example/mcp', oauth: true, tokenProvider: () => '' });
+      A.eq(r.state, 'error', 'a 401 handshake is an error, not a retry loop');
+      A.eq(mgr3.status('gmail').authRequired, true, 'a 401 handshake sets the reauth flag');
+      A.eq(timers.length, 0, 'no reconnect backoff burns attempts against a 401 handshake');
+      await mgr3.close();
+    }
+
+    // D. a static-token connector's 401 is the same truth with token wording (no tokenProvider to retry with).
+    {
+      const mgr3 = makeAuthMgr({ call401: true });
+      await mgr3.configure('hf', { url: 'https://hf.example/mcp', token: 'static' });
+      let threw = null;
+      try { await mgr3.call('hf', 'read_mail', {}); } catch (e) { threw = e; }
+      A.ok(threw && /needs reauthentication/.test(threw.message), 'a static-token 401 also reports auth, not unreachable');
+      const s = mgr3.status('hf');
+      A.eq(s.authRequired, true, 'static-token 401 sets the reauth flag');
+      A.ok(/update this connector/.test(s.detail), 'the detail points at the token, not sign-in');
+      await mgr3.close();
+    }
+  }
+
   A.report('mcp.transport.test');
 })();

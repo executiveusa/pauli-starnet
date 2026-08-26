@@ -120,10 +120,57 @@
         return failTo(id, 'connector HTTP ' + status + (detail ? ' — ' + detail : ''));
       }
       const ct = ((res.headers && res.headers.get && res.headers.get('content-type')) || '').toLowerCase();
+      if (/text\/event-stream/.test(ct)) return readSse(res, id);
       let body = ''; try { body = await res.text(); } catch (e) { return failTo(id, 'connector response read failed'); }
-      if (/text\/event-stream/.test(ct)) { for (const m of parseSse(body)) deliver(m); }
-      else if (!body.trim()) { /* empty body — a notification ack, nothing to route */ }
+      if (!body.trim()) { /* empty body — a notification ack, nothing to route */ }
       else { try { deliver(JSON.parse(body)); } catch (e) { failTo(id, 'connector returned a non-JSON body'); } }
+    }
+
+    /* SSE bodies are parsed INCREMENTALLY. This used to be `await res.text()` + parseSse, which only works
+       when the server closes the stream after replying. A streamable-HTTP server (Wix) delivers the JSON-RPC
+       response event and then HOLDS THE POST STREAM OPEN for keepalives/progress notifications — buffering to
+       stream-close therefore never resolves, and every request dies on the client's timeout even though the
+       reply arrived within milliseconds. The reply, not the stream close, is the unit of completion: deliver
+       each complete event as its chunk lands, and once THIS request's response has been routed, cancel the
+       rest of the stream. */
+    async function readSse(res, id) {
+      const reader = res.body && typeof res.body.getReader === 'function' ? res.body.getReader() : null;
+      if (!reader) {                     // no streamable body (test fakes / fetch shims) — buffered fallback
+        let body = ''; try { body = await res.text(); } catch (e) { return failTo(id, 'connector response read failed'); }
+        for (const m of parseSse(body)) deliver(m);
+        return;
+      }
+      let answered = false, buf = '';
+      const route = (m) => {
+        if (id != null && m && m.id != null && String(m.id) === String(id) && (('result' in m) || ('error' in m))) answered = true;
+        deliver(m);
+      };
+      const drainComplete = () => {       // deliver every COMPLETE (blank-line-terminated) event in the buffer
+        for (;;) {
+          const b = buf.match(/\r?\n\r?\n/);
+          if (!b) return;
+          const ev = buf.slice(0, b.index);
+          buf = buf.slice(b.index + b[0].length);
+          for (const m of parseSse(ev + '\n\n')) route(m);
+        }
+      };
+      // the stream read gets the same ceiling as the fetch; on expiry the reader is cancelled and the caller
+      // fails promptly below instead of hanging on the client's own timer.
+      const t = setTimeout(() => { try { reader.cancel(); } catch (e) {} }, timeoutMs);
+      if (t && typeof t.unref === 'function') t.unref();
+      try {
+        const dec = new TextDecoder();
+        for (;;) {
+          let step;
+          try { step = await reader.read(); } catch (e) { break; }     // cancelled / network drop -> treat as end
+          if (step.done) break;
+          buf += dec.decode(step.value, { stream: true });
+          drainComplete();
+          if (answered) { try { reader.cancel(); } catch (e) {} break; }   // reply routed — the rest is keepalive
+        }
+        if (!answered && buf.trim()) { for (const m of parseSse(buf)) route(m); buf = ''; }   // unterminated final event
+      } finally { clearTimeout(t); }
+      if (id != null && !answered) failTo(id, 'connector response stream ended without a reply');
     }
 
     function onMessage(cb) { onMsg = cb; }

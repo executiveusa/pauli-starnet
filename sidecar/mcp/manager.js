@@ -302,6 +302,8 @@
         c.lastUsedAt = c.startedAt;
         cacheRecord(c);
         c.reconnectAttempt = 0;                                 // a clean connect resets the backoff ladder
+        c.authRequired = false;                                 // the server accepted this credential — auth truth restored
+        c._callFails = 0;
         setState(c, 'up');
         return { ok: true, state: 'up', toolCount: tools.length, resourceCount: resources.length, promptCount: prompts.length };
       } catch (e) {
@@ -309,8 +311,16 @@
         if (!isCurrent()) return { ok: false, state: 'down', toolCount: 0, superseded: true };
         if (c.connecting === attempt) c.connecting = null;
         c.tools = []; c.resources = []; c.prompts = [];
-        setState(c, 'error', (e && e.message) || String(e));
-        scheduleReconnect(c);                                   // a failed (re)connect backs off and retries (bounded)
+        if (AUTH_401.test((e && e.message) || '')) {
+          // THE SERVER IS THE AUTHORITY ON AUTH: a 401 handshake means this credential is dead, and backoff
+          // cannot mint a new one — reconnect-hammering a 401 just burns the attempt cap (the reported Wix/Gmail
+          // failure mode). Honest terminal state; sign-in / a token edit reconfigures and recovers.
+          c.authRequired = true;
+          setState(c, 'error', authDetail(c));
+        } else {
+          setState(c, 'error', (e && e.message) || String(e));
+          scheduleReconnect(c);                                 // a failed (re)connect backs off and retries (bounded)
+        }
         return { ok: false, state: 'error', toolCount: 0, error: c.detail };
       }
     }
@@ -395,6 +405,7 @@
         detail: issue || c.detail,
         hasToken: !!(c.token || c.tokenProvider),
         oauth: !!c.tokenProvider,                        // the panel renders oauth connectors distinctly (re-auth via sign-in, not an http edit)
+        authRequired: !issue && !!c.authRequired,        // the server rejected the credential (HTTP 401) — render "sign in again", not "down"
         timeoutMs: c.timeoutMs || timeoutMs,
         toolCount: issue ? 0 : (c.tools || []).length,
         // Surfaced so the connector panel can say what a server ACTUALLY offers. A server with 0 tools and 40
@@ -433,6 +444,29 @@
     // JSON-RPC errors, not transport death, so a vanished HTTP endpoint would otherwise stay 'up' forever). stdio
     // gets death detection from the child-exit hook, so this net is only meaningful for http; 0 disables it.
     const CALL_FAIL_LIMIT = Math.max(0, deps.callFailLimit == null ? 3 : Number(deps.callFailLimit));
+
+    /* AUTH TRUTH (2026-08-26). A per-call HTTP 401 used to be an ordinary failure: invisible to status until
+       CALL_FAIL_LIMIT consecutive misses, and even then labelled "connector unreachable" — so an expired Gmail
+       bearer kept the panel on 'up' with a full tool list while every real call died. The 401 shape is the ONE
+       transport-authored error the client preserves verbatim (safeRpcError), so it is matchable here, and it
+       means exactly one thing: the server rejected the credential. That truth outranks the local expiry clock. */
+    const AUTH_401 = /^connector HTTP 401\b/;
+    function authDetail(c) {
+      return c.tokenProvider
+        ? 'reauthentication required — the server rejected this connector\'s sign-in (HTTP 401); sign in again'
+        : 'authentication rejected (HTTP 401) — update this connector\'s token';
+    }
+    function markAuthRequired(c) {
+      bumpEpoch(c);                                             // stale death callbacks from this connection are void
+      if (c.reconnectTimer != null) { try { clearTimeoutImpl(c.reconnectTimer); } catch (_) {} c.reconnectTimer = null; }
+      closeResources(c.client, c.transport, 'credential rejected');
+      c.client = null; c.transport = null;
+      c.tools = []; c.resources = []; c.prompts = [];
+      c.authRequired = true;
+      setState(c, 'error', authDetail(c));
+      // deliberately NO scheduleReconnect: backoff cannot mint a credential. Sign-in (reconfigure) or a manual
+      // Reload with a fixed token recovers — connect() clears authRequired on the next accepted handshake.
+    }
     function lifecycleExpired(c) {
       if (!c || c.transportKind !== 'stdio' || !c.client) return false;
       const now = clock.now();
@@ -488,16 +522,40 @@
       if (!c.client || c.state !== 'up') throw notConnected(id, toolName, ctx);
       if (!(c.tools || []).some(t => t && t.name === toolName)) throw new Error('connector tool "' + toolName + '" is no longer published by the current server');
       c.lastUsedAt = clock.now();
-      const p = c.client.callTool(toolName, args || {});
-      if (c.transportKind !== 'http' || CALL_FAIL_LIMIT <= 0) return p;
-      return p.then(
-        (r) => { c._callFails = 0; return r; },
-        (e) => {
+      if (c.transportKind !== 'http') return c.client.callTool(toolName, args || {});
+      return httpCall(c, toolName, args, false);
+    }
+
+    /* The http call path with auth truth. A 401 gets ONE forced-fresh-token reconnect + retry (the bearer may
+       simply have expired mid-session — tokenProvider(true) refreshes on the server's word, not the local
+       clock); a second 401 is a dead credential and flips the connector to the honest reauth state instead of
+       counting toward "unreachable". Non-401 failures keep the consecutive-failure net unchanged. */
+    async function httpCall(c, toolName, args, isRetry) {
+      try {
+        const r = await c.client.callTool(toolName, args || {});
+        c._callFails = 0;
+        return r;
+      } catch (e) {
+        if (AUTH_401.test((e && e.message) || '')) {
+          if (!isRetry && typeof c.tokenProvider === 'function') {
+            try { await c.tokenProvider(true); } catch (_) {}          // force-refresh; a refresh failure just means the retry 401s honestly
+            await connect(c);
+            if (c.client && c.state === 'up') {
+              // the fresh credential was ACCEPTED — this is not an auth outage. Retry once; a vanished tool is
+              // its own honest error, not a reauth prompt.
+              if (!(c.tools || []).some(t => t && t.name === toolName)) throw new Error('connector tool "' + toolName + '" is no longer published by the current server');
+              return httpCall(c, toolName, args, true);
+            }
+          }
+          markAuthRequired(c);
+          throw new Error('connector "' + c.id + '" needs reauthentication — the server rejected its credential (HTTP 401); sign in to it again');
+        }
+        if (CALL_FAIL_LIMIT > 0) {
           c._callFails = (c._callFails || 0) + 1;
           if (c._callFails >= CALL_FAIL_LIMIT && c.state === 'up') { onTransportDeath(c, c._epoch, 'connector unreachable (' + c._callFails + ' consecutive call failures)'); }
-          throw e;
         }
-      );
+        throw e;
+      }
     }
 
     // READ-ONLY tool lookup for the host's typed connector read-back (task-postconditions): the raw published
