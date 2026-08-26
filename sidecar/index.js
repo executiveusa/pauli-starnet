@@ -851,7 +851,8 @@ const budget = makeBudget({ caps: { agent: BUDGET_CAPS.perAgent, day: BUDGET_CAP
 // Inert unless STARNET_CLOUD_URL is set. The link flow writes the file; the credits adapter is (re)built from it.
 const creditsLink = makeCreditsLink({
   cloudUrl: CLOUD_URL, fetch: globalThis.fetch, fsp, fs, pathMod: path,
-  dir: path.join(WORKSPACES, '.secrets'), now: () => Date.now(), envToken: CREDITS_TOKEN
+  dir: path.join(WORKSPACES, '.secrets'), now: () => Date.now(), envToken: CREDITS_TOKEN,
+  note: failNote   // best-effort seams (tombstone IO, cloud-side revoke) fail counted, never silently
 });
 // Resolve the credits adapter config. PRECEDENCE (additive, never breaks an env deploy): env CREDITS_* wins
 // (operator override / backward compat); else a linked device from .secrets/credits.json (deviceToken = bearer);
@@ -890,6 +891,19 @@ function rebuildCredits() {
   credits = buildCredits(resolveCreditsConfig());
   if (credits.configured()) return credits.refresh().catch(swallow('credits.refresh', null));
   return Promise.resolve(null);
+}
+/* BOOT LINK SELF-HEAL (2026-08-25 stranded-user incident): a reinstall keeps the device token in the OS
+   keychain (injected back as CREDITS_TOKEN) but deletes .secrets/credits.json — an authorized, paid-up
+   station that LOOKS unlinked. healFromEnv() rebuilds the record after the cloud confirms the token is
+   still its own (/v1/whoami; every refusal path — tombstone, revoked token, live link — heals nothing).
+   Skipped under an env CREDITS_* override, which outranks device linking everywhere else too. Post-boot
+   and fail-open: an unreachable cloud just leaves the station honestly unlinked, as before. */
+if (!CREDITS_URL && !credits.configured()) {
+  setImmediate(() => creditsLink.healFromEnv().then(r => {
+    if (r && r.healed) { console.log('  · credits link self-healed from keychain token (account ' + r.accountId + ')'); return rebuildCredits(); }
+    if (r && r.reason && r.reason !== 'no_env_token' && r.reason !== 'not_configured') console.log('  · credits link self-heal declined: ' + r.reason);
+    return null;
+  }).catch(swallow('credits.link.selfheal', null)));
 }
 
 /* ---- P0-2 budget-caps persistence (SETTINGS → Budget). The four USD caps were env-only; now they persist in a

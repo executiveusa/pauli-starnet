@@ -61,7 +61,14 @@
     const P = deps.pathMod;
     const DIR = deps.dir;
     const now = deps.now || (() => 0);   // host (index.js) injects the wall clock; default is inert (determinism law)
+    // fail-open noter (failopen.js note): best-effort failures are allowed to fail but must be COUNTED.
+    const note = (typeof deps.note === 'function') ? deps.note : function () {};
     const file = (P && DIR) ? P.join(DIR, 'credits.json') : '';
+    // Unlink tombstone: written by clearSaved(), removed by persist() (a fresh link). It is what stops the
+    // boot self-heal from resurrecting a link the Commander deliberately severed — the OS keychain can still
+    // hold the old token after an unlink (the shell's clear is a separate call that can fail), and a heal
+    // that trusts the keychain alone would quietly re-link the station against their explicit choice.
+    const tombstone = (P && DIR) ? P.join(DIR, 'credits.unlinked.json') : '';
     const requestTimeoutMs = (typeof deps.requestTimeoutMs === 'number' && isFinite(deps.requestTimeoutMs) && deps.requestTimeoutMs > 0)
       ? Math.floor(deps.requestTimeoutMs) : 8000;
 
@@ -149,6 +156,8 @@
       await fsp.writeFile(tmp, JSON.stringify(rec), { encoding: 'utf8', mode: 0o600 });
       await fsp.rename(tmp, file);
       try { await fsp.chmod(file, 0o600); } catch (_) {}   // best-effort tighten (no-op on Windows)
+      // a fresh link overrides an earlier unlink; a missing tombstone is the normal case, not a failure
+      if (tombstone) { try { await fsp.unlink(tombstone); } catch (e) { if (!e || e.code !== 'ENOENT') note('credits.link.tombstone.remove', e); } }
       return rec;
     }
 
@@ -201,15 +210,70 @@
     // because only the shell can reach the OS credential store — so the UI must call BOTH. Marking `unlinked`
     // here means the running sidecar stops honouring the injected token immediately either way.
     async function clearSaved() {
+      // Capture the live token BEFORE forgetting it: unlink must also kill the credential CLOUD-side
+      // (POST /v1/link/revoke), or any stale copy — the keychain after a failed shell clear, a backup —
+      // keeps spending forever. Best-effort by contract: an offline unlink still unlinks locally.
+      const dying = str((loadSavedSync() || {}).deviceToken || sessionToken || envToken).trim();
       unlinked = true; sessionToken = '';   // an unlink forgets the live token too — nothing may outlive the user's choice
+      if (dying && configured() && doFetch) {
+        try {
+          const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+          const timer = ctl ? setTimeout(() => ctl.abort(), requestTimeoutMs) : null;
+          try {
+            await doFetch(cloudUrl + '/v1/link/revoke', {
+              method: 'POST', headers: { 'Authorization': 'Bearer ' + dying }, signal: ctl ? ctl.signal : undefined
+            });
+          } finally { if (timer) clearTimeout(timer); }
+        } catch (e) { note('credits.link.remote-revoke', e); }   // best-effort — the local unlink below is the guaranteed half
+      }
       if (!file) return { ok: true, removed: false };
+      // Tombstone FIRST (durable "the Commander unlinked" marker for the boot self-heal), then the record.
+      if (tombstone) { try { await fsp.writeFile(tombstone, JSON.stringify({ unlinkedAt: now() }), { encoding: 'utf8', mode: 0o600 }); } catch (e) { note('credits.link.tombstone.write', e); } }
       try { await fsp.unlink(file); return { ok: true, removed: true }; }
       catch (e) { if (e && e.code === 'ENOENT') return { ok: true, removed: false }; return { ok: false, error: (e && e.message) || String(e) }; }
     }
 
+    /* BOOT SELF-HEAL (2026-08-25 stranded-user incident). A reinstall (or workspace reset) deletes
+       credits.json but the device token survives in the OS keychain and is injected back as envToken —
+       leaving a station that IS authorized but LOOKS unlinked: empty model catalog, refused runs, and a
+       Commander with paid credit staring at "not linked". Rebuild the record from the one surviving half:
+       ask the cloud /v1/whoami who this token belongs to, and persist the answer.
+
+       Refuses unless EVERY guard passes — this must never resurrect a severed link:
+         · configured() (a cloud URL exists) and an envToken to try;
+         · no saved record (a live link needs no heal) and no in-process unlink;
+         · no unlink tombstone on disk (the Commander's explicit choice outranks the keychain);
+         · the cloud ACCEPTS the token (a revoked/unknown token 401s and heals nothing).
+       Best-effort by contract: any failure returns { healed:false, reason } and the station simply stays
+       honestly unlinked, exactly as before this existed. */
+    async function healFromEnv() {
+      if (!configured() || !doFetch) return { healed: false, reason: 'not_configured' };
+      if (!envToken) return { healed: false, reason: 'no_env_token' };
+      if (unlinked) return { healed: false, reason: 'unlinked_this_session' };
+      if (loadSavedSync()) return { healed: false, reason: 'already_linked' };
+      if (tombstone && fs && fs.existsSync(tombstone)) return { healed: false, reason: 'unlink_tombstone' };
+      let r;
+      const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+      const timer = ctl ? setTimeout(() => ctl.abort(), requestTimeoutMs) : null;
+      try {
+        r = await doFetch(cloudUrl + '/v1/whoami', { headers: { 'Authorization': 'Bearer ' + envToken, 'Accept': 'application/json' }, signal: ctl ? ctl.signal : undefined });
+      } catch (e) {
+        return { healed: false, reason: 'unreachable', error: (e && e.message) || String(e) };
+      } finally { if (timer) clearTimeout(timer); }
+      if (!r || !r.ok) return { healed: false, reason: r && r.status === 401 ? 'token_revoked' : ('whoami http ' + (r && r.status)) };
+      let j = {};
+      try { j = (await r.json()) || {}; } catch (_) { j = {}; }
+      const accountId = str(j.accountId).trim();
+      if (!accountId) return { healed: false, reason: 'no_account_in_reply' };
+      const rec = { url: cloudUrl, deviceToken: envToken, accountId, linkedAt: now() };
+      try { await persist(rec); } catch (e) { return { healed: false, reason: 'persist_failed', error: (e && e.message) || String(e) }; }
+      unlinked = false;
+      return { healed: true, accountId };
+    }
+
     return {
-      configured, cloudUrl: () => cloudUrl, start, poll, persist, loadSavedSync, hasSaved, tokenAtRest, clearSaved,
-      _internals: { file, pending }
+      configured, cloudUrl: () => cloudUrl, start, poll, persist, loadSavedSync, hasSaved, tokenAtRest, clearSaved, healFromEnv,
+      _internals: { file, tombstone, pending }
     };
   }
 

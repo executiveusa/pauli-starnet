@@ -265,6 +265,109 @@ function fakeCloud(opts) {
     A.eq(link.hasSaved(), true, 'a fresh link clears the unlink latch');
   }
 
+  // ---- BOOT SELF-HEAL (2026-08-25 stranded-user incident): a reinstall deletes credits.json but the
+  //      keychain token survives and is injected back as envToken. healFromEnv() rebuilds the record ONLY
+  //      after the cloud vouches for the token (/v1/whoami) — and refuses on every guard: an existing link,
+  //      a same-session unlink, an unlink tombstone on disk, a revoked token, an unreachable cloud. ----
+  {
+    const mkWhoamiFetch = (opts) => {
+      opts = opts || {};
+      const calls = [];
+      const fn = (url, init) => {
+        calls.push({ url: String(url), init });
+        if (String(url).indexOf('/v1/whoami') >= 0) {
+          if (opts.revoked) return Promise.resolve({ ok: false, status: 401, json: () => Promise.resolve({ error: { message: 'unauthorized' } }) });
+          if (opts.unreachable) return Promise.reject(new Error('ECONNREFUSED'));
+          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ ok: true, accountId: 'acct_healed' }) });
+        }
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
+      };
+      fn.calls = calls;
+      return fn;
+    };
+
+    // happy path: keychain token + empty dir -> whoami -> record rebuilt, station linked again, zero clicks
+    {
+      const hDir = path.join(tmp, 'heal');
+      const f = mkWhoamiFetch();
+      const link = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: f, fsp, fs, pathMod: path, dir: hDir, now: () => 9000, envToken: 'snd_keychain_survivor' });
+      A.eq(link.hasSaved(), false, 'reinstall state: token in keychain, no link record');
+      const r = await link.healFromEnv();
+      A.eq(r.healed, true, 'the link self-heals from the surviving keychain token');
+      A.eq(r.accountId, 'acct_healed', 'the account comes from the cloud, never guessed');
+      A.eq(link.hasSaved(), true, 'the rebuilt record persists — the station is linked again');
+      A.eq(link.loadSavedSync().accountId, 'acct_healed', 'the record carries the whoami account');
+      const who = f.calls.find(c => c.url.indexOf('/v1/whoami') >= 0);
+      A.eq(who.init.headers.Authorization, 'Bearer snd_keychain_survivor', 'the heal authenticates with the injected token');
+      // idempotent: a linked station heals nothing
+      A.eq((await link.healFromEnv()).reason, 'already_linked', 'a live link refuses the heal (nothing to do)');
+    }
+
+    // a REVOKED token heals nothing — the cloud's 401 is the gate that stops resurrecting a dead link
+    {
+      const rDir = path.join(tmp, 'heal-revoked');
+      const link = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: mkWhoamiFetch({ revoked: true }), fsp, fs, pathMod: path, dir: rDir, now: () => 9100, envToken: 'snd_dead_token' });
+      const r = await link.healFromEnv();
+      A.eq(r.healed, false, 'a revoked token cannot seed a heal');
+      A.eq(r.reason, 'token_revoked', 'and the refusal says why');
+      A.eq(link.hasSaved(), false, 'nothing persisted');
+    }
+
+    // an UNREACHABLE cloud degrades to the pre-heal behavior: honestly unlinked, no record invented
+    {
+      const uDir = path.join(tmp, 'heal-offline');
+      const link = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: mkWhoamiFetch({ unreachable: true }), fsp, fs, pathMod: path, dir: uDir, now: () => 9200, envToken: 'snd_tok' });
+      const r = await link.healFromEnv();
+      A.eq(r.healed, false, 'offline cloud: no heal');
+      A.eq(r.reason, 'unreachable', 'named honestly');
+      A.eq(link.hasSaved(), false, 'no record invented while blind');
+    }
+
+    // the UNLINK TOMBSTONE outranks the keychain: clearSaved writes it, healFromEnv refuses on it,
+    // and a FRESH process (new spawn, token still injected from a failed keychain clear) refuses too.
+    {
+      const tDir = path.join(tmp, 'heal-tomb'); const tFile = path.join(tDir, 'credits.json');
+      fs.mkdirSync(tDir, { recursive: true });
+      fs.writeFileSync(tFile, JSON.stringify({ url: 'https://cloud.example', accountId: 'acct_t', linkedAt: 1 }));
+      const f = mkWhoamiFetch();
+      const link = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: f, fsp, fs, pathMod: path, dir: tDir, now: () => 9300, envToken: 'snd_injected' });
+      await link.clearSaved();
+      A.eq((await link.healFromEnv()).reason, 'unlinked_this_session', 'same session: the unlink latch refuses first');
+      const fresh = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: mkWhoamiFetch(), fsp, fs, pathMod: path, dir: tDir, now: () => 9400, envToken: 'snd_injected' });
+      const r = await fresh.healFromEnv();
+      A.eq(r.healed, false, 'a fresh process after an unlink does NOT resurrect the link from the keychain');
+      A.eq(r.reason, 'unlink_tombstone', 'the Commander\'s unlink outranks the surviving keychain token');
+      // a REAL relink clears the tombstone, so healing works again after future reinstalls
+      const cloud2 = fakeCloud({ code: 'STAR-HE01', deviceToken: 'snd_new', accountId: 'acct_new' });
+      const relink = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: cloud2.fetch, fsp, fs, pathMod: path, dir: tDir, now: () => 9500 });
+      await relink.start('Station'); cloud2.confirm();
+      A.eq((await relink.poll('STAR-HE01')).status, 'confirmed', 'relink confirms');
+      A.eq(fs.existsSync(path.join(tDir, 'credits.unlinked.json')), false, 'a fresh link removes the tombstone');
+    }
+
+    // UNLINK now also kills the token CLOUD-side (best-effort): the dying bearer rides to /v1/link/revoke
+    {
+      const vDir = path.join(tmp, 'unlink-revoke'); const vFile = path.join(vDir, 'credits.json');
+      fs.mkdirSync(vDir, { recursive: true });
+      fs.writeFileSync(vFile, JSON.stringify({ url: 'https://cloud.example', deviceToken: 'snd_dying', accountId: 'acct_v', linkedAt: 2 }));
+      const f = mkWhoamiFetch();
+      const link = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: f, fsp, fs, pathMod: path, dir: vDir, now: () => 9600 });
+      await link.clearSaved();
+      const rev = f.calls.find(c => c.url.indexOf('/v1/link/revoke') >= 0);
+      A.ok(rev, 'unlink fires the cloud-side revoke');
+      A.eq(rev.init.headers.Authorization, 'Bearer snd_dying', 'with the dying token as bearer');
+      A.eq(link.hasSaved(), false, 'and the local unlink still completes');
+      // offline unlink still unlinks locally (revoke is best-effort by contract)
+      const wDir = path.join(tmp, 'unlink-offline'); const wFile = path.join(wDir, 'credits.json');
+      fs.mkdirSync(wDir, { recursive: true });
+      fs.writeFileSync(wFile, JSON.stringify({ url: 'https://cloud.example', deviceToken: 'snd_x', accountId: 'acct_w', linkedAt: 3 }));
+      const offline = makeCreditsLink({ cloudUrl: 'https://cloud.example', fetch: () => Promise.reject(new Error('offline')), fsp, fs, pathMod: path, dir: wDir, now: () => 9700 });
+      const u = await offline.clearSaved();
+      A.eq(u.ok, true, 'an offline unlink still succeeds locally');
+      A.eq(offline.hasSaved(), false, 'and the station is unlinked');
+    }
+  }
+
   await flush();
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) {}
   A.report('credits-link.test');
