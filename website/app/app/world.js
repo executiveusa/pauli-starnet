@@ -683,20 +683,37 @@ const World = (() => {
     const pts = [[0.5, 0.5], [0.5, 0.32], [0.5, 0.68], [0.3, 0.5], [0.7, 0.5],
                  [0.3, 0.3], [0.7, 0.3], [0.3, 0.7], [0.7, 0.7]];
     try {
-      const g = c.getContext('2d');
       for (const [fx, fy] of pts) {
         const x = Math.min(W - 1, Math.max(0, Math.round(W * fx)));
         const y = Math.min(H - 1, Math.max(0, Math.round(H * fy)));
-        if (g.getImageData(x, y, 1, 1).data[3] > 0) { bakeProbe = { x, y }; return; }
+        if (readAlpha1(c, x, y) > 0) { bakeProbe = { x, y }; return; }   // via the probe canvas — see THE READBACK LAW below
       }
     } catch (e) { probeOff = true; }
+  }
+
+  /* THE READBACK LAW (2026-08-26, lag escape shipped in v0.10.10): NEVER getImageData a canvas
+     the frame loop draws — Chromium counts readbacks per canvas and after enough of them silently
+     drops that canvas to software rasterization, which is a whole-app lag that builds over minutes
+     and resets only on relaunch. Both watchdogs instead blit the ONE pixel they care about into
+     this dedicated 1×1 probe canvas (created willReadFrequently, so IT is allowed to be CPU) and
+     read THAT. Loss detection is unchanged: a zeroed/dead source blits transparent, and 'copy'
+     compositing means a stale opaque probe pixel can never mask a fresh loss. */
+  let sentinelCv = null, sentinelCtx = null;
+  function readAlpha1(src, x, y) {   // alpha 0-255 of src's (x,y); throws propagate to the caller's existing taint/loss handling
+    if (!sentinelCtx) {
+      sentinelCv = document.createElement('canvas'); sentinelCv.width = 1; sentinelCv.height = 1;
+      sentinelCtx = sentinelCv.getContext('2d', { willReadFrequently: true });
+    }
+    sentinelCtx.globalCompositeOperation = 'copy';
+    sentinelCtx.drawImage(src, x, y, 1, 1, 0, 0, 1, 1);
+    return sentinelCtx.getImageData(0, 0, 1, 1).data[3];
   }
 
   // has the bake's backing store been zeroed under us? (opaque -> transparent is the tell)
   function bakeWentBlank() {
     if (!bakeProbe || probeOff || !cache || !cache.baseCv) return false;
     try {
-      return cache.baseCv.getContext('2d').getImageData(bakeProbe.x, bakeProbe.y, 1, 1).data[3] === 0;
+      return readAlpha1(cache.baseCv, bakeProbe.x, bakeProbe.y) === 0;
     } catch (e) { probeOff = true; return false; }
   }
 
@@ -772,7 +789,7 @@ const World = (() => {
   function stageWentBlank() {
     if (stageProbeOff || !cv || !ctx || cv.width < 2 || cv.height < 2) return false;
     try {
-      const a = ctx.getImageData(0, 0, 1, 1).data[3];
+      const a = readAlpha1(cv, 0, 0);   // via the probe canvas — reading the VISIBLE stage directly de-accelerates it (THE READBACK LAW)
       if (a > 0) { stageProbeArmed = true; return false; }
       return stageProbeArmed;   // transparent before the first proven paint is a fresh canvas, not a loss
     } catch (e) {
@@ -1161,6 +1178,15 @@ const World = (() => {
     wireStageInput();
     // you just came back to the tab → for a few seconds the agent is likelier to look up and notice you
     try { document.addEventListener('visibilitychange', () => { if (!document.hidden) userReturnUntil = performance.now() + 3000; }); } catch (e) {}
+    /* A GPU reset usually lands while the app is in the BACKGROUND (the machine slept, the
+       display changed, the user switched away), so the first frame back is exactly when the
+       damage is visible. Re-arm the sentinel to fire on that frame instead of up to a second
+       into it — cheap, since it only clears a throttle. Lives HERE (the listenersBound one-time
+       block), NOT in wireStageInput(): that function re-runs on every stage rebuild, and these
+       two target document/window — the only listeners in it that would survive the old canvas
+       and stack forever (every other handler is cv-scoped and dies with the replaced node). */
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) lastProbeAt = 0; });
+    window.addEventListener('focus', () => { lastProbeAt = 0; });
     connectChannelBridge();   // open the SSE bridge so real inbound work animates as boxes on the belts
     pollFeedState();          // feed truth (channels/cron) for the NO FEED intake nag — server-proven, refreshed slowly
     pollShipStats();          // SHIPPED TODAY truth (completed runs since local midnight) — reload-proof
@@ -1190,13 +1216,6 @@ const World = (() => {
         redrawNow();
       }, false);
     } catch (e) {}
-
-    /* A GPU reset usually lands while the app is in the BACKGROUND (the machine slept, the
-       display changed, the user switched away), so the first frame back is exactly when the
-       damage is visible. Re-arm the sentinel to fire on that frame instead of up to a second
-       into it — cheap, since it only clears a throttle. */
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) lastProbeAt = 0; });
-    window.addEventListener('focus', () => { lastProbeAt = 0; });
 
     cv.addEventListener('wheel', ev => {
       ev.preventDefault();
