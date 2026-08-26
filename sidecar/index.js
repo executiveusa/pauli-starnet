@@ -183,6 +183,7 @@ const connectorCatalog = require('./mcp/catalog.js');       // curated one-click
 const serviceKeysMod = require('./servicekeys.js');         // KEYS tab: custom service API keys (pure core — env injection + masked list)
 const serviceKeysCatalog = require('./servicekeys-catalog.js');   // KEYS tab: the curated PLATFORM directory (pure data)
 const mcpOauth = require('./mcp/oauth.js');                 // generic OAuth 2.1 client for MCP connectors (discover/DCR/PKCE/refresh)
+const { sameEndpoint, resolveConnectorOauthTarget } = require('./mcp/oauth-target.js');
 const connectorStateMod = require('./connectorstate.js');   // one transactional envelope for connector config + OAuth secrets
 const cron = require('./cron.js');                         // pure schedule math (parse/nextFire/planTick)
 const cronStore = require('./cron-store.js');              // pure CronJob lifecycle reducer
@@ -4105,12 +4106,26 @@ if (require.main === module) {
   try { connectorLifecycleTimer.unref(); } catch (_) {}
 }
 
-/* ---- MCP connector OAuth (turns the catalog's gated `oauth` tier live): the generic RFC 9728 / 8414 / 7591 +
+/* ---- MCP connector OAuth (catalog + saved custom HTTPS connectors): the generic RFC 9728 / 8414 / 7591 +
    PKCE flow lives in mcp/oauth.js; index.js (the only ambient-I/O module) orchestrates it. Access + refresh
    tokens and dynamically-registered client credentials live in a PROTECTED sibling file, never on the bus, never
    returned by /api/connectors. The access token lives ONLY here — an oauth connector's persisted config carries
    `oauth:true` but no token, so a stale/expired token is never persisted or reused. ---- */
 const CONNECTOR_OAUTH_REDIRECT = 'http://127.0.0.1:' + PORT + '/api/connectors/oauth/callback';
+// Custom connector discovery opens OAuth metadata URLs supplied by an untrusted server. Apply the same public-host
+// + DNS-resolution boundary as web.fetch to EVERY OAuth leg (probe, metadata, DCR, token exchange, refresh). The
+// OAuth module separately requires HTTPS and disables redirects; this wrapper closes the hostname->private-IP gap.
+async function connectorOauthPublicUrl(raw) {
+  const u = skillWebInternals.assertSafeUrl(raw);
+  if (u.protocol !== 'https:') throw new Error('connector OAuth endpoints must use https');
+  if (u.username || u.password) throw new Error('connector OAuth endpoints cannot contain embedded credentials');
+  await skillWebInternals.assertResolvedSafe(u, host => dns.promises.lookup(host, { all: true }));
+  return u;
+}
+async function connectorOauthFetch(raw, options) {
+  const u = await connectorOauthPublicUrl(raw);
+  return globalThis.fetch(u.href, Object.assign({}, options || {}, { redirect: 'manual' }));
+}
 // drop the cached dynamically-registered client for an authorization server (when the AS reports it invalid), so the
 // next sign-in RE-REGISTERS a fresh one instead of wedging forever on a pruned/rotated client id.
 function forgetOauthClient(authServer) {
@@ -4128,7 +4143,7 @@ async function ensureConnectorOauthToken(id) {
   if (!t || !t.accessToken) return '';
   if (mcpOauth.needsRefresh(t.expiresAt, Date.now()) && t.refreshToken && t.tokenEndpoint) {
     try {
-      const nt = await mcpOauth.refreshTokens({ fetchImpl: globalThis.fetch, tokenEndpoint: t.tokenEndpoint, refreshToken: t.refreshToken,
+      const nt = await mcpOauth.refreshTokens({ fetchImpl: connectorOauthFetch, tokenEndpoint: t.tokenEndpoint, refreshToken: t.refreshToken,
         clientId: t.clientId, clientSecret: t.clientSecret, tokenEndpointAuthMethod: t.tokenEndpointAuthMethod,
         resource: t.resource, now: Date.now(), timeoutMs: CONNECTOR_OAUTH_LEG_MS });
       const next = connectorStateMod.withOauthEntry(connectorStateMod.envelope(connectorConfigs, connectorOauth), id, Object.assign({}, t, nt));
@@ -9909,7 +9924,11 @@ async function handleToolsetToggle(req, res) {
 
 /* ---- /api/connectors: the Connectors panel manages MCP servers. A token is accepted here, persisted to the
    protected sibling file, and NEVER echoed back (list/status carry `hasToken` only, never the value). ---- */
-function connectedConnectorSnapshot() { return connectors.list(); }
+function connectedConnectorSnapshot() {
+  return connectors.list().map(c => c && c.oauth
+    ? Object.assign({}, c, { oauthAuthorized: !!(connectorOauth.byId[c.id] && connectorOauth.byId[c.id].accessToken) })
+    : c);
+}
 function handleConnectorsList(req, res) {
   res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify({ connectors: connectedConnectorSnapshot() }));
@@ -10027,6 +10046,7 @@ async function handleConnectorUpsert(req, res) {
   const prev = connectorConfigs.find(c => c.id === id) || {};
   const transport = String(body.transport || prev.transport || (body.command ? 'stdio' : 'http')).toLowerCase();
   if (transport !== 'http' && transport !== 'stdio') return json(400, { error: 'connector transport must be "http" or "stdio"' });
+  const oauth = transport === 'http' && ('oauth' in body ? body.oauth === true : prev.oauth === true);
   const url = String(body.url || (transport === 'http' ? (prev.url || '') : '')).trim();
   const command = String(body.command || (transport === 'stdio' ? (prev.command || '') : '')).trim();
   if (transport === 'http' && !url) return json(400, { error: 'a server URL is required' });
@@ -10045,14 +10065,17 @@ async function handleConnectorUpsert(req, res) {
   // PL-06: scheme/URL syntax is permanent INPUT validity, not connector reachability. Validate it before
   // constructing cfg (which carries the bearer) and before saveConnectorConfigs(), so a failed Connect click
   // cannot silently persist an enabled file:// record + secret and feed it into the reconnect scheduler.
+  let parsedHttpUrl = null;
   if (transport === 'http') {
-    let parsed = null;
-    try { parsed = new URL(url); } catch (_) {}
-    if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+    try { parsedHttpUrl = new URL(url); } catch (_) {}
+    if (!parsedHttpUrl || (parsedHttpUrl.protocol !== 'http:' && parsedHttpUrl.protocol !== 'https:')) {
       return json(400, {
         ok: false, saved: false, connected: false, code: 'INVALID_URL',
         error: 'connector URL must start with http:// or https://'
       });
+    }
+    if (oauth && (parsedHttpUrl.protocol !== 'https:' || parsedHttpUrl.username || parsedHttpUrl.password)) {
+      return json(400, { ok: false, saved: false, connected: false, code: 'OAUTH_HTTPS_REQUIRED', error: 'custom OAuth connectors require an https:// server URL without embedded credentials' });
     }
   }
   let args = Array.isArray(prev.args) ? prev.args.slice() : [];
@@ -10073,7 +10096,10 @@ async function handleConnectorUpsert(req, res) {
     headers = {};
     for (const k of Object.keys(body.headers)) headers[String(k)] = String(body.headers[k] == null ? '' : body.headers[k]);
   }
-  let token = transport === 'http' ? (('token' in body && body.token !== '') ? String(body.token) : (prev.token || '')) : '';
+  let token = transport === 'http' && !oauth ? (('token' in body && body.token !== '') ? String(body.token) : (prev.token || '')) : '';
+  if (oauth) {
+    for (const k of Object.keys(headers)) if (String(k).toLowerCase() === 'authorization') delete headers[k];
+  }
   const catalogEntry = connectorCatalog.get(id);
   const canonicalCatalogEndpoint = catalogEntry && String(catalogEntry.url || '').replace(/\/+$/, '').toLowerCase()
     === String(url || '').replace(/\/+$/, '').toLowerCase();
@@ -10106,16 +10132,15 @@ async function handleConnectorUpsert(req, res) {
     enabled: body.enabled !== false
   };
   if (timeoutMs) cfg.timeoutMs = timeoutMs;
-  // Preserve the oauth marker across a benign toggle/edit — it is the ONLY trigger for bearer injection, so losing
-  // it would silently strip auth and self-destruct a signed-in connector. Route through configureConnectorCfg so an
-  // oauth connector re-warms with a fresh tokenProvider; non-oauth connectors pass straight through unchanged.
-  if (prev.oauth || body.oauth) cfg.oauth = true;
-  const priorConfigs = connectorConfigs;
-  connectorConfigs = connectorConfigs.filter(c => c.id !== id).concat([cfg]);
-  if (!saveConnectorConfigs()) {
-    connectorConfigs = priorConfigs;
+  // An omitted marker preserves OAuth across benign toggle/edit requests; an explicit false switches back to
+  // ordinary HTTP and transactionally deletes the now-dormant grant. OAuth tokens never coexist in cfg.token.
+  if (oauth) cfg.oauth = true;
+  let nextState = connectorStateMod.upsertConfig(connectorStateMod.envelope(connectorConfigs, connectorOauth), cfg);
+  if (!oauth) nextState = connectorStateMod.withOauthEntry(nextState, id, null);
+  if (!persistConnectorState(nextState.configs, nextState.oauth)) {
     return json(500, { ok: false, saved: false, connected: false, error: 'connector configuration could not be saved' });
   }
+  adoptConnectorState(nextState);
   let result; try { result = await configureConnectorCfg(cfg); } catch (e) { result = { ok: false, state: 'error', error: (e && e.message) || 'configure failed' }; }
   const status = connectors.status(id);
   if (result.ok) return json(200, Object.assign({ saved: true, connected: status.state === 'up', status: status }, result));
@@ -10157,16 +10182,15 @@ async function handleConnectorRefresh(req, res) {
   json(200, Object.assign({ status: connectors.status(id) }, result));
 }
 
-/* POST /api/connectors/oauth/start {id} — begin the OAuth sign-in for a catalog `oauth` connector: probe the
-   server for its WWW-Authenticate pointer, discover the AS, reuse-or-dynamically-register a public client, mint
-   PKCE + CSRF state, and return the authorization URL for the browser to open. No token is stored yet. */
+/* POST /api/connectors/oauth/start {id} — begin OAuth for either a catalog entry or a saved custom HTTPS connector.
+   Custom URLs never ride in this request: resolveConnectorOauthTarget binds the id to protected local config first.
+   Probe the server, discover the AS, reuse/register a client, mint PKCE + CSRF state, then return the browser URL. */
 async function handleConnectorOauthStart(req, res) {
   const json = (code, obj) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(obj)); };
   let body; try { body = JSON.parse(await readBody(req, 4096)) || {}; } catch (e) { return json(400, { error: 'bad json' }); }
-  const entry = connectorCatalog.get(String(body.id || '').trim());
-  if (!entry) return json(400, { error: 'unknown catalog connector' });
-  if (entry.authType !== 'oauth') return json(400, { error: 'this connector does not use OAuth' });
-  if (!entry.url) return json(400, { error: 'this connector has no endpoint configured yet' });
+  const target = resolveConnectorOauthTarget(String(body.id || '').trim(), connectorCatalog, connectorConfigs);
+  if (target.error) return json(target.status || 400, { error: target.error });
+  const entry = target.entry;
   const rawAttempt = String(body.attemptId || '').trim();
   const attemptId = /^[A-Za-z0-9_-]{8,80}$/.test(rawAttempt) ? rawAttempt : crypto.randomBytes(12).toString('hex');
   if (connectorOauthAttempts.has(attemptId)) return json(409, { error: 'this sign-in attempt is already running', attemptId });
@@ -10209,11 +10233,11 @@ async function handleConnectorOauthStart(req, res) {
     // best-effort: read the 401 WWW-Authenticate pointer (discover() falls back to the default PRM url if absent).
     let www = '';
     try {
-      const pr = await mcpOauth.withDeadline(net, signal => globalThis.fetch(entry.url, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
+      const pr = await mcpOauth.withDeadline(net, signal => connectorOauthFetch(entry.url, { method: 'POST', signal, redirect: 'manual', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
         body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'StarNet', version: '1' } } }) }), 'connector authorization probe');
       www = (pr.headers && pr.headers.get && pr.headers.get('www-authenticate')) || '';
     } catch (_) {}
-    const disc = await mcpOauth.discover({ fetchImpl: globalThis.fetch, serverUrl: entry.url, wwwAuthenticate: www, signal: controller.signal, timeoutMs: CONNECTOR_OAUTH_LEG_MS, deadlineAt, now: net.now });
+    const disc = await mcpOauth.discover({ fetchImpl: connectorOauthFetch, serverUrl: entry.url, wwwAuthenticate: www, signal: controller.signal, timeoutMs: CONNECTOR_OAUTH_LEG_MS, deadlineAt, now: net.now });
     // Reuse a compatible cached client for this authorization server, else dynamically register one (RFC 7591).
     // Most MCP servers accept a public PKCE client. Supabase and monday.com currently advertise only a
     // confidential token-endpoint method, so their DCR-issued secret must survive callback + refresh + restart.
@@ -10224,7 +10248,7 @@ async function handleConnectorOauthStart(req, res) {
     let tokenEndpointAuthMethod = cachedClient.tokenEndpointAuthMethod || requiredAuthMethod;
     if (!clientId || tokenEndpointAuthMethod !== requiredAuthMethod || (requiredAuthMethod !== 'none' && !clientSecret)) {
       if (!disc.registrationEndpoint) return json(502, { error: 'this server needs a pre-registered OAuth client (no dynamic registration)' });
-      const reg = await mcpOauth.registerClient({ fetchImpl: globalThis.fetch, registrationEndpoint: disc.registrationEndpoint,
+      const reg = await mcpOauth.registerClient({ fetchImpl: connectorOauthFetch, registrationEndpoint: disc.registrationEndpoint,
         redirectUri: CONNECTOR_OAUTH_REDIRECT, clientName: 'StarNet', tokenEndpointAuthMethod: requiredAuthMethod,
         signal: controller.signal, timeoutMs: CONNECTOR_OAUTH_LEG_MS, deadlineAt, now: net.now });
       clientId = reg.clientId;
@@ -10240,13 +10264,16 @@ async function handleConnectorOauthStart(req, res) {
     }
     const verifier = mcpOauth.makeVerifier(crypto.randomBytes(48));
     const state = crypto.randomBytes(16).toString('hex');
-    connectorOauthPending.set(state, { id: entry.id, attemptId, label: entry.name, verifier: verifier, clientId: clientId,
+    // This URL is opened in the user's browser rather than fetched by the sidecar, so validate it explicitly too.
+    // Catalog entries retain their established behavior; the new untrusted custom-server boundary is fail-closed.
+    if (target.custom) await connectorOauthPublicUrl(disc.authorizationEndpoint);
+    connectorOauthPending.set(state, { id: entry.id, attemptId, label: entry.name, custom: target.custom === true, verifier: verifier, clientId: clientId,
       clientSecret: clientSecret, tokenEndpointAuthMethod: tokenEndpointAuthMethod,
       tokenEndpoint: disc.tokenEndpoint, authorizationServer: disc.authorizationServer, resource: disc.resource,
       serverUrl: entry.url, redirectUri: CONNECTOR_OAUTH_REDIRECT, at: Date.now() });
     // bound the pending set (a stale/abandoned sign-in never accumulates); 10-minute TTL.
     for (const [k, v] of connectorOauthPending) { if (Date.now() - (v.at || 0) > 600000) connectorOauthPending.delete(k); }
-    const url = mcpOauth.buildAuthorizeUrl({ authorizationEndpoint: disc.authorizationEndpoint, clientId: clientId, redirectUri: CONNECTOR_OAUTH_REDIRECT, challenge: mcpOauth.challengeOf(verifier), state: state, resource: disc.resource });
+    const url = mcpOauth.buildAuthorizeUrl({ authorizationEndpoint: disc.authorizationEndpoint, clientId: clientId, redirectUri: CONNECTOR_OAUTH_REDIRECT, challenge: mcpOauth.challengeOf(verifier), state: state, resource: disc.resource, scope: disc.resourceScopes });
     completed = true;
     json(200, { url: url, attemptId });
   } catch (e) {
@@ -10306,8 +10333,12 @@ async function handleConnectorOauthCallback(req, res) {
   }
   if (!pending) return page('Sign-in expired', 'This sign-in link expired or was already used. Please start again from the catalog.', false);
   if (!code) return page('Sign-in failed', 'No authorization code was returned by the provider.', false);
+  const currentCfg = connectorConfigs.find(c => c && c.id === pending.id) || null;
+  if (pending.custom && (!currentCfg || currentCfg.oauth !== true || currentCfg.transport !== 'http' || !sameEndpoint(currentCfg.url, pending.serverUrl))) {
+    return page('Sign-in expired', 'This custom connector changed or was removed while sign-in was open. Start again from MCP Connectors.', false);
+  }
   try {
-    const tok = await mcpOauth.exchangeCode({ fetchImpl: globalThis.fetch, tokenEndpoint: pending.tokenEndpoint, code: code,
+    const tok = await mcpOauth.exchangeCode({ fetchImpl: connectorOauthFetch, tokenEndpoint: pending.tokenEndpoint, code: code,
       redirectUri: pending.redirectUri, clientId: pending.clientId, clientSecret: pending.clientSecret,
       tokenEndpointAuthMethod: pending.tokenEndpointAuthMethod, verifier: pending.verifier, resource: pending.resource,
       now: Date.now(), timeoutMs: 30000 });
@@ -10320,7 +10351,10 @@ async function handleConnectorOauthCallback(req, res) {
     // failure would leave the connector unsigned + the DCR clientId orphaned on the NEXT boot while the popup lied
     // "connected" — never assert durable state the harness can't prove. Roll the in-memory entry back so this session
     // is consistent with disk (unsigned) rather than a phantom-connected connector that vanishes on restart.
-    const cfg = { id: pending.id, transport: 'http', url: pending.serverUrl, label: pending.label, enabled: true, oauth: true };
+    // Preserve custom headers + timeout (and any catalog config refinements) across the callback. Only the auth
+    // fields are authoritative here: OAuth always uses the protected token store, never cfg.token.
+    const cfg = Object.assign({}, currentCfg || {}, { id: pending.id, transport: 'http', url: pending.serverUrl,
+      token: '', label: (currentCfg && currentCfg.label) || pending.label, enabled: true, oauth: true });
     let next = connectorStateMod.withOauthEntry(connectorStateMod.envelope(connectorConfigs, connectorOauth), pending.id, oauthEntry);
     next = connectorStateMod.upsertConfig(next, cfg);
     if (!persistConnectorState(next.configs, next.oauth)) {

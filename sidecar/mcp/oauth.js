@@ -185,6 +185,10 @@
       codeChallengeMethods: Array.isArray(asMeta.code_challenge_methods_supported) ? asMeta.code_challenge_methods_supported : ['S256'],
       tokenEndpointAuthMethods: Array.isArray(asMeta.token_endpoint_auth_methods_supported) ? asMeta.token_endpoint_auth_methods_supported : [],
       scopesSupported: Array.isArray(asMeta.scopes_supported) ? asMeta.scopes_supported : null,
+      // The protected resource, not the authorization server, is authoritative for the scopes this MCP server
+      // needs. Base44 advertises `app:mcp offline` here; omitting them produces a valid-looking consent URL whose
+      // token is unusable for the MCP resource.
+      resourceScopes: Array.isArray(prm.scopes_supported) ? prm.scopes_supported.map(String) : null,
       resource: serverUrl,                 // RFC 8707 resource indicator = the canonical MCP server URL
       resourceMetadataUrl: prmUrl
     };

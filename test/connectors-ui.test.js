@@ -162,7 +162,14 @@ function fakeStack(tools) {
 
   // beginner-first: inline help under fields + a discoverable send shape (transport is passed)
   A.ok(/class="mc-hint"/.test(station), 'one-line inline help under fields present');
-  A.ok(/transport:\s*tp/.test(station), 'the add/edit request sends the chosen transport');
+  A.ok(/data-tp="oauth"/.test(station) && /ADD & SIGN IN/.test(station), 'custom MCP form exposes an OAuth sign-in mode');
+  A.ok(/transport:\s*httpMode \? 'http' : 'stdio'/.test(station) && /payload\.oauth = tp === 'oauth'/.test(station),
+    'OAuth is persisted as HTTP transport plus an explicit auth marker');
+  A.ok(/ccSignIn\(id, msgEl, label \|\| id\)/.test(station), 'saving a custom OAuth connector immediately starts browser sign-in');
+  A.ok(/c\.state === 'error' && \(!c\.oauth \|\| c\.oauthAuthorized\)/.test(station),
+    'the expected unsigned 401 cannot end polling before OAuth callback, but a post-grant error remains visible');
+  A.ok(/OAuth authorized/.test(station) && /OAuth sign-in needed/.test(station),
+    'OAuth rows never mislabel a token-provider function as a saved grant');
   A.ok(/parseKV/.test(station), 'key:value parser for headers/env present');
 
   // never round-trip a secret back into the form on edit
@@ -194,6 +201,13 @@ function fakeStack(tools) {
   A.ok(/openSignIn\(/.test(station) && /window\.open\(/.test(stationCore), 'sign-in opens the provider consent in a popup (via the shared openSignIn helper)');
   A.ok(/ccPending/.test(station), 'sign-in has a per-connector in-flight guard (no duplicate popups / concurrent pollers)');
   A.ok(/e\.authType === 'oauth'/.test(station), 'the UI gates on the authType tier from the catalog');
+  const sidecar = fs.readFileSync(path.join(__dirname, '..', 'sidecar', 'index.js'), 'utf8');
+  A.ok(/resolveConnectorOauthTarget\([^\n]+connectorCatalog, connectorConfigs\)/.test(sidecar),
+    'OAuth start resolves both catalog and durably saved custom connector ids');
+  A.ok(/connectorOauthPublicUrl[\s\S]{0,500}assertResolvedSafe/.test(sidecar) && /fetchImpl: connectorOauthFetch/.test(sidecar)
+      && /if \(target\.custom\) await connectorOauthPublicUrl\(disc\.authorizationEndpoint\)/.test(sidecar),
+    'custom OAuth discovery/token legs use the public-host DNS guard');
+  A.ok(/oauthAuthorized/.test(sidecar), 'connector status distinguishes a configured OAuth row from a stored grant');
   // installing reuses the SAME upsert (no parallel install path) and never fabricates the endpoint
   A.ok(/function ccInstall/.test(station) && /postJSON\('\/api\/connectors'/.test(station), 'install posts through the existing /api/connectors upsert');
   A.ok(/ccCache\.find\(/.test(station), 'install reads the authoritative url/name from the catalog, never a re-typed value');

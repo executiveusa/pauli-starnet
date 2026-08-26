@@ -258,6 +258,28 @@ async function readNdjson(res) {
     const invalidDisk = fs.existsSync(connectorFile) ? fs.readFileSync(connectorFile, 'utf8') : '';
     A.ok(invalidDisk.indexOf('invalid-scheme') < 0 && invalidDisk.indexOf(invalidSecret) < 0, 'invalid connector id and secret never reach disk');
 
+    // Custom OAuth is an HTTPS-only HTTP auth mode. Save a deterministic offline target, prove its bearer field is
+    // discarded, and prove oauth/start resolves the SAVED id far enough to hit the public-host guard (not catalog-only).
+    const insecureOauth = await fetch(B + '/api/connectors', { method: 'POST', headers,
+      body: JSON.stringify({ id: 'insecure-oauth', transport: 'http', url: 'http://127.0.0.1:1/mcp', oauth: true, enabled: false }) });
+    A.eq(insecureOauth.status, 400, 'custom OAuth refuses an http:// endpoint even when ordinary localhost HTTP is allowed');
+    A.eq((await insecureOauth.json()).code, 'OAUTH_HTTPS_REQUIRED', 'custom OAuth HTTPS refusal is a stable input error');
+    const oauthCanary = 'custom-oauth-bearer-must-not-persist';
+    const customOauth = await fetch(B + '/api/connectors', { method: 'POST', headers,
+      body: JSON.stringify({ id: 'custom-oauth', label: 'Custom OAuth', transport: 'http', url: 'https://crew.example.invalid/api/mcp', oauth: true, token: oauthCanary, enabled: false }) });
+    A.eq(customOauth.status, 200, 'saved a custom HTTPS OAuth connector through the normal upsert route');
+    const oauthList = await (await fetch(B + '/api/connectors', { headers: { 'X-StarNet-Token': token, Origin: B } })).json();
+    const oauthRow = (oauthList.connectors || []).find(c => c.id === 'custom-oauth');
+    A.ok(oauthRow && oauthRow.oauth === true && oauthRow.oauthAuthorized === false, 'status distinguishes configured OAuth from a stored grant');
+    const customStart = await fetch(B + '/api/connectors/oauth/start', { method: 'POST', headers,
+      body: JSON.stringify({ id: 'custom-oauth', attemptId: 'custom-oauth-guard-proof' }) });
+    A.eq(customStart.status, 502, 'saved custom OAuth id reaches guarded discovery instead of catalog-only rejection');
+    const customStartBody = await customStart.json();
+    A.ok(!/unknown catalog connector/i.test(customStartBody.error || '') && /ENOTFOUND|metadata/i.test(customStartBody.error || ''),
+      'custom OAuth discovery reports the guarded target failure, not an unknown-catalog error');
+    const oauthDisk = fs.readFileSync(connectorFile, 'utf8');
+    A.ok(oauthDisk.indexOf(oauthCanary) < 0 && /"oauth"\s*:\s*true/.test(oauthDisk), 'OAuth config persists its mode but never the submitted bearer canary');
+
     // A syntactically-valid endpoint may simply be offline. Saving that configuration is useful, but the
     // response must state BOTH facts so the panel never turns a successful save into an ambiguous 502.
     const unreachable = await fetch(B + '/api/connectors', {
@@ -419,10 +441,13 @@ async function readNdjson(res) {
     const restartedDeepwiki = (afterRestart.connectors || []).find(c => c.id === 'deepwiki');
     const restartedStripe = (afterRestart.connectors || []).find(c => c.id === 'stripe');
     const restartedOffline = (afterRestart.connectors || []).find(c => c.id === 'offline-demo');
+    const restartedOauth = (afterRestart.connectors || []).find(c => c.id === 'custom-oauth');
     A.ok(restartedDemo && restartedDemo.state === 'up', 'enabled connector rewarms after restart');
     A.ok(restartedDeepwiki && restartedDeepwiki.enabled === false, 'disabled catalog connector remains listed after restart');
     A.ok(restartedStripe && restartedStripe.enabled === false, 'disabled manual connector remains listed after restart');
     A.ok(restartedOffline && restartedOffline.enabled === true && restartedOffline.state === 'error' && restartedOffline.hasToken === true, 'valid offline connector remains durably saved and truthfully offline after restart');
+    A.ok(restartedOauth && restartedOauth.enabled === false && restartedOauth.oauth === true && restartedOauth.oauthAuthorized === false,
+      'unsigned custom OAuth config survives restart without claiming an authorization grant');
     A.ok(!(afterRestart.connectors || []).some(c => c.id === 'invalid-scheme'), 'invalid-scheme connector remains absent after restart');
     A.ok(JSON.stringify(afterRestart).indexOf('mcp-secret-token') === -1, 'restart list never leaks a persisted connector token');
     A.ok(JSON.stringify(afterRestart).indexOf(invalidSecret) === -1, 'restart projection never contains the rejected secret');

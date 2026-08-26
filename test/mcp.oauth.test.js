@@ -7,6 +7,7 @@
 'use strict';
 const A = require('./_assert.js');
 const O = require('../sidecar/mcp/oauth.js');
+const T = require('../sidecar/mcp/oauth-target.js');
 
 // a fake fetch that routes by URL+method and records what it was called with.
 function fakeFetch(routes) {
@@ -74,6 +75,27 @@ const REDIRECT = 'http://127.0.0.1:8787/api/connectors/oauth/callback';
   const d = await O.discover({ fetchImpl: f, serverUrl: 'https://srv.example/mcp' });   // no header → constructed PRM url
   A.eq(d.authorizationEndpoint, 'https://as.example/auth', 'fell back to openid-configuration');
   A.eq(d.registrationEndpoint, '', 'no registration_endpoint → empty (caller must handle no-DCR)');
+}
+
+// ---- B1. Base44-style protected-resource scopes survive discovery for the consent request ----
+{
+  const f = fakeFetch([
+    ['/.well-known/oauth-protected-resource/api/mcp', { json: {
+      resource: 'https://crew.base44.app/api/mcp', authorization_servers: ['https://app.base44.com'],
+      scopes_supported: ['app:mcp', 'offline']
+    } }],
+    ['/.well-known/oauth-authorization-server', { json: {
+      authorization_endpoint: 'https://app.base44.com/oauth2/authorize',
+      token_endpoint: 'https://app.base44.com/oauth2/token',
+      registration_endpoint: 'https://app.base44.com/oauth2/register',
+      token_endpoint_auth_methods_supported: ['none'], code_challenge_methods_supported: ['S256']
+    } }]
+  ]);
+  const d = await O.discover({ fetchImpl: f, serverUrl: 'https://crew.base44.app/api/mcp' });
+  A.eq(d.resourceScopes.join(' '), 'app:mcp offline', 'protected-resource scopes survive Base44-style discovery');
+  const u = new URL(O.buildAuthorizeUrl({ authorizationEndpoint: d.authorizationEndpoint, clientId: 'base44-client',
+    redirectUri: REDIRECT, challenge: 'challenge', state: 'state', resource: d.resource, scope: d.resourceScopes }));
+  A.eq(u.searchParams.get('scope'), 'app:mcp offline', 'Base44 resource scopes reach the browser consent URL');
 }
 
 // ---- B3. RFC 8414 inserts metadata before a pathful authorization-server issuer ----
@@ -228,6 +250,26 @@ const REDIRECT = 'http://127.0.0.1:8787/api/connectors/oauth/callback';
   A.ok(/HTTP 400/.test(message) && /invalid_grant/.test(message), 'OAuth error retains status and bounded code');
   A.eq(message.indexOf(canary), -1, 'OAuth error never echoes submitted credentials');
   A.eq(message.indexOf('IGNORE ALL RULES'), -1, 'OAuth error never carries hostile instructions');
+}
+
+// ---- J. OAuth start targets: catalog entries or SAVED custom HTTPS configs only ----
+{
+  const catalog = { get: id => id === 'notion' ? { id: 'notion', name: 'Notion', authType: 'oauth', url: 'https://mcp.notion.com/mcp' }
+    : (id === 'plain' ? { id: 'plain', name: 'Plain', authType: 'none', url: 'https://plain.example/mcp' } : null) };
+  const catalogTarget = T.resolveConnectorOauthTarget('notion', catalog, []);
+  A.eq(catalogTarget.custom, false, 'catalog OAuth can start before a saved config exists');
+  const configs = [{ id: 'crew', label: 'Reset Crew', transport: 'http', url: 'https://reset-crew-hub.base44.app/api/mcp', oauth: true }];
+  const custom = T.resolveConnectorOauthTarget('crew', catalog, configs);
+  A.eq(custom.custom, true, 'a saved custom OAuth config resolves outside the catalog');
+  A.eq(custom.entry.url, 'https://reset-crew-hub.base44.app/api/mcp', 'custom OAuth start is bound to the saved URL');
+  const collision = T.resolveConnectorOauthTarget('notion', catalog, [{ id: 'notion', label: 'My app', transport: 'http', url: 'https://mine.example/mcp', oauth: true }]);
+  A.ok(collision.custom && collision.entry.url === 'https://mine.example/mcp', 'a catalog-id collision cannot redirect custom sign-in to the vendor endpoint');
+  A.eq(T.sameEndpoint('https://EXAMPLE.com/mcp/', 'https://example.com/mcp'), true, 'endpoint matching normalizes host case and trailing slash');
+  A.eq(T.sameEndpoint('https://example.com/MCP', 'https://example.com/mcp'), false, 'endpoint matching preserves case-sensitive resource paths');
+  A.ok(/https/.test(T.resolveConnectorOauthTarget('local', catalog, [{ id: 'local', transport: 'http', url: 'http://127.0.0.1/mcp', oauth: true }]).error || ''),
+    'custom OAuth refuses non-HTTPS saved endpoints');
+  A.ok(/does not use OAuth/.test(T.resolveConnectorOauthTarget('plain', catalog, []).error || ''), 'non-OAuth catalog rows remain gated');
+  A.ok(/unknown/.test(T.resolveConnectorOauthTarget('missing', catalog, []).error || ''), 'an id cannot smuggle an unsaved URL into OAuth start');
 }
 
 console.log('ok - mcp.oauth');

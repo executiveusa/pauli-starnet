@@ -87,14 +87,18 @@
         '<input id="mc-label" class="key-input" placeholder="label (optional) — e.g. GitHub" autocomplete="off" spellcheck="false">' +
         '<div class="mc-seg" id="mc-transport" role="tablist">' +
           '<button type="button" class="mc-seg-btn active" data-tp="http" role="tab" aria-selected="true">HTTP</button>' +
+          '<button type="button" class="mc-seg-btn" data-tp="oauth" role="tab" aria-selected="false">OAUTH</button>' +
           '<button type="button" class="mc-seg-btn" data-tp="stdio" role="tab" aria-selected="false">STDIO (Safe Cell)</button>' +
         '</div>' +
         // ---- HTTP fields ----
-        '<div class="mc-tp-fields" data-tp="http">' +
+        '<div class="mc-tp-fields" data-tp="http oauth">' +
           '<input id="mc-url" class="key-input" placeholder="https://server.example/mcp" autocomplete="off" spellcheck="false">' +
           '<div class="mc-hint">The server’s Streamable-HTTP endpoint. <code>http://</code> is allowed only for localhost.</div>' +
-          '<input id="mc-token" type="password" class="key-input" placeholder="bearer token (optional)" autocomplete="off" spellcheck="false">' +
-          '<div class="mc-hint">Sent as <code>Authorization: Bearer …</code>. Leave blank when editing to keep the saved token.</div>' +
+          '<div id="mc-token-fields">' +
+            '<input id="mc-token" type="password" class="key-input" placeholder="bearer token (optional)" autocomplete="off" spellcheck="false">' +
+            '<div class="mc-hint">Sent as <code>Authorization: Bearer …</code>. Leave blank when editing to keep the saved token.</div>' +
+          '</div>' +
+          '<div id="mc-oauth-note" class="mc-hint" style="display:none">A secure browser window will open for sign-in. The OAuth grant is stored locally and refreshed automatically.</div>' +
         '</div>' +
         // ---- STDIO fields ----
         // Arbitrary stdio server code is bound to one named agent's persistent Docker Safe Cell.
@@ -589,10 +593,13 @@
     function transport() { const on = body.querySelector('.mc-seg-btn.active'); return (on && on.dataset.tp) || 'http'; }
     function setTransport(tp) {
       body.querySelectorAll('.mc-seg-btn').forEach(b => { const a = b.dataset.tp === tp; b.classList.toggle('active', a); b.setAttribute('aria-selected', a ? 'true' : 'false'); });
-      body.querySelectorAll('.mc-tp-fields').forEach(f => { f.style.display = f.dataset.tp === tp ? '' : 'none'; });
+      body.querySelectorAll('.mc-tp-fields').forEach(f => { f.style.display = String(f.dataset.tp || '').split(/\s+/).indexOf(tp) >= 0 ? '' : 'none'; });
+      const tokenFields = body.querySelector('#mc-token-fields'); if (tokenFields) tokenFields.style.display = tp === 'http' ? '' : 'none';
+      const oauthNote = body.querySelector('#mc-oauth-note'); if (oauthNote) oauthNote.style.display = tp === 'oauth' ? '' : 'none';
       const dead = tp === 'stdio' && stdioAgents.length === 0;
       addBtn.disabled = dead;
       addBtn.title = dead ? 'set an agent’s execution profile to SAFE CELL first' : '';
+      addBtn.textContent = tp === 'oauth' ? (editing ? '✓ SAVE & SIGN IN' : '+ ADD & SIGN IN') : (editing ? '✓ SAVE & RECONNECT' : '+ ADD & CONNECT');
     }
     body.querySelector('#mc-transport').addEventListener('click', ev => {
       const b = ev.target.closest('.mc-seg-btn'); if (!b) return; setTransport(b.dataset.tp); sfx('tick');
@@ -649,7 +656,7 @@
       idInput.value = c.id;
       body.querySelector('#mc-label').value = c.label && c.label !== c.id ? c.label : '';
       body.querySelector('#mc-timeout').value = (c.timeoutMs && c.timeoutMs !== 30000) ? c.timeoutMs : '';
-      setTransport(c.transport === 'stdio' ? 'stdio' : 'http');
+      setTransport(c.transport === 'stdio' ? 'stdio' : (c.oauth ? 'oauth' : 'http'));
       if (c.transport === 'stdio') {
         body.querySelector('#mc-command').value = c.command || '';
         body.querySelector('#mc-args').value = (c.args || []).some(x => x === '<redacted>') ? '' : (c.args || []).join('\n');
@@ -685,7 +692,9 @@
       const where = c.transport === 'stdio'
         ? ('<span class="mc-tag">stdio</span> <code>' + esc([c.command].concat(c.args || []).join(' ')) + '</code>' + (c.hasEnv ? ' · env set' : '') +
            '<div class="mc-hint">isolated owner: ' + esc(c.agentId || 'unbound') + ' · persistent Safe Cell</div>')
-        : ('<span class="mc-tag">http</span> ' + esc(c.url) + (c.hasToken ? ' · token saved' : '') + (c.hasHeaders ? ' · headers set' : ''));
+        : ('<span class="mc-tag">' + (c.oauth ? 'oauth' : 'http') + '</span> ' + esc(c.url)
+          + (c.oauth ? (c.oauthAuthorized ? ' · OAuth authorized' : ' · OAuth sign-in needed') : (c.hasToken ? ' · token saved' : ''))
+          + (c.hasHeaders ? ' · headers set' : ''));
       const timeout = (c.timeoutMs && c.timeoutMs !== 30000) ? '<span class="dim"> · ' + Math.round(c.timeoutMs / 1000) + 's</span>' : '';
       return '<div class="mc-row" data-id="' + esc(c.id) + '" data-enabled="' + (c.enabled ? '1' : '0') + '" style="--ci:' + (ri || 0) + '">' +
         '<div class="mc-top">' +
@@ -699,7 +708,9 @@
           // http-bearer/stdio editor; there is no bearer to paste). A fresh browser consent is the only cure, so
           // the row always carries it — same engine as the catalog card's ▸ SIGN IN (ccSignIn), which is otherwise
           // unreachable here: the catalog card renders a disabled ✓ ADDED for every installed connector.
-          (c.oauth ? '<button class="bb xs" data-act="resign" title="re-run the browser OAuth sign-in — the fix for a revoked or expired grant">⏼ RE-SIGN-IN</button>' : '') +
+          (c.oauth ? '<button class="bb xs" data-act="resign" title="' + (c.oauthAuthorized
+            ? 're-run the browser OAuth sign-in — the fix for a revoked or expired grant">⏼ RE-SIGN-IN'
+            : 'open the browser OAuth sign-in">⏼ SIGN IN') + '</button>' : '') +
           '<button class="bb xs" data-act="reload">↻ RELOAD</button>' +
           '<button class="bb xs" data-act="edit">✎ EDIT</button>' +
           '<button class="bb xs danger" data-act="remove">✕ REMOVE</button>' +
@@ -819,13 +830,15 @@
       const label = (body.querySelector('#mc-label').value || '').trim();
       const tp = transport();
       if (!id) { sfx('bad'); msgEl.classList.remove('ok'); msgEl.textContent = 'an id is required'; return; }
-      const payload = { id, label, transport: tp, enabled: true };
-      if (tp === 'http') {
+      const httpMode = tp !== 'stdio';
+      const payload = { id, label, transport: httpMode ? 'http' : 'stdio', enabled: true };
+      if (httpMode) {
         const url = (body.querySelector('#mc-url').value || '').trim();
         if (!url) { sfx('bad'); msgEl.classList.remove('ok'); msgEl.textContent = 'a server URL is required'; return; }
         payload.url = url;
+        payload.oauth = tp === 'oauth';
         const token = body.querySelector('#mc-token').value || '';
-        if (token) payload.token = token;   // blank keeps the saved one (on edit)
+        if (tp === 'http' && token) payload.token = token;   // blank keeps the saved one (on edit)
         const h = parseKV(body.querySelector('#mc-headers').value, ':');
         if (h.bad) { sfx('bad'); msgEl.classList.remove('ok'); msgEl.textContent = 'header needs "Name: value" — check: ' + h.bad; return; }
         payload.headers = h.out;
@@ -852,7 +865,12 @@
       msgEl.classList.remove('ok'); msgEl.textContent = (editing ? 'saving ' : 'connecting ') + id + '…';
       try {
         const j = await (await postJSON('/api/connectors', payload)).json().catch(() => ({}));
-        if (j.error) { msgEl.classList.remove('ok'); msgEl.textContent = '✕ ' + j.error; sfx('bad'); }
+        if (tp === 'oauth' && j.saved) {
+          // The unsigned 401 is expected between the durable config save and the callback. Start the same proven
+          // browser flow as catalog connectors; the poll waits for oauthAuthorized before treating that 401 as final.
+          await ccSignIn(id, msgEl, label || id);
+          if (ccPending.has(id)) resetForm();
+        } else if (j.error) { msgEl.classList.remove('ok'); msgEl.textContent = '✕ ' + j.error; sfx('bad'); }
         else if (j.status && j.status.state === 'up') {
           msgEl.classList.add('ok'); msgEl.textContent = '✓ connected — ' + (j.status.toolCount || 0) + ' tool(s) available'; sfx('click');
           notify('Connector "' + id + '" ' + (editing ? 'saved' : 'connected'), 'good');
@@ -1093,13 +1111,13 @@
     }
     // OAuth sign-in: start the flow, open the provider's consent (browser tab on desktop, popup in a browser),
     // then poll until the connector connects — but only if the consent window actually opened.
-    async function ccSignIn(id, msgOut) {
+    async function ccSignIn(id, msgOut, labelOverride) {
       // progress lands in the caller's message line: the catalog's by default, the MCP CONNECTORS pane's when the
       // ⏼ RE-SIGN-IN row action drives this (the user is looking at that tab — the catalog line is off-screen).
       const out = msgOut || ccMsgEl;
       if (ccPending.has(id)) { sfx('bad'); out.classList.remove('ok'); out.textContent = 'a sign-in is already in progress for this connector…'; return; }
       ccPending.add(id);   // one in-flight sign-in per connector — no duplicate popups / concurrent pollers
-      const e = ccEntry(id); const label = (e && e.name) || id;
+      const e = ccEntry(id); const label = labelOverride || (e && e.name) || id;
       out.classList.remove('ok'); out.textContent = 'starting sign-in for ' + label + '…';
       const attemptId = 'cc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
       const controller = new AbortController();
@@ -1142,7 +1160,7 @@
           const j = await Harness.api.get('/api/connectors');
           const c = (j.connectors || []).find(x => x.id === id);
           if (c && c.state === 'up') { stopCcPoll(id); ccPending.delete(id); ccPendingWin.delete(id); ccAttempts.delete(id); sfx('click'); notify('Connector "' + label + '" connected', 'good'); out.classList.add('ok'); out.textContent = '✓ ' + label + ' signed in — ' + (c.toolCount || 0) + ' tool(s)'; ccRefresh(); refresh(); try { if (win && !win.closed) win.close(); } catch (_) {} return; }
-          if (c && c.state === 'error') { stopCcPoll(id); ccPending.delete(id); ccPendingWin.delete(id); ccAttempts.delete(id); sfx('bad'); out.textContent = '✕ ' + label + ' — ' + (c.detail || 'connection failed'); ccRefresh(); refresh(); return; }
+          if (c && c.state === 'error' && (!c.oauth || c.oauthAuthorized)) { stopCcPoll(id); ccPending.delete(id); ccPendingWin.delete(id); ccAttempts.delete(id); sfx('bad'); out.textContent = '✕ ' + label + ' — ' + (c.detail || 'connection failed'); ccRefresh(); refresh(); return; }
         } catch (_) {}
         if (tries > 150) { stopCcPoll(id); ccPending.delete(id); ccPendingWin.delete(id); ccAttempts.delete(id); ccResetSignBtn(id); }   // ~5-minute cap so a stalled/abandoned sign-in stops polling
       }, 2000);
