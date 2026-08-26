@@ -1,5 +1,22 @@
 # NEXT.md — current priorities & task queue
 
+## DONE 2026-08-25 — CUSTOM HTTP MCP OAUTH (`agent/custom-mcp-oauth`)
+
+GitHub issue #1 is confirmed open on current trunk: the manual MCP form exposes HTTP bearer and
+Safe Cell stdio only, while `/api/connectors/oauth/start` accepts curated catalog ids only. The
+existing RFC 9728/8414/7591 + PKCE engine successfully discovers the reporter's Base44 endpoint,
+so this lane is limited to opening that proven flow to a saved custom HTTPS connector, adding the
+HTTP authentication choice in ABILITIES, and hardening arbitrary OAuth discovery against private
+DNS targets. It does not overlap the active `agent/connector-auth-sse` transport/401 lane.
+
+Delivered: the manual connector form now exposes OAUTH as an HTTP auth mode, saves the URL before
+starting the existing browser PKCE flow, preserves config through callback, refreshes protected local
+tokens, and reports configured-vs-authorized state honestly. Custom discovery is bound to the saved id,
+HTTPS-only, private-DNS guarded, and carries Base44's protected-resource scopes. Live ABILITIES proof
+confirmed the rendered choice, hidden bearer field, guarded sign-in start, truthful unsigned row, and
+cleanup; the real-sidecar E2E proved restart persistence. The reporter's live Base44 endpoint was probed read-only (401 → Base44 AS + DCR + S256 +
+`app:mcp offline`); focused tests, all 689 `test:fast` steps, and all 84 `test:http` steps are green.
+
 ## 2026-08-22 — CONSISTENCY LOOP: verdict → correction → skill → golden test (BUILT, `agent/momentum-loop`)
 
 Plan: `docs/plans/CONSISTENCY_LOOP.md`. The user complaint is output consistency; the capture side (verdict,
