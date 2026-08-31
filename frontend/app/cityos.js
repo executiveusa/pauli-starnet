@@ -350,7 +350,11 @@ const CityOS = (() => {
     const assignmentRows = chooseAssignments(buildings, roster);
 
     const bounds = draft.bounds();
-    const origin = opts.origin || { x: bounds.maxTx + 7, y: bounds.minTy };
+    const spawn = draft.roomById(draft.spawnRoomId());
+    const spawnRect = spawn && spawn.rects && spawn.rects[0];
+    // Keep the first city row on the trunk/spawn lane. A remote room can extend bounds.minTy far north,
+    // but it must never drag the city away from the MAIN GATE and leave a visually stamped disconnected city.
+    const origin = opts.origin || { x: bounds.maxTx + 7, y: spawnRect ? spawnRect.y1 : bounds.minTy };
     const cols = Math.max(1, Math.min(6, Number(opts.columns) || GRID.cols));
     const gapX = GRID.gapX, gapY = GRID.gapY;
     const rooms = [], records = [], allEdges = draft.pipelineEdges ? draft.pipelineEdges() : [];
