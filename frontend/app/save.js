@@ -3,6 +3,14 @@
    the same shape + migration ladder moves to the SQLite sidecar later. */
 'use strict';
 
+/* PAULI'S PLACE CITY OS loads here rather than adding another root index dependency. save.js is parsed
+   after worldmodel.js and before app.js, so CityOS can install its live-station capture before App creates
+   or restores the station. document.write is intentionally parse-time/synchronous, matching the existing
+   specialties loader pattern; Node tests have no document and skip it. */
+if (typeof document !== 'undefined' && typeof CityOS === 'undefined') {
+  document.write('<script src="app/cityos.js"><\/script>');
+}
+
 const Save = (() => {
   const KEY = 'starnet.save';
   const PRE_MIGRATE_BACKUP_KEY = 'starnet.save.pre-migrate.backup';
