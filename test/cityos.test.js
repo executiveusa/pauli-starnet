@@ -60,6 +60,20 @@ A.ok(compiled.propsByAgent('agent').some(p => compiled.capForProp(p.t) === 'comp
 const heroCaps = compiled.bayObjects('agent');
 for (const cap of ['computer', 'cabinet', 'dish', 'notebook', 'workbench']) A.ok(heroCaps.indexOf(cap) >= 0, 'HQ physically grants Heisenberg ' + cap);
 
+// A remote pre-existing room may extend station bounds far north/south; it must never drag the first city
+// row away from the spawn lane and produce a MAIN GATE that terminates beside, rather than inside, HQ.
+const shifted = WM.create();
+A.ok(shifted.addRoom({ kind: 'lab', rect: { x1: 0, y1: -100, x2: 6, y2: -94 }, name: 'REMOTE LAB' }).ok, 'remote north room extends legacy bounds');
+const shiftedPlan = CityOS.plan(shifted, null, { roster: [roster[0]] });
+A.ok(shiftedPlan.ok, 'city still compiles with a remote north room');
+const shiftedCompiled = WM.deserialize(shiftedPlan.document);
+const shiftedSpawn = shiftedCompiled.roomById(shiftedCompiled.spawnRoomId()).rects[0];
+const shiftedFirst = shiftedCompiled.roomById(shiftedPlan.buildings[0].roomId).rects[0];
+const mainGate = shiftedCompiled.rooms().find(r => r.name === 'MAIN GATE');
+A.ok(mainGate && mainGate.rects && mainGate.rects.length, 'compiled city has a MAIN GATE');
+const gateRect = mainGate.rects[0];
+A.ok(gateRect.y1 >= Math.max(shiftedSpawn.y1, shiftedFirst.y1) && gateRect.y2 <= Math.min(shiftedSpawn.y2, shiftedFirst.y2), 'MAIN GATE occupies a Y lane shared by spawn and first city building');
+
 // Prepare/apply is plan-id addressed; the live station must still match the exact planning base.
 const prepared = CityOS.prepare(station, null, { roster });
 A.ok(prepared.ok && /^paulis-city-/.test(prepared.planId), 'prepare mints a bounded plan id rather than returning the giant document to the model');
