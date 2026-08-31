@@ -25,6 +25,10 @@ function stubBridge(impl) {
     if (verb === 'station.tasks') return { ok: true, result: { count: 1, tasks: [{ id: 't1', title: 'Fix check', lane: 'todo' }] } };
     if (verb === 'station.new_task') return { ok: true, result: { id: 't1', title: 'Fix check', lane: 'todo', created: true, durable: true } };
     if (verb === 'station.manage_task') return { ok: true, result: { id: 't1', changed: true, durable: true, task: { id: 't1', lane: 'active' } } };
+    if (verb === 'station.city_inspect') return { ok: true, result: { name: "PAULI'S PLACE", rooms: 23, props: 57, belts: 4 } };
+    if (verb === 'station.city_plan') return { ok: true, result: { planId: 'paulis-city-1', summary: { buildings: 11 }, canApply: true } };
+    if (verb === 'station.city_apply') return { ok: true, result: { name: "PAULI'S PLACE", durable: true, reversible: true } };
+    if (verb === 'station.city_undo') return { ok: true, result: { restored: true, durable: true } };
     return { ok: false, error: 'unknown' };
   });
   const t = makeStationTools({ station: bridge });
@@ -48,12 +52,17 @@ function stubBridge(impl) {
   A.eq(JSON.parse((await t.taskListTool.run({})).content).count, 1, 'task.list reads the real board projection');
   A.eq(JSON.parse((await t.taskCreateTool.run({ title: 'Fix check' })).content).durable, true, 'task.create returns the page durability receipt');
   A.eq(JSON.parse((await t.taskManageTool.run({ task: 'Fix check', action: 'move', lane: 'active' })).content).task.lane, 'active', 'task.manage returns the stored state');
+  A.eq(JSON.parse((await t.cityInspectTool.run({})).content).rooms, 23, 'city.inspect returns the live city projection');
+  const cp = await t.cityPlanTool.run({});
+  A.eq(JSON.parse(cp.content).planId, 'paulis-city-1', 'city.plan returns the prepared plan id');
+  A.eq(JSON.parse((await t.cityApplyTool.run({ planId: 'paulis-city-1' })).content).reversible, true, 'city.apply returns the atomic receipt');
+  A.eq(JSON.parse((await t.cityUndoTool.run({})).content).restored, true, 'city.undo returns the rollback receipt');
 }
 
 // ---- ⛔ the honesty contract: every failure is an explicit REFUSED, never a soft nothing ----
 {
-  const t = makeStationTools({});   // no bridge at all (bare host / headless composition)
-  for (const [tool, args] of [[t.listTool, {}], [t.createTool, { title: 'x' }], [t.focusTool, { session: 'x' }], [t.peekTool, { session: 'x' }], [t.taskListTool, {}], [t.taskCreateTool, { title: 'x' }], [t.taskManageTool, { task: 'x', action: 'archive' }]]) {
+  const t = makeStationTools({});
+  for (const [tool, args] of [[t.listTool, {}], [t.createTool, { title: 'x' }], [t.focusTool, { session: 'x' }], [t.peekTool, { session: 'x' }], [t.taskListTool, {}], [t.taskCreateTool, { title: 'x' }], [t.taskManageTool, { task: 'x', action: 'archive' }], [t.cityInspectTool, {}], [t.cityPlanTool, {}], [t.cityApplyTool, { planId: 'x' }], [t.cityUndoTool, {}]]) {
     const out = await tool.run(args);
     A.ok(/^REFUSED:/.test(out.content), tool.name + ' without a bridge refuses explicitly');
     A.ok(/do not report this action as done/.test(out.content), 'and tells the model not to claim it');
@@ -96,11 +105,15 @@ function stubBridge(impl) {
   A.eq(t.taskListTool.requiresConsent, false, 'task listing is consent-free');
   A.eq(t.taskCreateTool.requiresConsent, false, 'adding a reversible card is consent-free');
   A.eq(t.taskManageTool.requiresConsent, true, 'task management is consent-gated because it includes destructive actions');
+  A.eq(t.cityInspectTool.requiresConsent, false, 'city inspection is read-only');
+  A.eq(t.cityPlanTool.requiresConsent, false, 'city planning is detached/read-only');
+  A.eq(t.cityApplyTool.requiresConsent, true, 'city apply is consent-gated because it changes capability topology');
+  A.eq(t.cityUndoTool.requiresConsent, true, 'city rollback is consent-gated');
   A.ok(/NEVER answer from memory/i.test(t.peekTool.description) || /answering from memory is guessing/i.test(t.peekTool.description),
     "peek's description carries the anti-guessing rule — the tool exists because a lead denied real work");
   const reg = { registered: [], register(x) { this.registered.push(x.name); } };
   t.register(reg);
-  A.eq(reg.registered.join(','), 'session.list,session.create,session.peek,session.focus,task.list,task.create,task.manage', 'register() installs session and task verbs');
+  A.eq(reg.registered.join(','), 'session.list,session.create,session.peek,session.focus,task.list,task.create,task.manage,city.inspect,city.plan,city.apply,city.undo', 'register() installs session, task, and City OS verbs');
 }
 
 /* ---- ⛔ THE CAPABILITY REGISTRY IS AN ALLOWLIST. A tool registered with the host but not declared in
@@ -110,10 +123,11 @@ function stubBridge(impl) {
 {
   const src = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'sidecar', 'capability', 'registry.js'), 'utf8');
   const orch = src.slice(src.indexOf('orchestrator: ['), src.indexOf(']', src.indexOf('orchestrator: [')));
-  for (const name of ['session.list', 'session.create', 'session.peek', 'session.focus', 'task.list', 'task.create', 'task.manage']) {
+  for (const name of ['session.list', 'session.create', 'session.peek', 'session.focus', 'task.list', 'task.create', 'task.manage', 'city.inspect', 'city.plan', 'city.apply', 'city.undo']) {
     A.ok(orch.indexOf("tool: '" + name + "'") >= 0, name + ' is DECLARED in the orchestrator capability allowlist (registration alone exposes nothing)');
   }
   A.ok(/tool: 'session\.create', scope: 'write', requiresConsent: false/.test(orch), 'session.create is consent-free (spends nothing, reversible)');
+  A.ok(/tool: 'city\.apply', scope: 'write', requiresConsent: true/.test(orch), 'city.apply is consent-gated in the capability allowlist');
 }
 
 A.report('station-tools.test');
