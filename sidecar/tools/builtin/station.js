@@ -53,9 +53,9 @@
       description: 'Create a NEW named session (workstream) on the station — e.g. when the Commander says "make a session called research". Optionally bind it to a crew agentId, and pass focus:true only when the Commander asked to open/switch to it. Refuses a title that already exists (delegate into the existing one instead). After creating, you can run work in it by passing its title as `session` on a team.dispatch worker.',
       schema: {
         type: 'object', required: ['title'], properties: {
-          title: { type: 'string' },      // the name the Commander said, shown on the rail (≤80 chars)
-          agentId: { type: 'string' },    // optional crew member this session belongs to
-          focus: { type: 'boolean' }      // true = also make it the Commander's active session
+          title: { type: 'string' },
+          agentId: { type: 'string' },
+          focus: { type: 'boolean' }
         }
       },
       run: async (args) => {
@@ -73,7 +73,7 @@
       schema: {
         type: 'object', required: ['session'], properties: {
           session: { type: 'string' },
-          limit: { type: 'integer' }     // optional: how many recent turns (default 12, max 30)
+          limit: { type: 'integer' }
         }
       },
       run: async (args) => {
@@ -147,9 +147,57 @@
       }
     };
 
+    const cityInspectTool = {
+      name: 'city.inspect', capability: 'orchestrator', scope: 'read', requiresConsent: false,
+      description: 'Inspect Pauli\'s Place as it exists right now: city bounds, rooms, corridors, props, belts, and the real capability grants each bound agent resolves from its physical room. Use this before proposing structural changes.',
+      schema: { type: 'object', properties: {} },
+      run: async () => {
+        const out = await ask('station.city_inspect', {});
+        if (!out.ok) return refuse(out.error, 'city unavailable');
+        return { content: JSON.stringify(out.result), summary: 'inspected Pauli\'s Place' };
+      }
+    };
+
+    const cityPlanTool = {
+      name: 'city.plan', capability: 'orchestrator', scope: 'read', requiresConsent: false,
+      description: 'Compile a WHOLE Pauli\'s Place city on a detached draft without changing the live floor. Omit `spec` to use the built-in Pauli\'s Place preset (Command, Production, Revenue, Creative, Commerce, Intelligence, Experiment, Operations). Returns a planId, building map, assignments, vacancies, dimensions, and counts. The plan is validated against the real WorldModel and routing compiler before it is offered.',
+      schema: { type: 'object', properties: { spec: { type: 'object' }, columns: { type: 'integer', minimum: 1, maximum: 6 } } },
+      run: async (args) => {
+        const out = await ask('station.city_plan', args || {});
+        if (!out.ok) return refuse(out.error, 'city plan refused');
+        const r = out.result || {};
+        return { content: JSON.stringify(r), summary: 'planned ' + ((r.summary && r.summary.buildings) || 0) + ' building(s) — ' + (r.planId || 'no plan id') };
+      }
+    };
+
+    const cityApplyTool = {
+      name: 'city.apply', capability: 'orchestrator', scope: 'write', requiresConsent: true,
+      description: 'Apply ONE previously prepared city.plan by its exact planId. This is a consequential structural/capability change, so it is consent-gated. The page rejects stale plans if anything changed since planning. A successful apply atomically swaps in one fully validated WorldModel document and records an exact guarded rollback; it never leaves a half-city.',
+      schema: { type: 'object', required: ['planId'], properties: { planId: { type: 'string' } } },
+      run: async (args) => {
+        const planId = String((args && args.planId) || '').trim();
+        if (!planId) return refuse('city.apply needs a planId');
+        const out = await ask('station.city_apply', { planId });
+        if (!out.ok) return refuse(out.error, 'city apply refused');
+        const r = out.result || {};
+        return { content: JSON.stringify(r), summary: 'applied ' + (r.name || 'city') + (r.durable === false ? ' (local save only)' : '') };
+      }
+    };
+
+    const cityUndoTool = {
+      name: 'city.undo', capability: 'orchestrator', scope: 'write', requiresConsent: true,
+      description: 'Undo the last City OS apply ONLY when the station is still byte-identical to that applied city. Refuses if the Commander or an agent edited the floor afterward, so it can never blindly erase later work.',
+      schema: { type: 'object', properties: {} },
+      run: async () => {
+        const out = await ask('station.city_undo', {});
+        if (!out.ok) return refuse(out.error, 'city rollback refused');
+        return { content: JSON.stringify(out.result), summary: 'rolled back last city apply' };
+      }
+    };
+
     return {
-      listTool, createTool, peekTool, focusTool, taskListTool, taskCreateTool, taskManageTool,
-      register(reg) { [listTool, createTool, peekTool, focusTool, taskListTool, taskCreateTool, taskManageTool].forEach(t => reg.register(t)); return reg; }
+      listTool, createTool, peekTool, focusTool, taskListTool, taskCreateTool, taskManageTool, cityInspectTool, cityPlanTool, cityApplyTool, cityUndoTool,
+      register(reg) { [listTool, createTool, peekTool, focusTool, taskListTool, taskCreateTool, taskManageTool, cityInspectTool, cityPlanTool, cityApplyTool, cityUndoTool].forEach(t => reg.register(t)); return reg; }
     };
   }
 
