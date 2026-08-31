@@ -1,0 +1,4 @@
+﻿.env.gateway
+.gateway-token
+*.local
+node_modules/
