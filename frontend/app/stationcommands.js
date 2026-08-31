@@ -325,6 +325,67 @@ const StationCommands = (() => {
       return { settled: true, session: hit.w.title || 'General', resolvedBy: hit.resolvedBy };
     },
 
+    /* PAULI'S PLACE CITY OS — high-level compiler verbs only. The sidecar/model never receives tile-level
+       mutation powers: it can inspect, prepare a whole proven plan, apply that exact plan atomically, or undo
+       the last untouched city apply. CityOS validates on a detached WorldModel before any live mutation. */
+    'station.city_inspect': () => {
+      if (typeof CityOS === 'undefined' || !CityOS.inspect || !CityOS.liveStation) throw new Error('City OS is not loaded');
+      const station = CityOS.liveStation(); if (!station) throw new Error('the city floor is not ready yet');
+      const out = CityOS.inspect(station);
+      if (!out || !out.ok) throw new Error((out && out.msg) || 'City OS could not inspect the station');
+      return out;
+    },
+
+    'station.city_plan': (a) => {
+      if (typeof CityOS === 'undefined' || !CityOS.prepare || !CityOS.liveStation) throw new Error('City OS is not loaded');
+      const station = CityOS.liveStation(); if (!station) throw new Error('the city floor is not ready yet');
+      const roster = (typeof App !== 'undefined' && App.agents && App.agents()) || [];
+      const opts = { roster };
+      if (a && a.columns != null) opts.columns = a.columns;
+      const out = CityOS.prepare(station, a && a.spec ? a.spec : null, opts);
+      if (!out || !out.ok) throw new Error((out && (out.msg || out.error)) || 'City OS could not produce a valid plan');
+      return out;
+    },
+
+    'station.city_apply': async (a) => {
+      if (typeof CityOS === 'undefined' || !CityOS.applyPrepared || !CityOS.liveStation) throw new Error('City OS is not loaded');
+      const station = CityOS.liveStation(); if (!station) throw new Error('the city floor is not ready yet');
+      if (typeof Build !== 'undefined' && Build.isOpen && Build.isOpen()) throw new Error('close REFIT before applying a whole-city plan');
+      const planId = String((a && a.planId) || '').trim();
+      if (!planId) throw new Error('city.apply needs the planId returned by city.plan');
+      const out = CityOS.applyPrepared(station, planId);
+      if (!out || !out.ok) throw new Error((out && (out.msg || out.error)) || 'City OS refused the plan');
+      try { if (typeof World !== 'undefined' && World.loadStation) World.loadStation(station); } catch (_) {}
+      if (typeof App === 'undefined' || !App.persist) throw new Error('city applied locally but the station cannot persist it right now — do not report it as durable');
+      App.persist();
+      if (typeof CloudSave !== 'undefined' && CloudSave.flush && CloudSave.pull) {
+        const landed = await CloudSave.flush({ force: true });
+        if (!landed) throw new Error('city applied locally but durable save was not confirmed — do not report it as complete');
+        const saved = await CloudSave.pull();
+        const live = station.serialize();
+        if (!saved || JSON.stringify(saved.station || null) !== JSON.stringify(live))
+          throw new Error('city applied locally but durable read-back did not match — do not report it as complete');
+        out.durable = true;
+      } else out.durable = false;
+      return out;
+    },
+
+    'station.city_undo': async () => {
+      if (typeof Build !== 'undefined' && Build.isOpen && Build.isOpen()) throw new Error('close REFIT before rolling back a whole-city plan');
+      if (typeof CityOS === 'undefined' || !CityOS.undoLast || !CityOS.liveStation) throw new Error('City OS is not loaded');
+      const station = CityOS.liveStation(); if (!station) throw new Error('the city floor is not ready yet');
+      const out = CityOS.undoLast(station);
+      if (!out || !out.ok) throw new Error((out && (out.msg || out.error)) || 'City OS could not safely undo');
+      try { if (typeof World !== 'undefined' && World.loadStation) World.loadStation(station); } catch (_) {}
+      if (typeof App !== 'undefined' && App.persist) App.persist();
+      if (typeof CloudSave !== 'undefined' && CloudSave.flush) {
+        const landed = await CloudSave.flush({ force: true });
+        if (!landed) throw new Error('city rollback happened locally but durable save was not confirmed');
+        out.durable = true;
+      } else out.durable = false;
+      return out;
+    },
+
     /* Who is on the roster and what each one is for — the list a delegate call has to choose from. */
     'station.crew': () => {
       if (typeof App === 'undefined' || !App.agents) throw new Error('the crew roster is not ready yet');
