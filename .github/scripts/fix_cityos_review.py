@@ -1,0 +1,104 @@
+from pathlib import Path
+
+city_paths = [Path('frontend/app/cityos.js'), Path('website/app/app/cityos.js')]
+station_paths = [Path('frontend/app/stationcommands.js'), Path('website/app/app/stationcommands.js')]
+app_paths = [Path('frontend/app/app.js'), Path('website/app/app/app.js')]
+
+old_live = """  // Capture the station instance the APP creates without reaching into App's closure. City OS loads before
+  // app.js, so wrapping the two factory calls is enough. Draft compilation uses the ORIGINAL deserialize
+  // function below, which prevents a detached validation station from ever replacing this live pointer.
+  const wmCreate = WM && WM.create ? WM.create.bind(WM) : null;
+  const wmDeserialize = WM && WM.deserialize ? WM.deserialize.bind(WM) : null;
+  let live = null;
+  if (typeof window !== 'undefined' && WM && wmCreate && wmDeserialize && !WM.__paulisPlaceLiveCapture) {
+    WM.__paulisPlaceLiveCapture = true;
+    WM.create = function () { const st = wmCreate.apply(null, arguments); live = st; return st; };
+    WM.deserialize = function () { const st = wmDeserialize.apply(null, arguments); live = st; return st; };
+  }
+"""
+new_live = """  // The App owns the canonical station. Register that instance explicitly from App.enterGame();
+  // detached WorldModel.create/deserialize calls used by planning, tests, and tools must never become live.
+  const wmDeserialize = WM && WM.deserialize ? WM.deserialize.bind(WM) : null;
+  let live = null;
+  function registerLiveStation(station) {
+    if (!station || typeof station.serialize !== 'function') return fail('NO_STATION', 'a WorldModel station is required');
+    live = station;
+    return { ok: true };
+  }
+"""
+old_routing = """    const geo = draft.projectGeometry();
+    const routing = Pipe && Pipe.compileRoutingPlan ? Pipe.compileRoutingPlan(geo) : null;
+    const routingErrors = routing && Array.isArray(routing.errors) ? routing.errors.filter(e => !e.warn) : [];
+    if (routingErrors.length) return fail('ROUTING_INVALID', 'compiled city has blocking workflow errors', { routingErrors: clone(routingErrors) });
+"""
+new_routing = """    const geo = draft.projectGeometry();
+    if (!Pipe || typeof Pipe.compileRoutingPlan !== 'function') {
+      return fail('ROUTING_UNAVAILABLE', 'City OS needs the pipeline routing compiler');
+    }
+    const routing = Pipe.compileRoutingPlan(geo);
+    const routingErrors = Array.isArray(routing.errors) ? routing.errors.filter(e => !e.warn) : [];
+    if (routingErrors.length) return fail('ROUTING_INVALID', 'compiled city has blocking workflow errors', { routingErrors: clone(routingErrors) });
+"""
+old_export = """    VERSION, BUILDING_TEMPLATES, DEFAULT_SPEC,
+    liveStation: () => live,
+    plan, prepare, apply, applyPrepared, undoLast, inspect, diff,
+"""
+new_export = """    VERSION, BUILDING_TEMPLATES, DEFAULT_SPEC,
+    liveStation: () => live, registerLiveStation,
+    plan, prepare, apply, applyPrepared, undoLast, inspect, diff,
+"""
+
+for path in city_paths:
+    text = path.read_text()
+    for old, new, label in [(old_live, new_live, 'live registration'), (old_routing, new_routing, 'routing fail-closed'), (old_export, new_export, 'register export')]:
+        if old not in text:
+            raise SystemExit(f'{path}: expected {label} source not found')
+        text = text.replace(old, new, 1)
+    path.write_text(text)
+
+old_station_mount = """    station = (pendingStationDoc && pendingStationDoc.rooms) ? WorldModel.deserialize(pendingStationDoc) : WorldModel.create();
+    pendingStationDoc = null;
+"""
+new_station_mount = """    station = (pendingStationDoc && pendingStationDoc.rooms) ? WorldModel.deserialize(pendingStationDoc) : WorldModel.create();
+    if (typeof CityOS !== 'undefined' && CityOS.registerLiveStation) {
+      const cityRegistration = CityOS.registerLiveStation(station);
+      if (!cityRegistration || !cityRegistration.ok) throw new Error('failed to register the canonical City OS station');
+    }
+    pendingStationDoc = null;
+"""
+for path in app_paths:
+    text = path.read_text()
+    if old_station_mount not in text:
+        raise SystemExit(f'{path}: canonical App station assignment not found')
+    path.write_text(text.replace(old_station_mount, new_station_mount, 1))
+
+old_undo = """      if (typeof App !== 'undefined' && App.persist) App.persist();
+      if (typeof CloudSave !== 'undefined' && CloudSave.flush) {
+        const landed = await CloudSave.flush({ force: true });
+        if (!landed) throw new Error('city rollback happened locally but durable save was not confirmed');
+        out.durable = true;
+      } else out.durable = false;
+"""
+new_undo = """      if (typeof App === 'undefined' || !App.persist) {
+        throw new Error('city rollback happened locally but the station cannot persist it right now');
+      }
+      App.persist();
+      if (typeof CloudSave !== 'undefined' && CloudSave.flush && CloudSave.pull) {
+        const landed = await CloudSave.flush({ force: true });
+        if (!landed) throw new Error('city rollback happened locally but durable save was not confirmed');
+        const saved = await CloudSave.pull();
+        const current = station.serialize();
+        if (!saved || JSON.stringify(saved.station || null) !== JSON.stringify(current)) {
+          throw new Error('city rollback happened locally but durable read-back did not match');
+        }
+        out.durable = true;
+      } else out.durable = false;
+"""
+for path in station_paths:
+    text = path.read_text()
+    if old_undo not in text:
+        raise SystemExit(f'{path}: expected undo persistence source not found')
+    path.write_text(text.replace(old_undo, new_undo, 1))
+
+test = Path('test/cityos-live-registration.test.js')
+test.write_text("""'use strict';\nconst assert = require('assert');\nconst fs = require('fs');\nconst WM = require('../frontend/app/worldmodel.js');\nglobal.WorldModel = WM;\nconst CityOS = require('../frontend/app/cityos.js');\nconst station = WM.create();\nassert.strictEqual(CityOS.registerLiveStation(station).ok, true);\nassert.strictEqual(CityOS.liveStation(), station);\nWM.deserialize(station.serialize());\nassert.strictEqual(CityOS.liveStation(), station, 'detached deserialize must not replace live station');\nconst appSource = fs.readFileSync(require.resolve('../frontend/app/app.js'), 'utf8');\nassert.ok(appSource.includes('CityOS.registerLiveStation(station)'), 'App.enterGame must explicitly register the canonical station');\nconsole.log('cityos live registration: ok');\n""")
