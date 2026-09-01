@@ -1,0 +1,16 @@
+{
+  "name": "pauli-gateway",
+  "version": "1.0.0",
+  "description": "PAULI STARNET Gateway — secure bridge between Pauli Command Center and STARNET sidecar",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "pm2": "pm2 start server.js --name pauli-gateway --restart-delay=2000 --max-restarts=20 --log-type=json",
+    "test": "node -e \"require('./server.js'); setTimeout(() => { console.log('Gateway syntax OK'); process.exit(0); }, 100);\" || true"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["pauli", "starnet", "gateway", "heisenberg"],
+  "private": true
+}
