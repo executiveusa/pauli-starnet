@@ -267,6 +267,13 @@
       { capId: 'orchestrator', tool: 'task.list', scope: 'read', requiresConsent: false, network: false },
       { capId: 'orchestrator', tool: 'task.create', scope: 'write', requiresConsent: false, network: false },
       { capId: 'orchestrator', tool: 'task.manage', scope: 'write', requiresConsent: true, network: false },
+      // PAULI'S PLACE CITY OS: high-level structural compiler. PLAN is read-only/detached; APPLY changes
+      // capability placement + workflow topology and UNDO removes it, so both live mutations stay behind
+      // the native consent gate. The model never receives room/prop/tile primitives directly.
+      { capId: 'orchestrator', tool: 'city.inspect', scope: 'read', requiresConsent: false, network: false },
+      { capId: 'orchestrator', tool: 'city.plan', scope: 'read', requiresConsent: false, network: false },
+      { capId: 'orchestrator', tool: 'city.apply', scope: 'write', requiresConsent: true, network: false },
+      { capId: 'orchestrator', tool: 'city.undo', scope: 'write', requiresConsent: true, network: false },
       // LOOPS: standing objective iteration through loops.json. Both mutations require consent because they
       // create or alter future autonomous work. Model tools never accept the host-run check command.
       { capId: 'orchestrator', tool: 'loop.list', scope: 'read', requiresConsent: false, network: false },

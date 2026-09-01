@@ -2886,6 +2886,10 @@ const App = (() => {
     // and every per-station REFIT latch keyed on it would be lost. Read before deserialize mutates it.)
     const hadStationId = !!(pendingStationDoc && pendingStationDoc.meta && pendingStationDoc.meta.createdAt);
     station = (pendingStationDoc && pendingStationDoc.rooms) ? WorldModel.deserialize(pendingStationDoc) : WorldModel.create();
+    if (typeof CityOS !== 'undefined' && CityOS.registerLiveStation) {
+      const cityRegistration = CityOS.registerLiveStation(station);
+      if (!cityRegistration || !cityRegistration.ok) throw new Error('failed to register the canonical City OS station');
+    }
     pendingStationDoc = null;
     // THE OVERSEER'S DESK IS A REAL PROP: materialize the starter workstation the world used to merely
     // DRAW (synthetic auto-desk) as a real hero-assigned desk in the doc, BEFORE the world derives its
