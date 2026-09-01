@@ -100,5 +100,21 @@ for path in station_paths:
         raise SystemExit(f'{path}: expected undo persistence source not found')
     path.write_text(text.replace(old_undo, new_undo, 1))
 
+city_test = Path('test/cityos.test.js')
+city_test_text = city_test.read_text()
+old_capture_test = """const station = WM.create();
+A.eq(CityOS.liveStation(), station, 'browser capture seam tracks the real station created by WorldModel');
+"""
+new_capture_test = """const station = WM.create();
+A.ok(CityOS.registerLiveStation(station).ok, 'App ownership seam explicitly registers the live station');
+A.eq(CityOS.liveStation(), station, 'explicit registration tracks the App-owned station');
+const detachedFactoryRuntime = WM.create();
+A.ok(detachedFactoryRuntime !== station, 'detached factory runtime is distinct');
+A.eq(CityOS.liveStation(), station, 'detached WorldModel.create must not replace the live station');
+"""
+if old_capture_test not in city_test_text:
+    raise SystemExit('test/cityos.test.js: stale global-capture assertion not found')
+city_test.write_text(city_test_text.replace(old_capture_test, new_capture_test, 1))
+
 test = Path('test/cityos-live-registration.test.js')
 test.write_text("""'use strict';\nconst assert = require('assert');\nconst fs = require('fs');\nconst WM = require('../frontend/app/worldmodel.js');\nglobal.WorldModel = WM;\nconst CityOS = require('../frontend/app/cityos.js');\nconst station = WM.create();\nassert.strictEqual(CityOS.registerLiveStation(station).ok, true);\nassert.strictEqual(CityOS.liveStation(), station);\nWM.deserialize(station.serialize());\nassert.strictEqual(CityOS.liveStation(), station, 'detached deserialize must not replace live station');\nconst appSource = fs.readFileSync(require.resolve('../frontend/app/app.js'), 'utf8');\nassert.ok(appSource.includes('CityOS.registerLiveStation(station)'), 'App.enterGame must explicitly register the canonical station');\nconsole.log('cityos live registration: ok');\n""")
