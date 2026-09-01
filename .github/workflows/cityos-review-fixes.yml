@@ -6,6 +6,7 @@ on:
       - pauli/paulis-place-city-os-20260830
     paths:
       - .github/workflows/cityos-review-fixes.yml
+      - .github/scripts/fix_cityos_review.py
 
 permissions:
   contents: write
@@ -37,6 +38,6 @@ jobs:
           rm .github/workflows/cityos-review-fixes.yml .github/scripts/fix_cityos_review.py
           git config user.name "pauli-city-os-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend/app/cityos.js website/app/app/cityos.js frontend/app/app.js website/app/app/app.js frontend/app/stationcommands.js website/app/app/stationcommands.js test/cityos-live-registration.test.js .github/workflows/cityos-review-fixes.yml .github/scripts/fix_cityos_review.py
+          git add frontend/app/cityos.js website/app/app/cityos.js frontend/app/app.js website/app/app/app.js frontend/app/stationcommands.js website/app/app/stationcommands.js test/cityos.test.js test/cityos-live-registration.test.js .github/workflows/cityos-review-fixes.yml .github/scripts/fix_cityos_review.py
           git commit -m "fix: close City OS ownership routing and durability gates"
           git push origin HEAD:pauli/paulis-place-city-os-20260830
