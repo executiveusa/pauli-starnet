@@ -1,0 +1,14 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const WM = require('../frontend/app/worldmodel.js');
+global.WorldModel = WM;
+const CityOS = require('../frontend/app/cityos.js');
+const station = WM.create();
+assert.strictEqual(CityOS.registerLiveStation(station).ok, true);
+assert.strictEqual(CityOS.liveStation(), station);
+WM.deserialize(station.serialize());
+assert.strictEqual(CityOS.liveStation(), station, 'detached deserialize must not replace live station');
+const appSource = fs.readFileSync(require.resolve('../frontend/app/app.js'), 'utf8');
+assert.ok(appSource.includes('CityOS.registerLiveStation(station)'), 'App.enterGame must explicitly register the canonical station');
+console.log('cityos live registration: ok');

@@ -36,7 +36,11 @@ const roster = [
 ];
 
 const station = WM.create();
-A.eq(CityOS.liveStation(), station, 'browser capture seam tracks the real station created by WorldModel');
+A.ok(CityOS.registerLiveStation(station).ok, 'App ownership seam explicitly registers the live station');
+A.eq(CityOS.liveStation(), station, 'explicit registration tracks the App-owned station');
+const detachedFactoryRuntime = WM.create();
+A.ok(detachedFactoryRuntime !== station, 'detached factory runtime is distinct');
+A.eq(CityOS.liveStation(), station, 'detached WorldModel.create must not replace the live station');
 A.ok(station.ensureWorkstation('agent').ok, 'fresh hero workstation materialized before city planning');
 const before = station.serialize(), beforeText = JSON.stringify(before);
 

@@ -377,10 +377,18 @@ const StationCommands = (() => {
       const out = CityOS.undoLast(station);
       if (!out || !out.ok) throw new Error((out && (out.msg || out.error)) || 'City OS could not safely undo');
       try { if (typeof World !== 'undefined' && World.loadStation) World.loadStation(station); } catch (_) {}
-      if (typeof App !== 'undefined' && App.persist) App.persist();
-      if (typeof CloudSave !== 'undefined' && CloudSave.flush) {
+      if (typeof App === 'undefined' || !App.persist) {
+        throw new Error('city rollback happened locally but the station cannot persist it right now');
+      }
+      App.persist();
+      if (typeof CloudSave !== 'undefined' && CloudSave.flush && CloudSave.pull) {
         const landed = await CloudSave.flush({ force: true });
         if (!landed) throw new Error('city rollback happened locally but durable save was not confirmed');
+        const saved = await CloudSave.pull();
+        const current = station.serialize();
+        if (!saved || JSON.stringify(saved.station || null) !== JSON.stringify(current)) {
+          throw new Error('city rollback happened locally but durable read-back did not match');
+        }
         out.durable = true;
       } else out.durable = false;
       return out;

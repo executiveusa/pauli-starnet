@@ -18,16 +18,14 @@ const CityOS = (() => {
     : (typeof require === 'function' ? require('./pipeline.js') : null);
 
   const VERSION = 1;
-  // Capture the station instance the APP creates without reaching into App's closure. City OS loads before
-  // app.js, so wrapping the two factory calls is enough. Draft compilation uses the ORIGINAL deserialize
-  // function below, which prevents a detached validation station from ever replacing this live pointer.
-  const wmCreate = WM && WM.create ? WM.create.bind(WM) : null;
+  // The App owns the canonical station. Register that instance explicitly from App.enterGame();
+  // detached WorldModel.create/deserialize calls used by planning, tests, and tools must never become live.
   const wmDeserialize = WM && WM.deserialize ? WM.deserialize.bind(WM) : null;
   let live = null;
-  if (typeof window !== 'undefined' && WM && wmCreate && wmDeserialize && !WM.__paulisPlaceLiveCapture) {
-    WM.__paulisPlaceLiveCapture = true;
-    WM.create = function () { const st = wmCreate.apply(null, arguments); live = st; return st; };
-    WM.deserialize = function () { const st = wmDeserialize.apply(null, arguments); live = st; return st; };
+  function registerLiveStation(station) {
+    if (!station || typeof station.serialize !== 'function') return fail('NO_STATION', 'a WorldModel station is required');
+    live = station;
+    return { ok: true };
   }
   const DEFAULT_ROOM = { w: 24, h: 14 };
   const GRID = { cols: 4, gapX: 4, gapY: 4 };
@@ -403,8 +401,11 @@ const CityOS = (() => {
     if (draft.setPipelineEdges) draft.setPipelineEdges(allEdges);
 
     const geo = draft.projectGeometry();
-    const routing = Pipe && Pipe.compileRoutingPlan ? Pipe.compileRoutingPlan(geo) : null;
-    const routingErrors = routing && Array.isArray(routing.errors) ? routing.errors.filter(e => !e.warn) : [];
+    if (!Pipe || typeof Pipe.compileRoutingPlan !== 'function') {
+      return fail('ROUTING_UNAVAILABLE', 'City OS needs the pipeline routing compiler');
+    }
+    const routing = Pipe.compileRoutingPlan(geo);
+    const routingErrors = Array.isArray(routing.errors) ? routing.errors.filter(e => !e.warn) : [];
     if (routingErrors.length) return fail('ROUTING_INVALID', 'compiled city has blocking workflow errors', { routingErrors: clone(routingErrors) });
 
     const plannedDoc = draft.serialize();
@@ -500,7 +501,7 @@ const CityOS = (() => {
 
   return {
     VERSION, BUILDING_TEMPLATES, DEFAULT_SPEC,
-    liveStation: () => live,
+    liveStation: () => live, registerLiveStation,
     plan, prepare, apply, applyPrepared, undoLast, inspect, diff,
     publicPlan, _internals: { normalizeRoster, flattenBuildings, chooseAssignments, slotMatch, swapStation }
   };
