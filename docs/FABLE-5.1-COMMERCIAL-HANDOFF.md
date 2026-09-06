@@ -8,7 +8,7 @@ This handoff is for a second-stage product/venture pass after the architecture a
 
 Primary product:
 - `executiveusa/pauli-starnet`
-- branch: `pauli/sovereign-workforce-fabric-20260906`
+- branch: `feat/harness-backend`
 
 Reference operator image:
 - `nickvasilescu/nicks-stack`
@@ -123,7 +123,75 @@ Public workforce surface:
 
 Find the strongest path from this architecture to revenue.
 
-Do not limit yourself to “sell AI agents.” Explore the system as infrastructure, managed service, operating system, agency multiplier, franchise layer, vertical employee product, white-label platform and one-person-business operating model.
+Do not limit yourself to “sell AI agents.” Explore the system as infrastructure, managed service, operating system, agency multiplier, franchise layer, vertical employee product, white-label platform, one-person-business operating model **and autonomous publishing studio**.
+
+## Publishing / Books is a first-class commercial vertical
+
+Treat books and publishing as a primary business line, not a side feature.
+
+STARNET should be evaluated as the operating system for a publishing company that can take an idea or client source material through research, writing, editing, design, production, publishing, distribution, repurposing and sales.
+
+Reference workflow:
+
+```text
+IDEA / CLIENT MATERIAL
+        ↓
+Research agent
+        ↓
+Writer / Ghostwriter
+        ↓
+Fact-checker / Editor
+        ↓
+Art Director / Designer
+        ↓
+Publisher / Production agent
+        ↓
+MULTI-FORMAT EDITION
+  ├─ print-ready PDF
+  ├─ EPUB / ebook
+  ├─ interactive web book
+  ├─ two-page flipbook / Living Edition
+  ├─ narrated / audio edition
+  ├─ multimedia edition
+  ├─ agent-readable knowledge edition
+  └─ translated editions
+        ↓
+MARKETING FACTORY
+  ├─ social excerpts
+  ├─ short-form video scripts
+  ├─ newsletters
+  ├─ press materials
+  ├─ landing pages
+  ├─ outreach
+  └─ launch campaigns
+        ↓
+COMMERCE / LICENSING / CLIENT DELIVERY
+```
+
+Analyze at least these publishing offers:
+
+- memoirs and autobiographies
+- founder/CEO authority books
+- branded business books
+- nonprofit impact books and reports
+- interactive children’s books
+- comics / illustrated stories
+- training manuals and certification books
+- educational workbooks
+- local-history/community books
+- ghostwriting-as-a-service
+- white-label publishing for agencies
+- book-to-content subscription service
+- Living Edition upgrades for existing books
+- multilingual editions
+- audiobook / narrated editions
+- corporate knowledge books
+- book licensing and distribution
+- print-on-demand commerce
+
+For publishing, determine what should be automated, what needs specialist human review, where copyright/rights verification belongs, where factual review belongs, and where explicit owner/client approval is mandatory.
+
+The product opportunity is not merely “AI writes books.” The differentiated product is an **evidence-driven autonomous publishing operation** where specialized workers coordinate through STARNET and every publication has a traceable production history.
 
 ## Required analysis
 
@@ -141,7 +209,7 @@ Identify the first customer segment with:
 Do not default to broad SMB.
 
 ### 3. Monetization map
-Produce at least 12 monetization models. Include:
+Produce at least 15 monetization models. Include:
 - managed AI employee monthly fee
 - setup/onboarding fee
 - per-computer/per-worker pricing
@@ -154,6 +222,9 @@ Produce at least 12 monetization models. Include:
 - skills/workflow marketplace
 - premium identity/compliance layer
 - enterprise/on-premise sovereign deployment
+- managed book production
+- white-label publishing studio
+- recurring book-to-content / Living Edition service
 
 Score each 1–10 for:
 - speed to first revenue
@@ -179,11 +250,15 @@ For each, give:
 - retention mechanism
 - reason to buy now
 
+At least one of the top candidate offers must explicitly evaluate publishing/books if the economics are competitive.
+
 ### 5. One-person company model
 Design how one human could run 10, 50 and 100 client-facing AI employees using STARNET. Identify what must become automated at each scale threshold.
 
+Also model how one human could operate a multi-title publishing studio with concurrent book projects using persistent editorial/publishing agents plus temporary research, design, fact-check and production workers.
+
 ### 6. Vertical wedges
-Find at least 10 verticals where a persistent agent with email + browser + apps + computer is materially better than a chat assistant. Rank them.
+Find at least 12 verticals where a persistent agent with email + browser + apps + computer is materially better than a chat assistant. Rank them.
 
 Examples are allowed but do not anchor on them:
 - sports mentors/coaches
@@ -193,6 +268,40 @@ Examples are allowed but do not anchor on them:
 - ecommerce operators
 - property/service operations
 - professional practices
+- authors / experts / creators
+- publishers / agencies
+
+### 6B. Publishing business deep dive
+Treat publishing as its own venture inside the larger workforce system.
+
+Produce:
+- the best first publishing customer
+- the best first book product
+- a standardized production workflow
+- worker roster and responsibilities
+- human review checkpoints
+- average production cycle
+- cost-to-produce hypothesis
+- pricing model
+- margin model
+- rights/copyright safeguards
+- fact-checking/evidence policy
+- distribution options
+- recurring revenue after publication
+- book-to-content flywheel
+- white-label opportunity
+- Living Edition / interactive edition opportunity
+- whether publishing should be a standalone brand, vertical operator pack, or internal capability
+
+Compare at least these revenue structures:
+1. fixed-fee book production
+2. premium ghostwriting package
+3. monthly publishing studio retainer
+4. white-label agency fulfillment
+5. revenue share / royalty participation
+6. Living Edition conversion fee + hosting subscription
+7. book-to-content recurring subscription
+8. corporate knowledge-book program
 
 ### 7. Moat
 Separate real moat from feature theater. Consider:
@@ -205,6 +314,9 @@ Separate real moat from feature theater. Consider:
 - customer-specific skills
 - switching cost
 - outcome history
+- proprietary publishing workflows and production history
+- reusable editorial/design templates
+- rights/evidence provenance
 
 ### 8. Competitive map
 Compare against:
@@ -215,6 +327,10 @@ Compare against:
 - orchestration frameworks
 - RPA
 - virtual assistants/BPO
+- ghostwriting agencies
+- self-publishing services
+- book-production studios
+- AI book generators
 
 State what STARNET must own versus integrate.
 
@@ -223,6 +339,9 @@ Build simple models for:
 - 1 persistent employee
 - 10 employees
 - 100 employees
+- 1 book project
+- 10 concurrent book projects
+- 50 concurrent book projects
 
 Include:
 - model tokens
@@ -232,6 +351,10 @@ Include:
 - observability
 - support
 - human exception handling
+- editorial review
+- design/illustration
+- production/export
+- hosting where an interactive edition is included
 
 Show which costs should be passed through and which should be bundled.
 
@@ -239,6 +362,10 @@ Show which costs should be passed through and which should be bundled.
 Design the minimum sellable package. Avoid a giant dashboard with 100 controls. The customer should understand:
 
 “Here is your employee. Here is what they own. Here is what they did. Here is what needs your approval.”
+
+For publishing, the equivalent should be:
+
+“Here is your book. Here is its production stage. Here is the evidence/source record. Here is what needs your approval. Here are the editions and marketing assets ready to publish.”
 
 ### 11. Trust product
 Define the trust experience:
@@ -252,6 +379,15 @@ Define the trust experience:
 - kill switch
 - rollback
 
+For publishing add:
+- source provenance
+- factual citation trail
+- plagiarism/copyright checks
+- rights and asset permissions
+- author/client approvals
+- version history
+- publication receipts
+
 Turn safety into a commercial advantage rather than friction.
 
 ### 12. Roadmap
@@ -262,6 +398,8 @@ Give:
 - 90-day commercial product
 
 Each milestone needs a measurable proof condition.
+
+Include a parallel publishing experiment that can generate revenue without waiting for the entire workforce platform to be commercialized.
 
 ## Required final decision
 
@@ -276,8 +414,11 @@ Pick one customer archetype.
 ### BEST FIRST AI EMPLOYEE
 Define the exact employee.
 
+### BEST PUBLISHING OFFER
+Pick the single strongest book/publishing offer even if publishing is not the overall winning business.
+
 ### PRICE
-Give a setup fee and recurring fee.
+Give a setup fee and recurring fee. Include publishing pricing separately where appropriate.
 
 ### WHY IT WINS
 Maximum five bullets.
