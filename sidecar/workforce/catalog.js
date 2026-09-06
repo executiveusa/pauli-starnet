@@ -32,6 +32,39 @@ const AGENT_BLUEPRINTS = Object.freeze([
   Object.freeze({ id: 'montage', role: 'media-operator', class: 'persistent', defaultComputer: true })
 ]);
 
+const BUSINESS_LANES = Object.freeze([
+  Object.freeze({
+    id: 'publishing-books',
+    label: 'Publishing / Books',
+    class: 'business-lane',
+    owner: 'starnet',
+    persistentLead: 'heisenberg',
+    workerPolicy: 'mission-workers-by-default',
+    stages: Object.freeze([
+      'concept', 'research', 'outline', 'draft', 'fact-check', 'edit', 'design',
+      'format', 'publish', 'narrate', 'market', 'repurpose'
+    ]),
+    workerRoles: Object.freeze([
+      'researcher', 'writer', 'ghostwriter', 'editor', 'fact-checker', 'book-designer',
+      'publisher', 'narrator', 'marketer', 'rights-reviewer'
+    ]),
+    outputs: Object.freeze([
+      'print-ready-pdf', 'epub', 'web-book', 'interactive-flipbook', 'living-edition',
+      'audiobook', 'multilingual-edition', 'social-excerpts', 'marketing-kit'
+    ]),
+    products: Object.freeze([
+      'memoir', 'authority-book', 'childrens-book', 'training-manual', 'impact-report',
+      'brand-book', 'white-label-publishing', 'book-to-content-subscription'
+    ]),
+    approvalPoints: Object.freeze([
+      'final-manuscript', 'rights-clearance', 'public-release', 'paid-distribution'
+    ]),
+    evidenceRequired: Object.freeze([
+      'source-notes', 'fact-check-receipt', 'rights-review', 'final-artifact-hash', 'publication-receipt'
+    ])
+  })
+]);
+
 function present(env, key) {
   return Boolean(env && typeof env[key] === 'string' && env[key].trim());
 }
@@ -97,6 +130,7 @@ function safeEnvironmentSummary(env) {
 module.exports = {
   NICKS_STACK_IMAGE,
   AGENT_BLUEPRINTS,
+  BUSINESS_LANES,
   computeProviders,
   integrations,
   safeEnvironmentSummary
