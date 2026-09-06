@@ -39,6 +39,18 @@ const plane = makeWorkforceControlPlane({
   }
 }
 
+// Publishing / Books is a first-class business lane, not a marketing-only note.
+{
+  const lane = plane.getBusinessLane('publishing-books');
+  ok(Boolean(lane), 'publishing-books business lane exists');
+  ok(lane.workerPolicy === 'mission-workers-by-default', 'publishing uses mission workers by default');
+  ok(lane.stages.includes('research') && lane.stages.includes('publish') && lane.stages.includes('repurpose'), 'publishing lane spans research through repurposing');
+  ok(lane.workerRoles.includes('writer') && lane.workerRoles.includes('editor') && lane.workerRoles.includes('rights-reviewer'), 'publishing lane defines writing, editing and rights roles');
+  ok(lane.outputs.includes('interactive-flipbook') && lane.outputs.includes('living-edition') && lane.outputs.includes('audiobook'), 'publishing lane includes interactive and audio outputs');
+  ok(lane.approvalPoints.includes('rights-clearance') && lane.evidenceRequired.includes('publication-receipt'), 'publishing lane has rights and publication proof gates');
+  ok(plane.snapshot().businessLanes.some(x => x.id === 'publishing-books'), 'workforce status exposes publishing lane');
+}
+
 // Persistent employees get an isolated sovereign computer first when configured.
 {
   const p = plane.planAgent('heisenberg');
