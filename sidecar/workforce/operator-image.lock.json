@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "nicks-stack",
+  "version": "0.2.2",
+  "upstream": {
+    "repository": "nickvasilescu/nicks-stack",
+    "commit": "90b9975c5391591e98565d20d33554a6b91f2f85",
+    "templateRef": "default/nicks-stack@0.2.2"
+  },
+  "pauliMirror": {
+    "repository": "executiveusa/pauli-nicks-stack-orgo",
+    "commit": "ad146427dacffa228e30d8b8c27e1615bd1ef4c5",
+    "version": "0.1.1",
+    "status": "stale-needs-reviewed-sync"
+  },
+  "policy": {
+    "controlPlane": "starnet",
+    "imageIsNotControlPlane": true,
+    "orgoIsOptionalBurstProvider": true,
+    "secretsBakedIntoImage": false,
+    "persistentAgentsRequireIsolatedComputer": true
+  }
+}
