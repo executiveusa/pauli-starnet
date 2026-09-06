@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "pm2": "pm2 start index.js --name pauli-gateway --restart-delay=2000 --max-restarts=20 --log-type=json",
-    "test": "node ../test/workforce-control-plane.test.js"
+    "test": "node ../test/workforce-control-plane.test.js && node ../test/workforce-gateway.test.js"
   },
   "engines": {
     "node": ">=18"
