@@ -135,6 +135,68 @@ The first reference set is:
 
 These are blueprints, not claims that every identity/computer is currently provisioned. `/v1/workforce/status` reports configured versus unconfigured infrastructure honestly.
 
+## First-class business lanes
+
+STARNET can own durable business lanes that are executed by persistent leads plus disposable mission workers. A business lane is not a separate orchestrator or another SaaS product; it is a controlled mission pipeline inside the same workforce operating system.
+
+### Publishing / Books
+
+`publishing-books` is a first-class lane in `sidecar/workforce/catalog.js` and is exposed in `/v1/workforce/status`.
+
+Default lead:
+
+- Heisenberg as persistent coordinating operator
+
+Default worker policy:
+
+- mission workers by default for specialized stages
+
+Pipeline:
+
+1. concept
+2. research
+3. outline
+4. draft
+5. fact-check
+6. edit
+7. design
+8. format
+9. publish
+10. narrate
+11. market
+12. repurpose
+
+Specialist roles:
+
+- researcher
+- writer
+- ghostwriter
+- editor
+- fact-checker
+- book designer
+- publisher
+- narrator
+- marketer
+- rights reviewer
+
+Supported output classes:
+
+- print-ready PDF
+- EPUB
+- web book
+- interactive flipbook
+- Living Edition
+- audiobook
+- multilingual edition
+- social excerpts
+- marketing kit
+
+Commercial product forms include memoirs, authority books, children's books, training manuals, impact reports, brand books, white-label publishing and book-to-content subscriptions.
+
+Publishing has explicit approval gates for final manuscript, rights clearance, public release and paid distribution. Evidence requirements include source notes, fact-check receipt, rights review, final artifact hash and publication receipt.
+
+The lane must preserve copyright, provenance and factual-truth requirements. A publication is not “done” because an agent says it is done; it is done only when the final artifact and publication evidence exist.
+
 ## Gateway architecture
 
 The existing `gateway/server.js` remains untouched and runs on a loopback-only internal port. `gateway/index.js` starts it and then exposes the public workforce facade on the original gateway port.
@@ -205,6 +267,7 @@ Empty values mean not configured. No fake readiness is inferred.
 - workforce mission planning and dispatch into STARNET `/api/run`
 - mission status receipts
 - compatibility proxy preserving existing gateway routes
+- first-class Publishing / Books lane exposed through workforce status
 - focused CI gate and syntax checks
 - secret-redaction assertions
 
@@ -217,6 +280,8 @@ Empty values mean not configured. No fake readiness is inferred.
 - no secret rotation
 - no external infrastructure mutation
 - no production deployment
+- no public book release without explicit approval
+- no paid book distribution without explicit approval
 
 Those are irreversible, billable or credential-bearing actions and need explicit provider credentials plus a separate live proof.
 
@@ -224,7 +289,7 @@ Those are irreversible, billable or credential-bearing actions and need explicit
 
 1. Focused CI gate green.
 2. Start composite gateway against a seeded STARNET workspace.
-3. `GET /v1/workforce/status` returns no secrets.
+3. `GET /v1/workforce/status` returns no secrets and exposes `publishing-books`.
 4. Plan a shell mission: no computer allocation required.
 5. Plan a browser mission: isolated computer required.
 6. Configure one test sovereign compute broker and provision one disposable worker.
@@ -233,8 +298,11 @@ Those are irreversible, billable or credential-bearing actions and need explicit
 9. Dispatch one read-only mission.
 10. Return evidence receipt to Command Center.
 11. Destroy disposable computer and prove cleanup.
-12. Only after that enable durable employee provisioning.
+12. Run one internal publishing proof from source notes to final non-public artifact plus fact-check and artifact-hash evidence.
+13. Only after that enable durable employee provisioning or public publishing flows.
 
 ## Commercial boundary
 
 This architecture supports a product where a customer buys a managed AI employee rather than a chatbot. A persistent employee can have a name, role, own email, bounded apps, durable memory, computer, schedule, budget, approval rules and audit trail. STARNET is the management system for the fleet; the operator image is replaceable.
+
+Publishing / Books is also a sellable operating lane in its own right: STARNET can run a controlled virtual publishing studio while preserving the same identity, compute, approval, evidence and cost model used by the rest of the workforce.
