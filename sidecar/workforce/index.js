@@ -18,6 +18,7 @@ function makeWorkforceControlPlane(deps) {
     image: Catalog.NICKS_STACK_IMAGE.id,
     status: 'blueprint'
   }));
+  const businessLanes = Catalog.BUSINESS_LANES.map(lane => JSON.parse(JSON.stringify(lane)));
 
   const orgo = makeOrgoProvider({
     apiKey: env.ORGO_API_KEY,
@@ -38,6 +39,7 @@ function makeWorkforceControlPlane(deps) {
       product: 'starnet-sovereign-workforce',
       operatorImage: Catalog.NICKS_STACK_IMAGE,
       blueprints: blueprints.map(x => Object.assign({}, x)),
+      businessLanes: businessLanes.map(x => JSON.parse(JSON.stringify(x))),
       environment: Catalog.safeEnvironmentSummary(env),
       providers: {
         sovereign: sovereign.safeSummary(),
@@ -59,6 +61,11 @@ function makeWorkforceControlPlane(deps) {
   function getBlueprint(agentId) {
     const key = String(agentId || '').toLowerCase();
     return blueprints.find(x => x.id === key) || null;
+  }
+
+  function getBusinessLane(laneId) {
+    const key = String(laneId || '').toLowerCase();
+    return businessLanes.find(x => x.id === key) || null;
   }
 
   function planAgent(agentId, options) {
@@ -114,6 +121,7 @@ function makeWorkforceControlPlane(deps) {
   return {
     snapshot,
     getBlueprint,
+    getBusinessLane,
     planAgent,
     planMission,
     providers: { orgo, sovereign },
