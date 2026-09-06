@@ -9,6 +9,7 @@ on:
       - 'sidecar/workforce/**'
       - 'gateway/**'
       - 'test/workforce-control-plane.test.js'
+      - 'test/workforce-gateway.test.js'
       - '.github/workflows/workforce-gate.yml'
   workflow_dispatch:
 
@@ -26,6 +27,8 @@ jobs:
           node-version: '22'
       - name: Contract and routing tests
         run: node test/workforce-control-plane.test.js
+      - name: Composite gateway smoke
+        run: node test/workforce-gateway.test.js
       - name: Syntax check workforce modules
         run: |
           node --check sidecar/workforce/catalog.js
