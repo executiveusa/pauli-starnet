@@ -1,0 +1,44 @@
+name: workforce-gate
+
+on:
+  push:
+    branches:
+      - 'pauli/sovereign-workforce-fabric-*'
+  pull_request:
+    paths:
+      - 'sidecar/workforce/**'
+      - 'gateway/**'
+      - 'test/workforce-control-plane.test.js'
+      - '.github/workflows/workforce-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workforce-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Contract and routing tests
+        run: node test/workforce-control-plane.test.js
+      - name: Syntax check workforce modules
+        run: |
+          node --check sidecar/workforce/catalog.js
+          node --check sidecar/workforce/contracts.js
+          node --check sidecar/workforce/router.js
+          node --check sidecar/workforce/index.js
+          node --check sidecar/workforce/providers/orgo.js
+          node --check sidecar/workforce/providers/sovereign.js
+          node --check gateway/index.js
+          node --check gateway/workforce-server.js
+      - name: Verify no secret literals in workforce snapshot code
+        run: |
+          if grep -RInE '(sk_live_[A-Za-z0-9]|am_[A-Za-z0-9]{12,}|ck_[A-Za-z0-9]{12,}|ops_[A-Za-z0-9]{12,})' sidecar/workforce gateway/workforce-server.js; then
+            echo 'Secret-like literal detected in workforce slice'
+            exit 1
+          fi
