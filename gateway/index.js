@@ -18,16 +18,24 @@ const child = fork(path.join(__dirname, 'server.js'), [], {
 
 process.env.GATEWAY_PORT = String(externalPort);
 process.env.GATEWAY_LEGACY_PORT = String(legacyPort);
-require('./workforce-server.js');
+const workforce = require('./workforce-server.js');
 
+let closing = false;
 function shutdown(signal) {
+  if (closing) return;
+  closing = true;
   if (child && !child.killed) {
     try { child.kill(signal || 'SIGTERM'); } catch (_) {}
   }
+  const done = () => process.exit(0);
+  if (workforce && workforce.server && workforce.server.listening) {
+    try { workforce.server.close(done); return; } catch (_) {}
+  }
+  done();
 }
 
 child.on('exit', (code, signal) => {
-  if (code && code !== 0) process.stderr.write('[GATEWAY] legacy child exited code=' + code + ' signal=' + (signal || '') + '\n');
+  if (code && code !== 0 && !closing) process.stderr.write('[GATEWAY] legacy child exited code=' + code + ' signal=' + (signal || '') + '\n');
 });
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
