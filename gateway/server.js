@@ -112,7 +112,10 @@ function sidecarRequest(method, path, body) {
   return new Promise((resolve, reject) => {
     const bodyBuf = body ? Buffer.from(JSON.stringify(body), 'utf8') : null;
     const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-    if (STARNET_TOKEN) headers['Authorization'] = `Bearer ${STARNET_TOKEN}`;
+    // The sidecar's /api/* gate reads the per-launch token from X-StarNet-Token (sidecar/apiauth.js
+    // headerToken); it ignores Authorization. Pin the sidecar with STARNET_API_TOKEN and hand the same
+    // value to this gateway as STARNET_SIDECAR_TOKEN. Bearer is kept for the /v1 seam only.
+    if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers['Authorization'] = `Bearer ${STARNET_TOKEN}`; }
     if (bodyBuf) headers['Content-Length'] = bodyBuf.length;
 
     const req = http.request({
@@ -162,7 +165,7 @@ function runToCompletion(agentId, message, context) {
       'Accept': 'application/x-ndjson, application/json',
       'Content-Length': bodyBuf.length
     };
-    if (STARNET_TOKEN) headers['Authorization'] = `Bearer ${STARNET_TOKEN}`;
+    if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers['Authorization'] = `Bearer ${STARNET_TOKEN}`; }
 
     const req = http.request({
       host: STARNET_HOST,
@@ -179,7 +182,10 @@ function runToCompletion(agentId, message, context) {
           const text = Buffer.concat(chunks).toString('utf8');
           let data;
           try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
-          const err = new Error(data?.error || `STARNET_RUN ${res.statusCode}`);
+          // Surface the sidecar's plain-text reason (e.g. "missing key/model") so the cockpit shows why,
+          // instead of a bare status code.
+          const raw = typeof data?.raw === 'string' ? data.raw.trim().slice(0, 200) : '';
+          const err = new Error(data?.error || (raw ? `STARNET_RUN ${res.statusCode}: ${raw}` : `STARNET_RUN ${res.statusCode}`));
           err.status = res.statusCode;
           reject(err);
         });

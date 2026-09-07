@@ -73,7 +73,8 @@ function runSidecar(agentId, objective, context, taskId) {
       'Accept': 'application/x-ndjson, application/json',
       'Content-Length': body.length
     };
-    if (STARNET_TOKEN) headers.Authorization = 'Bearer ' + STARNET_TOKEN;
+    // sidecar /api/run authenticates via X-StarNet-Token (see sidecar/apiauth.js), not Authorization.
+    if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers.Authorization = 'Bearer ' + STARNET_TOKEN; }
     const r = http.request({
       host: '127.0.0.1', port: STARNET_PORT, path: '/api/run', method: 'POST', headers, timeout: 90000
     }, res => {
