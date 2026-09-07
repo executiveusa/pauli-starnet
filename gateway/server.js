@@ -153,9 +153,16 @@ function sidecarRequest(method, path, body) {
 function runToCompletion(agentId, message, context) {
   return new Promise((resolve, reject) => {
     const taskId = crypto.randomUUID();
+    const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
+    const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
+    const resolvedKey = (context && context.key) || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
     const bodyObj = {
       agentId: agentId || 'agent',
       text: message,
+      messages: [{ role: 'user', content: message }],
+      provider: resolvedProvider,
+      model: resolvedModel,
+      key: resolvedKey,
       context: context || {},
       taskId
     };
@@ -182,8 +189,6 @@ function runToCompletion(agentId, message, context) {
           const text = Buffer.concat(chunks).toString('utf8');
           let data;
           try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
-          // Surface the sidecar's plain-text reason (e.g. "missing key/model") so the cockpit shows why,
-          // instead of a bare status code.
           const raw = typeof data?.raw === 'string' ? data.raw.trim().slice(0, 200) : '';
           const err = new Error(data?.error || (raw ? `STARNET_RUN ${res.statusCode}: ${raw}` : `STARNET_RUN ${res.statusCode}`));
           err.status = res.statusCode;
@@ -195,7 +200,10 @@ function runToCompletion(agentId, message, context) {
       // Parse NDJSON stream
       let buf = '';
       const events = [];
+      let accumulatedTokens = '';
       let finalResponse = null;
+      let runError = null;
+      let costInfo = null;
       let settled = false;
 
       res.on('data', chunk => {
@@ -208,7 +216,21 @@ function runToCompletion(agentId, message, context) {
           try {
             const evt = JSON.parse(trimmed);
             events.push(evt);
-            // Capture the final agent response
+            const name = evt.name || evt.type;
+            const payload = evt.payload || evt;
+            if (name === 'agent.token' && payload.delta) {
+              accumulatedTokens += payload.delta;
+            }
+            if (name === 'agent.cost' || name === 'cost.estimate') {
+              costInfo = payload;
+            }
+            if (name === 'agent.run.error') {
+              runError = payload.message || 'Unknown agent error';
+            }
+            if (name === 'agent.run.end') {
+              settled = payload.reason === 'done';
+              if (payload.reason === 'error' && !runError) runError = 'Run ended with error';
+            }
             if (evt.type === 'agent' && evt.text) finalResponse = evt.text;
             if (evt.type === 'end' || evt.type === 'complete' || evt.type === 'agent.done') settled = true;
           } catch { /* non-JSON lines ignored */ }
@@ -220,17 +242,31 @@ function runToCompletion(agentId, message, context) {
           try {
             const evt = JSON.parse(buf.trim());
             events.push(evt);
-            if (evt.type === 'agent' && evt.text) finalResponse = evt.text;
+            const name = evt.name || evt.type;
+            const payload = evt.payload || evt;
+            if (name === 'agent.token' && payload.delta) accumulatedTokens += payload.delta;
+            if (name === 'agent.cost' || name === 'cost.estimate') costInfo = payload;
+            if (name === 'agent.run.error') runError = payload.message || 'Unknown agent error';
+            if (name === 'agent.run.end') settled = payload.reason === 'done';
           } catch { /* ignore */ }
         }
+
+        const outText = finalResponse || accumulatedTokens || null;
+        if (runError && !outText) {
+          const err = new Error(runError);
+          err.status = 500;
+          return reject(err);
+        }
+
         resolve({
           task_id: taskId,
           mission_id: taskId,
-          status: settled ? 'completed' : (finalResponse ? 'completed' : 'accepted'),
-          response: finalResponse,
-          result: finalResponse,
-          logs: events.filter(e => e.type === 'tool' || e.type === 'tool.result').slice(-20),
-          receipt: makeReceipt('run', { task_id: taskId, agent: agentId || 'agent' }),
+          status: settled ? 'completed' : (outText ? 'completed' : 'accepted'),
+          response: outText,
+          result: outText,
+          cost: costInfo,
+          logs: events.filter(e => (e.name || e.type || '').startsWith('tool')).slice(-20),
+          receipt: makeReceipt('run', { task_id: taskId, agent: agentId || 'agent', model: resolvedModel }),
           event_count: events.length
         });
       });
