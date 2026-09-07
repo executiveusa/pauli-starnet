@@ -1,0 +1,192 @@
+name: Pauli Orca Cloud Sandbox Smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pauli-orca-cloud-sandbox-smoke.yml'
+      - 'docs/PAULI_CONTROL_PLANE_SLICE_1.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ORCA_CANDIDATE_SHA: 3d2c6b17b77c1bff16c1267e19af57b314309ac1
+  FACTORY_SMOKE_TOKEN: smoke-${{ github.run_id }}-${{ github.run_attempt }}
+
+jobs:
+  prove-sandbox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout STARNET proof branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout exact Orca candidate
+        uses: actions/checkout@v4
+        with:
+          repository: executiveusa/pauli-orca-
+          ref: ${{ env.ORCA_CANDIDATE_SHA }}
+          path: orca
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.24.0'
+          run_install: false
+
+      - name: Install Orca dependencies
+        working-directory: orca
+        run: |
+          pnpm install --no-frozen-lockfile --prefer-frozen-lockfile=false --ignore-scripts
+          git diff --exit-code package.json pnpm-lock.yaml
+
+      - name: Prepare Node native runtime and build Orca CLI
+        working-directory: orca
+        run: |
+          npm install -g node-gyp@11.5.0
+          export npm_config_node_gyp="$(npm root -g)/node-gyp/bin/node-gyp.js"
+          node config/scripts/ensure-native-runtime.mjs --runtime=node
+          pnpm run build:cli
+
+      - name: Create scoped Orca wrapper
+        run: |
+          cat > "$RUNNER_TEMP/orca-candidate" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          exec node "$GITHUB_WORKSPACE/orca/config/scripts/orca-dev.mjs" "$@"
+          SH
+          chmod 700 "$RUNNER_TEMP/orca-candidate"
+
+      - name: Start headless Orca runtime
+        env:
+          ORCA_DEV_USER_DATA_PATH: ${{ runner.temp }}/orca-user-data
+        run: |
+          "$RUNNER_TEMP/orca-candidate" serve --port 6768 --no-pairing --json > "$RUNNER_TEMP/orca-serve.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/orca-serve.pid"
+          for i in {1..60}; do
+            if "$RUNNER_TEMP/orca-candidate" status --json > "$RUNNER_TEMP/orca-status.json" 2>/dev/null; then
+              cat "$RUNNER_TEMP/orca-status.json"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/orca-serve.log" >&2 || true
+          exit 1
+
+      - name: Start private Pauli factory gateway
+        env:
+          PAULI_FACTORY_TOKEN: ${{ env.FACTORY_SMOKE_TOKEN }}
+          PAULI_SANDBOX_ROOT: ${{ runner.temp }}/pauli-sandboxes
+          ORCA_FACTORY_HOST: 127.0.0.1
+          ORCA_FACTORY_PORT: '4810'
+          ORCA_BIN: ${{ runner.temp }}/orca-candidate
+          ORCA_DEV_USER_DATA_PATH: ${{ runner.temp }}/orca-user-data
+        run: |
+          node orca/src/cli/pauli-factory/server.mjs > "$RUNNER_TEMP/pauli-factory.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/pauli-factory.pid"
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4810/health > "$RUNNER_TEMP/factory-health.json"; then
+              cat "$RUNNER_TEMP/factory-health.json"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/pauli-factory.log" >&2 || true
+          exit 1
+
+      - name: Prove real Orca capabilities
+        run: |
+          curl --fail --silent \
+            -H "Authorization: Bearer $FACTORY_SMOKE_TOKEN" \
+            http://127.0.0.1:4810/v1/capabilities > "$RUNNER_TEMP/factory-capabilities.json"
+          node - <<'NODE'
+          const fs = require('fs')
+          const path = process.env.RUNNER_TEMP + '/factory-capabilities.json'
+          const body = JSON.parse(fs.readFileSync(path, 'utf8'))
+          if (body.ok !== true) throw new Error(`Orca capabilities not ready: ${JSON.stringify(body.failures || [])}`)
+          const commands = body.receipts.map((receipt) => ({ command: receipt.command, exitCode: receipt.exitCode }))
+          const git = commands.find((r) => r.command?.[1] === '--version' && String(r.command?.[0]).includes('git'))
+          const context = commands.find((r) => r.command?.[1] === 'agent-context')
+          const status = commands.find((r) => r.command?.[1] === 'status')
+          if (!git || git.exitCode !== 0) throw new Error('Missing successful Git capability receipt')
+          if (!context || context.exitCode !== 0) throw new Error('Missing successful Orca agent-context receipt')
+          if (!status || status.exitCode !== 0) throw new Error('Missing successful Orca status receipt')
+          console.log(JSON.stringify({ ok: true, commands }, null, 2))
+          NODE
+
+      - name: Prepare real isolated STARNET sandbox
+        run: |
+          curl --fail --silent -X POST \
+            -H "Authorization: Bearer $FACTORY_SMOKE_TOKEN" \
+            -H 'Content-Type: application/json' \
+            http://127.0.0.1:4810/v1/jobs/prepare \
+            -d '{
+              "requestId":"github-actions-${{ github.run_id }}",
+              "projectId":"starnet",
+              "repository":"executiveusa/pauli-starnet",
+              "outcome":"prepare an isolated coding workspace only",
+              "constraints":["sandbox-only","no-production-deploy","no-main-write"],
+              "proof":["git receipt","Orca worktree receipt"],
+              "risk":"yellow",
+              "budget":{"runtimeMinutes":20,"maxWorkers":1,"maxRetries":1},
+              "idempotencyKey":"starnet-cloud-smoke-${{ github.run_id }}-${{ github.run_attempt }}"
+            }' > "$RUNNER_TEMP/starnet-sandbox-receipt.json"
+          node - <<'NODE'
+          const fs = require('fs')
+          const body = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/starnet-sandbox-receipt.json', 'utf8'))
+          if (body.state !== 'ready') throw new Error(`Sandbox was not prepared: ${JSON.stringify(body.failures || [])}`)
+          if (body.repository !== 'executiveusa/pauli-starnet') throw new Error('Wrong repository in receipt')
+          const receipts = Array.isArray(body.commandReceipts) ? body.commandReceipts : []
+          const cloneOrFetch = receipts.find((r) => ['clone', 'fetch'].includes(r.command?.[1]))
+          const repoAdd = receipts.find((r) => r.command?.[1] === 'repo' && r.command?.[2] === 'add')
+          const worktreeCreate = receipts.find((r) => r.command?.[1] === 'worktree' && r.command?.[2] === 'create')
+          for (const [name, receipt] of Object.entries({ cloneOrFetch, repoAdd, worktreeCreate })) {
+            if (!receipt || receipt.exitCode !== 0) throw new Error(`Missing successful ${name} receipt`)
+          }
+          console.log(JSON.stringify({ state: body.state, repository: body.repository, commands: receipts.map((r) => [r.command, r.exitCode]) }, null, 2))
+          NODE
+
+      - name: Verify Orca sees the worktree
+        env:
+          ORCA_DEV_USER_DATA_PATH: ${{ runner.temp }}/orca-user-data
+        run: |
+          "$RUNNER_TEMP/orca-candidate" worktree list --json > "$RUNNER_TEMP/orca-worktrees.json"
+          node - <<'NODE'
+          const fs = require('fs')
+          const body = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/orca-worktrees.json', 'utf8'))
+          const text = JSON.stringify(body)
+          if (!text.includes('pauli-starnet') && !text.includes('starnet')) {
+            throw new Error('Orca worktree list does not contain the prepared STARNET workspace')
+          }
+          console.log(JSON.stringify(body, null, 2))
+          NODE
+
+      - name: Publish proof bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starnet-orca-cloud-sandbox-proof-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/factory-health.json
+            ${{ runner.temp }}/factory-capabilities.json
+            ${{ runner.temp }}/starnet-sandbox-receipt.json
+            ${{ runner.temp }}/orca-status.json
+            ${{ runner.temp }}/orca-worktrees.json
+            ${{ runner.temp }}/orca-serve.log
+            ${{ runner.temp }}/pauli-factory.log
+
+      - name: Teardown disposable worker
+        if: always()
+        run: |
+          if test -f "$RUNNER_TEMP/pauli-factory.pid"; then kill "$(cat "$RUNNER_TEMP/pauli-factory.pid")" 2>/dev/null || true; fi
+          if test -f "$RUNNER_TEMP/orca-serve.pid"; then kill "$(cat "$RUNNER_TEMP/orca-serve.pid")" 2>/dev/null || true; fi
