@@ -130,6 +130,8 @@
     pitchwriter: '<svg viewBox="0 0 24 24"><rect x="2.6" y="2.6" width="18.8" height="13" rx="1.4" fill="currentColor"/><g fill="' + D + '"><rect x="4.8" y="4.8" width="9.6" height="2.2" rx=".5"/><rect x="4.8" y="8.4" width="6.4" height="1.6" rx=".5"/></g><path fill="' + D + '" d="M13.4 12.8 L16.2 8.6 L19.2 12.8 Z"/><g fill="currentColor"><rect x="11.2" y="15.6" width="1.6" height="4" rx=".5"/><path d="M6.4 21.4 L11.6 16.4 L12.8 17.6 L7.6 22.4 Z"/><path d="M17.6 21.4 L12.4 16.4 L11.2 17.6 L16.4 22.4 Z"/></g></svg>',
     // herald: a banner/pennant on a staff — the periodic broadcast.
     herald: '<svg viewBox="0 0 24 24"><rect x="5" y="2.6" width="2" height="18.8" rx=".6" fill="currentColor"/><path fill="currentColor" d="M7 3.4 H20 L16.8 7.6 L20 11.8 H7 Z"/><g fill="none" stroke="' + D + '" stroke-width="1.4" stroke-linecap="round"><path d="M9.6 6 H16"/><path d="M9.6 9 H14"/></g></svg>',
+    // excavator: the pickaxe struck into a seam — the niche broken open and worked.
+    excavator: '<svg viewBox="0 0 24 24"><g fill="currentColor"><path d="M3 4.4 L12.6 14 L10.4 16.2 L0.8 6.6 Z"/><path d="M21 4.4 L11.4 14 L13.6 16.2 L23.2 6.6 Z"/><rect x="10.4" y="14.8" width="3.2" height="1.8" rx=".4" transform="rotate(45 12 15.7)"/></g><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 15.4 L18.6 22"/></g><path fill="' + D + '" d="M15.6 18.4 a1.9 1.9 0 1 0 3.8 0 a1.9 1.9 0 1 0 -3.8 0 Z"/></svg>',
   };
 
   /* (The 2026-07-14 "typed ASCII mark" layer was REMOVED 2026-07-16 on Andrew's call — the typed
@@ -152,7 +154,7 @@
     taskmaster: 'CCH', medic: 'HLT', diplomat: 'MED',
     // 2026-08-03 third wave — the build lane, marketing sub-niches, and business roles
     apptester: 'QAT', deployer: 'OPS', dbhelper: 'DBE', support: 'SUP', a11y: 'ACS', hiring: 'HIR', processwriter: 'SOP',
-    pitchwriter: 'PCH',
+    pitchwriter: 'PCH', excavator: 'EXC',
     // 2026-08-03 consolidation: broad roles replace the marketing micro-classes
     copywriter: 'CPY', webdesigner: 'WDS'
   };

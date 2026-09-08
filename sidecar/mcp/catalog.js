@@ -100,6 +100,16 @@
       url: 'https://search.parallel.ai/mcp', official: true, homepage: 'https://docs.parallel.ai/integrations/mcp/search-mcp',
       aliases: ['parallel', 'parallel web search', 'parallel web fetch'],
       blurb: 'Search and fetch the web through Parallel\'s official MCP server. Anonymous access works without setup at lower rate limits.' },
+    { id: 'firecrawl', name: 'Firecrawl', category: 'Search & Research', authType: 'apikey', transport: 'http',
+      url: 'https://mcp.firecrawl.dev/v2/mcp', official: true, homepage: 'https://firecrawl.dev',
+      blurb: 'Web scraping, crawling, and structured extraction — clean markdown/JSON from any page, with a rate-limited keyless tier and full tools + higher limits on an API key.' },
+    // Apify's docs list OAuth as the recommended flow but a plain Bearer token also works — filed as
+    // apikey (not oauth) so it's one-click installable today via the manager's existing token field,
+    // matching how Firecrawl is wired. Verify the Bearer path authenticates on first real connect;
+    // fall back to building the oauth flow only if it doesn't.
+    { id: 'apify', name: 'Apify', category: 'Search & Research', authType: 'apikey', transport: 'http',
+      url: 'https://mcp.apify.com', official: true, homepage: 'https://apify.com',
+      blurb: 'Thousands of ready-made Actors (site-specific scrapers) with built-in anti-blocking — Google Maps, Yelp, Instagram, and more, each returning already-structured data instead of raw HTML.' },
 
     // ── Compute & Data — zero-setup ───────────────────────────────────────────────────────────────────
     { id: 'wolfram', name: 'Wolfram', category: 'Compute & Data', authType: 'none', transport: 'http',
@@ -111,9 +121,6 @@
       url: 'https://mcp.zapier.com/api/mcp/mcp', official: true, homepage: 'https://zapier.com',
       aliases: ['google', 'google drive', 'gdrive', 'gmail', 'google sheets', 'google calendar', 'gsuite', 'g suite', 'automation'],
       blurb: 'Bridge to 7,000+ apps — including Gmail, Google Calendar, Drive, Sheets, and Slack — through one key.' },
-    { id: 'apify', name: 'Apify', category: 'Automation', authType: 'apikey', transport: 'http',
-      url: 'https://mcp.apify.com', official: true, homepage: 'https://apify.com',
-      blurb: 'Run web-scraping and automation Actors, and pull structured data from the web.' },
     { id: 'composio', name: 'Composio', category: 'Automation', authType: 'apikey', transport: 'http',
       url: 'https://connect.composio.dev/mcp', official: true, homepage: 'https://composio.dev', keyHeader: 'x-consumer-api-key',
       aliases: ['google', 'google drive', 'gdrive', 'gmail', 'outlook', 'microsoft outlook', 'microsoft 365', 'office 365', 'email', 'twitter', 'x', 'slack', 'notion', 'google calendar', 'gsuite', 'g suite'],
