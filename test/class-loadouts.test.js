@@ -60,7 +60,9 @@ for (const b of CATALOG) {
   }
 }
 
-/* ---------- 1b. ROSTER CONTENT: 36 curated builtins + 21 archetypes, seals/codes, sanity ----------
+/* ---------- 1b. ROSTER CONTENT: 37 curated builtins + 20 archetypes, seals/codes, sanity ----------
+   2026-09-08 adds excavator (Actor Prospector) — a capability class alongside harvester: it turns a proven
+   scraping niche into a published, pay-per-event Apify Actor instead of a one-off internal dataset.
    Third wave 2026-08-03 adds the SHIP-YOUR-APP lane (apptester / auditor / deployer / dbhelper — the jobs an
    AI-assembled app actually fails at: nothing tested it, keys shipped to the browser, it will not build on the
    host, the database is readable by anyone), the marketing SUB-NICHES (emailmarketer / adcopy / landingwriter,
@@ -80,13 +82,13 @@ for (const b of CATALOG) {
    near-duplicate would shadow them in the scout's matcher. curator and muse were deliberately KEPT (distinct
    jobs, not duplicates). */
 const classicons = require('../frontend/app/classicons.js');
-A.eq(builtins.length, 35, 'the curated roster ships exactly 35 classes');
+A.eq(builtins.length, 36, 'the curated roster ships exactly 36 classes');
 A.eq(archetypes.length, 20, 'the archetype pool holds the 20 deep cuts');
 const CURATED = ['strategist', 'chief', 'opportunist', 'researcher', 'analyst', 'marketer',
   'copywriter', 'webdesigner', 'publisher', 'producer', 'writer', 'ghostwriter', 'prospector',
   'negotiator', 'treasurer', 'paralegal', 'support', 'envoy', 'registrar', 'jobhunter', 'tutor',
   'taskmaster', 'provisioner', 'sentinel', 'scout', 'nightwatch', 'foreman', 'pilot', 'harvester',
-  'drafter', 'engineer', 'dbhelper', 'apptester', 'auditor', 'deployer'];
+  'excavator', 'drafter', 'engineer', 'dbhelper', 'apptester', 'auditor', 'deployer'];
 A.eq(builtins.map(b => b.id).sort().join(','), CURATED.slice().sort().join(','), 'the curated roster is exactly the 35 consolidated classes');
 A.eq(builtins[0].id, 'strategist', 'the strategist is the roster\'s first card (the bay\'s default focus)');
 // ROSTER ORDER IS A PRODUCT DECISION (Andrew, 2026-08-03): the roster opens on TRADITIONAL jobs and the
