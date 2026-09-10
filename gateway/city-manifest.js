@@ -47,17 +47,18 @@ function projectDistricts(runtimeDistricts, citizens, missions) {
   const allCitizens = Array.isArray(citizens) ? citizens : [];
   const allMissions = Array.isArray(missions) ? missions : [];
   return CITY_DISTRICTS.map(manifest => {
-    const runtime = runtimeById.get(manifest.id) || {};
+    const runtime = runtimeById.get(manifest.id);
     const districtCitizens = allCitizens.filter(citizen => canonicalDistrictId(citizen && citizen.district) === manifest.id);
     const districtMissions = allMissions.filter(mission => canonicalDistrictId(mission && mission.district) === manifest.id);
     const activeMissions = districtMissions.filter(mission => ['running', 'queued', 'planning', 'working', 'recovering'].includes(normalize(mission && mission.status)));
     const activeCitizens = districtCitizens.filter(citizen => ['online', 'active', 'working', 'busy'].includes(normalize(citizen && citizen.status)));
-    const runtimeActive = Number(runtime.active);
-    const runtimeAgents = Number(runtime.agents);
-    const active = Number.isFinite(runtimeActive) ? runtimeActive : Math.max(activeCitizens.length, activeMissions.length);
-    const agents = Number.isFinite(runtimeAgents) ? runtimeAgents : districtCitizens.length;
+    const runtimeActive = Number(runtime && runtime.active);
+    const runtimeAgents = Number(runtime && runtime.agents);
+    const active = runtime && Number.isFinite(runtimeActive) ? runtimeActive : Math.max(activeCitizens.length, activeMissions.length);
+    const agents = runtime && Number.isFinite(runtimeAgents) ? runtimeAgents : districtCitizens.length;
+    const hasObservedState = Boolean(runtime) || districtCitizens.length > 0 || districtMissions.length > 0;
 
-    return Object.assign({}, runtime, {
+    return Object.assign({}, runtime || {}, {
       id: manifest.id,
       name: manifest.name,
       purpose: manifest.purpose,
@@ -65,9 +66,9 @@ function projectDistricts(runtimeDistricts, citizens, missions) {
       capabilities: manifest.capabilities,
       agents,
       active,
-      status: runtime.status || (active > 0 ? 'active' : 'ready'),
-      revenue: runtime.revenue === undefined ? null : runtime.revenue,
-      cost: runtime.cost === undefined ? null : runtime.cost
+      status: runtime && runtime.status ? runtime.status : (active > 0 ? 'active' : (hasObservedState ? 'idle' : 'unknown')),
+      revenue: runtime && runtime.revenue !== undefined ? runtime.revenue : null,
+      cost: runtime && runtime.cost !== undefined ? runtime.cost : null
     });
   });
 }
