@@ -73,7 +73,6 @@ function runSidecar(agentId, objective, context, taskId) {
       'Accept': 'application/x-ndjson, application/json',
       'Content-Length': body.length
     };
-    // sidecar /api/run authenticates via X-StarNet-Token (see sidecar/apiauth.js), not Authorization.
     if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers.Authorization = 'Bearer ' + STARNET_TOKEN; }
     const r = http.request({
       host: '127.0.0.1', port: STARNET_PORT, path: '/api/run', method: 'POST', headers, timeout: 90000
@@ -109,6 +108,12 @@ function runSidecar(agentId, objective, context, taskId) {
   });
 }
 
+async function parseJsonBody(req, res) {
+  const raw = await readBody(req);
+  try { return raw ? JSON.parse(raw) : {}; }
+  catch (_) { send(res, 400, { error: 'INVALID_JSON' }); return null; }
+}
+
 async function handle(req, res) {
   if (!authorized(req)) return send(res, 401, { error: 'UNAUTHORIZED' });
   const path = String(req.url || '').split('?')[0];
@@ -118,15 +123,28 @@ async function handle(req, res) {
       return send(res, 200, plane.snapshot());
     }
 
+    if (req.method === 'POST' && path === '/v1/workforce/nonprofits/readiness/plan') {
+      const body = await parseJsonBody(req, res);
+      if (!body) return;
+      return send(res, 200, plane.planNonprofitReadinessRun({
+        organizationId: body.organizationId,
+        organizationName: body.organizationName,
+        organizationType: body.organizationType,
+        website: body.website,
+        geography: body.geography,
+        projectId: body.projectId,
+        budgetUsd: body.budgetUsd
+      }));
+    }
+
     const agentMatch = path.match(/^\/v1\/workforce\/agents\/([^/]+)\/plan$/);
     if (req.method === 'GET' && agentMatch) {
       return send(res, 200, plane.planAgent(decodeURIComponent(agentMatch[1])));
     }
 
     if (req.method === 'POST' && path === '/v1/workforce/missions/plan') {
-      const raw = await readBody(req);
-      let body;
-      try { body = raw ? JSON.parse(raw) : {}; } catch (_) { return send(res, 400, { error: 'INVALID_JSON' }); }
+      const body = await parseJsonBody(req, res);
+      if (!body) return;
       return send(res, 200, plane.planMission({
         agentId: body.agentId,
         projectId: body.projectId,
@@ -138,9 +156,8 @@ async function handle(req, res) {
     }
 
     if (req.method === 'POST' && path === '/v1/workforce/missions') {
-      const raw = await readBody(req);
-      let body;
-      try { body = raw ? JSON.parse(raw) : {}; } catch (_) { return send(res, 400, { error: 'INVALID_JSON' }); }
+      const body = await parseJsonBody(req, res);
+      if (!body) return;
       const planned = plane.planMission({
         agentId: body.agentId,
         projectId: body.projectId,
@@ -193,7 +210,6 @@ async function handle(req, res) {
       return send(res, 200, record);
     }
 
-    // Existing city, approvals and Heisenberg routes remain owned by the proven gateway.
     return proxyLegacy(req, res);
   } catch (e) {
     return send(res, Number(e.status || 500), { error: e.message || 'WORKFORCE_GATEWAY_ERROR' });
@@ -209,4 +225,4 @@ server.on('error', e => {
   if (e.code === 'EADDRINUSE') process.exit(1);
 });
 
-module.exports = { server, plane, _internals: { authorized, readBody, proxyLegacy, runSidecar } };
+module.exports = { server, plane, _internals: { authorized, readBody, proxyLegacy, runSidecar, parseJsonBody } };
