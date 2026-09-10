@@ -21,7 +21,7 @@ assert.strictEqual(canonicalDistrictId('nonprofit'), 'impact');
 assert.strictEqual(canonicalDistrictId('Revenue District'), undefined);
 
 const projected = projectDistricts(
-  [{ id: 'market', status: 'healthy', revenue: 120 }],
+  [{ id: 'market', status: 'healthy', revenue: 120, cost: 0 }],
   [
     { id: 'a1', district: 'Fashion', status: 'online' },
     { id: 'a2', district: 'Impact Office', status: 'busy' },
@@ -43,6 +43,7 @@ assert.strictEqual(market.status, 'healthy');
 assert.strictEqual(market.agents, 1);
 assert.strictEqual(market.active, 1);
 assert.strictEqual(market.revenue, 120);
+assert.strictEqual(market.cost, 0);
 assert.ok(market.capabilities.includes('printify'));
 
 assert.ok(impact);
@@ -52,7 +53,7 @@ assert.strictEqual(impact.active, 1);
 assert.strictEqual(impact.status, 'active');
 
 assert.ok(bridge);
-assert.strictEqual(bridge.status, 'ready');
+assert.strictEqual(bridge.status, 'unknown');
 assert.strictEqual(bridge.revenue, null);
 assert.strictEqual(bridge.cost, null);
 
