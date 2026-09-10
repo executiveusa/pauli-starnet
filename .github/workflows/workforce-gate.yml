@@ -10,6 +10,7 @@ on:
       - 'gateway/**'
       - 'test/workforce-control-plane.test.js'
       - 'test/workforce-gateway.test.js'
+      - 'test/city-manifest.test.js'
       - '.github/workflows/workforce-gate.yml'
   workflow_dispatch:
 
@@ -29,6 +30,8 @@ jobs:
         run: node test/workforce-control-plane.test.js
       - name: Composite gateway smoke
         run: node test/workforce-gateway.test.js
+      - name: City architecture contract
+        run: node test/city-manifest.test.js
       - name: Syntax check workforce modules
         run: |
           node --check sidecar/workforce/catalog.js
@@ -38,10 +41,12 @@ jobs:
           node --check sidecar/workforce/providers/orgo.js
           node --check sidecar/workforce/providers/sovereign.js
           node --check gateway/index.js
+          node --check gateway/server.js
           node --check gateway/workforce-server.js
+          node --check gateway/city-manifest.js
       - name: Verify no secret literals in workforce snapshot code
         run: |
-          if grep -RInE '(sk_live_[A-Za-z0-9]|am_[A-Za-z0-9]{12,}|ck_[A-Za-z0-9]{12,}|ops_[A-Za-z0-9]{12,})' sidecar/workforce gateway/workforce-server.js; then
+          if grep -RInE '(sk_live_[A-Za-z0-9]|am_[A-Za-z0-9]{12,}|ck_[A-Za-z0-9]{12,}|ops_[A-Za-z0-9]{12,})' sidecar/workforce gateway/*.js; then
             echo 'Secret-like literal detected in workforce slice'
             exit 1
           fi
