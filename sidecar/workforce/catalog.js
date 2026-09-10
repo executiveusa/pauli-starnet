@@ -62,6 +62,47 @@ const BUSINESS_LANES = Object.freeze([
     evidenceRequired: Object.freeze([
       'source-notes', 'fact-check-receipt', 'rights-review', 'final-artifact-hash', 'publication-receipt'
     ])
+  }),
+  Object.freeze({
+    id: 'nonprofit-growth',
+    label: 'Nonprofit / Social Purpose Growth',
+    class: 'business-lane',
+    owner: 'starnet',
+    district: 'impact',
+    persistentLead: 'heisenberg',
+    workerPolicy: 'mission-workers-by-default',
+    stages: Object.freeze([
+      'intake', 'baseline-audit', 'claim-verification', 'funding-readiness', 'digital-trust',
+      'funding-discovery', 'application-prep', 'partnerships', 'execution', 'evidence-review',
+      'commander-brief', 'recurring-monitor'
+    ]),
+    workerRoles: Object.freeze([
+      'strategist', 'researcher', 'optimizer', 'scout', 'analyst', 'pitchwriter',
+      'registrar', 'envoy', 'paralegal', 'treasurer', 'writer', 'publisher', 'reviewer'
+    ]),
+    workflowSkills: Object.freeze([
+      'client-presence-audit', 'nonprofit-funding-readiness', 'nonprofit-digital-trust-audit',
+      'grant-fit-screening', 'major-donor-discovery', 'nonprofit-weekly-commander-brief'
+    ]),
+    outputs: Object.freeze([
+      'baseline-scorecard', 'verified-gap-register', 'funding-readiness-dossier',
+      'ranked-opportunity-pipeline', 'partner-prospect-list', '30-60-90-action-plan',
+      'human-task-briefs', 'evidence-receipts', 'weekly-commander-brief'
+    ]),
+    approvalPoints: Object.freeze([
+      'identity-verification', 'legal-attestation', 'financial-commitment', 'application-certification',
+      'external-send', 'public-claim', 'account-creation-when-terms-require-human', 'irreversible-action'
+    ]),
+    evidenceRequired: Object.freeze([
+      'source-url', 'retrieved-at', 'claim-verification-status', 'artifact-or-action-receipt',
+      'human-approval-receipt-when-required', 'definition-of-done-check'
+    ]),
+    autonomyPolicy: Object.freeze({
+      executionOrder: Object.freeze(['connector', 'mcp', 'shell', 'browser', 'desktop', 'vision']),
+      continueWhenBlocked: true,
+      neverFabricateCompletion: true,
+      recurringCadence: Object.freeze(['weekly-funding-scan', 'weekly-commander-brief', 'monthly-presence-audit'])
+    })
   })
 ]);
 
