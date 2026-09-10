@@ -1,6 +1,6 @@
 # Pauli's Place City OS
 
-**Status:** Chunk 1 implementation contract
+**Status:** Chunk 1 implementation contract — CitySpec v2
 
 **Product:** Pauli's Place
 
@@ -36,25 +36,28 @@ No tile-level build tools are exposed to the model in this slice.
 9. REFIT must be closed for city apply/undo so its active editor subscription cannot become stale.
 10. The world renderer reloads after apply/undo and persistence must receive a durable read-back before an agent reports remote completion.
 
-## First city
+## Default city — nine districts
 
-The default Pauli's Place plan contains eight districts:
+CitySpec v2 contains nine districts:
 
-1. Command
-2. Production
-3. Revenue
-4. Creative
-5. Commerce
-6. Intelligence
-7. Experiment
-8. Operations
+1. **Command** — owner intent, Heisenberg orchestration, approvals, mission board.
+2. **Production** — software delivery and Pi agent foundry.
+3. **Revenue** — opportunities, qualified prospects, audits, pricing/economics.
+4. **Impact** — nonprofit/social-purpose fundraising readiness, relationship cultivation, stewardship, compliance/eligibility review.
+5. **Creative** — design, writing, marketing, publishing, media assets.
+6. **Commerce** — products, listings, SEO, commerce operators, connector exchange.
+7. **Intelligence** — research, monitoring, analysis, curation, durable memory.
+8. **Experiment** — evidence-driven tests, challengers, QA, optimization.
+9. **Operations** — unattended queues, supervision, deterministic operations and change watches.
 
 First-wave building templates:
 
 - Heisenberg HQ
 - Software Factory
-- Pi Foundry
+- Pi Agent Foundry
 - Revenue Center
+- Impact HQ
+- Stewardship House
 - Creative Studio
 - Commerce Factory
 - Connector Exchange
@@ -64,6 +67,41 @@ First-wave building templates:
 - Night Operations
 
 The compiler lays these out deterministically to the east of the existing starter station, connects them with corridors, supplies real capability props, gives every assigned agent a dedicated compute workstation, stamps physical inbox/bay/outbox workflows, and leaves unfilled roles visible as vacancies.
+
+## Impact District
+
+Impact is a first-class district rather than a separate orchestrator. It reuses native specialties and routes cross-district work when another department owns the capability.
+
+### Impact HQ
+
+Default slots:
+
+- `strategist` — owns the fundraising/impact plan and chooses the smallest useful next move.
+- `envoy` — owns relationship cultivation and partner/funder communication planning.
+- `paralegal` — owns eligibility, fiscal-sponsor, rights/compliance and document-risk review; never substitutes for licensed legal advice.
+- `pitchwriter` — owns the evidence-backed one-page case for funding and proposal/case drafts.
+
+### Stewardship House
+
+Default slots:
+
+- `registrar` — relationship/contact record quality, history, next-touch state.
+- `negotiator` — prepares terms and conversations when a real relationship reaches that stage.
+- `closer` — prepares a supported ask/commitment path only after cultivation evidence exists; no autonomous outbound ask.
+- `ghostwriter` — relationship-aware drafts in the organization's actual voice.
+
+The district's bundled mission workflow is `impact-fundraising-cultivation`. It is `default: false`: Heisenberg invokes it only for an active nonprofit/social-purpose fundraising, funder, stewardship, grant-readiness or case-for-funding mission. It must not run continuously merely because the district exists.
+
+Cross-district delegation:
+
+- Intelligence → current funder/program research and evidence.
+- Revenue → opportunity/prospect priority and unit economics.
+- Creative → campaign story, design and media.
+- Production → donation/volunteer funnels and digital deliverables.
+- Commerce → governed payment/distribution connectors.
+- Experiment → measured message/funnel tests after a baseline exists.
+- Operations → approved follow-up schedules and internal reminders.
+- Command → mission decomposition, evidence reconciliation and owner approvals.
 
 ## Capability law
 
@@ -81,13 +119,15 @@ In shared rooms, compute remains per-agent; shared capabilities remain room-scop
 
 ## Current scale boundary
 
-The first city remains inside the existing `WorldModel` 240x240-tile span guard. The compiler should prove scale and rendering behavior before that brownfield safety limit is reconsidered.
+The city remains inside the existing `WorldModel` 240x240-tile span guard. The compiler must prove scale and rendering behavior before that brownfield safety limit is reconsidered.
 
-## Commercial lanes represented in the city
+## Revenue-producing lanes represented in the city
 
-- **SELL:** Revenue Capture OS / Revenue Leak Map in the Revenue district.
-- **USE:** Pauli's Place itself as the sovereign operating environment.
-- **EXPERIMENT:** governed POD commerce, beginning with the already-defined Printify -> Etsy slice after provider readiness is proven.
+1. **Agency Audit / Revenue Capture** — evidence-backed Client Presence Audit → strategy → deliverable/proposal staging → monthly measurement. SMB, social-purpose and nonprofit use the same pipeline with different weighting.
+2. **Actor Productization** — evidence-backed niche research → Apify Actor build/test → approval-gated public listing → actual Store Insights read-back.
+3. **POD Commerce** — governed Printify → unit-economics → Etsy staging/publishing path after provider/shop readiness is proven.
+4. **Impact / Fundraising Readiness** — competence pack → warm-network map → funder map → case for funding → one focused campaign → stewardship plan; external asks/submissions stay approval-gated.
+5. **Publishing / Books** — remains a first-class cross-district workforce lane rather than another physical district.
 
 Consequential external actions remain approval-gated by STARNET's existing capability/consent system.
 
@@ -99,7 +139,7 @@ Resolve city vacancies against native specialties first. Only demonstrated capab
 
 ### Chunk 3 — Workflow City
 
-Turn the building templates into production business blueprints with measurable inputs, outputs, routing, budgets, evidence, and approval gates.
+Turn the building templates into production business blueprints with measurable inputs, outputs, routing, budgets, evidence, and approval gates. The operational routing/cadence lives in `docs/PAULIS_PLACE_CITY_OPERATING_PLAN.md`.
 
 ### Chunk 4 — Experiment / learning system
 
