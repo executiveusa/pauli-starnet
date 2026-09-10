@@ -3,6 +3,7 @@
 const Catalog = require('./catalog.js');
 const Contracts = require('./contracts.js');
 const Router = require('./router.js');
+const { planNonprofitReadinessRun } = require('./nonprofit-run.js');
 const { makeOrgoProvider } = require('./providers/orgo.js');
 const { makeSovereignProvider } = require('./providers/sovereign.js');
 
@@ -118,7 +119,7 @@ function makeWorkforceControlPlane(deps) {
     };
   }
 
-  return {
+  const api = {
     snapshot,
     getBlueprint,
     getBusinessLane,
@@ -128,6 +129,9 @@ function makeWorkforceControlPlane(deps) {
     contracts: Contracts,
     router: Router
   };
+
+  api.planNonprofitReadinessRun = input => planNonprofitReadinessRun(api, input);
+  return api;
 }
 
 module.exports = { makeWorkforceControlPlane };
