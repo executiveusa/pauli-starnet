@@ -40,6 +40,11 @@
 
 const http = require('http');
 const crypto = require('crypto');
+const {
+  CITY_ARCHITECTURE_VERSION,
+  COMPANY_SPACES,
+  projectDistricts
+} = require('./city-manifest');
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const GATEWAY_TOKEN = process.env.GATEWAY_BEARER_TOKEN || '';
@@ -102,7 +107,7 @@ function readBody(req) {
       if (size > MAX_BODY) { reject(new Error('REQUEST_TOO_LARGE')); req.destroy(); return; }
       chunks.push(chunk);
     });
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8'));
     req.on('error', reject);
   });
 }
@@ -282,10 +287,10 @@ function runToCompletion(agentId, message, context) {
 }
 
 // ─── CITY STATUS ──────────────────────────────────────────────────────────────
-// STARNET doesn't have a /v1/city/status endpoint natively — we synthesize it
-// from the workspace state files + sidecar health.
+// STARNET doesn't have a /v1/city/status endpoint natively — synthesize the
+// owner-facing city projection from canonical district definitions + real
+// workspace/sidecar state. Definitions are not evidence of activity.
 async function getCityStatus() {
-  // Probe sidecar health
   let sidecarOk = false;
   let sidecarData = {};
   try {
@@ -294,7 +299,6 @@ async function getCityStatus() {
     sidecarData = r.data || {};
   } catch (e) {
     log('warn', 'sidecar /api/status unreachable', { error: e.message });
-    // Try alternate health endpoints
     try {
       await sidecarRequest('GET', '/api/health');
       sidecarOk = true;
@@ -305,14 +309,15 @@ async function getCityStatus() {
     return {
       degraded: true,
       generatedAt: new Date().toISOString(),
+      architectureVersion: CITY_ARCHITECTURE_VERSION,
       city: { name: "Pauli's Place", status: 'unreachable' },
-      districts: [], citizens: [], missions: [], approvals: [], experiments: [],
+      districts: [], companySpaces: COMPANY_SPACES,
+      citizens: [], missions: [], approvals: [], experiments: [],
       revenue: null, costs: null,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
   }
 
-  // Pull roster from workspace
   let agents = [];
   let pending = [];
   try {
@@ -339,8 +344,8 @@ async function getCityStatus() {
     id: a.agentId || a.id || 'agent',
     name: a.name || a.agentId || 'Agent',
     role: a.role || 'agent',
-    status: 'online',
-    district: a.district || 'city'
+    status: a.status || 'online',
+    district: a.district || null
   }));
 
   const approvals = (pending || []).slice(0, 20).map((p, i) => ({
@@ -352,27 +357,26 @@ async function getCityStatus() {
     cost: p.estimatedCost || null
   }));
 
+  const missions = Array.isArray(sidecarData.missions) ? sidecarData.missions : [];
+  const runtimeDistricts = Array.isArray(sidecarData.districts) ? sidecarData.districts : [];
+
   return {
     degraded: false,
     generatedAt: new Date().toISOString(),
+    architectureVersion: CITY_ARCHITECTURE_VERSION,
     city: {
       name: "Pauli's Place",
       status: 'online',
       ...sidecarData.city
     },
-    districts: sidecarData.districts || [{
-      id: 'city',
-      name: 'City Center',
-      status: 'active',
-      agents: citizens.length,
-      active: citizens.filter(c => c.status === 'online').length
-    }],
+    districts: projectDistricts(runtimeDistricts, citizens, missions),
+    companySpaces: COMPANY_SPACES,
     citizens,
-    missions: sidecarData.missions || [],
+    missions,
     approvals,
     experiments: sidecarData.experiments || [],
-    revenue: null,   // unknown until STARNET provides verified telemetry
-    costs: null,     // unknown until STARNET provides verified telemetry
+    revenue: sidecarData.revenue || null,
+    costs: sidecarData.costs || null,
     health: {
       status: 'online',
       starnet: { ok: true, port: STARNET_PORT }
@@ -392,20 +396,17 @@ async function handleRequest(req, res) {
 
   log('info', 'request', { reqId, method, url, ip });
 
-  // Helpers
   function send(status, body) {
     const payload = JSON.stringify(body);
     res.writeHead(status, { 'Content-Type': 'application/json', 'X-Request-Id': reqId });
     res.end(payload);
   }
 
-  // Rate limit
   if (!checkRate(ip)) {
     log('warn', 'rate limit exceeded', { ip });
     return send(429, { error: 'RATE_LIMIT_EXCEEDED', retryAfter: Math.ceil(RATE_WINDOW / 1000) });
   }
 
-  // Authentication
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
   if (!token || !crypto.timingSafeEqual(Buffer.from(token.padEnd(64)), Buffer.from(GATEWAY_TOKEN.padEnd(64)))) {
@@ -413,9 +414,7 @@ async function handleRequest(req, res) {
     return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
   }
 
-  // Routing
   try {
-    // GET /health
     if (method === 'GET' && url === '/health') {
       let starnetOk = false;
       try { await sidecarRequest('GET', '/api/health'); starnetOk = true; } catch { /* down */ }
@@ -429,13 +428,11 @@ async function handleRequest(req, res) {
       });
     }
 
-    // GET /v1/city/status
     if (method === 'GET' && url === '/v1/city/status') {
       const status = await getCityStatus();
       return send(200, status);
     }
 
-    // POST /v1/heisenberg/tasks
     if (method === 'POST' && (url === '/v1/heisenberg/tasks' || url === '/v1/heisenberg/tasks/')) {
       const bodyText = await readBody(req);
       let body;
@@ -445,7 +442,6 @@ async function handleRequest(req, res) {
                       typeof body?.message === 'string' ? body.message.trim() : '';
       if (!message) return send(400, { error: 'task or message field required' });
 
-      // Start async — store in-progress task
       const taskId = crypto.randomUUID();
       const taskRecord = {
         id: taskId,
@@ -458,7 +454,6 @@ async function handleRequest(req, res) {
       };
       taskStore.set(taskId, taskRecord);
 
-      // Run async (don't await here — return immediately with taskId)
       runToCompletion('agent', message, body?.context || {}).then(result => {
         const updated = {
           ...taskRecord,
@@ -485,7 +480,6 @@ async function handleRequest(req, res) {
       return send(202, taskRecord);
     }
 
-    // GET /v1/heisenberg/tasks/:id
     const taskMatch = url.match(/^\/v1\/heisenberg\/tasks\/([^/?]+)(\?.*)?$/);
     if (method === 'GET' && taskMatch) {
       const taskId = decodeURIComponent(taskMatch[1]);
@@ -494,7 +488,6 @@ async function handleRequest(req, res) {
       return send(200, task);
     }
 
-    // POST /v1/approvals/:id/decision
     const approvalMatch = url.match(/^\/v1\/approvals\/([^/?]+)\/decision(\?.*)?$/);
     if (method === 'POST' && approvalMatch) {
       const approvalId = decodeURIComponent(approvalMatch[1]);
@@ -507,20 +500,17 @@ async function handleRequest(req, res) {
         return send(400, { error: 'decision must be approve or reject' });
       }
 
-      // Forward to STARNET workspace — mark pending item as decided
       const receipt = makeReceipt('approval_decision', {
         approval_id: approvalId,
         decision,
         decided_by: 'gateway-owner'
       });
 
-      // Try to forward to sidecar if it has an approval endpoint
       try {
         const r = await sidecarRequest('POST', `/api/approve`, { id: approvalId, decision });
         log('info', 'approval forwarded', { approvalId, decision, receipt: receipt.receipt_id });
         return send(200, { ok: true, id: approvalId, decision, receipt, result: r.data });
       } catch (e) {
-        // Sidecar may not have this endpoint — record locally and return receipt
         log('warn', 'sidecar approve endpoint missing, recording locally', { approvalId, error: e.message });
         return send(200, {
           ok: true,
@@ -532,7 +522,6 @@ async function handleRequest(req, res) {
       }
     }
 
-    // 404
     return send(404, { error: 'NOT_FOUND', method, url });
 
   } catch (err) {
@@ -546,7 +535,6 @@ async function handleRequest(req, res) {
   }
 }
 
-// ─── START SERVER ─────────────────────────────────────────────────────────────
 const server = http.createServer(handleRequest);
 server.listen(GATEWAY_PORT, GATEWAY_BIND, () => {
   log('info', 'gateway started', {
