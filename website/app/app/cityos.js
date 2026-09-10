@@ -17,7 +17,7 @@ const CityOS = (() => {
   const Pipe = (typeof Pipeline !== 'undefined') ? Pipeline
     : (typeof require === 'function' ? require('./pipeline.js') : null);
 
-  const VERSION = 1;
+  const VERSION = 2;
   // The App owns the canonical station. Register that instance explicitly from App.enterGame();
   // detached WorldModel.create/deserialize calls used by planning, tests, and tools must never become live.
   const wmDeserialize = WM && WM.deserialize ? WM.deserialize.bind(WM) : null;
@@ -58,6 +58,14 @@ const CityOS = (() => {
       label: 'REVENUE CENTER', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
       slots: ['opportunist', 'researcher', 'prospector', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard']
     },
+    impact_hq: {
+      label: 'IMPACT HQ', kind: 'hab', floorStyle: 'teal', floorMat: 'panel',
+      slots: ['strategist', 'envoy', 'paralegal', 'pitchwriter'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard']
+    },
+    stewardship_house: {
+      label: 'STEWARDSHIP HOUSE', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
+      slots: ['registrar', 'negotiator', 'closer', 'ghostwriter'], caps: ['files', 'web', 'memory'], decor: ['whiteboard']
+    },
     creative_studio: {
       label: 'CREATIVE STUDIO', kind: 'lab', floorStyle: 'orchid', floorMat: 'tile',
       slots: ['designer', 'writer', 'marketer', 'publisher'], caps: ['files', 'web', 'memory', 'images'], decor: ['bigscreen']
@@ -89,11 +97,12 @@ const CityOS = (() => {
   });
 
   const DEFAULT_SPEC = Object.freeze({
-    schema: 'paulis.place.city', version: 1, name: "PAULI'S PLACE",
+    schema: 'paulis.place.city', version: 2, name: "PAULI'S PLACE",
     districts: [
       { id: 'command', label: 'COMMAND DISTRICT', buildings: [{ template: 'executive_hq' }] },
       { id: 'production', label: 'PRODUCTION DISTRICT', buildings: [{ template: 'software_factory' }, { template: 'pi_foundry' }] },
       { id: 'revenue', label: 'REVENUE DISTRICT', buildings: [{ template: 'revenue_center' }] },
+      { id: 'impact', label: 'IMPACT DISTRICT', buildings: [{ template: 'impact_hq' }, { template: 'stewardship_house' }] },
       { id: 'creative', label: 'CREATIVE DISTRICT', buildings: [{ template: 'creative_studio' }] },
       { id: 'commerce', label: 'COMMERCE DISTRICT', buildings: [{ template: 'commerce_factory' }, { template: 'connector_exchange' }] },
       { id: 'intelligence', label: 'INTELLIGENCE DISTRICT', buildings: [{ template: 'intelligence_center' }, { template: 'memory_archive' }] },
@@ -302,8 +311,6 @@ const CityOS = (() => {
         const res = station.placeHallway({ rect: { x1: a.x2 + 1, y1: cy, x2: b.x1 - 1, y2: cy + 1 }, name: 'CITY WALK' });
         if (!res.ok) return res; ids.push(res.id);
       } else {
-        // Row transition: connect the first building in the new row vertically to the first building in
-        // the previous row. This creates a ladder-shaped city graph without crossing corridors.
         const up = upperLeftRooms[(curRow - 1) * cols], down = upperLeftRooms[curRow * cols];
         const a = up.rects[0], b = down.rects[0];
         const cx = a.x1 + 2;
@@ -319,7 +326,7 @@ const CityOS = (() => {
     const spawn = station.roomById(station.spawnRoomId());
     if (!spawn || !spawn.rects || !spawn.rects.length) return { ok: true };
     const a = spawn.rects[0], b = firstRoom.rects[0];
-    if (a.x2 >= b.x1) return { ok: true }; // already touching/overlapping in x; normal validators own it
+    if (a.x2 >= b.x1) return { ok: true };
     const y1 = Math.max(a.y1 + 2, Math.min(a.y2 - 1, b.y1 + 4));
     const res = station.placeHallway({ rect: { x1: a.x2 + 1, y1, x2: b.x1 - 1, y2: y1 + 1 }, name: 'MAIN GATE' });
     return res;
@@ -328,7 +335,7 @@ const CityOS = (() => {
   function normalizedSpec(spec) {
     const out = spec ? clone(spec) : clone(DEFAULT_SPEC);
     if (!out.schema) out.schema = 'paulis.place.city';
-    if (!out.version) out.version = 1;
+    if (!out.version) out.version = VERSION;
     if (!out.name) out.name = "PAULI'S PLACE";
     if (!Array.isArray(out.districts) || !out.districts.length) throw new Error('city spec needs at least one district');
     return out;
@@ -350,8 +357,6 @@ const CityOS = (() => {
     const bounds = draft.bounds();
     const spawn = draft.roomById(draft.spawnRoomId());
     const spawnRect = spawn && spawn.rects && spawn.rects[0];
-    // Keep the first city row on the trunk/spawn lane. A remote room can extend bounds.minTy far north,
-    // but it must never drag the city away from the MAIN GATE and leave a visually stamped disconnected city.
     const origin = opts.origin || { x: bounds.maxTx + 7, y: spawnRect ? spawnRect.y1 : bounds.minTy };
     const cols = Math.max(1, Math.min(6, Number(opts.columns) || GRID.cols));
     const gapX = GRID.gapX, gapY = GRID.gapY;
@@ -378,14 +383,12 @@ const CityOS = (() => {
 
     for (let i = 0; i < assignmentRows.length; i++) {
       const row = assignmentRows[i], room = rooms[i], cfg = row.building.config, t = row.building.template;
-      // A city re-organization puts each assigned worker's actual workstation in the building that owns it.
       for (let n = 0; n < row.assigned.length; n++) {
         const desk = placeAgentDesk(draft, room, row.assigned[n].agent, n);
         if (!desk.ok) return fail('CAPABILITY_' + (desk.error || 'DESK'), desk.msg, { room: room.name, agentId: row.assigned[n].agent.id });
       }
       const caps = placeSharedCaps(draft, room, cfg.caps || t.caps || [], cfg.connectors || []);
       if (!caps.ok) return fail('CAPABILITY_' + (caps.error || 'PROP'), caps.msg, { room: room.name });
-      // Connector Exchange ships physical portals even before credentials are bound. Unbound = no grant.
       const extraPorts = Math.max(0, (Number(cfg.connectorPorts != null ? cfg.connectorPorts : t.connectorPorts) || 0) - ((cfg.connectors || []).length));
       for (let p = 0; p < extraPorts; p++) {
         const r = room.rects[0];
@@ -401,9 +404,7 @@ const CityOS = (() => {
     if (draft.setPipelineEdges) draft.setPipelineEdges(allEdges);
 
     const geo = draft.projectGeometry();
-    if (!Pipe || typeof Pipe.compileRoutingPlan !== 'function') {
-      return fail('ROUTING_UNAVAILABLE', 'City OS needs the pipeline routing compiler');
-    }
+    if (!Pipe || typeof Pipe.compileRoutingPlan !== 'function') return fail('ROUTING_UNAVAILABLE', 'City OS needs the pipeline routing compiler');
     const routing = Pipe.compileRoutingPlan(geo);
     const routingErrors = Array.isArray(routing.errors) ? routing.errors.filter(e => !e.warn) : [];
     if (routingErrors.length) return fail('ROUTING_INVALID', 'compiled city has blocking workflow errors', { routingErrors: clone(routingErrors) });
