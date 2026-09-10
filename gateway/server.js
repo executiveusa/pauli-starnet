@@ -1,52 +1,16 @@
-// C:\PAULI\pauli-gateway\server.js
-// PAULI STARNET GATEWAY
-// Secure server-side proxy between the public internet and the STARNET sidecar at 127.0.0.1:8787.
-//
-// Architecture:
-//   Internet → HTTPS → (Vercel / CDN or Coolify) → this gateway → 127.0.0.1:8787
-//
-// Security:
-//   - Bearer token authentication on every inbound request
-//   - Request-size limits (1MB default)
-//   - Structured request/response logging with audit receipts
-//   - Rate limiting via in-memory window (no Redis dependency)
-//   - Fail-closed: if STARNET is unreachable, returns 503 never pretends success
-//   - STARNET port 8787 remains bound to 127.0.0.1 — never publicly exposed
-//   - No credentials forwarded to STARNET beyond the sidecar's own token
-//
-// Environment variables:
-//   GATEWAY_BEARER_TOKEN      (required) — inbound auth token for the Command Center
-//   STARNET_PORT              (optional, default: 8787) — sidecar port
-//   STARNET_SIDECAR_TOKEN     (optional) — sidecar bearer token if sidecar requires auth
-//   GATEWAY_PORT              (optional, default: 4000) — gateway listen port
-//   GATEWAY_HOST              (optional, default: 127.0.0.1) — bind address (set to 0.0.0.0 only when behind a private-network proxy)
-//   RATE_LIMIT_WINDOW_MS      (optional, default: 60000)
-//   RATE_LIMIT_MAX_REQUESTS   (optional, default: 60)
-//   MAX_BODY_BYTES            (optional, default: 1048576)
-//   LOG_LEVEL                 (optional: debug|info|warn|error, default: info)
-//
-// Exposed routes (all require Authorization: Bearer <GATEWAY_BEARER_TOKEN>):
-//   GET  /health                          → gateway health + starnet connectivity probe
-//   GET  /v1/city/status                  → STARNET world state as city data
-//   POST /v1/heisenberg/tasks             → create Heisenberg mission, poll to settled state
-//   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
-//   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
-//
-// Start:
-//   node server.js
-//   PM2: pm2 start server.js --name pauli-gateway --restart-delay=2000 --max-restarts=20
-
 'use strict';
 
-const http = require('http');
 const crypto = require('crypto');
+const fs = require('fs');
+const http = require('http');
+const os = require('os');
+const path = require('path');
 const {
   CITY_ARCHITECTURE_VERSION,
   COMPANY_SPACES,
-  projectDistricts
+  projectDistricts,
 } = require('./city-manifest');
 
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
 const GATEWAY_TOKEN = process.env.GATEWAY_BEARER_TOKEN || '';
 const STARNET_PORT = parseInt(process.env.STARNET_PORT || '8787', 10);
 const STARNET_HOST = '127.0.0.1';
@@ -59,11 +23,10 @@ const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
 if (!GATEWAY_TOKEN) {
-  process.stderr.write('[GATEWAY][FATAL] GATEWAY_BEARER_TOKEN is not set. Gateway cannot start without an inbound auth token.\n');
+  process.stderr.write('[GATEWAY][FATAL] GATEWAY_BEARER_TOKEN is not set.\n');
   process.exit(1);
 }
 
-// ─── LOGGER ───────────────────────────────────────────────────────────────────
 const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
 const logLevel = LEVELS[LOG_LEVEL] ?? 1;
 function log(level, msg, data) {
@@ -73,8 +36,7 @@ function log(level, msg, data) {
   process.stderr.write(JSON.stringify(entry) + '\n');
 }
 
-// ─── RATE LIMITER ─────────────────────────────────────────────────────────────
-const rateCounts = new Map(); // ip -> { count, resetAt }
+const rateCounts = new Map();
 function checkRate(ip) {
   const now = Date.now();
   let rec = rateCounts.get(ip);
@@ -82,86 +44,94 @@ function checkRate(ip) {
     rec = { count: 0, resetAt: now + RATE_WINDOW };
     rateCounts.set(ip, rec);
   }
-  rec.count++;
+  rec.count += 1;
   return rec.count <= RATE_MAX;
 }
 
-// ─── AUDIT RECEIPTS ───────────────────────────────────────────────────────────
 function makeReceipt(action, detail) {
   return {
     receipt_id: crypto.randomUUID(),
     gateway: 'pauli-gateway',
     action,
     timestamp: new Date().toISOString(),
-    ...detail
+    ...detail,
   };
 }
 
-// ─── BODY READER ──────────────────────────────────────────────────────────────
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     let size = 0;
     req.on('data', chunk => {
       size += chunk.length;
-      if (size > MAX_BODY) { reject(new Error('REQUEST_TOO_LARGE')); req.destroy(); return; }
+      if (size > MAX_BODY) {
+        reject(new Error('REQUEST_TOO_LARGE'));
+        req.destroy();
+        return;
+      }
       chunks.push(chunk);
     });
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8'));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
     req.on('error', reject);
   });
 }
 
-// ─── STARNET SIDECAR REQUEST ──────────────────────────────────────────────────
-function sidecarRequest(method, path, body) {
+function sidecarHeaders(bodyBuf, accept = 'application/json') {
+  const headers = { 'Content-Type': 'application/json', Accept: accept };
+  if (STARNET_TOKEN) {
+    headers['X-StarNet-Token'] = STARNET_TOKEN;
+    headers.Authorization = `Bearer ${STARNET_TOKEN}`;
+  }
+  if (bodyBuf) headers['Content-Length'] = bodyBuf.length;
+  return headers;
+}
+
+function sidecarRequest(method, requestPath, body) {
   return new Promise((resolve, reject) => {
     const bodyBuf = body ? Buffer.from(JSON.stringify(body), 'utf8') : null;
-    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
-    // The sidecar's /api/* gate reads the per-launch token from X-StarNet-Token (sidecar/apiauth.js
-    // headerToken); it ignores Authorization. Pin the sidecar with STARNET_API_TOKEN and hand the same
-    // value to this gateway as STARNET_SIDECAR_TOKEN. Bearer is kept for the /v1 seam only.
-    if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers['Authorization'] = `Bearer ${STARNET_TOKEN}`; }
-    if (bodyBuf) headers['Content-Length'] = bodyBuf.length;
-
     const req = http.request({
       host: STARNET_HOST,
       port: STARNET_PORT,
-      path,
+      path: requestPath,
       method,
-      headers,
-      timeout: 30000
+      headers: sidecarHeaders(bodyBuf),
+      timeout: 30000,
     }, res => {
       const chunks = [];
-      res.on('data', c => chunks.push(c));
+      res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => {
         const text = Buffer.concat(chunks).toString('utf8');
         let data;
         try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
-        if (res.statusCode >= 400) {
+        if ((res.statusCode || 500) >= 400) {
           const err = new Error(data?.error || data?.detail || data?.message || `STARNET ${res.statusCode}`);
           err.status = res.statusCode;
           err.body = data;
-          return reject(err);
+          reject(err);
+          return;
         }
         resolve({ status: res.statusCode, data });
       });
     });
     req.on('error', err => { err.status = 503; reject(err); });
-    req.on('timeout', () => { req.destroy(); const e = new Error('STARNET_TIMEOUT'); e.status = 504; reject(e); });
+    req.on('timeout', () => {
+      req.destroy();
+      const err = new Error('STARNET_TIMEOUT');
+      err.status = 504;
+      reject(err);
+    });
     if (bodyBuf) req.write(bodyBuf);
     req.end();
   });
 }
 
-// ─── NDJSON STREAM READER (for /api/run) ─────────────────────────────────────
-// STARNET's /api/run returns NDJSON — we collect all events and return the final state.
 function runToCompletion(agentId, message, context) {
   return new Promise((resolve, reject) => {
     const taskId = crypto.randomUUID();
-    const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
-    const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-    const resolvedKey = (context && context.key) || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
-    const bodyObj = {
+    const resolvedProvider = context?.provider || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
+    const resolvedModel = context?.model || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
+    const resolvedKey = process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
+    const body = {
       agentId: agentId || 'agent',
       text: message,
       messages: [{ role: 'user', content: message }],
@@ -169,27 +139,20 @@ function runToCompletion(agentId, message, context) {
       model: resolvedModel,
       key: resolvedKey,
       context: context || {},
-      taskId
+      taskId,
     };
-    const bodyBuf = Buffer.from(JSON.stringify(bodyObj), 'utf8');
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/x-ndjson, application/json',
-      'Content-Length': bodyBuf.length
-    };
-    if (STARNET_TOKEN) { headers['X-StarNet-Token'] = STARNET_TOKEN; headers['Authorization'] = `Bearer ${STARNET_TOKEN}`; }
-
+    const bodyBuf = Buffer.from(JSON.stringify(body), 'utf8');
     const req = http.request({
       host: STARNET_HOST,
       port: STARNET_PORT,
       path: '/api/run',
       method: 'POST',
-      headers,
-      timeout: 90000
+      headers: sidecarHeaders(bodyBuf, 'application/x-ndjson, application/json'),
+      timeout: 90000,
     }, res => {
-      if (res.statusCode >= 400) {
+      if ((res.statusCode || 500) >= 400) {
         const chunks = [];
-        res.on('data', c => chunks.push(c));
+        res.on('data', chunk => chunks.push(chunk));
         res.on('end', () => {
           const text = Buffer.concat(chunks).toString('utf8');
           let data;
@@ -202,7 +165,6 @@ function runToCompletion(agentId, message, context) {
         return;
       }
 
-      // Parse NDJSON stream
       let buf = '';
       const events = [];
       let accumulatedTokens = '';
@@ -211,6 +173,21 @@ function runToCompletion(agentId, message, context) {
       let costInfo = null;
       let settled = false;
 
+      function capture(evt) {
+        events.push(evt);
+        const name = evt.name || evt.type;
+        const payload = evt.payload || evt;
+        if (name === 'agent.token' && payload.delta) accumulatedTokens += payload.delta;
+        if (name === 'agent.cost' || name === 'cost.estimate') costInfo = payload;
+        if (name === 'agent.run.error') runError = payload.message || 'Unknown agent error';
+        if (name === 'agent.run.end') {
+          settled = payload.reason === 'done';
+          if (payload.reason === 'error' && !runError) runError = 'Run ended with error';
+        }
+        if (evt.type === 'agent' && evt.text) finalResponse = evt.text;
+        if (evt.type === 'end' || evt.type === 'complete' || evt.type === 'agent.done') settled = true;
+      }
+
       res.on('data', chunk => {
         buf += chunk.toString('utf8');
         const lines = buf.split('\n');
@@ -218,87 +195,59 @@ function runToCompletion(agentId, message, context) {
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed) continue;
-          try {
-            const evt = JSON.parse(trimmed);
-            events.push(evt);
-            const name = evt.name || evt.type;
-            const payload = evt.payload || evt;
-            if (name === 'agent.token' && payload.delta) {
-              accumulatedTokens += payload.delta;
-            }
-            if (name === 'agent.cost' || name === 'cost.estimate') {
-              costInfo = payload;
-            }
-            if (name === 'agent.run.error') {
-              runError = payload.message || 'Unknown agent error';
-            }
-            if (name === 'agent.run.end') {
-              settled = payload.reason === 'done';
-              if (payload.reason === 'error' && !runError) runError = 'Run ended with error';
-            }
-            if (evt.type === 'agent' && evt.text) finalResponse = evt.text;
-            if (evt.type === 'end' || evt.type === 'complete' || evt.type === 'agent.done') settled = true;
-          } catch { /* non-JSON lines ignored */ }
+          try { capture(JSON.parse(trimmed)); } catch { /* ignore non-JSON line */ }
         }
       });
 
       res.on('end', () => {
         if (buf.trim()) {
-          try {
-            const evt = JSON.parse(buf.trim());
-            events.push(evt);
-            const name = evt.name || evt.type;
-            const payload = evt.payload || evt;
-            if (name === 'agent.token' && payload.delta) accumulatedTokens += payload.delta;
-            if (name === 'agent.cost' || name === 'cost.estimate') costInfo = payload;
-            if (name === 'agent.run.error') runError = payload.message || 'Unknown agent error';
-            if (name === 'agent.run.end') settled = payload.reason === 'done';
-          } catch { /* ignore */ }
+          try { capture(JSON.parse(buf.trim())); } catch { /* ignore */ }
         }
-
         const outText = finalResponse || accumulatedTokens || null;
-        if (runError && !outText) {
+        if (runError) {
           const err = new Error(runError);
           err.status = 500;
-          return reject(err);
+          err.partialResponse = outText;
+          reject(err);
+          return;
         }
-
         resolve({
           task_id: taskId,
           mission_id: taskId,
-          status: settled ? 'completed' : (outText ? 'completed' : 'accepted'),
-          response: outText,
-          result: outText,
+          status: settled ? 'completed' : 'working',
+          response: settled ? outText : null,
+          result: settled ? outText : null,
+          partial_response: settled ? null : outText,
           cost: costInfo,
-          logs: events.filter(e => (e.name || e.type || '').startsWith('tool')).slice(-20),
+          logs: events.filter(event => String(event.name || event.type || '').startsWith('tool')).slice(-20),
           receipt: makeReceipt('run', { task_id: taskId, agent: agentId || 'agent', model: resolvedModel }),
-          event_count: events.length
+          event_count: events.length,
         });
       });
-
       res.on('error', err => { err.status = 503; reject(err); });
     });
 
     req.on('error', err => { err.status = 503; reject(err); });
-    req.on('timeout', () => { req.destroy(); const e = new Error('STARNET_RUN_TIMEOUT'); e.status = 504; reject(e); });
+    req.on('timeout', () => {
+      req.destroy();
+      const err = new Error('STARNET_RUN_TIMEOUT');
+      err.status = 504;
+      reject(err);
+    });
     req.write(bodyBuf);
     req.end();
   });
 }
 
-// ─── CITY STATUS ──────────────────────────────────────────────────────────────
-// STARNET doesn't have a /v1/city/status endpoint natively — synthesize the
-// owner-facing city projection from canonical district definitions + real
-// workspace/sidecar state. Definitions are not evidence of activity.
 async function getCityStatus() {
   let sidecarOk = false;
   let sidecarData = {};
   try {
-    const r = await sidecarRequest('GET', '/api/status');
+    const response = await sidecarRequest('GET', '/api/status');
     sidecarOk = true;
-    sidecarData = r.data || {};
-  } catch (e) {
-    log('warn', 'sidecar /api/status unreachable', { error: e.message });
+    sidecarData = response.data || {};
+  } catch (error) {
+    log('warn', 'sidecar /api/status unreachable', { error: error.message });
     try {
       await sidecarRequest('GET', '/api/health');
       sidecarOk = true;
@@ -311,90 +260,84 @@ async function getCityStatus() {
       generatedAt: new Date().toISOString(),
       architectureVersion: CITY_ARCHITECTURE_VERSION,
       city: { name: "Pauli's Place", status: 'unreachable' },
-      districts: [], companySpaces: COMPANY_SPACES,
-      citizens: [], missions: [], approvals: [], experiments: [],
-      revenue: null, costs: null,
-      health: { status: 'unreachable', starnet: { ok: false } }
+      districts: [],
+      companySpaces: COMPANY_SPACES,
+      citizens: [],
+      missions: [],
+      approvals: [],
+      experiments: [],
+      revenue: null,
+      costs: null,
+      health: { status: 'unreachable', starnet: { ok: false } },
     };
   }
 
   let agents = [];
   let pending = [];
   try {
-    const wsPath = process.env.STARNET_WORKSPACE_PATH ||
-      require('path').join(require('os').homedir(), 'AppData', 'Roaming', 'ai.skynet.harness', 'workspaces');
-    const fs = require('fs');
-
-    const rosterFile = require('path').join(wsPath, 'agent.roster.json');
+    const workspacePath = process.env.STARNET_WORKSPACE_PATH || path.join(os.homedir(), 'AppData', 'Roaming', 'ai.skynet.harness', 'workspaces');
+    const rosterFile = path.join(workspacePath, 'agent.roster.json');
+    const pendingFile = path.join(workspacePath, 'agent.pending.json');
     if (fs.existsSync(rosterFile)) {
       const roster = JSON.parse(fs.readFileSync(rosterFile, 'utf8'));
       agents = Array.isArray(roster.agents) ? roster.agents : [];
     }
-
-    const pendingFile = require('path').join(wsPath, 'agent.pending.json');
     if (fs.existsSync(pendingFile)) {
-      const p = JSON.parse(fs.readFileSync(pendingFile, 'utf8'));
-      pending = Array.isArray(p) ? p : (p?.pending || []);
+      const parsed = JSON.parse(fs.readFileSync(pendingFile, 'utf8'));
+      pending = Array.isArray(parsed) ? parsed : (parsed?.pending || []);
     }
-  } catch (e) {
-    log('debug', 'workspace read failed', { error: e.message });
+  } catch (error) {
+    log('debug', 'workspace read failed', { error: error.message });
   }
 
-  const citizens = agents.map(a => ({
-    id: a.agentId || a.id || 'agent',
-    name: a.name || a.agentId || 'Agent',
-    role: a.role || 'agent',
-    status: a.status || 'online',
-    district: a.district || null
+  const citizens = agents.map(agent => ({
+    id: agent.agentId || agent.id || 'agent',
+    name: agent.name || agent.agentId || 'Agent',
+    role: agent.role || 'agent',
+    status: agent.status || 'online',
+    district: agent.district || null,
   }));
-
-  const approvals = (pending || []).slice(0, 20).map((p, i) => ({
-    id: p.id || p.taskId || `approval-${i}`,
-    title: p.title || p.action || p.task || 'Pending action',
-    action: p.action || p.task || '',
-    district: p.district || '',
-    risk: p.risk || 'medium',
-    cost: p.estimatedCost || null
-  }));
-
   const missions = Array.isArray(sidecarData.missions) ? sidecarData.missions : [];
   const runtimeDistricts = Array.isArray(sidecarData.districts) ? sidecarData.districts : [];
+  const approvals = pending.slice(0, 20).map((item, index) => ({
+    id: item.id || item.taskId || `approval-${index}`,
+    title: item.title || item.action || item.task || 'Pending action',
+    action: item.action || item.task || '',
+    district: item.district || '',
+    risk: item.risk || 'medium',
+    cost: item.estimatedCost ?? null,
+  }));
 
   return {
     degraded: false,
     generatedAt: new Date().toISOString(),
     architectureVersion: CITY_ARCHITECTURE_VERSION,
-    city: {
-      name: "Pauli's Place",
-      status: 'online',
-      ...sidecarData.city
-    },
+    city: { name: "Pauli's Place", status: 'online', ...sidecarData.city },
     districts: projectDistricts(runtimeDistricts, citizens, missions),
     companySpaces: COMPANY_SPACES,
     citizens,
     missions,
     approvals,
-    experiments: sidecarData.experiments || [],
-    revenue: sidecarData.revenue || null,
-    costs: sidecarData.costs || null,
-    health: {
-      status: 'online',
-      starnet: { ok: true, port: STARNET_PORT }
-    }
+    experiments: Array.isArray(sidecarData.experiments) ? sidecarData.experiments : [],
+    revenue: sidecarData.revenue ?? null,
+    costs: sidecarData.costs ?? null,
+    health: { status: 'online', starnet: { ok: true, port: STARNET_PORT } },
   };
 }
 
-// ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
-// Stores running/completed tasks by ID for GET /v1/heisenberg/tasks/:id
 const taskStore = new Map();
 
-// ─── REQUEST HANDLER ──────────────────────────────────────────────────────────
+function safeTokenEquals(left, right) {
+  const a = Buffer.from(String(left || ''));
+  const b = Buffer.from(String(right || ''));
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 async function handleRequest(req, res) {
   const reqId = crypto.randomUUID().slice(0, 8);
   const ip = req.socket?.remoteAddress || 'unknown';
   const { method, url } = req;
-
-  log('info', 'request', { reqId, method, url, ip });
 
   function send(status, body) {
     const payload = JSON.stringify(body);
@@ -402,44 +345,35 @@ async function handleRequest(req, res) {
     res.end(payload);
   }
 
-  if (!checkRate(ip)) {
-    log('warn', 'rate limit exceeded', { ip });
-    return send(429, { error: 'RATE_LIMIT_EXCEEDED', retryAfter: Math.ceil(RATE_WINDOW / 1000) });
-  }
+  log('info', 'request', { reqId, method, url, ip });
+  if (!checkRate(ip)) return send(429, { error: 'RATE_LIMIT_EXCEEDED', retryAfter: Math.ceil(RATE_WINDOW / 1000) });
 
-  const authHeader = req.headers['authorization'] || '';
+  const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  if (!token || !crypto.timingSafeEqual(Buffer.from(token.padEnd(64)), Buffer.from(GATEWAY_TOKEN.padEnd(64)))) {
-    log('warn', 'auth failed', { reqId, ip });
-    return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
-  }
+  if (!safeTokenEquals(token, GATEWAY_TOKEN)) return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
 
   try {
     if (method === 'GET' && url === '/health') {
       let starnetOk = false;
-      try { await sidecarRequest('GET', '/api/health'); starnetOk = true; } catch { /* down */ }
+      try { await sidecarRequest('GET', '/api/health'); starnetOk = true; } catch { /* fall through */ }
       try { if (!starnetOk) { await sidecarRequest('GET', '/api/status'); starnetOk = true; } } catch { /* down */ }
       return send(200, {
         ok: true,
         gateway: 'pauli-gateway',
-        version: '1.0.0',
+        version: '1.1.0',
+        cityArchitecture: CITY_ARCHITECTURE_VERSION,
         starnet: { ok: starnetOk, host: `${STARNET_HOST}:${STARNET_PORT}` },
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
       });
     }
 
-    if (method === 'GET' && url === '/v1/city/status') {
-      const status = await getCityStatus();
-      return send(200, status);
-    }
+    if (method === 'GET' && url === '/v1/city/status') return send(200, await getCityStatus());
 
     if (method === 'POST' && (url === '/v1/heisenberg/tasks' || url === '/v1/heisenberg/tasks/')) {
       const bodyText = await readBody(req);
       let body;
       try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
-
-      const message = typeof body?.task === 'string' ? body.task.trim() :
-                      typeof body?.message === 'string' ? body.message.trim() : '';
+      const message = typeof body.task === 'string' ? body.task.trim() : typeof body.message === 'string' ? body.message.trim() : '';
       if (!message) return send(400, { error: 'task or message field required' });
 
       const taskId = crypto.randomUUID();
@@ -450,33 +384,32 @@ async function handleRequest(req, res) {
         status: 'running',
         task: message,
         startedAt: new Date().toISOString(),
-        receipt: makeReceipt('heisenberg_dispatch', { task_id: taskId })
+        receipt: makeReceipt('heisenberg_dispatch', { task_id: taskId }),
       };
       taskStore.set(taskId, taskRecord);
 
-      runToCompletion('agent', message, body?.context || {}).then(result => {
+      runToCompletion('agent', message, body.context || {}).then(result => {
         const updated = {
           ...taskRecord,
           ...result,
           id: taskId,
           task_id: taskId,
           mission_id: taskId,
-          status: result.status || 'completed',
-          completedAt: new Date().toISOString()
+          status: result.status,
+          updatedAt: new Date().toISOString(),
         };
+        if (result.status === 'completed') updated.completedAt = new Date().toISOString();
         taskStore.set(taskId, updated);
-        log('info', 'task completed', { taskId, status: updated.status });
-      }).catch(err => {
+        log('info', 'task settled', { taskId, status: updated.status });
+      }).catch(error => {
         taskStore.set(taskId, {
           ...taskRecord,
           status: 'failed',
-          error: err.message,
-          completedAt: new Date().toISOString()
+          error: error.message,
+          completedAt: new Date().toISOString(),
         });
-        log('error', 'task failed', { taskId, error: err.message });
+        log('error', 'task failed', { taskId, error: error.message });
       });
-
-      log('info', 'task dispatched', { taskId, reqId });
       return send(202, taskRecord);
     }
 
@@ -484,7 +417,7 @@ async function handleRequest(req, res) {
     if (method === 'GET' && taskMatch) {
       const taskId = decodeURIComponent(taskMatch[1]);
       const task = taskStore.get(taskId);
-      if (!task) return send(404, { error: 'TASK_NOT_FOUND', task_id: taskId });
+      if (!task) return send(404, { error: 'TASK_NOT_FOUND', task_id: taskId, durability: 'gateway-memory-only' });
       return send(200, task);
     }
 
@@ -494,43 +427,36 @@ async function handleRequest(req, res) {
       const bodyText = await readBody(req);
       let body;
       try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      if (body.decision !== 'approve' && body.decision !== 'reject') return send(400, { error: 'decision must be approve or reject' });
 
-      const decision = body?.decision;
-      if (decision !== 'approve' && decision !== 'reject') {
-        return send(400, { error: 'decision must be approve or reject' });
-      }
-
-      const receipt = makeReceipt('approval_decision', {
+      const receipt = makeReceipt('approval_decision_attempt', {
         approval_id: approvalId,
-        decision,
-        decided_by: 'gateway-owner'
+        decision: body.decision,
+        decided_by: 'gateway-owner',
       });
-
       try {
-        const r = await sidecarRequest('POST', `/api/approve`, { id: approvalId, decision });
-        log('info', 'approval forwarded', { approvalId, decision, receipt: receipt.receipt_id });
-        return send(200, { ok: true, id: approvalId, decision, receipt, result: r.data });
-      } catch (e) {
-        log('warn', 'sidecar approve endpoint missing, recording locally', { approvalId, error: e.message });
-        return send(200, {
-          ok: true,
+        const result = await sidecarRequest('POST', '/api/approve', { id: approvalId, decision: body.decision });
+        return send(200, { ok: true, id: approvalId, decision: body.decision, receipt, result: result.data });
+      } catch (error) {
+        log('warn', 'approval was not persisted by sidecar', { approvalId, error: error.message });
+        return send(502, {
+          ok: false,
+          error: 'APPROVAL_NOT_PERSISTED',
           id: approvalId,
-          decision,
+          decision: body.decision,
           receipt,
-          note: 'Decision recorded at gateway. Sidecar approval sync pending when available.'
+          detail: error.message,
         });
       }
     }
 
     return send(404, { error: 'NOT_FOUND', method, url });
-
-  } catch (err) {
-    log('error', 'handler error', { reqId, error: err.message, status: err.status });
-    const status = typeof err.status === 'number' ? err.status : 500;
-    return send(status, {
-      error: err.message || 'GATEWAY_ERROR',
+  } catch (error) {
+    log('error', 'handler error', { reqId, error: error.message, status: error.status });
+    return send(typeof error.status === 'number' ? error.status : 500, {
+      error: error.message || 'GATEWAY_ERROR',
       degraded: true,
-      reqId
+      reqId,
     });
   }
 }
@@ -540,18 +466,14 @@ server.listen(GATEWAY_PORT, GATEWAY_BIND, () => {
   log('info', 'gateway started', {
     bind: `${GATEWAY_BIND}:${GATEWAY_PORT}`,
     starnet: `${STARNET_HOST}:${STARNET_PORT}`,
-    rateLimit: `${RATE_MAX} req/${RATE_WINDOW}ms per IP`
+    rateLimit: `${RATE_MAX} req/${RATE_WINDOW}ms per IP`,
   });
   process.stdout.write(`PAULI GATEWAY: http://${GATEWAY_BIND}:${GATEWAY_PORT}\n`);
 });
 
-server.on('error', err => {
-  log('error', 'server error', { error: err.message, code: err.code });
-  if (err.code === 'EADDRINUSE') {
-    process.stderr.write(`[GATEWAY] Port ${GATEWAY_PORT} already in use\n`);
-    process.exit(1);
-  }
+server.on('error', error => {
+  log('error', 'server error', { error: error.message, code: error.code });
+  if (error.code === 'EADDRINUSE') process.exit(1);
 });
-
-process.on('SIGTERM', () => { server.close(() => process.exit(0)); });
-process.on('SIGINT', () => { server.close(() => process.exit(0)); });
+process.on('SIGTERM', () => server.close(() => process.exit(0)));
+process.on('SIGINT', () => server.close(() => process.exit(0)));
