@@ -6,7 +6,7 @@
 <title>Pauli's Place — Live City</title>
 <link rel="stylesheet" href="city.css">
 </head>
-<body>
+<body class="panel-hidden">
 <header>
   <span class="dot offline" id="dot"></span>
   <h1 id="cityname">PAULI'S PLACE</h1>
@@ -24,6 +24,7 @@
 </main>
 
 <aside id="overlay">
+  <button id="panel-close" class="ghostbtn" aria-label="Close activity panel">✕ close</button>
   <section class="panel" id="feed-panel">
     <h2>Gateway activity <span class="note" id="lastact"></span></h2>
     <div id="gw-feed"></div>

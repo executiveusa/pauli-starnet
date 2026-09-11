@@ -202,6 +202,8 @@
     $('#task-send').addEventListener('click', sendTask);
     $('#task-open').addEventListener('click', openTaskDialog);
     $('#feed-toggle').addEventListener('click', () => document.body.classList.toggle('panel-hidden'));
+    $('#panel-close').addEventListener('click', () => document.body.classList.add('panel-hidden'));
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') document.body.classList.add('panel-hidden'); });
     poll();
     state.timer = setInterval(poll, POLL_MS);
   }

@@ -147,6 +147,32 @@ A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'un
   A.eq(CityCore.worldActivityDiff({}, { activeTasks: [{ id: 't9', status: 'running' }] }, ['agent']), [], 'a task without an agentId moves nobody');
 }
 
+// occupiedFrame: the boot camera frames occupied buildings + visible agents, honestly.
+{
+  const snaps = [
+    { id: 'agent', x: 100, y: 100, placed: true },
+    { id: 'ecom-merci', x: 340, y: 220, placed: true },
+    { id: 'ecom-ledger', x: 0, y: 0, placed: false }
+  ];
+  A.eq(CityCore.occupiedFrame(snaps), { x0: 40, y0: 40, x1: 400, y1: 280, count: 2 }, 'frame bounds the placed bodies with pad, unplaced excluded');
+  A.eq(CityCore.occupiedFrame(snaps, 0), { x0: 100, y0: 100, x1: 340, y1: 220, count: 2 }, 'zero pad is the exact bbox');
+  A.eq(CityCore.occupiedFrame([]), null, 'no bodies means no frame - never an invented rect');
+  A.eq(CityCore.occupiedFrame([{ id: 'x', x: NaN, y: 5, placed: true }]), null, 'broken snapshots frame nothing');
+}
+// overlay discipline: closed by default, canvas unobstructed, fallback truly hidden.
+{
+  const fs = require('fs');
+  const html = fs.readFileSync(__dirname + '/../frontend/city/index.html', 'utf8');
+  A.ok(html.includes('<body class="panel-hidden">'), 'the activity panel starts CLOSED - the city is the first thing you see');
+  A.ok(html.includes('id="panel-close"'), 'the panel has an explicit close control');
+  const css = fs.readFileSync(__dirname + '/../frontend/city/city.css', 'utf8');
+  A.ok(css.includes('.worldfallback[hidden] { display: none; }'), 'a hidden fallback never paints over the canvas');
+  const js = fs.readFileSync(__dirname + '/../frontend/city/city.js', 'utf8');
+  A.ok(js.includes("ev.key === 'Escape'"), 'Escape closes the panel');
+  const wjs = fs.readFileSync(__dirname + '/../frontend/city/city-world.js', 'utf8');
+  A.ok(wjs.includes('CityCore.occupiedFrame') && wjs.includes('World.frameRect'), 'boot camera frames the occupied buildings + visible agents');
+}
+
 // --- seating honesty ---
 const seat = CityCore.seatCitizens(model, [
   { id: 'x1', name: 'Op', specialtyId: 'operator', status: 'online' },

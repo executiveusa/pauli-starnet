@@ -31,11 +31,13 @@ header .spacer { flex: 1; }
 .worldfallback { position: absolute; inset: 20% 10%; z-index: 21; display: flex; align-items: center;
   justify-content: center; text-align: center; color: var(--dim); background: var(--panel);
   border: 1px solid var(--line); border-radius: 12px; padding: 24px; font-size: 18px; }
+.worldfallback[hidden] { display: none; }
 
-#overlay { position: fixed; top: 44px; right: 10px; bottom: 10px; z-index: 25; width: 340px;
-  max-width: 92vw; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+#overlay { position: fixed; top: 56px; right: 10px; bottom: auto; max-height: calc(100vh - 76px);
+  z-index: 25; width: 300px; max-width: 88vw; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 body.panel-hidden #overlay { display: none; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.panel { background: rgba(10, 16, 32, 0.72); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .panel h2 { font-size: 16px; margin: 0 0 8px 0; letter-spacing: 1px; color: var(--accent);
   display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .note { color: var(--dim); font-size: 14px; font-weight: normal; }
@@ -59,8 +61,14 @@ dialog input { width: 100%; background: #0a1020; color: var(--ink); border: 1px 
 dialog .row { display: flex; gap: 10px; margin-top: 10px; }
 
 @media (max-width: 700px) {
-  #overlay { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 44vh; }
+  #overlay { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 36vh; }
   header h1 { font-size: 17px; }
   .statusline { font-size: 13px; }
   .worldnote { max-width: 92vw; font-size: 12px; }
+  #counts { display: none; }   /* narrow screens: the header stays one slim line */
 }
+
+#panel-close { align-self: flex-end; padding: 1px 8px; color: var(--dim); border-color: transparent; }
+#panel-close:hover { color: var(--ink); border-color: var(--line); }
+body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(--accent); }
+#netlify-badge { display: none !important; }

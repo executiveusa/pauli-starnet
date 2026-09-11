@@ -349,7 +349,25 @@ const CityCore = (() => {
     return changes;
   }
 
-  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, WORLD_SKIN_POOL, MAP };
+
+  /* OCCUPIED FRAME — bounding box (world pixels) around every placed agent body, padded, so
+     the web surface can open the camera on the occupied buildings and visible agents instead
+     of the empty architecture. Pure: snapshots in, rect or null out. */
+  function occupiedFrame(snaps, pad) {
+    const pts = (Array.isArray(snaps) ? snaps : []).filter(snap => snap && snap.placed && isFinite(snap.x) && isFinite(snap.y));
+    if (!pts.length) return null;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const pt of pts) {
+      if (pt.x < x0) x0 = pt.x;
+      if (pt.y < y0) y0 = pt.y;
+      if (pt.x > x1) x1 = pt.x;
+      if (pt.y > y1) y1 = pt.y;
+    }
+    const m = (typeof pad === 'number') ? pad : 60;
+    return { x0: x0 - m, y0: y0 - m, x1: x1 + m, y1: y1 + m, count: pts.length };
+  }
+
+  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, occupiedFrame, WORLD_SKIN_POOL, MAP };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = CityCore;
