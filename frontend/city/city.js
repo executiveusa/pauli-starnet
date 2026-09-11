@@ -9,10 +9,14 @@
   const POLL_MS = 5000;
 
   const params = new URLSearchParams(location.search);
+  // Default path is the same-origin Netlify function proxy: the gateway token lives
+  // server-side, never in this browser. Settings can override with a direct gateway
+  // URL + bearer token for owner use.
+  const DEFAULT_GW = '/.netlify/functions/gw';
   const state = {
     model: null,
     mode: 'offline',          // live | degraded | offline | demo
-    gatewayUrl: params.get('gateway') || localStorage.getItem(LS.gateway) || '',
+    gatewayUrl: params.get('gateway') || localStorage.getItem(LS.gateway) || DEFAULT_GW,
     token: localStorage.getItem(LS.token) || '',
     status: null,
     seating: null,
@@ -35,6 +39,8 @@
         headers: state.token ? { Authorization: 'Bearer ' + state.token } : {}, cache: 'no-store'
       });
       if (r.status === 401) { setMode('degraded', 'Gateway rejected the token.'); return; }
+      if (r.status === 404 && state.gatewayUrl === DEFAULT_GW) { setMode('offline', 'Not connected — canonical city plan only. No live state.'); return; }
+      if (r.status === 502 || r.status === 503) { setMode('degraded', 'City backend starting or unreachable.'); return; }
       if (!r.ok) { setMode('degraded', 'Gateway error ' + r.status); return; }
       const payload = await r.json();
       const c = CityCore.classifyStatus(payload);
@@ -137,7 +143,7 @@
   }
 
   function openTaskDialog(d, b, slot, agent) {
-    if (!state.gatewayUrl) { alert('Connect a live gateway first (Settings). Tasks need the running city backend.'); return; }
+    if (state.mode !== 'live') { alert('The city backend is not live yet. Tasks need a running gateway.'); return; }
     const dlg = $('#taskdialog');
     $('#taskdialog h3').textContent = 'Task — ' + b.label + ' / ' + slot;
     $('#task-target').textContent = agent
