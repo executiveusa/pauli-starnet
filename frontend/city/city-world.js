@@ -106,6 +106,16 @@
     if (status && Array.isArray(status.citizens) && status.citizens.length) spawned = spawnBodies(status.citizens);
     World.start();
     booted = true;
+    // Open the camera on the occupied buildings + visible agents (Bambú: the city, not empty
+    // architecture). One-shot, a beat after boot so spawn walks have placed every body.
+    setTimeout(() => {
+      try {
+        if (typeof World.bodySnapshots === 'function' && typeof World.frameRect === 'function' && CityCore.occupiedFrame) {
+          const f = CityCore.occupiedFrame(World.bodySnapshots());
+          if (f && f.count >= 1) World.frameRect(f.x0, f.y0, f.x1, f.y1);
+        }
+      } catch (_) { /* framing is a nicety, never a boot blocker */ }
+    }, 2200);
     note('Live world: ' + (w.station.meta && w.station.meta.name || "PAULI'S PLACE") + ' — agents walk only while the gateway reports a real running task.');
     applyStatus(status);
   }
