@@ -21,7 +21,11 @@
     status: null,
     seating: null,
     tasks: [],                // local view of dispatched task ids
-    timer: null
+    timer: null,
+    layout: null,             // deterministic map geometry from the canonical model
+    activity: { byAgent: {}, byBuilding: {}, entries: [] },
+    tokenEls: {},             // agentId -> <g> token element (kept so moves animate)
+    mapReady: false
   };
   if (params.get('gateway')) localStorage.setItem(LS.gateway, state.gatewayUrl);
 
@@ -48,6 +52,7 @@
       state.seating = CityCore.seatCitizens(state.model, c.citizens);
       setMode(c.mode, c.label + (c.generatedAt ? ' · ' + new Date(c.generatedAt).toLocaleTimeString() : ''));
       if (c.mode === 'live') { const ob = document.getElementById('offline-banner'); if (ob) ob.remove(); }
+      updateActivity(c);
       renderCity(); renderApprovals();
     } catch (_) {
       setMode('degraded', 'Gateway unreachable from this device.');
@@ -57,6 +62,95 @@
   function slotAgent(entry) {
     if (!state.seating) return null;
     return state.seating.seating[entry.districtId + '/' + entry.templateId + '/' + entry.slot] || null;
+  }
+
+
+  /* --- live map -----------------------------------------------------------
+     One SVG: districts and buildings from the canonical manifest (static
+     shell), roster citizens as tokens. A token's position is PROOF-SHAPED:
+     the desk of its seated slot, or the work point of a building while the
+     gateway shows a real running task routed there. Movement between those
+     two proven states is a CSS transition on the token's transform — the
+     animation only ever plays between two evidenced positions. */
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs, text) {
+    const n = document.createElementNS(SVGNS, tag);
+    if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function renderMapShell() {
+    const host = $('#map');
+    host.textContent = '';
+    state.tokenEls = {};
+    const L = state.layout;
+    const svg = svgEl('svg', { viewBox: '0 0 ' + L.width + ' ' + L.height, role: 'img', 'aria-label': 'Live map of the city districts, buildings, and agents' });
+    for (const d of L.districts) {
+      svg.appendChild(svgEl('rect', { class: 'map-district', x: d.x, y: d.y, width: d.w, height: d.h, rx: 10 }));
+      svg.appendChild(svgEl('text', { class: 'map-district-label', x: d.x + 8, y: d.y + 15 }, d.label));
+      for (const b of d.buildings) {
+        svg.appendChild(svgEl('rect', { class: 'map-building b-' + b.floorStyle, id: 'mapb-' + b.templateId, x: b.x, y: b.y, width: b.w, height: b.h, rx: 6 }));
+        svg.appendChild(svgEl('text', { class: 'map-building-label', x: b.x + 7, y: b.y + 14 }, b.label));
+      }
+    }
+    svg.appendChild(svgEl('rect', { class: 'map-plaza', x: L.plaza.x, y: L.plaza.y, width: L.plaza.w, height: L.plaza.h, rx: 6 }));
+    svg.appendChild(svgEl('text', { class: 'map-plaza-label', x: L.plaza.x + 8, y: L.plaza.y + 13 }, 'ROSTERED, NOT SEATED'));
+    svg.appendChild(svgEl('g', { id: 'tokens' }));
+    host.appendChild(svg);
+    state.mapReady = true;
+  }
+
+  function updateActivity(c) {
+    const missions = ((c && c.missions) || []).concat((c && c.activeTasks) || []);
+    state.activity = CityCore.deriveActivity({ missions, tasks: state.tasks });
+    updateTokens();
+  }
+
+  function updateTokens() {
+    if (!state.mapReady) return;
+    const layer = $('#tokens');
+    if (!layer) return;
+    const placements = state.seating
+      ? CityCore.agentPlacements(state.model, state.layout, state.seating, state.activity)
+      : [];
+    const alive = new Set();
+    for (const p of placements) {
+      alive.add(p.agentId);
+      let t = state.tokenEls[p.agentId];
+      if (!t) {
+        t = svgEl('g', { class: 'token' + (p.seated ? '' : ' unseated') });
+        t.appendChild(svgEl('circle', { r: 7 }));
+        const label = svgEl('text', { y: -11 }, p.name);
+        t.appendChild(label);
+        t.appendChild(svgEl('title', null, p.name + (p.seated ? ' — ' + (p.slot || p.role) : ' — rostered, not seated')));
+        layer.appendChild(t);
+        state.tokenEls[p.agentId] = t;
+        // first placement: no slide-in from 0,0 — place instantly
+        t.style.transition = 'none';
+        t.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ')');
+        t.getBoundingClientRect(); // commit before re-enabling the transition
+        t.style.transition = '';
+      } else {
+        t.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ')');
+      }
+      t.classList.toggle('working', !!p.working);
+      const title = t.querySelector('title');
+      if (title) title.textContent = p.name + (p.working ? ' — working: ' + (p.taskLabel || 'task running') : (p.seated ? ' — at desk (' + (p.slot || p.role) + ')' : ' — rostered, not seated'));
+    }
+    for (const id in state.tokenEls) {
+      if (!alive.has(id)) { state.tokenEls[id].remove(); delete state.tokenEls[id]; }
+    }
+  }
+
+  function flashBuilding(templateId, ok) {
+    const rect = document.getElementById('mapb-' + templateId);
+    if (!rect) return;
+    rect.classList.remove('flash-ok', 'flash-bad');
+    void rect.getBoundingClientRect();
+    rect.classList.add(ok ? 'flash-ok' : 'flash-bad');
+    setTimeout(() => rect.classList.remove('flash-ok', 'flash-bad'), 4200);
   }
 
   const TASKABLE = { commerce_factory: true, connector_exchange: true };
@@ -136,9 +230,14 @@
         headers: state.token ? { Authorization: 'Bearer ' + state.token } : {}, cache: 'no-store'
       });
       if (!r.ok) return;
+      const wasRunning = t.status === 'running';
       const rec = CityCore.normalizeTask(await r.json());
       if (rec) Object.assign(t, rec);
       renderTasks();
+      if (wasRunning && t.status !== 'running') {
+        if (t.context && t.context.building) flashBuilding(t.context.building, t.status === 'completed');
+        updateActivity(state.status);
+      }
       if (t.status === 'running') setTimeout(() => refreshTask(t), 3000);
     } catch (_) { /* keep last known state */ }
   }
@@ -171,7 +270,12 @@
       });
       if (!r.ok) { alert('Gateway refused the task (' + r.status + ').'); return; }
       const rec = CityCore.normalizeTask(await r.json());
-      if (rec) { state.tasks.push(rec); renderTasks(); setTimeout(() => refreshTask(state.tasks[state.tasks.length - 1]), 3000); }
+      if (rec) {
+        rec.context = payload.context; // routing metadata we sent — the gateway does not echo it back
+        state.tasks.push(rec); renderTasks();
+        updateActivity(state.status);
+        setTimeout(() => refreshTask(state.tasks[state.tasks.length - 1]), 3000);
+      }
       dlg.close();
     } catch (_) { alert('Task send failed — gateway unreachable.'); }
     finally { btn.disabled = false; }
@@ -196,6 +300,8 @@
   function boot() {
     if (typeof CityOS === 'undefined') { document.body.innerHTML = '<p style="padding:20px">CityOS manifest failed to load.</p>'; return; }
     state.model = CityCore.cityModel(CityOS);
+    state.layout = CityCore.layoutCity(state.model);
+    renderMapShell();
     $('#cityname').textContent = state.model.name;
     $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
     renderCity(); renderTasks(); renderApprovals();

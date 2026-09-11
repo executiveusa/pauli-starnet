@@ -82,3 +82,24 @@ The deploy token lives in the vault as `Netlify deploy token (instinct-city-depl
 (created 2026-09-10 in the executiveusa Netlify team, name `instinct-city-deploy`).
 Verified after deploy: `/` 200, `/app/cityos.js` 200, desktop + 390px mobile rendering,
 no horizontal overflow, demo mode labeled, offline state honest.
+
+## Live map (v2)
+
+`frontend/city/` renders a live SVG map above the detail panels: districts and
+buildings from the canonical manifest, roster citizens as tokens at their proven
+desks. A token moves only while the gateway shows a real running task routed to
+it (`deriveActivity` merges gateway `missions`/`activeTasks` with tasks sent from
+the viewing device) and returns to its desk when the task settles; the building
+flashes with the outcome. Idle agents sit at their desks; the legend says so.
+`prefers-reduced-motion` disables the movement animation.
+
+Seating is district-aware: a citizen whose roster record carries a district sits
+in that district's matching slot (roster placement beats first-slot-wins order);
+citizens without district evidence take the first open matching slot, and citizens
+matching nothing stand in the plaza as rostered-but-not-seated.
+
+Gateway: `POST /v1/heisenberg/tasks` now keeps the routing `context` on the task
+record, and `GET /v1/city/status` exposes `activeTasks` (last 20: id, status,
+task, context, started/completed, receipt id) so activity dispatched from any
+device is visible to every viewer. Tests: `test/city-web.test.js`,
+`test/gateway-activetasks.test.js`.

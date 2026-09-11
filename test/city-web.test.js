@@ -71,4 +71,67 @@ const rec = CityCore.normalizeTask({ task_id: 't1', status: 'completed', task: '
 A.eq(rec, { id: 't1', status: 'completed', task: 'x', startedAt: null, completedAt: null, receiptId: 'r9', error: null, result: null }, 'receipt normalized');
 A.eq(CityCore.normalizeTask(null), null, 'null task record stays null');
 
+// --- district-aware seating: roster district evidence beats first-match order ---
+const dseat = CityCore.seatCitizens(model, [
+  { id: 'ecom-ledger', name: 'LEDGER', role: 'treasurer', district: 'commerce', status: 'online' },
+  { id: 'econ', name: 'Econ', role: 'treasurer', status: 'online' }
+]);
+A.eq(dseat.seating['commerce/commerce_factory/treasurer'].id, 'ecom-ledger', 'district-carrying citizen seats in its rostered district');
+A.eq(dseat.seating['revenue/revenue_center/treasurer'].id, 'econ', 'district-less citizen takes first open matching slot');
+
+// --- live map: layout, placement, movement honesty ---
+const layout = CityCore.layoutCity(model);
+A.eq(layout.districts.length, 9, 'map lays out all 9 canonical districts');
+const mapBuildings = layout.districts.reduce((n, d) => n + d.buildings.length, 0);
+A.eq(mapBuildings, 13, 'map lays out all 13 canonical buildings');
+const keys = new Set();
+let inside = true;
+for (const d of layout.districts) for (const b of d.buildings) {
+  if (keys.has(b.key)) inside = false;
+  keys.add(b.key);
+  if (b.x < 0 || b.y < 0 || b.x + b.w > layout.width || b.y + b.h > layout.height) inside = false;
+}
+A.ok(inside && keys.size === 13, 'building blocks unique and inside the viewBox');
+
+const seat2 = CityCore.seatCitizens(model, [
+  { id: 'ecom-beacon', name: 'BEACON', role: 'optimizer', status: 'online' },
+  { id: 'agent', name: 'HEISENBERG', role: 'orchestrator', status: 'online' }
+]);
+const noAct = CityCore.deriveActivity({ tasks: [], missions: [] });
+const placed0 = CityCore.agentPlacements(model, layout, seat2, noAct);
+A.eq(placed0.length, 2, 'both roster citizens placed');
+const beacon0 = placed0.find(p => p.agentId === 'ecom-beacon');
+A.ok(beacon0 && beacon0.seated && !beacon0.working, 'seated citizen starts idle at desk');
+const hq = layout.districts.find(d => d.id === 'command').buildings[0];
+const heis0 = placed0.find(p => p.agentId === 'agent');
+A.eq([heis0.x, heis0.y], [hq.slotPoints.orchestrator.x, hq.slotPoints.orchestrator.y], 'orchestrator sits at HEISENBERG HQ desk');
+
+const running = CityCore.deriveActivity({ tasks: [
+  { id: 't1', status: 'running', task: 'research keywords', context: { district: 'commerce', building: 'commerce_factory', slot: 'optimizer', agentId: 'ecom-beacon' } },
+  { id: 't2', status: 'completed', task: 'old', context: { district: 'commerce', building: 'commerce_factory', slot: 'treasurer', agentId: 'nobody' } }
+], missions: [] });
+A.ok(running.byAgent['ecom-beacon'], 'running task registers activity for its routed agent');
+A.ok(!running.byAgent['nobody'], 'completed task creates no activity');
+const placed1 = CityCore.agentPlacements(model, layout, seat2, running);
+const beacon1 = placed1.find(p => p.agentId === 'ecom-beacon');
+const cf = layout.districts.find(d => d.id === 'commerce').buildings.find(b => b.templateId === 'commerce_factory');
+A.ok(beacon1.working, 'routed running task marks agent working');
+A.eq([beacon1.x, beacon1.y], [cf.workPoint.x, cf.workPoint.y], 'working agent stands at the task building work point');
+A.eq(CityCore.diffPlacements(placed0, placed1), ['ecom-beacon'], 'exactly one agent moved');
+A.eq(CityCore.diffPlacements(placed1, placed1).length, 0, 'stable state has no movement');
+
+const placed2 = CityCore.agentPlacements(model, layout, seat2, noAct);
+A.eq(CityCore.diffPlacements(placed1, placed2), ['ecom-beacon'], 'settled task returns agent to desk');
+
+const un = CityCore.agentPlacements(model, layout, CityCore.seatCitizens(model, [
+  { id: 'mystery', name: 'Mystery', role: 'wizard', status: 'online' }
+]), noAct);
+A.ok(un[0] && !un[0].seated, 'unmatched roster citizen is placed unseated');
+A.ok(un[0].y >= layout.plaza.y && un[0].y <= layout.plaza.y + layout.plaza.h, 'unseated citizen stands in the plaza');
+
+const junk = CityCore.deriveActivity({ tasks: [null, { status: 'running' }], missions: ['x', { status: 'running' }] });
+A.eq(junk.entries.length, 0, 'unrouted or malformed activity is dropped, never guessed');
+
+A.report();
+
 A.report();

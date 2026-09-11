@@ -52,3 +52,29 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8p
 .note { font-size: 12px; color: var(--dim); margin-top: 6px; }
 footer { padding: 16px 14px 30px; color: var(--dim); font-size: 11.5px; text-align: center; }
 a { color: #7ea2ff; }
+
+/* --- live map --- */
+#mapwrap { margin-top: 14px; }
+#map svg { width: 100%; height: auto; display: block; }
+.map-district { fill: rgba(27,34,51,.55); stroke: var(--line); stroke-width: 1; }
+.map-district-label { fill: var(--dim); font-size: 10.5px; letter-spacing: .14em; }
+.map-building { fill: var(--panel); stroke: var(--line); stroke-width: 1; }
+.map-building-label { fill: var(--ink); font-size: 9.5px; letter-spacing: .08em; opacity: .85; }
+.map-plaza { fill: rgba(20,25,39,.6); stroke: var(--line); stroke-dasharray: 4 3; }
+.map-plaza-label { fill: var(--dim); font-size: 9px; letter-spacing: .14em; }
+.map-building.b-cobalt{stroke:var(--cobalt)} .map-building.b-rust{stroke:var(--rust)} .map-building.b-violet{stroke:var(--violet)}
+.map-building.b-amber{stroke:var(--amber)} .map-building.b-teal{stroke:var(--teal)} .map-building.b-orchid{stroke:var(--orchid)}
+.map-building.b-ember{stroke:var(--ember)} .map-building.b-indigo{stroke:var(--indigo)} .map-building.b-onyx{stroke:var(--onyx)}
+.map-building.b-sterile{stroke:var(--sterile)} .map-building.b-crimson{stroke:var(--crimson)}
+.token { transition: transform 1.15s ease-in-out; }
+.token circle { fill: var(--live); stroke: #0b0e17; stroke-width: 2; }
+.token.unseated circle { fill: var(--dim); }
+.token text { fill: var(--ink); font-size: 9px; text-anchor: middle; paint-order: stroke; stroke: #0b0e17; stroke-width: 3px; }
+.token.working circle { fill: var(--warn); animation: token-pulse 1.1s ease-in-out infinite; }
+.map-building.flash-ok { stroke: var(--live); stroke-width: 3; }
+.map-building.flash-bad { stroke: var(--bad); stroke-width: 3; }
+@keyframes token-pulse { 0%,100% { r: 7; } 50% { r: 10; } }
+@media (prefers-reduced-motion: reduce) {
+  .token { transition: none; }
+  .token.working circle { animation: none; }
+}

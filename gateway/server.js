@@ -308,7 +308,7 @@ async function getCityStatus() {
       degraded: true,
       generatedAt: new Date().toISOString(),
       city: { name: "Pauli's Place", status: 'unreachable' },
-      districts: [], citizens: [], missions: [], approvals: [], experiments: [],
+      districts: [], citizens: [], missions: [], approvals: [], experiments: [], activeTasks: [],
       revenue: null, costs: null,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
@@ -371,6 +371,15 @@ async function getCityStatus() {
     }],
     citizens,
     missions: sidecarData.missions || [],
+    activeTasks: [...taskStore.values()].slice(-20).map(t => ({
+      id: t.id,
+      status: t.status,
+      task: t.task,
+      context: t.context || null,
+      startedAt: t.startedAt || null,
+      completedAt: t.completedAt || null,
+      receiptId: t.receipt && t.receipt.receipt_id ? t.receipt.receipt_id : null
+    })),
     approvals,
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
@@ -475,6 +484,7 @@ async function handleRequest(req, res) {
         mission_id: taskId,
         status: 'running',
         task: message,
+        context: body?.context && typeof body.context === 'object' ? body.context : null,
         startedAt: new Date().toISOString(),
         receipt: makeReceipt('heisenberg_dispatch', { task_id: taskId })
       };
