@@ -51,7 +51,7 @@ const World = (() => {
               margin. The cost is ~11% of edge content, never any change to the curvature.
      Both feed the GL path and the CPU LUT path IDENTICALLY — drawCurveGL's probe compares the two and defects
      to CPU on divergence, so they must never drift apart. */
-  const CRT = { scan: 0.43, pitch: 1, fade: 0.25, glow: 0.07, curve: 0.09, vig: 0.30, over: 1.20, dust: 0.5, aberr: 0.35, grain: 0.24 };
+  const CRT = { scan: 0.43, pitch: 1, fade: 0.25, glow: 0.07, curve: 0.09, vig: 0.30, over: 1.12, dust: 0.5, aberr: 0.35, grain: 0.24 };
   let _warpCv = null, _warpCtx = null;   // the barrel-warp snapshot buffer — see drawCurve()
   let _lut = null, _lutKey = '', _outImg = null;   // CPU per-pixel barrel-warp inverse-map LUT + output buffer — see buildLUT()/drawCurveCPU()
   let _gl = null, _glc = null, _glProg = null, _glTex = null, _glKLoc = null, _glAberrLoc = null, _glVigLoc = null, _glOverLoc = null, _glReady = false, _glFailed = false;   // GPU barrel-warp (WebGL) — see initGL()/drawCurveGL()
@@ -1318,6 +1318,16 @@ const World = (() => {
       else { panX += (nw - cv.width) / 2; panY += (nh - cv.height) / 2; }
     }
     cv.width = nw; cv.height = nh;
+    // resize mid-tween (e.g. Whole city fit in flight): the tween's captured from/to geometry is
+    // stale for the new canvas size, and the frame loop would lerp the view to pre-resize coords.
+    // Cancel the move, drop any queued auto-fit, and re-arm the cinecam idle clock so the director
+    // stays parked until fresh hands-off. The awakening ceremony is exempt - its tween chain owns
+    // the camera and must not be broken mid-beat.
+    if (camAnim && !awakeFrozen) {
+      camAnim = null;
+      fitNeeded = false;
+      camUserAt = performance.now();
+    }
   }
 
   // A canvas resize blanks the bitmap, and the repaint only lands on the NEXT rAF — so dragging the
@@ -1390,7 +1400,10 @@ const World = (() => {
     // scale division keeps a real on-screen margin even when the fit is exactly height- or
     // width-bound (world-unit margins vanish by construction in the bound axis).
     const SM = Math.max(14, (typeof margin === 'number' ? margin : 24) / 2);
-    const s = clampz(Math.min((cv.width - SM * 2) / (x1 - x0), (cv.height - SM * 2) / (y1 - y0)), FIT_MINZ, MAXZ);
+    // The CRT barrel warp magnifies the frame by ~CRT.over at the edges, so a camera fit computed
+    // against the raw viewport loses that fraction of edge content to overscan. Divide it back out.
+    const over = (typeof CRT === 'object' && CRT.over > 1) ? CRT.over : 1;
+    const s = clampz(Math.min((cv.width - SM * 2) / (x1 - x0), (cv.height - SM * 2) / (y1 - y0)) / over, FIT_MINZ, MAXZ);
     camTweenTo(s, cv.width / 2 - ((x0 + x1) / 2) * s, cv.height / 2 - ((y0 + y1) / 2) * s, 900, null, null, FIT_MINZ);
   }
   // frameRect(x0,y0,x1,y1,margin): fit the camera on a WORLD-space rect. The live city surface
