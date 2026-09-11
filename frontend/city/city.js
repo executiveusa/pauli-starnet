@@ -47,6 +47,7 @@
       state.status = c;
       state.seating = CityCore.seatCitizens(state.model, c.citizens);
       setMode(c.mode, c.label + (c.generatedAt ? ' · ' + new Date(c.generatedAt).toLocaleTimeString() : ''));
+      if (c.mode === 'live') { const ob = document.getElementById('offline-banner'); if (ob) ob.remove(); }
       renderCity(); renderApprovals();
     } catch (_) {
       setMode('degraded', 'Gateway unreachable from this device.');
