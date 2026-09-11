@@ -25,6 +25,7 @@ function req(method, port, p, headers, body) {
 }
 
 async function main() {
+  let runBody = null;   // the exact body the gateway POSTed to the sidecar's /api/run
   // stub sidecar: healthy status + one-shot NDJSON run
   const sidecar = http.createServer((q, s) => {
     if (q.url === '/api/status') {
@@ -32,9 +33,14 @@ async function main() {
       return s.end(JSON.stringify({ ok: true }));
     }
     if (q.url === '/api/run') {
-      s.writeHead(200, { 'content-type': 'application/x-ndjson' });
-      s.write(JSON.stringify({ name: 'agent.token', payload: { delta: 'PROBE OK' } }) + '\n');
-      return s.end(JSON.stringify({ name: 'agent.run.end', payload: { reason: 'done' } }) + '\n');
+      const chunks = [];
+      q.on('data', c => chunks.push(c));
+      return q.on('end', () => {
+        try { runBody = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch (_) { runBody = null; }
+        s.writeHead(200, { 'content-type': 'application/x-ndjson' });
+        s.write(JSON.stringify({ name: 'agent.token', payload: { delta: 'PROBE OK' } }) + '\n');
+        return s.end(JSON.stringify({ name: 'agent.run.end', payload: { reason: 'done' } }) + '\n');
+      });
     }
     s.writeHead(404); s.end();
   });
@@ -81,6 +87,11 @@ async function main() {
   A.eq(at.status, 'completed', 'activity carries settled status');
   A.eq(at.context.building, 'commerce_factory', 'activity carries routing for map placement');
   A.ok(at.receiptId, 'activity carries receipt id');
+
+  // THE DISH RIDES THE RUN BODY: the gateway must declare the station's placed dish so the
+  // sidecar's interactive office grants web_search/web_fetch (read-scope) to city runs.
+  A.ok(runBody, 'sidecar saw the run body');
+  A.eq(runBody.placed, ['dish'], 'city runs carry the placed dish (web read capability)');
 
   child.kill(); sidecar.close();
   A.report();

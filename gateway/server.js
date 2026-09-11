@@ -166,7 +166,13 @@ function runToCompletion(agentId, message, context) {
       model: resolvedModel,
       key: resolvedKey,
       context: context || {},
-      taskId
+      taskId,
+      // THE CITY STATION HAS A DISH PLACED: object = capability (sidecar/capability/registry.js
+      // maps dish -> web_search/web_fetch, read-scope, network, no consent). /api/run composes a
+      // compute-only office on the interactive surface unless the floor's placed props ride the
+      // request body, so the gateway declares the station's dish here. This is read-only web
+      // reach for research; every other gate (approvals, paid routes, mutations) is unchanged.
+      placed: ['dish']
     };
     const bodyBuf = Buffer.from(JSON.stringify(bodyObj), 'utf8');
     const headers = {
