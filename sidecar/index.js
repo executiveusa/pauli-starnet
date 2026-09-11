@@ -15346,6 +15346,21 @@ async function runOnce(o) {
     execution.recordResult(sig, r, internalBriefControl);
     return r;
   };
+  /* SLIM RESEARCH RESULT CAP: every provider request re-sends the whole transcript, and the binding ceiling on
+     free tiers is per-minute INPUT tokens (Groq qwen3.x: 7,000 ITPM), far below any context window. Measured live
+     2026-09-11 (task f97191b2): the slim turn-1 request fit, but accumulated fetch results hit 7,271 at turn 5
+     (http 413). Capping each tool RESULT keeps request N bounded: ~3k base + turns x ~450 tokens of results. */
+  const slimResultCap = slimResearch ? 1200 : 0;
+  const runDispatch = slimResultCap
+    ? async (c, ctx) => {
+        const r = await dispatch(c, ctx);
+        if (r && typeof r.content === 'string' && r.content.length > slimResultCap) {
+          r.content = r.content.slice(0, slimResultCap) + '\n[truncated by the slim research wire — fetch a narrower page or quote only what you still need]';
+          r.outputChars = r.content.length;
+        }
+        return r;
+      }
+    : dispatch;
 
   // CODE MODE COMPOSITION. The child process gets no registry, credentials or ambient authority; every
   // `tool(name,args)` crosses this function and re-enters the SAME dispatch closure used by ordinary model
@@ -15866,7 +15881,7 @@ async function runOnce(o) {
       return { checks };
     } : null;
     result = await runAgentLoop({
-      messages: msgs, provider, emit: loopEmit, cost, tools: toolDefs, dispatch, capCtx,
+      messages: msgs, provider, emit: loopEmit, cost, tools: toolDefs, dispatch: runDispatch, capCtx,
       acceptanceProbe,
       // Granted but unadvertised: held out of the request until tool.search reveals one (see loop.js).
       deferredTools: deferredToolDefs,
