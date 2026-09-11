@@ -269,7 +269,87 @@ const CityCore = (() => {
     return moved;
   }
 
-  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, MAP };
+  /* WALK PATH - the visible route between two evidenced positions (desk -> work point
+     and back). Pure geometry: endpoints are ALWAYS the evidenced positions exactly; a
+     single perpendicular bend turns the straight line into a readable walking arc.
+     The browser animates along this path so a real task reads as an agent WALKING,
+     never teleporting. Pure + unit-tested. */
+  function walkPath(from, to) {
+    if (!from || !to || !isFinite(+from.x) || !isFinite(+from.y) || !isFinite(+to.x) || !isFinite(+to.y)) return [];
+    const fx = +from.x, fy = +from.y, tx = +to.x, ty = +to.y;
+    if (fx === tx && fy === ty) return [{ x: fx, y: fy }];
+    const dx = tx - fx, dy = ty - fy;
+    const len = Math.hypot(dx, dy);
+    const off = Math.min(26, len * 0.18);
+    const mid = { x: Math.round((fx + tx) / 2 - (dy / len) * off), y: Math.round((fy + ty) / 2 + (dx / len) * off) };
+    return [{ x: fx, y: fy }, mid, { x: tx, y: ty }];
+  }
+
+  /* GATEWAY ACTIVITY FEED — the same activeTasks the map moves on, normalized for
+     the TASKS & RECEIPTS panel so EVERY viewer sees current/recent gateway work and
+     its receipts, not only tasks sent from their own device. Newest first, capped.
+     Statuses are the gateway's own words (running/accepted/failed) - verbatim, never
+     dressed up. Pure + unit-tested. */
+  function activityFeed(status, cap) {
+    const raw = (status && Array.isArray(status.activeTasks)) ? status.activeTasks : [];
+    const items = raw.map(t => ({
+      id: t.id || t.taskId || t.task_id || null,
+      status: String(t.status || 'unknown'),
+      label: String(t.task || t.title || ''),
+      receiptId: t.receiptId || (t.receipt && t.receipt.receipt_id) || null,
+      startedAt: t.startedAt || null,
+      completedAt: t.completedAt || null
+    }));
+    items.sort((a, b) => String(b.startedAt || '').localeCompare(String(a.startedAt || '')));
+    return items.slice(0, cap || 20);
+  }
+
+
+  /* WORLD SPAWN PLAN — the deterministic display identity for the 2D world view.
+     Hero = the orchestrator (id 'agent') when present, else the first citizen; the
+     hero takes the 'heisenberg' sprite set ONLY when it literally is Heisenberg
+     (the skin exists for that character); everyone else draws from the neutral
+     blank-* pool in roster order. Skins are presentation only — the roster is the
+     backend truth and carries no skins, so nothing here invents backend state. */
+  const WORLD_SKIN_POOL = ['blank_blue', 'blank_green', 'blank_red', 'blank_amber', 'blank'];
+  function worldSpawnPlan(citizens) {
+    const list = (Array.isArray(citizens) ? citizens : []).filter(c => c && c.id);
+    const hi = list.findIndex(c => c.id === 'agent');
+    const ordered = hi > 0 ? [list[hi]].concat(list.slice(0, hi), list.slice(hi + 1)) : list;
+    let pool = 0;
+    return ordered.map((c, i) => {
+      const hero = i === 0;
+      const skin = (hero && c.id === 'agent') ? 'heisenberg' : WORLD_SKIN_POOL[(pool++) % WORLD_SKIN_POOL.length];
+      return { id: c.id, name: c.name || c.id, hero, skin };
+    });
+  }
+
+  /* WORLD ACTIVITY DIFF — maps the gateway's own activeTasks onto world bodies.
+     A body works iff the gateway shows a RUNNING task whose context.agentId names it.
+     Pure: takes the previous applied map, returns only the changes to apply
+     ({id, kind:'task'|'idle'}) so the driver never re-seizes a working body and
+     never fabricates movement the gateway did not report. */
+  function worldWorkSet(status) {
+    const out = new Set();
+    const tasks = (status && Array.isArray(status.activeTasks)) ? status.activeTasks : [];
+    for (const t of tasks) {
+      if (t && t.status === 'running' && t.context && t.context.agentId) out.add(String(t.context.agentId));
+    }
+    return out;
+  }
+  function worldActivityDiff(prev, status, knownIds) {
+    const want = worldWorkSet(status);
+    const changes = [];
+    const ids = new Set([].concat(Object.keys(prev || {}), Array.from(knownIds || []), Array.from(want)));
+    for (const id of ids) {
+      const before = !!(prev && prev[id]);
+      const after = want.has(id);
+      if (before !== after) changes.push({ id, kind: after ? 'task' : 'idle' });
+    }
+    return changes;
+  }
+
+  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, WORLD_SKIN_POOL, MAP };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = CityCore;

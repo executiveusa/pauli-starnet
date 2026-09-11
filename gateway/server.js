@@ -28,6 +28,7 @@
 // Exposed routes (all require Authorization: Bearer <GATEWAY_BEARER_TOKEN>):
 //   GET  /health                          → gateway health + starnet connectivity probe
 //   GET  /v1/city/status                  → STARNET world state as city data
+//   GET  /v1/city/world                   → read-only live station geometry for the 2D city view
 //   POST /v1/heisenberg/tasks             → create Heisenberg mission, poll to settled state
 //   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
 //   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
@@ -38,6 +39,7 @@
 
 'use strict';
 
+const { getCityWorld } = require('./city-world');
 const http = require('http');
 const crypto = require('crypto');
 
@@ -470,6 +472,12 @@ async function handleRequest(req, res) {
     if (method === 'GET' && url === '/v1/city/status') {
       const status = await getCityStatus();
       return send(200, status);
+    }
+
+    // GET /v1/city/world — read-only live world geometry (rooms/props/belts) for the public 2D city view
+    if (method === 'GET' && url === '/v1/city/world') {
+      const world = getCityWorld();
+      return send(world.ok === false ? 503 : 200, world);
     }
 
     // POST /v1/heisenberg/tasks

@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pauli's Place — StarNet City</title>
-<meta name="description" content="Live view of Pauli's Place — the StarNet agent city. Districts, buildings, specialists, tasks, and receipts from the real runtime.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pauli's Place — Live City</title>
 <link rel="stylesheet" href="city.css">
 </head>
 <body>
@@ -14,59 +13,68 @@
   <span class="statusline" id="statusline">booting</span>
   <span class="spacer"></span>
   <span class="statusline" id="counts"></span>
+  <button id="feed-toggle" class="ghostbtn" aria-label="Toggle activity panel">Activity</button>
   <button id="settings-btn">Settings</button>
 </header>
-<main>
-  <section class="panel" id="mapwrap">
-    <h2>LIVE MAP</h2>
-    <div id="map"></div>
-    <div class="note">Tokens are roster agents at the desks the backend proves. A token moves only while the gateway shows a real running task routed to it, and returns when the task settles with its receipt. Idle agents sit at their desks. Nothing here is simulated.</div>
-  </section>
 
-  <div id="city"></div>
-
-  <section class="panel" id="tasks">
-    <h2>TASKS &amp; RECEIPTS</h2>
-    <div id="tasks-list"></div>
-  </section>
-
-  <section class="panel" id="approvals">
-    <h2>NEEDS YOU</h2>
-    <div id="approvals-list"></div>
-    <div class="note">Consequential work (spend, publishing, outreach) parks here. Approving happens through the owner channel — this view stays read-only.</div>
-  </section>
+<main id="stagewrap">
+  <canvas id="world" aria-label="Live 2D city world - the real station world with all agents"></canvas>
+  <div id="world-note" class="worldnote">Agents walk only while the gateway reports a real running task. Idle agents sit at their desks.</div>
+  <div id="world-fallback" class="worldfallback" hidden></div>
 </main>
 
+<aside id="overlay">
+  <section class="panel" id="feed-panel">
+    <h2>Gateway activity <span class="note" id="lastact"></span></h2>
+    <div id="gw-feed"></div>
+  </section>
+  <section class="panel" id="tasks">
+    <h2>Tasks &amp; receipts <button class="primary" id="task-open">Task Heisenberg</button></h2>
+    <div id="tasks-list"></div>
+  </section>
+  <section class="panel" id="approvals">
+    <h2>Waiting on you</h2>
+    <div id="approvals-list"></div>
+  </section>
+</aside>
+
 <dialog id="taskdialog">
-  <h3>Task</h3>
+  <h3>Task — Heisenberg</h3>
   <div class="note" id="task-target"></div>
-  <textarea id="task-text" placeholder="What should this specialist do?"></textarea>
-  <div class="note">Tasks go to Heisenberg as missions. Money, publishing, and external contact still require your explicit approval downstream.</div>
+  <textarea id="task-text" placeholder="What should Heisenberg do?"></textarea>
   <div class="row">
-    <button onclick="this.closest('dialog').close()">Cancel</button>
     <button class="primary" id="task-send">Send task</button>
+    <button onclick="this.closest('dialog').close()">Cancel</button>
   </div>
 </dialog>
 
 <dialog id="settings">
-  <h3>Connect to the city backend</h3>
-  <div class="note">Gateway URL — the authenticated Pauli gateway in front of the running StarNet sidecar.</div>
-  <input id="set-gateway" type="url" placeholder="https://gateway.example.com">
-  <div class="note">Bearer token — stored only in this browser's local storage.</div>
-  <input id="set-token" type="password" placeholder="gateway token">
+  <h3>Connection</h3>
+  <label>Gateway URL <input id="set-gateway" type="url" placeholder="https://gateway.example.com"></label>
+  <label>Bearer token <input id="set-token" type="password" placeholder="gateway token"></label>
   <div class="row">
-    <button onclick="this.closest('dialog').close()">Cancel</button>
     <button class="primary" id="settings-save">Save &amp; connect</button>
+    <button onclick="this.closest('dialog').close()">Cancel</button>
   </div>
 </dialog>
 
-<footer>
-  Districts and buildings come from the canonical CityOS manifest in this repository.
-  Empty slots are honest vacancies. No activity is shown unless the backend proves it.
-</footer>
-
-<script src="../app/cityos.js"></script>
+<script src="world/util.js"></script>
+<script src="world/data-shim.js"></script>
+<script src="world/sprite-load-plan.js"></script>
+<script src="world/assets.js"></script>
+<script src="world/spacebg.js"></script>
+<script src="world/terrain.js"></script>
+<script src="world/propsprites.js"></script>
+<script src="world/worldmodel.js"></script>
+<script src="world/pipeline.js"></script>
+<script src="world/conveyor.js"></script>
+<script src="world/propanchor.js"></script>
+<script src="world/waitanchor.js"></script>
+<script src="world/stationbake.js"></script>
+<script src="world/cityos.js"></script>
+<script src="world/world.js"></script>
 <script src="city-core.js"></script>
+<script src="city-world.js"></script>
 <script src="city.js"></script>
 </body>
 </html>

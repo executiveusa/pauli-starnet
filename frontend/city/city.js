@@ -1,6 +1,7 @@
-/* Pauli's Place — city web surface. Renders the canonical CityOS manifest, polls the
- * Pauli gateway for live state, and sends tasks to Heisenberg for district specialists.
- * Truth rules: no gateway = no claimed activity. Demo mode is labeled as demo. */
+/* Pauli's Place — city web surface OVERLAY. The 2D world (city-world.js + world.js) is the
+ * primary view; this owns the secondary panel: gateway status line, the all-viewers activity
+ * feed with receipts, task sending to Heisenberg, and approvals. Truth rules: no gateway = no
+ * claimed activity; statuses are the gateway's own words. */
 'use strict';
 (function () {
   const $ = (sel, el) => (el || document).querySelector(sel);
@@ -9,25 +10,23 @@
   const POLL_MS = 5000;
 
   const params = new URLSearchParams(location.search);
-  // Default path is the same-origin Netlify function proxy: the gateway token lives
-  // server-side, never in this browser. Settings can override with a direct gateway
-  // URL + bearer token for owner use.
   const DEFAULT_GW = '/.netlify/functions/gw';
   const state = {
     model: null,
-    mode: 'offline',          // live | degraded | offline | demo
+    mode: 'offline',
     gatewayUrl: params.get('gateway') || localStorage.getItem(LS.gateway) || DEFAULT_GW,
     token: localStorage.getItem(LS.token) || '',
     status: null,
-    seating: null,
-    tasks: [],                // local view of dispatched task ids
-    timer: null,
-    layout: null,             // deterministic map geometry from the canonical model
-    activity: { byAgent: {}, byBuilding: {}, entries: [] },
-    tokenEls: {},             // agentId -> <g> token element (kept so moves animate)
-    mapReady: false
+    tasks: [],
+    timer: null
   };
+  const subs = [];
   if (params.get('gateway')) localStorage.setItem(LS.gateway, state.gatewayUrl);
+
+  window.CitySurface = {
+    latest: () => state.status,
+    onStatus: fn => { if (typeof fn === 'function') subs.push(fn); }
+  };
 
   function setMode(mode, label) {
     state.mode = mode;
@@ -37,157 +36,24 @@
   }
 
   async function poll() {
-    if (!state.gatewayUrl) { setMode('offline', 'Not connected — canonical city plan only. No live state.'); return; }
+    if (!state.gatewayUrl) { setMode('offline', 'Not connected — no live state.'); return; }
     try {
       const r = await fetch(state.gatewayUrl.replace(/\/+$/, '') + '/v1/city/status', {
         headers: state.token ? { Authorization: 'Bearer ' + state.token } : {}, cache: 'no-store'
       });
       if (r.status === 401) { setMode('degraded', 'Gateway rejected the token.'); return; }
-      if (r.status === 404 && state.gatewayUrl === DEFAULT_GW) { setMode('offline', 'Not connected — canonical city plan only. No live state.'); return; }
+      if (r.status === 404 && state.gatewayUrl === DEFAULT_GW) { setMode('offline', 'Not connected — no live state.'); return; }
       if (r.status === 502 || r.status === 503) { setMode('degraded', 'City backend starting or unreachable.'); return; }
       if (!r.ok) { setMode('degraded', 'Gateway error ' + r.status); return; }
       const payload = await r.json();
       const c = CityCore.classifyStatus(payload);
       state.status = c;
-      state.seating = CityCore.seatCitizens(state.model, c.citizens);
       setMode(c.mode, c.label + (c.generatedAt ? ' · ' + new Date(c.generatedAt).toLocaleTimeString() : ''));
-      if (c.mode === 'live') { const ob = document.getElementById('offline-banner'); if (ob) ob.remove(); }
-      updateActivity(c);
-      renderCity(); renderApprovals();
+      renderFeed(); renderLastAct(); renderApprovals();
+      for (const fn of subs) { try { fn(c); } catch (_) {} }
+      if (window.CityWorld && window.CityWorld.applyStatus) { try { window.CityWorld.applyStatus(c); } catch (_) {} }
     } catch (_) {
       setMode('degraded', 'Gateway unreachable from this device.');
-    }
-  }
-
-  function slotAgent(entry) {
-    if (!state.seating) return null;
-    return state.seating.seating[entry.districtId + '/' + entry.templateId + '/' + entry.slot] || null;
-  }
-
-
-  /* --- live map -----------------------------------------------------------
-     One SVG: districts and buildings from the canonical manifest (static
-     shell), roster citizens as tokens. A token's position is PROOF-SHAPED:
-     the desk of its seated slot, or the work point of a building while the
-     gateway shows a real running task routed there. Movement between those
-     two proven states is a CSS transition on the token's transform — the
-     animation only ever plays between two evidenced positions. */
-
-  const SVGNS = 'http://www.w3.org/2000/svg';
-  function svgEl(tag, attrs, text) {
-    const n = document.createElementNS(SVGNS, tag);
-    if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
-    if (text != null) n.textContent = text;
-    return n;
-  }
-
-  function renderMapShell() {
-    const host = $('#map');
-    host.textContent = '';
-    state.tokenEls = {};
-    const L = state.layout;
-    const svg = svgEl('svg', { viewBox: '0 0 ' + L.width + ' ' + L.height, role: 'img', 'aria-label': 'Live map of the city districts, buildings, and agents' });
-    for (const d of L.districts) {
-      svg.appendChild(svgEl('rect', { class: 'map-district', x: d.x, y: d.y, width: d.w, height: d.h, rx: 10 }));
-      svg.appendChild(svgEl('text', { class: 'map-district-label', x: d.x + 8, y: d.y + 15 }, d.label));
-      for (const b of d.buildings) {
-        svg.appendChild(svgEl('rect', { class: 'map-building b-' + b.floorStyle, id: 'mapb-' + b.templateId, x: b.x, y: b.y, width: b.w, height: b.h, rx: 6 }));
-        svg.appendChild(svgEl('text', { class: 'map-building-label', x: b.x + 7, y: b.y + 14 }, b.label));
-      }
-    }
-    svg.appendChild(svgEl('rect', { class: 'map-plaza', x: L.plaza.x, y: L.plaza.y, width: L.plaza.w, height: L.plaza.h, rx: 6 }));
-    svg.appendChild(svgEl('text', { class: 'map-plaza-label', x: L.plaza.x + 8, y: L.plaza.y + 13 }, 'ROSTERED, NOT SEATED'));
-    svg.appendChild(svgEl('g', { id: 'tokens' }));
-    host.appendChild(svg);
-    state.mapReady = true;
-  }
-
-  function updateActivity(c) {
-    const missions = ((c && c.missions) || []).concat((c && c.activeTasks) || []);
-    state.activity = CityCore.deriveActivity({ missions, tasks: state.tasks });
-    updateTokens();
-  }
-
-  function updateTokens() {
-    if (!state.mapReady) return;
-    const layer = $('#tokens');
-    if (!layer) return;
-    const placements = state.seating
-      ? CityCore.agentPlacements(state.model, state.layout, state.seating, state.activity)
-      : [];
-    const alive = new Set();
-    for (const p of placements) {
-      alive.add(p.agentId);
-      let t = state.tokenEls[p.agentId];
-      if (!t) {
-        t = svgEl('g', { class: 'token' + (p.seated ? '' : ' unseated') });
-        t.appendChild(svgEl('circle', { r: 7 }));
-        const label = svgEl('text', { y: -11 }, p.name);
-        t.appendChild(label);
-        t.appendChild(svgEl('title', null, p.name + (p.seated ? ' — ' + (p.slot || p.role) : ' — rostered, not seated')));
-        layer.appendChild(t);
-        state.tokenEls[p.agentId] = t;
-        // first placement: no slide-in from 0,0 — place instantly
-        t.style.transition = 'none';
-        t.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ')');
-        t.getBoundingClientRect(); // commit before re-enabling the transition
-        t.style.transition = '';
-      } else {
-        t.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ')');
-      }
-      t.classList.toggle('working', !!p.working);
-      const title = t.querySelector('title');
-      if (title) title.textContent = p.name + (p.working ? ' — working: ' + (p.taskLabel || 'task running') : (p.seated ? ' — at desk (' + (p.slot || p.role) + ')' : ' — rostered, not seated'));
-    }
-    for (const id in state.tokenEls) {
-      if (!alive.has(id)) { state.tokenEls[id].remove(); delete state.tokenEls[id]; }
-    }
-  }
-
-  function flashBuilding(templateId, ok) {
-    const rect = document.getElementById('mapb-' + templateId);
-    if (!rect) return;
-    rect.classList.remove('flash-ok', 'flash-bad');
-    void rect.getBoundingClientRect();
-    rect.classList.add(ok ? 'flash-ok' : 'flash-bad');
-    setTimeout(() => rect.classList.remove('flash-ok', 'flash-bad'), 4200);
-  }
-
-  const TASKABLE = { commerce_factory: true, connector_exchange: true };
-
-  function renderCity() {
-    const root = $('#city');
-    root.textContent = '';
-    for (const d of state.model.districts) {
-      const dsec = el('section', 'district');
-      dsec.appendChild(el('h2', null, d.label));
-      const grid = el('div', 'buildings');
-      for (const b of d.buildings) {
-        const card = el('div', 'building b-' + b.floorStyle);
-        card.appendChild(el('h3', null, b.label));
-        card.appendChild(el('div', 'caps', b.caps.join(' · ') + (b.connectorPorts ? ' · ' + b.connectorPorts + ' connector ports' : '')));
-        const slots = el('div', 'slots');
-        for (const s of b.slots) {
-          const entry = { districtId: d.id, templateId: b.templateId, slot: s };
-          const agent = slotAgent(entry);
-          const row = el('div', 'slot');
-          const who = el('span', 'who');
-          if (agent) { who.textContent = agent.name || agent.id; row.appendChild(el('span', 'dot live')); }
-          else { who.appendChild(el('span', 'vacant', 'vacancy')); }
-          row.appendChild(who);
-          row.appendChild(el('span', 'spec', s));
-          if (TASKABLE[b.templateId]) {
-            const btn = el('button', null, 'Task');
-            btn.addEventListener('click', () => openTaskDialog(d, b, s, agent));
-            row.appendChild(btn);
-          }
-          slots.appendChild(row);
-        }
-        card.appendChild(slots);
-        grid.appendChild(card);
-      }
-      dsec.appendChild(grid);
-      root.appendChild(dsec);
     }
   }
 
@@ -202,6 +68,40 @@
       row.appendChild(el('div', 'meta', (a.district ? a.district + ' · ' : '') + 'risk: ' + (a.risk || 'unknown') + (a.cost != null ? ' · est. cost: ' + a.cost : '')));
       list.appendChild(row);
     }
+  }
+
+  function renderFeed() {
+    // GATEWAY ACTIVITY — current/recent activeTasks verbatim from the gateway, with receipts,
+    // shown to EVERY viewer. This is what makes real work visible at idle moments.
+    const list = $('#gw-feed');
+    if (!list) return;
+    list.textContent = '';
+    const items = CityCore.activityFeed(state.status, 10);
+    if (!items.length) { list.appendChild(el('div', 'note', 'No gateway activity recorded yet.')); return; }
+    for (const t of items) {
+      const row = el('div', 'taskrow');
+      const head = el('div');
+      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : 'running'), t.status));
+      head.appendChild(document.createTextNode(' ' + (t.label || '').slice(0, 140)));
+      row.appendChild(head);
+      const meta = [];
+      if (t.receiptId) meta.push('receipt ' + t.receiptId);
+      if (t.startedAt) meta.push(new Date(t.startedAt).toLocaleTimeString());
+      if (t.completedAt) meta.push('settled ' + new Date(t.completedAt).toLocaleTimeString());
+      row.appendChild(el('div', 'meta', meta.join(' · ')));
+      list.appendChild(row);
+    }
+  }
+
+  function renderLastAct() {
+    const n = $('#lastact');
+    if (!n) return;
+    const items = CityCore.activityFeed(state.status, 1);
+    if (!items.length) { n.textContent = ''; return; }
+    const t = items[0];
+    const when = t.completedAt || t.startedAt;
+    const ago = when ? Math.max(0, Math.round((Date.now() - new Date(when).getTime()) / 60000)) : null;
+    n.textContent = ' — last gateway activity: ' + t.status + (ago != null ? ' · ' + (ago < 1 ? 'just now' : ago + ' min ago') : '');
   }
 
   function renderTasks() {
@@ -230,27 +130,19 @@
         headers: state.token ? { Authorization: 'Bearer ' + state.token } : {}, cache: 'no-store'
       });
       if (!r.ok) return;
-      const wasRunning = t.status === 'running';
       const rec = CityCore.normalizeTask(await r.json());
       if (rec) Object.assign(t, rec);
       renderTasks();
-      if (wasRunning && t.status !== 'running') {
-        if (t.context && t.context.building) flashBuilding(t.context.building, t.status === 'completed');
-        updateActivity(state.status);
-      }
       if (t.status === 'running') setTimeout(() => refreshTask(t), 3000);
     } catch (_) { /* keep last known state */ }
   }
 
-  function openTaskDialog(d, b, slot, agent) {
+  function openTaskDialog() {
     if (state.mode !== 'live') { alert('The city backend is not live yet. Tasks need a running gateway.'); return; }
     const dlg = $('#taskdialog');
-    $('#taskdialog h3').textContent = 'Task — ' + b.label + ' / ' + slot;
-    $('#task-target').textContent = agent
-      ? 'Routed to ' + (agent.name || agent.id) + ' through Heisenberg.'
-      : 'No seated specialist — Heisenberg routes or summons within the ' + d.label + '.';
+    $('#task-target').textContent = 'Routed to HEISENBERG, the city orchestrator.';
     $('#task-text').value = '';
-    dlg.dataset.payload = JSON.stringify({ districtId: d.id, templateId: b.templateId, slot, agentId: agent ? (agent.id || null) : null });
+    dlg.dataset.payload = JSON.stringify({ districtId: 'command', templateId: 'executive_hq', slot: 'orchestrator', agentId: 'agent' });
     dlg.showModal();
   }
 
@@ -271,9 +163,8 @@
       if (!r.ok) { alert('Gateway refused the task (' + r.status + ').'); return; }
       const rec = CityCore.normalizeTask(await r.json());
       if (rec) {
-        rec.context = payload.context; // routing metadata we sent — the gateway does not echo it back
+        rec.context = payload.context;
         state.tasks.push(rec); renderTasks();
-        updateActivity(state.status);
         setTimeout(() => refreshTask(state.tasks[state.tasks.length - 1]), 3000);
       }
       dlg.close();
@@ -295,37 +186,22 @@
     localStorage.setItem(LS.token, state.token);
     $('#settings').close();
     poll();
+    if (window.CityWorld && window.CityWorld.bootWorld) window.CityWorld.bootWorld();
   }
 
   function boot() {
-    if (typeof CityOS === 'undefined') { document.body.innerHTML = '<p style="padding:20px">CityOS manifest failed to load.</p>'; return; }
-    state.model = CityCore.cityModel(CityOS);
-    state.layout = CityCore.layoutCity(state.model);
-    renderMapShell();
-    $('#cityname').textContent = state.model.name;
-    $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
-    renderCity(); renderTasks(); renderApprovals();
-
-    if (params.get('demo') === '1') {
-      const b = el('div', 'banner demo', 'DEMO MODE — sample data, not the live city.');
-      document.body.insertBefore(b, $('main'));
-      setMode('degraded', 'Demo mode');
-      state.seating = CityCore.seatCitizens(state.model, [
-        { id: 'heisenberg', name: 'Heisenberg', role: 'orchestrator', status: 'online' },
-        { id: 'ecom-operator', name: 'Commerce Operator', specialtyId: 'operator', status: 'online' },
-        { id: 'ecom-treasurer', name: 'Commerce Treasurer', specialtyId: 'treasurer', status: 'online' }
-      ]);
-      renderCity();
-      return;
+    if (typeof CityOS !== 'undefined' && typeof CityCore !== 'undefined') {
+      state.model = CityCore.cityModel(CityOS);
+      $('#cityname').textContent = state.model.name;
+      $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
     }
-
-    const banner = el('div', 'banner', 'Not connected to the city backend — this is the canonical city plan, not live state. Open Settings to point at the gateway.');
-    banner.id = 'offline-banner';
-    document.body.insertBefore(banner, $('main'));
-    setMode('offline', 'Not connected');
+    renderTasks(); renderApprovals();
+    setMode('offline', 'Connecting…');
     $('#settings-btn').addEventListener('click', openSettings);
     $('#settings-save').addEventListener('click', saveSettings);
     $('#task-send').addEventListener('click', sendTask);
+    $('#task-open').addEventListener('click', openTaskDialog);
+    $('#feed-toggle').addEventListener('click', () => document.body.classList.toggle('panel-hidden'));
     poll();
     state.timer = setInterval(poll, POLL_MS);
   }

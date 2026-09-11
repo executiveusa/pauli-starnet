@@ -63,6 +63,90 @@ A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'un
   A.ok(merci && merci.working === true, 'a running gateway activeTask marks its agent working (end-to-end through classifyStatus)');
 }
 
+// activityFeed: the all-viewers gateway feed is the same activeTasks the map moves on -
+// normalized, newest first, capped, statuses verbatim, receipts carried.
+{
+  const feed = CityCore.activityFeed({ activeTasks: [
+    { id: 'old', status: 'failed', task: 'earlier task', receiptId: 'r-old', startedAt: '2026-09-11T07:00:00Z', completedAt: '2026-09-11T07:05:00Z' },
+    { id: 'new', status: 'running', task: 'current task', receipt: { receipt_id: 'r-new' }, startedAt: '2026-09-11T07:10:00Z' }
+  ] });
+  A.eq(feed.length, 2, 'feed carries both entries');
+  A.eq(feed[0].id, 'new', 'newest first');
+  A.eq(feed[0].receiptId, 'r-new', 'receipt id from nested receipt object');
+  A.eq(feed[1].status, 'failed', 'failed stays failed - verbatim, never dressed up');
+  A.eq(feed[1].completedAt, '2026-09-11T07:05:00Z', 'completedAt carried for the settled line');
+  A.eq(CityCore.activityFeed(null).length, 0, 'no status means an honestly empty feed');
+  A.eq(CityCore.activityFeed({ activeTasks: Array.from({ length: 30 }, (_, i) => ({ id: 't' + i, startedAt: '2026-09-11T07:' + String(i).padStart(2, '0') + ':00Z' })) }).length, 20, 'feed capped at 20');
+}
+// source-locked wiring: the panel sections, the map-header line, and the poll calls.
+{
+  const fs = require('fs');
+  const html = fs.readFileSync(__dirname + '/../frontend/city/index.html', 'utf8');
+  A.ok(html.includes('id="gw-feed"') && html.includes('Gateway activity'), 'index.html carries the all-viewers gateway feed section');
+  A.ok(html.includes('id="lastact"'), 'index.html carries the last-activity line');
+  const js = fs.readFileSync(__dirname + '/../frontend/city/city.js', 'utf8');
+  A.ok(/renderFeed\(\); renderLastAct\(\)/.test(js.replace(/\s+/g, ' ')) || (js.includes('renderFeed()') && js.includes('renderLastAct()')), 'poll renders feed + last-activity');
+  A.ok(js.includes('CityCore.activityFeed'), 'feed rows come from the pure tested helper');
+}
+
+// walkPath: the visible route between two evidenced positions - endpoints exact,
+// a bend off the straight line, degenerate inputs honest.
+{
+  const path = CityCore.walkPath({ x: 52, y: 204 }, { x: 286, y: 56 });
+  A.eq(path.length, 3, 'walk path is from -> bend -> to');
+  A.eq(path[0], { x: 52, y: 204 }, 'path starts at the evidenced desk position exactly');
+  A.eq(path[2], { x: 286, y: 56 }, 'path ends at the evidenced work position exactly');
+  const onLine = (path[1].x - 52) * (56 - 204) === (path[1].y - 204) * (286 - 52);
+  A.ok(!onLine, 'the bend is off the straight line - reads as a route, not a slide');
+  A.eq(CityCore.walkPath({ x: 7, y: 7 }, { x: 7, y: 7 }), [{ x: 7, y: 7 }], 'same spot is a single point, no fake travel');
+  A.eq(CityCore.walkPath(null, { x: 1, y: 1 }).length, 0, 'missing endpoint means no path, honestly');
+}
+// source-locked wiring: the REAL 2D world is the primary view - the app's own renderer,
+// world geometry from the gateway, movement bound to gateway running tasks only.
+{
+  const fs = require('fs');
+  const html = fs.readFileSync(__dirname + '/../frontend/city/index.html', 'utf8');
+  A.ok(html.includes('<canvas id="world"'), 'index.html carries the full-viewport world canvas');
+  A.ok(html.includes('world/world.js'), 'index.html loads the real world renderer');
+  A.ok(html.includes('world/worldmodel.js') && html.includes('world/propsprites.js') && html.includes('world/stationbake.js'), 'index.html loads the world runtime stack');
+  A.ok(!html.includes('id="map"'), 'the old dot-map shell is gone from the page');
+  const wjs = fs.readFileSync(__dirname + '/../frontend/city/city-world.js', 'utf8');
+  A.ok(wjs.includes('/v1/city/world'), 'world geometry comes from the read-only gateway route');
+  A.ok(wjs.includes('World.loadStation') && wjs.includes('WorldModel.deserialize'), 'the gateway document becomes the live station');
+  A.ok(wjs.includes('World.spawn') && wjs.includes('World.spawnAgent'), 'roster citizens spawn as real world bodies');
+  A.ok(wjs.includes('World.setActivityFor'), 'movement binds through the app\'s own activity seam');
+  A.ok(wjs.includes('CityCore.worldActivityDiff'), 'movement changes come from the pure tested diff');
+  A.ok(!wjs.includes('setInterval'), 'the world never invents motion on a timer');
+  const css = fs.readFileSync(__dirname + '/../frontend/city/city.css', 'utf8');
+  A.ok(css.includes('#world'), 'canvas has a full-stage style');
+}
+
+// worldSpawnPlan: hero identity + deterministic neutral skins, roster-truthful.
+{
+  const plan = CityCore.worldSpawnPlan([
+    { id: 'ecom-merci', name: 'MERCI' }, { id: 'agent', name: 'HEISENBERG' }, { id: 'ecom-ledger', name: 'LEDGER' }
+  ]);
+  A.eq(plan[0], { id: 'agent', name: 'HEISENBERG', hero: true, skin: 'heisenberg' }, 'the orchestrator is the hero with its namesake skin');
+  A.eq(plan.length, 3, 'every citizen gets a body');
+  A.ok(plan[1].hero === false && plan[1].skin !== 'heisenberg', 'crew never wears the hero skin');
+  A.eq(CityCore.worldSpawnPlan([]).length, 0, 'empty roster spawns nobody - no invented agents');
+  A.eq(CityCore.worldSpawnPlan([{ id: 'ecom-merci' }])[0].skin, CityCore.WORLD_SKIN_POOL[0], 'a non-Heisenberg hero draws from the neutral pool');
+}
+
+// worldActivityDiff: bodies work iff the gateway shows a running task naming them.
+{
+  const running = { activeTasks: [
+    { id: 't1', status: 'running', context: { agentId: 'agent' } },
+    { id: 't2', status: 'failed', context: { agentId: 'ecom-merci' } },
+    { id: 't3', status: 'completed', context: { agentId: 'ecom-ledger' } }
+  ] };
+  A.eq(Array.from(CityCore.worldWorkSet(running)), ['agent'], 'only RUNNING tasks light a body');
+  A.eq(CityCore.worldActivityDiff({}, running, ['agent', 'ecom-merci']), [{ id: 'agent', kind: 'task' }], 'task start seizes exactly the named body');
+  A.eq(CityCore.worldActivityDiff({ agent: true }, running, ['agent']), [], 'a still-running task is not re-seized');
+  A.eq(CityCore.worldActivityDiff({ agent: true }, { activeTasks: [] }, ['agent']), [{ id: 'agent', kind: 'idle' }], 'task settle releases the body back to idle');
+  A.eq(CityCore.worldActivityDiff({}, { activeTasks: [{ id: 't9', status: 'running' }] }, ['agent']), [], 'a task without an agentId moves nobody');
+}
+
 // --- seating honesty ---
 const seat = CityCore.seatCitizens(model, [
   { id: 'x1', name: 'Op', specialtyId: 'operator', status: 'online' },
