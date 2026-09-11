@@ -56,3 +56,31 @@ test('cut: a run that only had the two tools is unchanged in shape', () => {
   assert.deepStrictEqual(out.tools, ['web_search', 'web_fetch']);
   assert.strictEqual(out.hasCompute, true);
 });
+
+test('paceProvider: first call immediate, later starts spaced, delegates verbatim', async () => {
+  let t = 1000;
+  const sleeps = [];
+  const fake = {
+    id: 'fake',
+    stream: async function* (req) { yield { type: 'text', delta: 'x' + req.n }; yield { type: 'done' }; }
+  };
+  const paced = TaskProfile.paceProvider(fake, 65000, () => t, (ms) => { sleeps.push(ms); t += ms; return Promise.resolve(); });
+  assert.strictEqual(paced.id, 'fake');                                   // non-stream members delegate
+  const collect = async (n) => { const evs = []; for await (const e of paced.stream({ n })) evs.push(e); return evs; };
+  const a = await collect(1);
+  assert.deepStrictEqual(a.map(e => e.delta || e.type), ['x1', 'done']);  // events pass through untouched
+  assert.deepStrictEqual(sleeps, []);                                     // first call never waits
+  t += 10000;                                                             // 10s later
+  const b = await collect(2);
+  assert.deepStrictEqual(sleeps, [55000]);                                // waits only the remainder of the 65s window
+  assert.deepStrictEqual(b.map(e => e.delta || e.type), ['x2', 'done']);
+  t += 70000;                                                             // past the window
+  await collect(3);
+  assert.deepStrictEqual(sleeps, [55000]);                                // no extra wait
+});
+
+test('paceProvider: delegate errors propagate', async () => {
+  const fake = { stream: async function* () { throw new Error('boom'); } };
+  const paced = TaskProfile.paceProvider(fake, 65000);
+  await assert.rejects(async () => { for await (const _ of paced.stream({})) {} }, /boom/);
+});

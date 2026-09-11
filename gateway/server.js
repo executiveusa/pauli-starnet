@@ -198,7 +198,7 @@ function runToCompletion(agentId, message, context) {
       path: '/api/run',
       method: 'POST',
       headers,
-      timeout: 90000
+      timeout: 300000   // paced slim lanes idle ~65s between turns by design; inactivity, not wall clock, must not kill them
     }, res => {
       if (res.statusCode >= 400) {
         const chunks = [];
@@ -279,7 +279,11 @@ function runToCompletion(agentId, message, context) {
         resolve({
           task_id: taskId,
           mission_id: taskId,
-          status: settled ? 'completed' : (outText ? 'completed' : 'accepted'),
+          // TRUTHFUL STATUS: a run that ended with a provider/run error is FAILED even when it left partial
+          // text behind — reporting it completed would present unfinished work as done (research lane, 2026-09-11:
+          // an 11-turn run died at provider_stream yet surfaced 'completed' with a mid-task announcement).
+          status: runError ? 'failed' : (settled ? 'completed' : (outText ? 'completed' : 'accepted')),
+          error: runError || undefined,
           response: outText,
           result: outText,
           cost: costInfo,

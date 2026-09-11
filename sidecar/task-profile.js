@@ -41,5 +41,23 @@
     return out;
   }
 
-  return { SLIM_RESEARCH_CLASS, SLIM_RESEARCH_TOOLS, isSlimResearchRun, slimResearchToolset };
+  /* paceProvider — free-tier rate ceilings are PER-MINUTE (Groq qwen3.x: 7k input + 1k output per minute), so a
+     slim run may not start provider requests back-to-back: turn 2 inside the same minute as turn 1 blows the
+     output budget even with max_tokens clamped (measured: task 8ca8aeef died provider_stream on turn 11 after
+     18 successful web calls). Wrap the provider so stream() starts are spaced minIntervalMs apart. Pure wrapper:
+     every other member delegates untouched; now/sleep injectable for tests. */
+  function paceProvider(provider, minIntervalMs, now, sleep) {
+    now = now || (() => Date.now());
+    sleep = sleep || ((ms) => new Promise(r => setTimeout(r, ms)));
+    let lastStart = -Infinity;   // no call yet: the first request never waits
+    const paced = async function* (req) {
+      const wait = minIntervalMs - (now() - lastStart);
+      if (wait > 0) await sleep(wait);
+      lastStart = now();
+      yield* provider.stream(req);
+    };
+    return Object.assign({}, provider, { stream: paced });
+  }
+
+  return { SLIM_RESEARCH_CLASS, SLIM_RESEARCH_TOOLS, isSlimResearchRun, slimResearchToolset, paceProvider };
 });

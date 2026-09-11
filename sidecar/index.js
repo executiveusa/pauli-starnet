@@ -15881,7 +15881,8 @@ async function runOnce(o) {
       return { checks };
     } : null;
     result = await runAgentLoop({
-      messages: msgs, provider, emit: loopEmit, cost, tools: toolDefs, dispatch: runDispatch, capCtx,
+      messages: msgs, provider: slimResearch ? TaskProfile.paceProvider(provider, 65000) : provider,   // 1 request/min: free-tier per-minute ITPM+OTPM ceilings, not context, are the binding constraint
+      emit: loopEmit, cost, tools: toolDefs, dispatch: runDispatch, capCtx,
       maxTokens: slimResearch ? 1000 : undefined,   // free-tier OTPM ceiling (Groq qwen3.x: 1,000 out tokens/min); richer runs keep the provider default
       acceptanceProbe,
       // Granted but unadvertised: held out of the request until tool.search reveals one (see loop.js).
