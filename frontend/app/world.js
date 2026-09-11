@@ -1383,8 +1383,15 @@ const World = (() => {
   function fitWorld(margin) {
     if (!cache) return;
     const m = (typeof margin === 'number') ? margin : 24;
-    const s = clampz(Math.min(cv.width / (cache.W + m * 2), cv.height / (cache.H + m * 2)), FIT_MINZ, MAXZ);
-    camTweenTo(s, cv.width / 2 - (cache.W / 2) * s, cv.height / 2 - (cache.H / 2) * s, 900, null, null, FIT_MINZ);
+    // cache.W/H span the room-rect bbox; the hull EXTRUSION + skirt + west signage paint past
+    // that bbox (west/north), so the fit frame extends asymmetrically or those pixels clip.
+    const x0 = -4 * T, y0 = -3 * T, x1 = cache.W + T, y1 = cache.H + T;   // content + hull extrusion allowance (west signage reaches past -3T)
+    // The guard margin must be in SCREEN pixels: subtracting it from the viewport BEFORE the
+    // scale division keeps a real on-screen margin even when the fit is exactly height- or
+    // width-bound (world-unit margins vanish by construction in the bound axis).
+    const SM = Math.max(14, (typeof margin === 'number' ? margin : 24) / 2);
+    const s = clampz(Math.min((cv.width - SM * 2) / (x1 - x0), (cv.height - SM * 2) / (y1 - y0)), FIT_MINZ, MAXZ);
+    camTweenTo(s, cv.width / 2 - ((x0 + x1) / 2) * s, cv.height / 2 - ((y0 + y1) / 2) * s, 900, null, null, FIT_MINZ);
   }
   // frameRect(x0,y0,x1,y1,margin): fit the camera on a WORLD-space rect. The live city surface
   // uses it at boot to open on the occupied buildings + visible agents instead of the empty
