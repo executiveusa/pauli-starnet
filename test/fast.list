@@ -688,3 +688,6 @@ test/failopen.test.js
 test/failopen-ratchet.test.js
 test/frontend-fetch-truth-ratchet.test.js
 test/loop-verdict.test.js
+test/city-web.test.js
+test/gateway-cors.test.js
+test/gateway-activetasks.test.js

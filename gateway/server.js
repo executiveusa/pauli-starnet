@@ -48,6 +48,8 @@ const STARNET_HOST = '127.0.0.1';
 const STARNET_TOKEN = process.env.STARNET_SIDECAR_TOKEN || process.env.STARNET_API_TOKEN || '';
 const GATEWAY_PORT = parseInt(process.env.GATEWAY_PORT || '4000', 10);
 const GATEWAY_BIND = process.env.GATEWAY_HOST || '127.0.0.1';
+// Exact-origin CORS allowlist for browser surfaces (city web). Empty = fail-closed (no cross-origin).
+const CORS_ORIGINS = (process.env.GATEWAY_CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const RATE_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60', 10);
 const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
@@ -155,7 +157,7 @@ function runToCompletion(agentId, message, context) {
     const taskId = crypto.randomUUID();
     const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
     const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-    const resolvedKey = (context && context.key) || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
+    const resolvedKey = (context && context.key) || process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
     const bodyObj = {
       agentId: agentId || 'agent',
       text: message,
@@ -164,7 +166,13 @@ function runToCompletion(agentId, message, context) {
       model: resolvedModel,
       key: resolvedKey,
       context: context || {},
-      taskId
+      taskId,
+      // THE CITY STATION HAS A DISH PLACED: object = capability (sidecar/capability/registry.js
+      // maps dish -> web_search/web_fetch, read-scope, network, no consent). /api/run composes a
+      // compute-only office on the interactive surface unless the floor's placed props ride the
+      // request body, so the gateway declares the station's dish here. This is read-only web
+      // reach for research; every other gate (approvals, paid routes, mutations) is unchanged.
+      placed: ['dish']
     };
     const bodyBuf = Buffer.from(JSON.stringify(bodyObj), 'utf8');
     const headers = {
@@ -306,7 +314,7 @@ async function getCityStatus() {
       degraded: true,
       generatedAt: new Date().toISOString(),
       city: { name: "Pauli's Place", status: 'unreachable' },
-      districts: [], citizens: [], missions: [], approvals: [], experiments: [],
+      districts: [], citizens: [], missions: [], approvals: [], experiments: [], activeTasks: [],
       revenue: null, costs: null,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
@@ -369,6 +377,15 @@ async function getCityStatus() {
     }],
     citizens,
     missions: sidecarData.missions || [],
+    activeTasks: [...taskStore.values()].slice(-20).map(t => ({
+      id: t.id,
+      status: t.status,
+      task: t.task,
+      context: t.context || null,
+      startedAt: t.startedAt || null,
+      completedAt: t.completedAt || null,
+      receiptId: t.receipt && t.receipt.receipt_id ? t.receipt.receipt_id : null
+    })),
     approvals,
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
@@ -393,10 +410,30 @@ async function handleRequest(req, res) {
   log('info', 'request', { reqId, method, url, ip });
 
   // Helpers
+  const origin = String(req.headers.origin || '');
+  const corsAllowed = origin && CORS_ORIGINS.includes(origin);
   function send(status, body) {
     const payload = JSON.stringify(body);
-    res.writeHead(status, { 'Content-Type': 'application/json', 'X-Request-Id': reqId });
+    const headers = { 'Content-Type': 'application/json', 'X-Request-Id': reqId };
+    if (corsAllowed) {
+      headers['Access-Control-Allow-Origin'] = origin;
+      headers['Vary'] = 'Origin';
+    }
+    res.writeHead(status, headers);
     res.end(payload);
+  }
+
+  // Preflight: answered only for allowlisted origins, before auth (browsers send OPTIONS bare).
+  if (method === 'OPTIONS') {
+    if (!corsAllowed) return send(403, { error: 'ORIGIN_NOT_ALLOWED' });
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Max-Age': '600',
+      'Vary': 'Origin'
+    });
+    return res.end();
   }
 
   // Rate limit
@@ -453,6 +490,7 @@ async function handleRequest(req, res) {
         mission_id: taskId,
         status: 'running',
         task: message,
+        context: body?.context && typeof body.context === 'object' ? body.context : null,
         startedAt: new Date().toISOString(),
         receipt: makeReceipt('heisenberg_dispatch', { task_id: taskId })
       };

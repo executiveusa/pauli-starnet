@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pauli's Place — StarNet City</title>
+<meta name="description" content="Live view of Pauli's Place — the StarNet agent city. Districts, buildings, specialists, tasks, and receipts from the real runtime.">
+<link rel="stylesheet" href="city.css">
+</head>
+<body>
+<header>
+  <span class="dot offline" id="dot"></span>
+  <h1 id="cityname">PAULI'S PLACE</h1>
+  <span class="statusline" id="statusline">booting</span>
+  <span class="spacer"></span>
+  <span class="statusline" id="counts"></span>
+  <button id="settings-btn">Settings</button>
+</header>
+<main>
+  <section class="panel" id="mapwrap">
+    <h2>LIVE MAP</h2>
+    <div id="map"></div>
+    <div class="note">Tokens are roster agents at the desks the backend proves. A token moves only while the gateway shows a real running task routed to it, and returns when the task settles with its receipt. Idle agents sit at their desks. Nothing here is simulated.</div>
+  </section>
+
+  <div id="city"></div>
+
+  <section class="panel" id="tasks">
+    <h2>TASKS &amp; RECEIPTS</h2>
+    <div id="tasks-list"></div>
+  </section>
+
+  <section class="panel" id="approvals">
+    <h2>NEEDS YOU</h2>
+    <div id="approvals-list"></div>
+    <div class="note">Consequential work (spend, publishing, outreach) parks here. Approving happens through the owner channel — this view stays read-only.</div>
+  </section>
+</main>
+
+<dialog id="taskdialog">
+  <h3>Task</h3>
+  <div class="note" id="task-target"></div>
+  <textarea id="task-text" placeholder="What should this specialist do?"></textarea>
+  <div class="note">Tasks go to Heisenberg as missions. Money, publishing, and external contact still require your explicit approval downstream.</div>
+  <div class="row">
+    <button onclick="this.closest('dialog').close()">Cancel</button>
+    <button class="primary" id="task-send">Send task</button>
+  </div>
+</dialog>
+
+<dialog id="settings">
+  <h3>Connect to the city backend</h3>
+  <div class="note">Gateway URL — the authenticated Pauli gateway in front of the running StarNet sidecar.</div>
+  <input id="set-gateway" type="url" placeholder="https://gateway.example.com">
+  <div class="note">Bearer token — stored only in this browser's local storage.</div>
+  <input id="set-token" type="password" placeholder="gateway token">
+  <div class="row">
+    <button onclick="this.closest('dialog').close()">Cancel</button>
+    <button class="primary" id="settings-save">Save &amp; connect</button>
+  </div>
+</dialog>
+
+<footer>
+  Districts and buildings come from the canonical CityOS manifest in this repository.
+  Empty slots are honest vacancies. No activity is shown unless the backend proves it.
+</footer>
+
+<script src="../app/cityos.js"></script>
+<script src="city-core.js"></script>
+<script src="city.js"></script>
+</body>
+</html>
