@@ -1,0 +1,74 @@
+/* Pauli's Place — live city surface. The 2D world canvas is the primary view;
+   the activity/receipts panel is a secondary overlay. */
+@font-face { font-family: 'VT323'; src: url('assets/fonts/vt323.woff2') format('woff2'); font-display: block; }
+:root {
+  --bg: #05070f; --panel: rgba(10, 16, 32, 0.88); --line: #1d2b4d; --ink: #cfe2ff;
+  --dim: #7d90b8; --accent: #5ad0ff; --ok: #46d17c; --bad: #ff6b6b; --amber: #ffb347;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: 'VT323', 'Courier New', monospace; font-size: 17px; }
+button { font: inherit; background: #101a33; color: var(--ink); border: 1px solid var(--line);
+  border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+button.primary { background: #123a5c; border-color: var(--accent); }
+button.ghostbtn { background: transparent; }
+button:disabled { opacity: 0.5; cursor: default; }
+
+header { position: fixed; inset: 0 0 auto 0; z-index: 30; display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: linear-gradient(rgba(5,7,15,0.92), rgba(5,7,15,0.55) 80%, transparent); }
+header h1 { font-size: 20px; margin: 0; letter-spacing: 1px; }
+header .spacer { flex: 1; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.live { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.dot.degraded { background: var(--amber); }
+.dot.offline { background: var(--bad); }
+.statusline { color: var(--dim); font-size: 15px; }
+
+#stagewrap { position: fixed; inset: 0; }
+#world { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.worldnote { position: absolute; left: 12px; bottom: 10px; z-index: 20; color: var(--dim);
+  font-size: 14px; background: rgba(5,7,15,0.6); padding: 3px 8px; border-radius: 6px; max-width: 70vw; }
+.worldfallback { position: absolute; inset: 20% 10%; z-index: 21; display: flex; align-items: center;
+  justify-content: center; text-align: center; color: var(--dim); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 12px; padding: 24px; font-size: 18px; }
+.worldfallback[hidden] { display: none; }
+
+#overlay { position: fixed; top: 56px; right: 10px; bottom: auto; max-height: calc(100vh - 76px);
+  z-index: 25; width: 300px; max-width: 88vw; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+body.panel-hidden #overlay { display: none; }
+.panel { background: rgba(10, 16, 32, 0.72); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.panel h2 { font-size: 16px; margin: 0 0 8px 0; letter-spacing: 1px; color: var(--accent);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.note { color: var(--dim); font-size: 14px; font-weight: normal; }
+.taskrow { border-top: 1px solid var(--line); padding: 6px 0; }
+.taskrow:first-child { border-top: 0; }
+.taskrow .meta { color: var(--dim); font-size: 13px; word-break: break-all; }
+.pill { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 13px; }
+.pill.running { background: #123a5c; color: var(--accent); }
+.pill.completed { background: #103a22; color: var(--ok); }
+.pill.failed { background: #3d1420; color: var(--bad); }
+
+dialog { background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px; width: 420px; max-width: 94vw; }
+dialog::backdrop { background: rgba(0, 0, 0, 0.55); }
+dialog h3 { margin-top: 0; }
+dialog textarea { width: 100%; min-height: 90px; margin: 8px 0; background: #0a1020;
+  color: var(--ink); border: 1px solid var(--line); border-radius: 6px; font: inherit; padding: 6px; }
+dialog label { display: block; margin: 8px 0; color: var(--dim); }
+dialog input { width: 100%; background: #0a1020; color: var(--ink); border: 1px solid var(--line);
+  border-radius: 6px; font: inherit; padding: 5px; }
+dialog .row { display: flex; gap: 10px; margin-top: 10px; }
+
+@media (max-width: 700px) {
+  #overlay { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 36vh; }
+  header h1 { font-size: 17px; }
+  .statusline { font-size: 13px; }
+  .worldnote { max-width: 92vw; font-size: 12px; }
+  #counts { display: none; }   /* narrow screens: the header stays one slim line */
+}
+
+#panel-close { align-self: flex-end; padding: 1px 8px; color: var(--dim); border-color: transparent; }
+#panel-close:hover { color: var(--ink); border-color: var(--line); }
+body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(--accent); }
+#netlify-badge { display: none !important; }

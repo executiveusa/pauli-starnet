@@ -173,6 +173,27 @@ A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'un
   A.ok(wjs.includes('CityCore.occupiedFrame') && wjs.includes('World.frameRect'), 'boot camera frames the occupied buildings + visible agents');
 }
 
+// public read-only parity: no writes, no visitor token, desktop composition behaviors.
+{
+  const fs = require('fs');
+  const html = fs.readFileSync(__dirname + '/../frontend/city/index.html', 'utf8');
+  A.ok(!html.includes('id="taskdialog"') && !html.includes('id="task-open"') && !html.includes('id="settings"') && !html.includes('id="settings-btn"'), 'no visitor task/settings/token controls in the markup');
+  A.ok(!html.includes('approvals-list') && !html.includes('tasks-list'), 'approvals and device-task panels are gone from the public surface');
+  A.ok(html.includes('id="whole-city"'), 'an explicit whole-city camera toggle exists');
+  A.ok(html.includes('world/zones.js'), 'zones.js loads so the desktop idle leash applies');
+  const js = fs.readFileSync(__dirname + '/../frontend/city/city.js', 'utf8');
+  A.ok(!js.includes('localStorage') && !js.includes('Authorization') && !js.includes('POST'), 'the overlay holds no token, stores nothing, sends no writes');
+  A.ok(js.includes("DEFAULT_GW = '/.netlify/functions/gw'") && !js.includes('params.get'), 'the backend URL is fixed - a visitor cannot repoint the page');
+  const wjs = fs.readFileSync(__dirname + '/../frontend/city/city-world.js', 'utf8');
+  A.ok(wjs.includes('World.centerView') && wjs.includes('2.7'), 'boot camera centers the occupied hero building at desktop-like zoom');
+  A.ok(wjs.includes('World.crt.scan = 0.20') && wjs.includes('World.crt.aberr = 0.12'), 'CRT softened to the website/app demo values');
+  A.ok(wjs.includes('setCinecamIdle(120000)'), 'explicit cinecam policy: the desktop 2-minute hands-off default');
+  const app = fs.readFileSync(__dirname + '/../frontend/app/world.js', 'utf8');
+  A.ok(app.includes('function centerView(') && app.includes('frameRect, centerView, bodySnapshots,'), 'world.js exports centerView for the boot camera');
+  const css = fs.readFileSync(__dirname + '/../frontend/city/city.css', 'utf8');
+  A.ok(css.includes('#nl-badge-frame'), 'the Netlify HUD is tucked out of the play space');
+}
+
 // --- seating honesty ---
 const seat = CityCore.seatCitizens(model, [
   { id: 'x1', name: 'Op', specialtyId: 'operator', status: 'online' },
