@@ -65,6 +65,84 @@
     };
   }
 
+  /* QWEN NATIVE TOOL-CALL BRIDGE (2026-09-11) - qwen3.x on some OpenAI-compatible endpoints
+     (observed live: Groq's qwen/qwen3.6-27b and qwen/qwen3.8-27b) answers a tool-offered prompt with
+     its CHAT-TEMPLATE markup inside `content` instead of the wire `tool_calls` field:
+         <tool_call><function=web_fetch>\n<parameter=url>\nhttps://...\n</parameter>\n</function>\n</tool_call>
+     The loop's scrubTextToolCallMarkup treats ALL text markup as data (echoed markup must never
+     execute), so those runs ended as empty deliveries. This bridge rehabilitates ONLY the strict,
+     unambiguous case, and everything it accepts still passes the loop's normal gates (capability,
+     schema validation, receipts) because the events synthesized here are the same tool_start /
+     tool_args events a wire-native call emits:
+       - every block is complete and the blocks are contiguous at the END of the text; an optional
+         short intent preamble is kept as turn text (mirroring a wire text+tool_calls turn);
+       - a function name executes only when it matches EXACTLY ONE offered tool after deterministic
+         normalization (lowercase; non-alphanumeric runs collapse to '_'; one trailing ':segment' may
+         be dropped first - qwen glues the first parameter name onto the function name);
+       - parameters must be whole-body <parameter=k>v</parameter> pairs; an unknown key (not a
+         declared schema property) or a missing schema-required key rejects the whole payload;
+       - any stray markup fragment outside complete blocks, prose after the last block, or prose
+         interleaved between blocks marks the payload as echoed/mixed data - REJECTED wholesale;
+       - caps: <=4 calls per turn, <=8 parameters each, <=8 KiB per value, <=64 KiB total text.
+     Rejected or absent markup falls through with the text streamed verbatim, preserving the
+     pre-existing scrub + nudge behavior. Tool loops stay capped by the loop's turn budget. */
+  const QWEN_BRIDGE_MAX_TEXT = 65536, QWEN_BRIDGE_MAX_CALLS = 4, QWEN_BRIDGE_MAX_PARAMS = 8, QWEN_BRIDGE_MAX_VALUE = 8192, QWEN_BRIDGE_MAX_PREAMBLE = 500;
+  function bridgeQwenNativeToolCalls(text, tools) {
+    const offered = (Array.isArray(tools) ? tools : []).map(t => (t && t.function && t.function.name) || '').filter(Boolean);
+    if (!offered.length) return null;
+    let t = String(text == null ? '' : text);
+    if (t.length > QWEN_BRIDGE_MAX_TEXT) return { calls: [], rejected: 'too-large' };
+    t = t.replace(/<think>[\s\S]*?<\/think>/g, '');
+    const BLOCK = /<tool_call>([\s\S]*?)<\/tool_call>/g;
+    const blocks = []; let m;
+    while ((m = BLOCK.exec(t))) blocks.push({ raw: m[0], body: m[1], index: m.index });
+    if (!blocks.length) return null;
+    const outside = t.replace(BLOCK, '');
+    if (/<\/?(?:tool_call|function|parameter)\b/.test(outside)) return { calls: [], rejected: 'stray-markup' };
+    for (let i = 1; i < blocks.length; i++) {
+      if (t.slice(blocks[i - 1].index + blocks[i - 1].raw.length, blocks[i].index).trim()) return { calls: [], rejected: 'noncontiguous' };
+    }
+    const lastEnd = blocks[blocks.length - 1].index + blocks[blocks.length - 1].raw.length;
+    if (t.slice(lastEnd).trim()) return { calls: [], rejected: 'trailing-prose' };
+    const preamble = t.slice(0, blocks[0].index).trim();
+    if (preamble.length > QWEN_BRIDGE_MAX_PREAMBLE) return { calls: [], rejected: 'long-preamble' };
+    if (blocks.length > QWEN_BRIDGE_MAX_CALLS) return { calls: [], rejected: 'too-many' };
+    const norm = x => String(x).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const byNorm = new Map();
+    for (const n of offered) { const k = norm(n); byNorm.set(k, byNorm.has(k) ? null : n); }   // ambiguous normalization -> unusable name
+    const calls = [];
+    for (const b of blocks) {
+      const fm = /^<function=([A-Za-z][\w:.-]{0,63})>([\s\S]*?)<\/function>$/.exec(b.body.trim());
+      if (!fm) return { calls: [], rejected: 'bad-function' };
+      const fname = fm[1];
+      let tool = byNorm.get(norm(fname));
+      if (tool == null && fname.indexOf(':') >= 0) tool = byNorm.get(norm(fname.slice(0, fname.lastIndexOf(':'))));
+      if (!tool) return { calls: [], rejected: 'unknown-tool' };
+      const fbody = fm[2];
+      const PARAM = /<parameter=([A-Za-z_]\w{0,63})>([\s\S]*?)<\/parameter>/g;
+      const params = []; let pm;
+      while ((pm = PARAM.exec(fbody))) params.push(pm);
+      if (fbody.replace(PARAM, '').trim()) return { calls: [], rejected: 'mixed-params' };
+      if (params.length > QWEN_BRIDGE_MAX_PARAMS) return { calls: [], rejected: 'too-many-params' };
+      const tdef = tools.find(x => x && x.function && x.function.name === tool);
+      const schema = (tdef && tdef.function && tdef.function.parameters) || {};
+      const props = schema.properties || {};
+      const required = Array.isArray(schema.required) ? schema.required : [];
+      const args = {};
+      for (const prm of params) {
+        const key = prm[1];
+        let val = prm[2].replace(/^\n+|\n+$/g, '');
+        if (val.length > QWEN_BRIDGE_MAX_VALUE) return { calls: [], rejected: 'value-too-large' };
+        if (Object.keys(props).length && !Object.prototype.hasOwnProperty.call(props, key)) return { calls: [], rejected: 'unknown-param' };
+        if (/^(?:[\[{"]|true$|false$|null$|-?\d)/.test(val)) { try { val = JSON.parse(val); } catch (_) { /* stays a string */ } }
+        args[key] = val;
+      }
+      for (const r of required) if (!(r in args)) return { calls: [], rejected: 'missing-required' };
+      calls.push({ id: 'qwen_native_' + calls.length, name: tool, args });
+    }
+    return { calls: calls, preamble: preamble };
+  }
+
   function makeOpenAICompatibleProvider(opts) {
     opts = opts || {};
     const doFetch = opts.fetch || (typeof fetch !== 'undefined' ? fetch : null);
@@ -173,6 +251,8 @@
       const dec = new TextDecoder();
       let buf = '';
       const started = {};
+      const buf0 = { qtext: null };   // qwen bridge: text buffers whole here and is analyzed at finish (see bridgeQwenNativeToolCalls)
+      if (/(^|\/)qwen/i.test(String(req.model || ''))) buf0.qtext = '';
       let doneEmitted = false;   // exactly one terminal event per stream (see STREAM-END TRUTH below)
 
       function parseLine(line) {
@@ -189,7 +269,7 @@
         const choice = j.choices && j.choices[0];
         if (!choice) return;
         const d = choice.delta || choice.message || {};
-        if (typeof d.content === 'string' && d.content) yield { type: 'text', delta: d.content };
+        if (typeof d.content === 'string' && d.content) { if (buf0.qtext !== null) buf0.qtext += d.content; else yield { type: 'text', delta: d.content }; }
         if (Array.isArray(d.tool_calls)) {
           for (const tc of d.tool_calls) {
             const idx = tc.index != null ? tc.index : 0;
@@ -203,7 +283,23 @@
         }
         if (choice.finish_reason && !doneEmitted) {
           doneEmitted = true;
-          yield { type: 'done', finishReason: normalizeFinish(choice.finish_reason), truncated: false };
+          let fr = normalizeFinish(choice.finish_reason);
+          if (buf0.qtext !== null) {
+            const bridged = Object.keys(started).length ? null : bridgeQwenNativeToolCalls(buf0.qtext, req.tools);
+            if (bridged && bridged.calls.length) {
+              if (bridged.preamble) yield { type: 'text', delta: bridged.preamble };
+              for (let ci = 0; ci < bridged.calls.length; ci++) {
+                const c = bridged.calls[ci];
+                yield { type: 'tool_start', index: ci, id: c.id, name: c.name };
+                yield { type: 'tool_args', index: ci, chunk: JSON.stringify(c.args) };
+              }
+              fr = 'tool_calls';
+            } else if (buf0.qtext) {
+              yield { type: 'text', delta: buf0.qtext };   // no bridgeable calls (or rejected) - verbatim
+            }
+            buf0.qtext = null;
+          }
+          yield { type: 'done', finishReason: fr, truncated: false };
         }
       }
 
@@ -237,6 +333,7 @@
         // cannot otherwise tell it apart from a finished answer — so it shipped the fragment as a completed,
         // $0 delivery. Requiring only ONE of the two signals keeps this correct for the local OpenAI-compatible
         // servers (Ollama, LM Studio) that send a finish_reason but omit the sentinel.
+        if (!doneEmitted && buf0.qtext) { yield { type: 'text', delta: buf0.qtext }; buf0.qtext = null; }   // truncated stream: the fragment stays visible
         if (!doneEmitted) yield { type: 'done', finishReason: null, truncated: !sawSentinel };
       } catch (e) {
         if (isAbort(e, req.signal)) return;
@@ -363,5 +460,5 @@
     return { stream, listModels, contextLimit, priceOf, supportsTools, reasoningEfforts };
   }
 
-  return { makeOpenAICompatibleProvider, _internals: { normalizeModel, cleanBaseUrl } };
+  return { makeOpenAICompatibleProvider, _internals: { normalizeModel, cleanBaseUrl, bridgeQwenNativeToolCalls } };
 });
