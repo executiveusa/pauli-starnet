@@ -49,6 +49,19 @@ A.eq(CityCore.classifyStatus({}).mode, 'degraded', 'empty payload is not live');
 A.eq(CityCore.classifyStatus({ degraded: true }).mode, 'degraded', 'degraded flag honored');
 A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mode, 'live', 'proven online health is live');
 A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'unrecognized health is not upgraded to live');
+// activeTasks must survive classifyStatus - updateActivity merges them into movement;
+// dropping them froze every token on the live map (caught by live pixel verification).
+{
+  const cs = CityCore.classifyStatus({ health: { status: 'online' }, citizens: [], activeTasks: [{ id: 't1', status: 'running', task: 'probe', context: { district: 'commerce', building: 'commerce_factory', slot: 'operator', agentId: 'ecom-merci' } }] });
+  A.eq(cs.activeTasks.length, 1, 'classifyStatus carries activeTasks through');
+  const model2 = CityCore.cityModel(CityOS);
+  const layout2 = CityCore.layoutCity(model2);
+  const seating2 = CityCore.seatCitizens(model2, [{ agentId: 'ecom-merci', name: 'MERCI', role: 'operator', district: 'commerce' }]);
+  const act2 = CityCore.deriveActivity({ missions: [].concat(cs.activeTasks), tasks: [] });
+  const pl2 = CityCore.agentPlacements(model2, layout2, seating2, act2);
+  const merci = pl2.find(p => p.agentId === 'ecom-merci');
+  A.ok(merci && merci.working === true, 'a running gateway activeTask marks its agent working (end-to-end through classifyStatus)');
+}
 
 // --- seating honesty ---
 const seat = CityCore.seatCitizens(model, [
