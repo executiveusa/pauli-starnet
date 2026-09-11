@@ -62,3 +62,23 @@ task payload and receipt shapes.
 Static — any static host can serve `frontend/` and the surface sits at `/city/`.
 For a dedicated site, publish `frontend/city/` with `frontend/app/cityos.js` available
 at `../app/cityos.js` (the staged deploy copies it alongside).
+
+## Reproducing the 2026-09-10 deploy
+
+```bash
+# stage (repo source of truth: frontend/city + frontend/app/cityos.js)
+rm -rf /tmp/city-deploy && mkdir -p /tmp/city-deploy/app
+cp frontend/city/{index.html,city.css,city.js,city-core.js,ecom-roster.json} /tmp/city-deploy/
+cp frontend/app/cityos.js /tmp/city-deploy/app/
+(cd /tmp/city-deploy && zip -qr /tmp/city-deploy.zip .)
+
+# publish to the pauli-starnet-city Netlify site (site id 820f3b2f-63e7-4933-90de-4efdf37cebc5)
+curl -H "Authorization: Bearer $NETLIFY_DEPLOY_TOKEN" \
+  -H "Content-Type: application/zip" --data-binary @/tmp/city-deploy.zip \
+  "https://api.netlify.com/api/v1/sites/820f3b2f-63e7-4933-90de-4efdf37cebc5/deploys"
+```
+
+The deploy token lives in the vault as `Netlify deploy token (instinct-city-deploy)`
+(created 2026-09-10 in the executiveusa Netlify team, name `instinct-city-deploy`).
+Verified after deploy: `/` 200, `/app/cityos.js` 200, desktop + 390px mobile rendering,
+no horizontal overflow, demo mode labeled, offline state honest.
