@@ -98,6 +98,15 @@
     World.loadStation(station);
     const cv = document.getElementById('world');
     World.init(cv);
+    // CRT: the website/app demo's softened values, not the app's bold shipped defaults — the
+    // full-strength scan/aberration/grain smears a small public viewport into haze.
+    if (World.crt) {
+      World.crt.scan = 0.20; World.crt.aberr = 0.12; World.crt.grain = 0.10;
+      World.crt.dust = 0.30; World.crt.curve = 0.06; World.crt.fade = 0.16;
+    }
+    // Explicit cinecam policy: the desktop app's own default — the auto-director may take the
+    // camera only after 2 minutes hands-off (CINE_IDLE_MS). Never sooner on a public view.
+    if (typeof World.setCinecamIdle === 'function') World.setCinecamIdle(120000);
     if (typeof SPRITES !== 'undefined' && SPRITES.init) { try { await SPRITES.init(); } catch (_) {} }
 
     // citizens come from the gateway truth (the overlay polls it); spawn once at boot from
@@ -106,12 +115,17 @@
     if (status && Array.isArray(status.citizens) && status.citizens.length) spawned = spawnBodies(status.citizens);
     World.start();
     booted = true;
-    // Open the camera on the occupied buildings + visible agents (Bambú: the city, not empty
-    // architecture). One-shot, a beat after boot so spawn walks have placed every body.
+    // Open the camera centered on the OCCUPIED HERO BUILDING at a readable desktop-like zoom
+    // (2.7x — the desktop app's own working range is 2.5-3x). Fallback: the placed-body bbox,
+    // then the whole-map fit. One-shot, a beat after boot so spawn walks have placed bodies.
     setTimeout(() => {
       try {
-        if (typeof World.bodySnapshots === 'function' && typeof World.frameRect === 'function' && CityCore.occupiedFrame) {
-          const f = CityCore.occupiedFrame(World.bodySnapshots());
+        if (typeof World.bodySnapshots !== 'function') return;
+        const snaps = World.bodySnapshots();
+        const hero = snaps.find(b => b && b.placed && b.id === 'agent');
+        if (hero && typeof World.centerView === 'function') { World.centerView(hero.x, hero.y, 2.7); return; }
+        if (typeof World.frameRect === 'function' && CityCore.occupiedFrame) {
+          const f = CityCore.occupiedFrame(snaps);
           if (f && f.count >= 1) World.frameRect(f.x0, f.y0, f.x1, f.y1);
         }
       } catch (_) { /* framing is a nicety, never a boot blocker */ }

@@ -1387,6 +1387,16 @@ const World = (() => {
     fitNeeded = false; fitW = cv.width; fitH = cv.height;
     return true;
   }
+  // centerView(px,py,sc): aim the camera at a world point at an explicit zoom. The live city
+  // surface boots on the occupied hero building at a readable desktop-like zoom this way.
+  // Uses cv.width/height (device px) exactly like fitCamera, so DPR handling is identical.
+  function centerView(px, py, sc) {
+    if (!cache || !cv) return false;
+    scale = clampz((typeof sc === 'number' && sc > 0) ? sc : 2.6, MINZ, MAXZ);
+    panX = cv.width / 2 - px * scale; panY = cv.height / 2 - py * scale;
+    fitNeeded = false; fitW = cv.width; fitH = cv.height;
+    return true;
+  }
   // bodySnapshots(): live positions of every placed body (hero + crew) so callers can frame
   // the camera on where agents actually are. Positions only — no state beyond placed/unplaced.
   function bodySnapshots() {
@@ -9042,7 +9052,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, bodySnapshots, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {
