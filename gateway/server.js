@@ -48,6 +48,8 @@ const STARNET_HOST = '127.0.0.1';
 const STARNET_TOKEN = process.env.STARNET_SIDECAR_TOKEN || process.env.STARNET_API_TOKEN || '';
 const GATEWAY_PORT = parseInt(process.env.GATEWAY_PORT || '4000', 10);
 const GATEWAY_BIND = process.env.GATEWAY_HOST || '127.0.0.1';
+// Exact-origin CORS allowlist for browser surfaces (city web). Empty = fail-closed (no cross-origin).
+const CORS_ORIGINS = (process.env.GATEWAY_CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const RATE_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60', 10);
 const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
@@ -155,7 +157,7 @@ function runToCompletion(agentId, message, context) {
     const taskId = crypto.randomUUID();
     const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
     const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-    const resolvedKey = (context && context.key) || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
+    const resolvedKey = (context && context.key) || process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
     const bodyObj = {
       agentId: agentId || 'agent',
       text: message,
@@ -393,10 +395,30 @@ async function handleRequest(req, res) {
   log('info', 'request', { reqId, method, url, ip });
 
   // Helpers
+  const origin = String(req.headers.origin || '');
+  const corsAllowed = origin && CORS_ORIGINS.includes(origin);
   function send(status, body) {
     const payload = JSON.stringify(body);
-    res.writeHead(status, { 'Content-Type': 'application/json', 'X-Request-Id': reqId });
+    const headers = { 'Content-Type': 'application/json', 'X-Request-Id': reqId };
+    if (corsAllowed) {
+      headers['Access-Control-Allow-Origin'] = origin;
+      headers['Vary'] = 'Origin';
+    }
+    res.writeHead(status, headers);
     res.end(payload);
+  }
+
+  // Preflight: answered only for allowlisted origins, before auth (browsers send OPTIONS bare).
+  if (method === 'OPTIONS') {
+    if (!corsAllowed) return send(403, { error: 'ORIGIN_NOT_ALLOWED' });
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+      'Access-Control-Max-Age': '600',
+      'Vary': 'Origin'
+    });
+    return res.end();
   }
 
   // Rate limit
