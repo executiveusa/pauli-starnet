@@ -57,15 +57,18 @@ const CityCore = (() => {
   /* Classify a /v1/city/status payload. No payload, malformed payload, or
      degraded:true all stay honest — never upgrade to 'live' without evidence. */
   function classifyStatus(payload) {
-    if (!payload || typeof payload !== 'object') return { mode: 'offline', label: 'No live state', citizens: [], missions: [], approvals: [] };
+    if (!payload || typeof payload !== 'object') return { mode: 'offline', label: 'No live state', citizens: [], missions: [], approvals: [], activeTasks: [] };
     const citizens = Array.isArray(payload.citizens) ? payload.citizens : [];
     const missions = Array.isArray(payload.missions) ? payload.missions : [];
     const approvals = Array.isArray(payload.approvals) ? payload.approvals : [];
-    if (payload.degraded) return { mode: 'degraded', label: 'Backend unreachable — no live state', citizens, missions, approvals };
+    // activeTasks MUST ride through: updateActivity merges them into the movement
+    // derivation - dropping them here silently froze every token on the live map.
+    const activeTasks = Array.isArray(payload.activeTasks) ? payload.activeTasks : [];
+    if (payload.degraded) return { mode: 'degraded', label: 'Backend unreachable — no live state', citizens, missions, approvals, activeTasks };
     const ok = payload.health && payload.health.status === 'online';
     return ok
-      ? { mode: 'live', label: 'Live', citizens, missions, approvals, generatedAt: payload.generatedAt || null }
-      : { mode: 'degraded', label: 'Backend degraded', citizens, missions, approvals, generatedAt: payload.generatedAt || null };
+      ? { mode: 'live', label: 'Live', citizens, missions, approvals, activeTasks, generatedAt: payload.generatedAt || null }
+      : { mode: 'degraded', label: 'Backend degraded', citizens, missions, approvals, activeTasks, generatedAt: payload.generatedAt || null };
   }
 
   /* Seat live citizens into canonical slots by specialty/role match. Unmatched
