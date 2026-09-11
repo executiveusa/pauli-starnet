@@ -226,6 +226,9 @@
       const dropped = droppedParams.get(String(req.model || ''));
       const skip = p => !!(dropped && dropped.has(p));
       const body = { model: req.model, messages: req.messages || [], stream: true };
+      // Explicit per-request output clamp (slim lanes): without max_tokens, free-tier endpoints infer an
+      // expected output that can exceed their per-minute OUTPUT cap (Groq qwen3.x: 1,000 OTPM -> http 429).
+      if (Number.isFinite(Number(req.maxTokens)) && Number(req.maxTokens) > 0) body.max_tokens = Number(req.maxTokens);
       if (includeUsage && !skip('stream_options')) body.stream_options = { include_usage: true };
       if (req.tools && req.tools.length) {
         body.tools = req.tools;

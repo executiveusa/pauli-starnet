@@ -1020,6 +1020,7 @@
         let sawTruncation = false;
         try {
           const req = { model, messages, tools, signal, stream: true };
+          if (Number.isFinite(Number(o.maxTokens)) && Number(o.maxTokens) > 0) req.maxTokens = Number(o.maxTokens);   // slim lanes clamp the provider's expected output (free-tier OTPM)
           for await (const ev of provider.stream(req)) {
             if (signal.aborted) break;
             if (ev.type === 'text') {
