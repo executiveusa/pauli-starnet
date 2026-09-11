@@ -21,7 +21,7 @@ const station = {
   belts: {}, edges: [], order: ['r1'],
   SECRET_SHOULD_NEVER_LEAK: 'x', token: 'SHOULD_NOT_LEAK'
 };
-fs.writeFileSync(path.join(tmp, 'agent.save.json'), JSON.stringify({ v: 1, agent: { id: 'agent' }, station }));
+fs.writeFileSync(path.join(tmp, 'agent.save.json'), JSON.stringify({ v: 1, agentId: 'agent', doc: { station } }));
 w = CW.getCityWorld({ workspacePath: tmp });
 A.ok(w.ok && w.station, 'station served when compiled');
 A.eq(w.station.rooms.length, 1, 'rooms pass through');

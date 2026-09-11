@@ -30,7 +30,8 @@ function getCityWorld(opts) {
   } catch (e) {
     return { ok: false, error: 'WORLD_UNREADABLE', message: e.message, generatedAt: new Date().toISOString() };
   }
-  const station = sanitizeStation(doc && doc.station);
+  // save envelope: { agentId, doc: { station, ... } } — the station document lives inside doc.
+  const station = sanitizeStation(doc && (doc.doc && doc.doc.station || doc.station));
   if (!station) {
     return { ok: true, station: null, reason: 'NO_STATION_COMPILED', generatedAt: new Date().toISOString() };
   }
