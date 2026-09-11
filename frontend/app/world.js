@@ -1340,8 +1340,8 @@ const World = (() => {
      dawn. All self-contained + gated to the awakening so it never fights the general camera path. */
   const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const lerpv = (a, b, k) => a + (b - a) * k;
-  function camTweenTo(toS, toX, toY, dur, ease, onEnd) {
-    camAnim = { fromS: scale, toS: clampz(toS, MINZ, MAXZ), fromX: panX, toX, fromY: panY, toY, t: 0, dur: dur || 1500, ease: ease || easeInOut, onEnd: onEnd || null };
+  function camTweenTo(toS, toX, toY, dur, ease, onEnd, minz) {
+    camAnim = { fromS: scale, toS: clampz(toS, (typeof minz === 'number' ? minz : MINZ), MAXZ), fromX: panX, toX, fromY: panY, toY, t: 0, dur: dur || 1500, ease: ease || easeInOut, onEnd: onEnd || null };
   }
   // a camera target that centers world point (px,py) on screen at zoom sc — 0.46 height leaves headroom above
   function camCenterOn(px, py, sc) { sc = clampz(sc, MINZ, MAXZ); return [sc, cv.width / 2 - px * sc, cv.height * 0.46 - py * sc]; }
@@ -1373,6 +1373,19 @@ const World = (() => {
   function camCreep() { if (!cache || !agent || agent.unplaced || camAnim || !awakeFrozen) return; const [s, x, y] = camCenterOn(agent.px, agent.py - 4, scale * 1.035); camTweenTo(s, x, y, 600); }   // a hair closer with each truth — ceremony-only (the deferred interview must never steal the live camera)
   function camPunch() { if (!agent || agent.unplaced || camAnim) return; const b = scale; const [s1, x1, y1] = camCenterOn(agent.px, agent.py - 4, b * 1.06); const [s0, x0, y0] = camCenterOn(agent.px, agent.py - 4, b); camTweenTo(s1, x1, y1, 150, t => t, () => camTweenTo(s0, x0, y0, 240)); }   // eyes finding yours
   function camPullBack() { if (!cache) return; const W = cache.W, H = cache.H; const s = clampz(Math.min(cv.width / W, cv.height / H), MINZ, MAXZ); camTweenTo(s, (cv.width - W * s) / 2, (cv.height - H * s) / 2, 1700); }   // recompute fit at fire time -> no jump on release
+  /* fitWorld(margin): frame the WHOLE world geometry (the baked cache bounds — every room,
+     corridor and the main gate) plus a symmetric margin. Unlike camPullBack (a ceremony beat
+     clamped to the interactive MINZ), this explicit "see everything" view may zoom OUT below
+     the interactive floor: on a 390px phone a 9-district city cannot fit at MINZ 0.5, so the
+     fit uses its own hard floor FIT_MINZ. DPR needs no special handling: cv.width/cv.height
+     are the same backing-store pixels every camera transform consumes. */
+  const FIT_MINZ = 0.15;
+  function fitWorld(margin) {
+    if (!cache) return;
+    const m = (typeof margin === 'number') ? margin : 24;
+    const s = clampz(Math.min(cv.width / (cache.W + m * 2), cv.height / (cache.H + m * 2)), FIT_MINZ, MAXZ);
+    camTweenTo(s, cv.width / 2 - (cache.W / 2) * s, cv.height / 2 - (cache.H / 2) * s, 900, null, null, FIT_MINZ);
+  }
   // frameRect(x0,y0,x1,y1,margin): fit the camera on a WORLD-space rect. The live city surface
   // uses it at boot to open on the occupied buildings + visible agents instead of the empty
   // architecture a whole-map fit frames. Direct set, no tween — it runs before the user has a
@@ -9078,7 +9091,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, fitWorld, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {

@@ -25,11 +25,41 @@ const agoMin = (iso, now) => {
   const t = Date.parse(typeof iso === 'string' ? iso : '');
   return isFinite(t) ? Math.max(0, Math.round((now - t) / 60000)) : null;
 };
+const TILEKEY = /^\d{1,4},\d{1,4}$/;
+const STYLEID = /^[a-z0-9_-]{1,24}$/i;
+/* floorPaint is a per-tile style-override map ("x,y" -> styleId). Both halves
+   are allowlisted: keys must be tile coords, values a style-id scalar or a
+   finite int. Anything else (proto keys, html, objects) is dropped. */
+const sanitizePaint = fp => {
+  const out = {};
+  if (!fp || typeof fp !== 'object') return out;
+  for (const [k, v] of Object.entries(fp)) {
+    if (!TILEKEY.test(k)) continue;
+    if (typeof v === 'number' && isFinite(v)) out[k] = Math.trunc(v);
+    else if (typeof v === 'string' && STYLEID.test(v)) out[k] = v;
+  }
+  return out;
+};
 const eventId = internal => 'ev_' + crypto.createHash('sha256').update('pauli-city:' + String(internal)).digest('hex').slice(0, 12);
 
+/* Coarse public activity categories. The enum is ALL that ever escapes — task
+   text is read server-side ONLY to pick the bucket and is never emitted. */
+const CATEGORY_WORDS = [
+  ['research', /\b(research|search|fetch|look ?up|investigate|find)\b/i],
+  ['comms', /\b(write|draft|post|publish|reply|email|message|announce|report)\b/i],
+  ['commerce', /\b(order|trade|sell|buy|invoice|listing|product|price|shop)\b/i],
+  ['ops', /\b(build|deploy|fix|code|compile|test|refactor|run|move)\b/i]
+];
+function categorize(t) {
+  const ctx = (t && typeof t === 'object' && t.context && typeof t.context === 'object') ? t.context : {};
+  const hay = [typeof t.task === 'string' ? t.task : '', typeof ctx.slot === 'string' ? ctx.slot : '', typeof ctx.district === 'string' ? ctx.district : ''].join('\n');
+  for (const [cat, re] of CATEGORY_WORDS) if (re.test(hay)) return cat;
+  return 'ops';
+}
+
 /* Public status DTO. Citizens carry no internal ids; task receipts carry no
-   internal ids, no prompts, no errors — an opaque event id, a coarse state, the
-   bound agent's PUBLIC name, a short single-line summary, relative ages. */
+   internal ids, no prompts, no errors, NO TASK TEXT — an opaque event id, a
+   coarse state, the bound agent's PUBLIC name, a coarse category, relative ages. */
 function statusDTO(src, now) {
   const s = (src && typeof src === 'object') ? src : {};
   const health = !!(s.health && s.health.status === 'online') && !s.degraded;
@@ -50,7 +80,7 @@ function statusDTO(src, now) {
       agent: (t.context && typeof t.context.agentId === 'string')
         ? text(((Array.isArray(s.citizens) ? s.citizens : []).find(c => c && c.id === t.context.agentId) || {}).name, 40) || null
         : null,
-      summary: text(t.task, 80),
+      category: categorize(t),
       startedAgoMin: agoMin(t.startedAt, now),
       settledAgoMin: agoMin(t.completedAt, now),
       receipt: !!(t.receiptId)
@@ -85,7 +115,7 @@ function worldDTO(src, idToName) {
       floorStyle: text(r.floorStyle, 24),
       wallStyle: text(r.wallStyle, 24),
       tier: num(r.tier) || 0,
-      floorPaint: (r.floorPaint && typeof r.floorPaint === 'object') ? r.floorPaint : {}
+      floorPaint: sanitizePaint(r.floorPaint)
     };
   }
   const props = (Array.isArray(st.props) ? st.props : [])
@@ -101,7 +131,7 @@ function worldDTO(src, idToName) {
     .map(p => { if (p.agentId == null) delete p.agentId; delete p.brief; return p; });
   const belts = {};
   if (st.belts && typeof st.belts === 'object') {
-    for (const [k, v] of Object.entries(st.belts)) if (typeof v === 'string' && v.length <= 4) belts[k] = v;
+    for (const [k, v] of Object.entries(st.belts)) if (TILEKEY.test(k) && typeof v === 'string' && v.length <= 4) belts[k] = v;
   }
   const edges = (Array.isArray(st.edges) ? st.edges : [])
     .map(e => (e && typeof e === 'object') ? {

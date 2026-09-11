@@ -3998,12 +3998,23 @@ const StationBake = (() => {
 
     bakeRoomLighting(b);   // after the chamfers, so a rounded corner is lit like every other surface
 
-    // faint room name plates (the v7 floor-code stencil, generalized)
-    b.font = "7px 'VT323','Courier New',monospace"; b.fillStyle = 'rgba(255,255,255,0.07)'; b.textAlign = 'left';
+    // BUILDING NAMEPLATES: the room name stenciled bright along the south rim, centred on the
+    // building — sized to stay READABLE at whole-city zoom (the old 7px/0.07-alpha floor-code
+    // stencil vanished past ~1x). Repeating corridors/gate keep the faint treatment: 12 copies
+    // of "CITY WALK" at full brightness would read as noise, not signage.
+    b.textAlign = 'center';
     for (const id of G.ROOM_IDS) {
       const z = G.zones[id]; if (!z) continue;
       const nm = (G.nameOf(id) || '').toUpperCase();
-      if (nm) b.fillText(nm, (z.x2 - 2) * T - 4, (z.y2 + 1) * T - 4);
+      if (!nm) continue;
+      const cx = ((z.x1 + z.x2) / 2) * T, cy = (z.y2 + 1) * T - 4;
+      if (/WALK|CORRIDOR|GATE/.test(nm)) {
+        b.font = "7px 'VT323','Courier New',monospace"; b.fillStyle = 'rgba(255,255,255,0.10)'; b.textAlign = 'left';
+        b.fillText(nm, (z.x2 - 2) * T - 4, cy); b.textAlign = 'center';
+      } else {
+        b.font = Math.round(T * 1.1) + "px 'VT323','Courier New',monospace"; b.fillStyle = 'rgba(225,240,255,0.5)';
+        b.fillText(nm, cx, cy);
+      }
     }
 
     bakeHullExtrusion(b);

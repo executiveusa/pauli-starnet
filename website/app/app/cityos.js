@@ -33,8 +33,11 @@ const CityOS = (() => {
   const lastApplied = new WeakMap();
   let planSeq = 0;
 
+  /* web has THREE equivalent capability props (dish/uplink/beacon all grant D_WEB): rotate the
+     variant per building (deterministic by label) so 13 buildings don't repeat the same dish corner. */
+  const WEB_VARIANTS = ['comms_dish', 'comms_uplink', 'comms_beacon'];
   const CAP_PROP = {
-    files: 'war_intelcab', web: 'comms_dish', memory: 'gigs_servercart', terminal: 'workbench',
+    files: 'war_intelcab', memory: 'gigs_servercart', terminal: 'workbench',
     images: 'studio', spotify: 'jukebox'
   };
 
@@ -45,67 +48,67 @@ const CityOS = (() => {
     executive_hq: {
       label: 'HEISENBERG HQ', kind: 'bridge', floorStyle: 'cobalt', floorMat: 'panel',
       slots: ['orchestrator'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad', 'steamvent', 'toolbox']
+      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'toolbox']
     },
     software_factory: {
       label: 'SOFTWARE FACTORY', kind: 'factory', floorStyle: 'rust', floorMat: 'tread',
       slots: ['engineer', 'apptester', 'auditor', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
-      dressing: ['cablerun', 'hazardpad', 'steamvent', 'crate', 'arc_floorlight', 'chartwall']
+      dressing: ['hazardpad', 'steamvent', 'crate', 'toolbox', 'cablerun']
     },
     pi_foundry: {
       label: 'PI AGENT FOUNDRY', kind: 'factory', floorStyle: 'violet', floorMat: 'tread',
       slots: ['engineer', 'drafter', 'apptester', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
-      dressing: ['cablerun', 'hazardpad', 'steamvent', 'toolbox', 'arc_floorlight']
+      dressing: ['steamvent', 'plasmaglobe', 'cablerun', 'arc_floorlight', 'toolbox']
     },
     revenue_center: {
       label: 'REVENUE CENTER', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
       slots: ['opportunist', 'researcher', 'prospector', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'lavalamp']
+      dressing: ['ticker', 'chartwall', 'crate', 'lavalamp']
     },
     impact_hq: {
       label: 'IMPACT HQ', kind: 'hab', floorStyle: 'teal', floorMat: 'panel',
       slots: ['strategist', 'envoy', 'paralegal', 'pitchwriter'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'chartwall', 'plasmaglobe']
+      dressing: ['chartwall', 'bookstack', 'arc_floorlight', 'ticker']
     },
     stewardship_house: {
       label: 'STEWARDSHIP HOUSE', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
       slots: ['registrar', 'negotiator', 'closer', 'ghostwriter'], caps: ['files', 'web', 'memory'], decor: ['whiteboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'bookstack', 'toolbox']
+      dressing: ['bookstack', 'cablerun', 'lavalamp', 'toolbox']
     },
     creative_studio: {
       label: 'CREATIVE STUDIO', kind: 'lab', floorStyle: 'orchid', floorMat: 'tile',
       slots: ['designer', 'writer', 'marketer', 'publisher'], caps: ['files', 'web', 'memory', 'images'], decor: ['bigscreen'],
-      dressing: ['cablerun', 'arc_floorlight', 'steamvent', 'ticker', 'lavalamp']
+      dressing: ['plasmaglobe', 'lavalamp', 'ticker', 'arc_floorlight']
     },
     commerce_factory: {
       label: 'COMMERCE FACTORY', kind: 'factory', floorStyle: 'ember', floorMat: 'tread',
       slots: ['operator', 'optimizer', 'publisher', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard'],
-      dressing: ['cablerun', 'hazardpad', 'steamvent', 'crate', 'boxes', 'arc_floorlight', 'chartwall']
+      dressing: ['crate', 'boxes', 'hazardpad', 'steamvent', 'cablerun']
     },
     connector_exchange: {
       label: 'CONNECTOR EXCHANGE', kind: 'storage', floorStyle: 'teal', floorMat: 'grate',
       slots: ['operator'], caps: ['files', 'web', 'memory'], connectorPorts: 4, decor: ['bigscreen'],
-      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'steamvent', 'hazardpad']
+      dressing: ['crate', 'boxes', 'cablerun', 'hazardpad']
     },
     intelligence_center: {
       label: 'INTELLIGENCE CENTER', kind: 'lab', floorStyle: 'indigo', floorMat: 'tile',
       slots: ['scout', 'analyst', 'researcher', 'curator'], caps: ['files', 'web', 'memory'], decor: ['whiteboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'chartwall', 'toolbox']
+      dressing: ['chartwall', 'bookstack', 'cablerun', 'ticker']
     },
     memory_archive: {
       label: 'MEMORY ARCHIVE', kind: 'storage', floorStyle: 'onyx', floorMat: 'panel',
       slots: ['archivist', 'curator'], caps: ['files', 'memory'], decor: ['bigscreen'],
-      dressing: ['cablerun', 'arc_floorlight', 'bookstack', 'lavalamp']
+      dressing: ['bookstack', 'cablerun', 'lavalamp']
     },
     experiment_lab: {
       label: 'EXPERIMENT LAB', kind: 'lab', floorStyle: 'sterile', floorMat: 'tile',
       slots: ['analyst', 'apptester', 'reviewer', 'optimizer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
-      dressing: ['cablerun', 'hazardpad', 'steamvent', 'arc_floorlight', 'plasmaglobe']
+      dressing: ['steamvent', 'plasmaglobe', 'hazardpad', 'toolbox']
     },
     night_ops: {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
-      dressing: ['cablerun', 'arc_floorlight', 'hazardpad', 'toolbox']
+      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad']
     }
   });
 
@@ -248,7 +251,12 @@ const CityOS = (() => {
     const r = room.rects[0], placed = [];
     const zone = { minX: r.x1 + 1, maxX: r.x2 - 1, minY: r.y1 + 4, maxY: r.y2 - 5 };
     for (const cap of (caps || [])) {
-      const type = CAP_PROP[clean(cap)];
+      let type = CAP_PROP[clean(cap)];
+      if (!type && clean(cap) === 'web') {
+        const h = String((room && room.id) || '') + String((room && room.name) || '');
+        let n = 0; for (let i = 0; i < h.length; i++) n = (n + h.charCodeAt(i)) % 997;
+        type = WEB_VARIANTS[n % WEB_VARIANTS.length];
+      }
       if (!type) continue;
       const p = addCatalogProp(station, room, type, zone);
       if (!p.ok) return p;

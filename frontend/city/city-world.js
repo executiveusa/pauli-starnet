@@ -15,13 +15,10 @@
   let booted = false;
   let knownIds = [];
 
-  function gwBase() {
-    return (localStorage.getItem('pauli.city.gatewayUrl') || new URLSearchParams(location.search).get('gateway') || DEFAULT_GW).replace(/\/+$/, '');
-  }
-  function headers() {
-    const t = localStorage.getItem('pauli.city.gatewayToken') || '';
-    return t ? { Authorization: 'Bearer ' + t } : {};
-  }
+  /* FIXED backend: a visitor can NEVER point this page at another gateway and
+     NEVER attaches credentials — no ?gateway override, no localStorage tokens.
+     (Owner-mode control, when it exists, is a separate authenticated surface.) */
+  function gwBase() { return DEFAULT_GW; }
 
   function note(msg) {
     const n = document.getElementById('world-note');
@@ -34,7 +31,7 @@
   }
 
   async function fetchWorldDoc() {
-    const r = await fetch(gwBase() + '/v1/city/world', { headers: headers(), cache: 'no-store' });
+    const r = await fetch(gwBase() + '/v1/city/world', { cache: 'no-store' });
     if (!r.ok) return { error: 'http ' + r.status };
     const w = await r.json();
     return w || {};

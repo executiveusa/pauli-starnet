@@ -58,7 +58,7 @@ const CityCore = (() => {
      degraded:true all stay honest — never upgrade to 'live' without evidence. */
   /* The public surface consumes ONLY the Netlify function's sanitized DTO:
      { live, city, generatedAgoMin, citizens:[{name,role,district,status,hero?}],
-       activity:[{event,state,agent,summary,startedAgoMin,settledAgoMin,receipt}] }.
+       activity:[{event,state,agent,category,startedAgoMin,settledAgoMin,receipt}] }.
      No internal ids, no timestamps, no prompts, no errors, no provider internals. */
   function classifyStatus(payload) {
     if (!payload || typeof payload !== 'object') return { mode: 'offline', label: 'No live state', citizens: [], missions: [], approvals: [], activeTasks: [] };
@@ -297,7 +297,7 @@ const CityCore = (() => {
     const items = raw.map(t => ({
       id: t.event || null,                       // opaque public event id, never an internal id
       status: String(t.state || 'unknown'),
-      label: String(t.summary || ''),
+      label: String(t.category || 'task'),   // coarse server-picked category enum - task text never reaches this surface
       agent: t.agent || null,
       receipted: t.receipt === true,
       startedAgoMin: (typeof t.startedAgoMin === 'number') ? t.startedAgoMin : null,

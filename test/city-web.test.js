@@ -53,7 +53,7 @@ A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mod
 // activeTasks must survive classifyStatus - updateActivity merges them into movement;
 // dropping them froze every token on the live map (caught by live pixel verification).
 {
-  const cs = CityCore.classifyStatus({ live: true, citizens: [{ name: 'MERCI', role: 'operator', district: 'commerce' }], activity: [{ event: 'ev_1', state: 'running', agent: 'MERCI', summary: 'probe', startedAgoMin: 2, receipt: false }] });
+  const cs = CityCore.classifyStatus({ live: true, citizens: [{ name: 'MERCI', role: 'operator', district: 'commerce' }], activity: [{ event: 'ev_1', state: 'running', agent: 'MERCI', category: 'research', startedAgoMin: 2, receipt: false }] });
   A.eq(cs.activeTasks.length, 1, 'classifyStatus carries the DTO activity through');
   A.eq(cs.citizens[0].name, 'MERCI', 'DTO citizens ride through by public name');
 }
@@ -62,8 +62,8 @@ A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mod
 // normalized, newest first, capped, statuses verbatim, receipts carried.
 {
   const feed = CityCore.activityFeed({ activeTasks: [
-    { event: 'ev_old', state: 'failed', agent: 'MERCI', summary: 'earlier task', receipt: true, startedAgoMin: 20, settledAgoMin: 15 },
-    { event: 'ev_new', state: 'running', agent: 'HEISENBERG', summary: 'current task', receipt: false, startedAgoMin: 3 }
+    { event: 'ev_old', state: 'failed', agent: 'MERCI', category: 'commerce', receipt: true, startedAgoMin: 20, settledAgoMin: 15 },
+    { event: 'ev_new', state: 'running', agent: 'HEISENBERG', category: 'ops', receipt: false, startedAgoMin: 3 }
   ] });
   A.eq(feed.length, 2, 'feed carries both entries');
   A.eq(feed[0].id, 'ev_new', 'newest (smallest age) first');

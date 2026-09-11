@@ -48,7 +48,7 @@ const A = require('assert');
       meta: { name: "PAULI'S PLACE", createdAt: 123, tier: 0, spawnRoomId: 'r1', trunkRoomId: 'r1', secret: POISON },
       rooms: {
         r1: { id: 'r1', kind: 'hab', name: 'HQ', rects: [{ x1: 0, y1: 0, x2: 17, y2: 10, token: POISON }],
-              floorStyle: 'hull', wallStyle: 'hull', tier: 0, floorPaint: {}, secret: POISON, nested: { token: POISON } }
+              floorStyle: 'hull', wallStyle: 'hull', tier: 0, floorPaint: { '1,2': 'hull', '__proto__': { polluted: true }, 'bad key': 1, '5,5': '<script>alert(1)</script>', '6,6': 3.9, '99999,1': 'x' }, secret: POISON, nested: { token: POISON } }
       },
       order: ['r1'],
       props: [
@@ -129,7 +129,11 @@ const A = require('assert');
   ok(!pubStr.includes('429') && !pubStr.includes('error'), 'no raw errors');
   ok(pub.activity.length === 2 && pub.activity[0].event.startsWith('ev_') && !pubStr.includes('2026-09-11'), 'opaque event ids, no exact timestamps');
   ok(pub.activity[0].state === 'running' && pub.activity[0].agent === 'HEISENBERG', 'work binds by public agent name');
-  ok(pub.activity[0].summary.length <= 80 && !pub.activity[0].summary.includes('\n'), 'summaries clipped to a short single line');
+  ok(pub.activity.every(t => !('summary' in t) && !('task' in t)), 'no summary/task field exists at all');
+  ok(pub.activity[0].category === 'research', 'coarse server-picked category from task semantics');
+  ok(pub.activity[1].category === 'ops', 'unclassifiable work falls to the ops bucket');
+  ok(!pubStr.includes('Node LTS') && !pubStr.includes('x'.repeat(120)) && !pubStr.includes('hello'), 'raw prompt substrings NEVER escape');
+  ok(/^(research|comms|commerce|ops)$/.test(pub.activity[0].category), 'category is a closed enum');
   ok(pub.activity[0].receipt === true && pub.activity[1].receipt === false, 'receipt presence is a boolean');
   ok(typeof pub.activity[0].startedAgoMin === 'number', 'relative ages only');
 
@@ -145,6 +149,9 @@ const A = require('assert');
   ok(world.station.props[0].agentId === 'HEISENBERG' && world.station.props[1].agentId === 'MERCI' && !('agentId' in world.station.props[2]), 'prop bindings rewritten to public names');
   ok(world.station.edges[0].from === 'HEISENBERG' && world.station.edges[0].to === 'MERCI', 'edges rewritten to public names');
   ok(world.station.belts['1,1'] === 'E' && !('evil' in world.station.belts), 'belts cleaned');
+  const fp = world.station.rooms.r1.floorPaint;
+  ok(fp['1,2'] === 'hull' && fp['6,6'] === 3 && Object.keys(fp).length === 2, 'floorPaint: only tile-keyed scalar style ids survive');
+  ok(!wStr.includes('bad key') && !wStr.includes('<script>') && !wStr.includes('99999') && !({}).polluted, 'floorPaint: proto keys, html, bad scalars dropped');
   ok(world.station.meta.spawnRoomId === 'r1' && !('secret' in world.station.meta), 'meta allowlisted');
 
   // --- fail closed ---

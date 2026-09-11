@@ -91,7 +91,7 @@
       $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
     }
     setMode('offline', 'Connecting…');
-    $('#whole-city').addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.refit) World.refit(); } catch (_) {} });
+    $('#whole-city').addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.fitWorld) World.fitWorld(48); else if (typeof World !== 'undefined' && World.camPullBack) World.camPullBack(); } catch (_) {} });
     $('#feed-toggle').addEventListener('click', () => document.body.classList.toggle('panel-hidden'));
     $('#panel-close').addEventListener('click', () => document.body.classList.add('panel-hidden'));
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') document.body.classList.add('panel-hidden'); });
