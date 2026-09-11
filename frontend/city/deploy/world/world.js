@@ -82,7 +82,7 @@ const World = (() => {
   let fitW = 0, fitH = 0;   // canvas size the last fitCamera() framed against — a fit on a hidden/degenerate stage doesn't count as a real view
   const MINZ = 0.5, MAXZ = 6;
   const clampz = (v, a, b) => v < a ? a : v > b ? b : v;
-  let drag = null, hoverAgent = null, onClick = null, onArcade = null, onOutbox = null, onMissionBoard = null, onTrophyCase = null, onBayAssign = null, onIntakeFeed = null, onIntakeSample = null, wakeAt = 0;
+  let drag = null, hoverAgent = null, onClick = null, onArcade = null, onOutbox = null, onMissionBoard = null, onTrophyCase = null, onBayAssign = null, onIntakeFeed = null, onIntakeSample = null, onTapMiss = null, wakeAt = 0;
   let camLerp = null;   // {scale,panX,panY} target — a gentle one-on-one framing for voice conversations
   let wakeDark = 0, wakeDarkTarget = 0, awakeFrozen = false;   // the AWAKENING: a darkness veil that lifts to first light, + a freeze so the newborn holds still during its first meeting
   let camAnim = null;                                          // {fromS,toS,fromX,toX,fromY,toY,t,dur,ease,onEnd} — a scripted awakening camera move
@@ -1292,7 +1292,10 @@ const World = (() => {
       if (ismp && onIntakeSample) { onIntakeSample({ propId: ismp.id, fed: feedState.known ? !!feedState.fed : null }); return; }
       // a NO-FEED intake's nag says CLICK — the click opens the CHANNELS panel (the fix is wiring a feed)
       const inf = intakeFeedAt(wp);
-      if (inf && onIntakeFeed) onIntakeFeed(inf.id);
+      if (inf && onIntakeFeed) { onIntakeFeed(inf.id); return; }
+      /* WEB TAP-TO-ZOOM seam: a tap that hit no interactive subject still names a PLACE on the city.
+         The city web surface uses it for mobile room zoom; the desktop app leaves it unset (no-op). */
+      if (onTapMiss) onTapMiss(wp);
     });
     cv.addEventListener('mouseleave', () => { if (kindleArmed) kindleHolding = false; hoverAgent = null; hoverBeltTile = null; hoverOutbox = null; if (!drag) cv.style.cursor = 'default'; });
   }
@@ -6938,6 +6941,7 @@ const World = (() => {
   }
 
   function setOnClick(fn) { onClick = fn; }
+  function setOnTapMiss(fn) { onTapMiss = fn; }
   function setOnArcade(fn) { onArcade = fn; }
   function setOnOutbox(fn) { onOutbox = fn; }
   function setOnBayAssign(fn) { onBayAssign = fn; }   // click an UNBOUND bay → open the assign flow (app wires to REFIT's picker)
@@ -9111,7 +9115,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, fitWorld, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, fitWorld, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnTapMiss, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {

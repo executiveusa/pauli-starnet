@@ -12,6 +12,9 @@
   <h1 id="cityname">PAULI'S PLACE</h1>
   <span class="statusline" id="statusline">booting</span>
   <span class="spacer"></span>
+  <span class="inst" id="inst-agents" title="Agents on a gateway-reported running task vs idle">—</span>
+  <span class="inst" id="inst-tasks" title="Gateway tasks in the current public activity window">—</span>
+  <span class="inst" id="inst-receipt" title="Age of the newest receipted gateway activity">—</span>
   <span class="statusline" id="counts"></span>
   <button id="whole-city" class="ghostbtn" aria-label="Frame the whole city">Whole city</button>
   <button id="feed-toggle" class="ghostbtn" aria-label="Toggle activity panel">Activity</button>
@@ -19,9 +22,16 @@
 
 <main id="stagewrap">
   <canvas id="world" aria-label="Live 2D city world - the real station world with all agents"></canvas>
+  <div id="cam-hud" class="camhud" aria-hidden="true"><span class="camdot"></span>CAM 01 · <span id="cam-view">WHOLE CITY</span></div>
+  <div id="cam-ticker" class="camticker" aria-hidden="true"></div>
   <div id="world-note" class="worldnote">Idle agents stroll within their own area, exactly like the desktop app; work runs walk only while the gateway reports a real running task.</div>
   <div id="world-fallback" class="worldfallback" hidden></div>
 </main>
+
+<nav id="crew-rail" class="crewrail" aria-label="Crew roster">
+  <button id="crew-tab" class="crewtab" aria-label="Toggle crew roster">▸ CREW</button>
+  <div id="crew-list" class="crewlist"></div>
+</nav>
 
 <aside id="overlay">
   <button id="panel-close" class="ghostbtn" aria-label="Close activity panel">✕ close</button>

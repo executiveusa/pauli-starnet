@@ -408,7 +408,46 @@ const CityCore = (() => {
     return { x0: x0 - m, y0: y0 - m, x1: x1 + m, y1: y1 + m, count: pts.length };
   }
 
-  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, occupiedFrame, occupiedRoomFrame, WORLD_SKIN_POOL, MAP };
+  /* DISTRICT FRAMES (tiles): one bbox per district over the compiled rooms whose names match its
+     building labels in the canonical model. Pure; unmatched districts are simply absent. */
+  function districtFrames(rooms, model) {
+    const list = (rooms && typeof rooms === 'object') ? Object.values(rooms) : [];
+    const out = [];
+    for (const d of ((model && model.districts) || [])) {
+      const names = new Set((d.buildings || []).map(b => String(b.label || '').toUpperCase()));
+      let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9, n = 0;
+      for (const r of list) {
+        if (!r || !names.has(String(r.name || '').toUpperCase())) continue;
+        for (const q of (r.rects || [])) {
+          if (!q || !isFinite(q.x1)) continue;
+          x1 = Math.min(x1, q.x1); y1 = Math.min(y1, q.y1); x2 = Math.max(x2, q.x2); y2 = Math.max(y2, q.y2); n++;
+        }
+      }
+      if (n) out.push({ id: d.id, label: d.label, x1, y1, x2, y2 });
+    }
+    return out;
+  }
+
+  /* ROOM AT (tile point) — tap-to-zoom lookup over the compiled geometry. Returns the room's
+     world-pixel center for the camera. Corridors/gates return null: zooming to a walkway is noise. */
+  function roomAtTile(rooms, tx, ty, tile) {
+    const T = tile || 12;
+    const list = (rooms && typeof rooms === 'object') ? Object.values(rooms) : [];
+    for (const r of list) {
+      if (!r || !Array.isArray(r.rects)) continue;
+      const nm = String(r.name || '');
+      if (/WALK|CORRIDOR|GATE/i.test(nm)) continue;
+      for (const q of r.rects) {
+        if (!q || !isFinite(q.x1)) continue;
+        if (tx >= q.x1 && tx <= q.x2 + 1 && ty >= q.y1 && ty <= q.y2 + 1) {
+          return { id: r.id, name: nm, cx: ((q.x1 + q.x2 + 1) / 2) * T, cy: ((q.y1 + q.y2 + 1) / 2) * T };
+        }
+      }
+    }
+    return null;
+  }
+
+  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, occupiedFrame, occupiedRoomFrame, districtFrames, roomAtTile, WORLD_SKIN_POOL, MAP };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = CityCore;

@@ -80,3 +80,36 @@ body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(-
   header { gap: 6px; }
   header .ghostbtn { padding: 3px 7px; font-size: 14px; }
 }
+
+/* ---- round-4 control chrome: CAM HUD + ticker, instrument cluster, crew rail ----
+   All overlays hug the stage edges and never block the play space; HUD/ticker are
+   pointer-events:none. Everything is derived from the public gateway DTO only. */
+.camhud { position: absolute; top: 8px; left: 10px; z-index: 5; pointer-events: none;
+  font: 14px/1.2 'VT323','Courier New',monospace; letter-spacing: .08em; color: rgba(190,225,255,.82);
+  text-shadow: 0 0 6px rgba(0,20,40,.9); }
+.camhud .camdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px;
+  background: #ff5a5a; box-shadow: 0 0 6px #ff5a5a; animation: camblink 2.4s infinite; }
+@keyframes camblink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+.camticker { position: absolute; left: 10px; bottom: 8px; right: 10px; z-index: 5; pointer-events: none;
+  font: 13px/1.25 'VT323','Courier New',monospace; letter-spacing: .06em; color: rgba(170,215,255,.68);
+  text-shadow: 0 0 6px rgba(0,20,40,.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.camticker.bad { color: rgba(255,150,150,.85); }
+.inst { font: 13px/1 'VT323','Courier New',monospace; letter-spacing: .05em; color: rgba(170,215,255,.75);
+  border: 1px solid rgba(120,180,240,.22); border-radius: 3px; padding: 4px 7px; white-space: nowrap; }
+.crewrail { position: fixed; left: 0; top: 96px; z-index: 6; transform: translateX(calc(-100% + 34px));
+  transition: transform .18s ease-out; background: rgba(6,12,24,.92); border: 1px solid rgba(120,180,240,.25);
+  border-left: 0; border-radius: 0 6px 6px 0; max-height: 60vh; display: flex; align-items: stretch; }
+.crewrail.open { transform: translateX(0); }
+.crewtab { writing-mode: vertical-rl; font: 13px 'VT323','Courier New',monospace; letter-spacing: .12em;
+  background: none; border: 0; color: rgba(170,215,255,.85); padding: 10px 6px; cursor: pointer; min-height: 64px; }
+.crewlist { padding: 8px 12px 8px 6px; overflow-y: auto; min-width: 150px; }
+.crewrow { font: 14px/1.7 'VT323','Courier New',monospace; color: rgba(210,232,255,.9); white-space: nowrap; }
+.pill.idle { border: 1px solid rgba(160,170,190,.35); color: rgba(180,190,205,.8); }
+.ghostbtn.pulse { animation: pulseglow 1.6s ease-out 2; }
+@keyframes pulseglow { 0% { box-shadow: 0 0 0 0 rgba(120,200,255,.55); } 100% { box-shadow: 0 0 0 12px rgba(120,200,255,0); } }
+@media (max-width: 700px) {
+  .crewrail { top: auto; bottom: 12vh; max-height: 44vh; }
+  .camhud { font-size: 13px; }
+  .inst { display: none; }   /* phones keep the status line + Whole city; instruments stay on larger viewports */
+  #whole-city { font-size: 16px; padding: 10px 14px; }   /* large tap target, obvious return from room zoom */
+}

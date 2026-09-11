@@ -99,6 +99,13 @@
     try { station = WorldModel.deserialize(w.station); }
     catch (e) { fallback('The live world geometry could not be read (' + e.message + ').'); return; }
 
+    // DISTRICT SIGNAGE: hand the static bake the district frames (tile bboxes) derived from the canonical
+    // city model + the compiled rooms, so the 9 quarters read at whole-city zoom. Absent API = no-op.
+    try {
+      if (typeof StationBake !== 'undefined' && StationBake.setDistrictLabels) {
+        StationBake.setDistrictLabels(CityCore.districtFrames(lastWorld.rooms, CityCore.cityModel(CityOS)));
+      }
+    } catch (_) { /* signage is a nicety, never a boot blocker */ }
     World.loadStation(station);
     const cv = document.getElementById('world');
     World.init(cv);
@@ -117,6 +124,20 @@
     // the freshest status the overlay already holds, then keep binding per poll.
     const status = (window.CitySurface && window.CitySurface.latest) ? window.CitySurface.latest() : null;
     if (status && Array.isArray(status.citizens) && status.citizens.length) spawned = spawnBodies(status.citizens);
+    // MOBILE TAP-TO-ZOOM: a tap that hits no interactive prop/body names a PLACE — zoom to that building at
+    // the desktop's readable working zoom, name it on the CAM HUD, and pulse the Whole city button as the
+    // obvious way back. Corridors/gates return null from roomAtTile (zooming to a walkway is noise).
+    if (typeof World.setOnTapMiss === 'function') World.setOnTapMiss((wp) => {
+      try {
+        if (!lastWorld) return;
+        const hit = CityCore.roomAtTile(lastWorld.rooms, wp.x / 12, wp.y / 12, 12);
+        if (!hit) return;
+        World.centerView(hit.cx, hit.cy, 2.7);
+        const v = document.getElementById('cam-view'); if (v) v.textContent = hit.name;
+        const wc = document.getElementById('whole-city');
+        if (wc) { wc.classList.remove('pulse'); void wc.offsetWidth; wc.classList.add('pulse'); }
+      } catch (_) { /* a missed zoom must never break the world */ }
+    });
     World.start();
     booted = true;
     // Open the camera centered on the OCCUPIED HERO BUILDING at a readable desktop-like zoom
@@ -130,7 +151,7 @@
         // never the empty spawn hab bodies walk out of. Tie -> hero's room. Fallbacks: hero body,
         // body bbox, whole-map fit.
         const rf = (lastWorld && CityCore.occupiedRoomFrame) ? CityCore.occupiedRoomFrame(lastWorld.rooms, lastWorld.props, 12) : null;
-        if (rf && rf.count >= 1 && typeof World.centerView === 'function') { World.centerView(rf.cx, rf.cy, 2.7); return; }
+        if (rf && rf.count >= 1 && typeof World.centerView === 'function') { World.centerView(rf.cx, rf.cy, 2.7); const v = document.getElementById('cam-view'); if (v && rf.name) v.textContent = rf.name; return; }
         const hero = snaps.find(b => b && b.placed && b.id === 'HEISENBERG') || snaps.find(b => b && b.placed);
         if (hero && typeof World.centerView === 'function') { World.centerView(hero.x, hero.y, 2.7); return; }
         if (typeof World.frameRect === 'function' && CityCore.occupiedFrame) {

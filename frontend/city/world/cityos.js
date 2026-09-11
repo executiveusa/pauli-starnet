@@ -33,8 +33,11 @@ const CityOS = (() => {
   const lastApplied = new WeakMap();
   let planSeq = 0;
 
+  /* web has THREE equivalent capability props (dish/uplink/beacon all grant D_WEB): rotate the
+     variant per building (deterministic by label) so 13 buildings don't repeat the same dish corner. */
+  const WEB_VARIANTS = ['comms_dish', 'comms_uplink', 'comms_beacon'];
   const CAP_PROP = {
-    files: 'war_intelcab', web: 'comms_dish', memory: 'gigs_servercart', terminal: 'workbench',
+    files: 'war_intelcab', memory: 'gigs_servercart', terminal: 'workbench',
     images: 'studio', spotify: 'jukebox'
   };
 
@@ -44,55 +47,68 @@ const CityOS = (() => {
   const BUILDING_TEMPLATES = Object.freeze({
     executive_hq: {
       label: 'HEISENBERG HQ', kind: 'bridge', floorStyle: 'cobalt', floorMat: 'panel',
-      slots: ['orchestrator'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard']
+      slots: ['orchestrator'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
+      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'toolbox']
     },
     software_factory: {
       label: 'SOFTWARE FACTORY', kind: 'factory', floorStyle: 'rust', floorMat: 'tread',
-      slots: ['engineer', 'apptester', 'auditor', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard']
+      slots: ['engineer', 'apptester', 'auditor', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
+      dressing: ['hazardpad', 'steamvent', 'crate', 'toolbox', 'cablerun']
     },
     pi_foundry: {
       label: 'PI AGENT FOUNDRY', kind: 'factory', floorStyle: 'violet', floorMat: 'tread',
-      slots: ['engineer', 'drafter', 'apptester', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard']
+      slots: ['engineer', 'drafter', 'apptester', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
+      dressing: ['steamvent', 'plasmaglobe', 'cablerun', 'arc_floorlight', 'toolbox']
     },
     revenue_center: {
       label: 'REVENUE CENTER', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
-      slots: ['opportunist', 'researcher', 'prospector', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard']
+      slots: ['opportunist', 'researcher', 'prospector', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard'],
+      dressing: ['ticker', 'chartwall', 'crate', 'lavalamp']
     },
     impact_hq: {
       label: 'IMPACT HQ', kind: 'hab', floorStyle: 'teal', floorMat: 'panel',
-      slots: ['strategist', 'envoy', 'paralegal', 'pitchwriter'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard']
+      slots: ['strategist', 'envoy', 'paralegal', 'pitchwriter'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
+      dressing: ['chartwall', 'bookstack', 'arc_floorlight', 'ticker']
     },
     stewardship_house: {
       label: 'STEWARDSHIP HOUSE', kind: 'hab', floorStyle: 'amber', floorMat: 'spine',
-      slots: ['registrar', 'negotiator', 'closer', 'ghostwriter'], caps: ['files', 'web', 'memory'], decor: ['whiteboard']
+      slots: ['registrar', 'negotiator', 'closer', 'ghostwriter'], caps: ['files', 'web', 'memory'], decor: ['whiteboard'],
+      dressing: ['bookstack', 'cablerun', 'lavalamp', 'toolbox']
     },
     creative_studio: {
       label: 'CREATIVE STUDIO', kind: 'lab', floorStyle: 'orchid', floorMat: 'tile',
-      slots: ['designer', 'writer', 'marketer', 'publisher'], caps: ['files', 'web', 'memory', 'images'], decor: ['bigscreen']
+      slots: ['designer', 'writer', 'marketer', 'publisher'], caps: ['files', 'web', 'memory', 'images'], decor: ['bigscreen'],
+      dressing: ['plasmaglobe', 'lavalamp', 'ticker', 'arc_floorlight']
     },
     commerce_factory: {
       label: 'COMMERCE FACTORY', kind: 'factory', floorStyle: 'ember', floorMat: 'tread',
-      slots: ['operator', 'optimizer', 'publisher', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard']
+      slots: ['operator', 'optimizer', 'publisher', 'treasurer'], caps: ['files', 'web', 'memory'], decor: ['missionboard'],
+      dressing: ['crate', 'boxes', 'hazardpad', 'steamvent', 'cablerun']
     },
     connector_exchange: {
       label: 'CONNECTOR EXCHANGE', kind: 'storage', floorStyle: 'teal', floorMat: 'grate',
-      slots: ['operator'], caps: ['files', 'web', 'memory'], connectorPorts: 4, decor: ['bigscreen']
+      slots: ['operator'], caps: ['files', 'web', 'memory'], connectorPorts: 4, decor: ['bigscreen'],
+      dressing: ['crate', 'boxes', 'cablerun', 'hazardpad']
     },
     intelligence_center: {
       label: 'INTELLIGENCE CENTER', kind: 'lab', floorStyle: 'indigo', floorMat: 'tile',
-      slots: ['scout', 'analyst', 'researcher', 'curator'], caps: ['files', 'web', 'memory'], decor: ['whiteboard']
+      slots: ['scout', 'analyst', 'researcher', 'curator'], caps: ['files', 'web', 'memory'], decor: ['whiteboard'],
+      dressing: ['chartwall', 'bookstack', 'cablerun', 'ticker']
     },
     memory_archive: {
       label: 'MEMORY ARCHIVE', kind: 'storage', floorStyle: 'onyx', floorMat: 'panel',
-      slots: ['archivist', 'curator'], caps: ['files', 'memory'], decor: ['bigscreen']
+      slots: ['archivist', 'curator'], caps: ['files', 'memory'], decor: ['bigscreen'],
+      dressing: ['bookstack', 'cablerun', 'lavalamp']
     },
     experiment_lab: {
       label: 'EXPERIMENT LAB', kind: 'lab', floorStyle: 'sterile', floorMat: 'tile',
-      slots: ['analyst', 'apptester', 'reviewer', 'optimizer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard']
+      slots: ['analyst', 'apptester', 'reviewer', 'optimizer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
+      dressing: ['steamvent', 'plasmaglobe', 'hazardpad', 'toolbox']
     },
     night_ops: {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
-      slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard']
+      slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
+      dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad']
     }
   });
 
@@ -235,7 +251,12 @@ const CityOS = (() => {
     const r = room.rects[0], placed = [];
     const zone = { minX: r.x1 + 1, maxX: r.x2 - 1, minY: r.y1 + 4, maxY: r.y2 - 5 };
     for (const cap of (caps || [])) {
-      const type = CAP_PROP[clean(cap)];
+      let type = CAP_PROP[clean(cap)];
+      if (!type && clean(cap) === 'web') {
+        const h = String((room && room.id) || '') + String((room && room.name) || '');
+        let n = 0; for (let i = 0; i < h.length; i++) n = (n + h.charCodeAt(i)) % 997;
+        type = WEB_VARIANTS[n % WEB_VARIANTS.length];
+      }
       if (!type) continue;
       const p = addCatalogProp(station, room, type, zone);
       if (!p.ok) return p;
@@ -261,6 +282,27 @@ const CityOS = (() => {
     for (const type of (decor || [])) {
       const p = addCatalogProp(station, room, type, zone);
       if (p.ok) placed.push(p.id); // cosmetic failure never invalidates a city plan
+    }
+    return placed;
+  }
+
+  /* DRESSING — machinery/cables/storage/light/signage clutter from the prop catalog.
+     Non-blocking floor pieces keep circulation open; collisions simply skip (cosmetic
+     failure never invalidates a city plan). This is what makes a building read as an
+     OCCUPIED functional room instead of a sparse hangar. */
+  function placeDressing(station, room, types) {
+    const r = room.rects[0], placed = [];
+    const zones = [
+      { minX: r.x1 + 1, maxX: r.x2 - 1, minY: r.y1 + 2, maxY: r.y2 - 1 },
+      { minX: r.x1 + 1, maxX: r.x2 - 1, minY: r.y1, maxY: r.y2 - 1 }
+    ];
+    for (const type of (types || [])) {
+      let p = fail('NO_PROP_SPACE', 'no spot');
+      for (const z of zones) {
+        p = addCatalogProp(station, room, type, z);
+        if (p.ok) break;
+      }
+      if (p.ok) placed.push(p.id);
     }
     return placed;
   }
@@ -396,6 +438,7 @@ const CityOS = (() => {
         if (!add.ok) return fail('CAPABILITY_' + (add.error || 'CONNECTOR'), add.msg, { room: room.name });
       }
       placeDecor(draft, room, cfg.decor || t.decor || []);
+      placeDressing(draft, room, cfg.dressing || t.dressing || []);
       const wfAssigned = row.assigned.map(a => Object.assign({}, a, { brief: cfg.briefs && cfg.briefs[a.slot] }));
       const flow = buildWorkflow(draft, room, wfAssigned);
       if (!flow.ok) return fail('WORKFLOW_' + (flow.error || 'BUILD'), flow.msg, { room: room.name, cause: flow });
