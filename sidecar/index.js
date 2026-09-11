@@ -15350,7 +15350,7 @@ async function runOnce(o) {
      free tiers is per-minute INPUT tokens (Groq qwen3.x: 7,000 ITPM), far below any context window. Measured live
      2026-09-11 (task f97191b2): the slim turn-1 request fit, but accumulated fetch results hit 7,271 at turn 5
      (http 413). Capping each tool RESULT keeps request N bounded: ~3k base + turns x ~450 tokens of results. */
-  const slimResultCap = slimResearch ? 1200 : 0;
+  const slimResultCap = slimResearch ? 2500 : 0;   // 1,200 cut real answers off (nodejs LTS row sits ~1.5KB into clean extraction); with pacing, ITPM binds per single request: ~2.9k base + turns x ~900 tok stays < 7k for sane turn counts
   const runDispatch = slimResultCap
     ? async (c, ctx) => {
         const r = await dispatch(c, ctx);
