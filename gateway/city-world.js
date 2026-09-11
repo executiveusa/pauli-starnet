@@ -17,7 +17,7 @@ function sanitizeStation(st) {
   if (!st || typeof st !== 'object') return null;
   const out = {};
   for (const k of STATION_KEYS) if (st[k] !== undefined) out[k] = st[k];
-  if (!Array.isArray(out.rooms)) return null;
+  if (!out.rooms || typeof out.rooms !== 'object') return null;   // rooms is the WorldModel's keyed room map
   return out;
 }
 
