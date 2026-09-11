@@ -169,6 +169,10 @@ function runToCompletion(agentId, message, context) {
       key: resolvedKey,
       context: context || {},
       taskId,
+      // TASK runs advertise the placed-object tools on the wire (isTask gates toolDefs in handleRun).
+      // Without this flag the loop got tools:[] - the model saw capabilities in its prompt but had no
+      // wire tools, so it NARRATED tool calls in text and zero executed (research lane, 2026-09-11).
+      isTask: true,
       // THE CITY STATION HAS A DISH PLACED: object = capability (sidecar/capability/registry.js
       // maps dish -> web_search/web_fetch, read-scope, network, no consent). /api/run composes a
       // compute-only office on the interactive surface unless the floor's placed props ride the
