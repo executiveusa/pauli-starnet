@@ -56,19 +56,21 @@ const CityCore = (() => {
 
   /* Classify a /v1/city/status payload. No payload, malformed payload, or
      degraded:true all stay honest — never upgrade to 'live' without evidence. */
+  /* The public surface consumes ONLY the Netlify function's sanitized DTO:
+     { live, city, generatedAgoMin, citizens:[{name,role,district,status,hero?}],
+       activity:[{event,state,agent,summary,startedAgoMin,settledAgoMin,receipt}] }.
+     No internal ids, no timestamps, no prompts, no errors, no provider internals. */
   function classifyStatus(payload) {
     if (!payload || typeof payload !== 'object') return { mode: 'offline', label: 'No live state', citizens: [], missions: [], approvals: [], activeTasks: [] };
     const citizens = Array.isArray(payload.citizens) ? payload.citizens : [];
-    const missions = Array.isArray(payload.missions) ? payload.missions : [];
-    const approvals = Array.isArray(payload.approvals) ? payload.approvals : [];
-    // activeTasks MUST ride through: updateActivity merges them into the movement
-    // derivation - dropping them here silently froze every token on the live map.
-    const activeTasks = Array.isArray(payload.activeTasks) ? payload.activeTasks : [];
-    if (payload.degraded) return { mode: 'degraded', label: 'Backend unreachable — no live state', citizens, missions, approvals, activeTasks };
-    const ok = payload.health && payload.health.status === 'online';
-    return ok
-      ? { mode: 'live', label: 'Live', citizens, missions, approvals, activeTasks, generatedAt: payload.generatedAt || null }
-      : { mode: 'degraded', label: 'Backend degraded', citizens, missions, approvals, activeTasks, generatedAt: payload.generatedAt || null };
+    const activeTasks = Array.isArray(payload.activity) ? payload.activity : [];
+    const live = payload.live === true;
+    return {
+      mode: live ? 'live' : 'degraded',
+      label: live ? 'Live' : 'Backend degraded',
+      citizens, missions: [], approvals: [], activeTasks,
+      generatedAgoMin: (typeof payload.generatedAgoMin === 'number') ? payload.generatedAgoMin : null
+    };
   }
 
   /* Seat live citizens into canonical slots by specialty/role match. Unmatched
@@ -293,14 +295,15 @@ const CityCore = (() => {
   function activityFeed(status, cap) {
     const raw = (status && Array.isArray(status.activeTasks)) ? status.activeTasks : [];
     const items = raw.map(t => ({
-      id: t.id || t.taskId || t.task_id || null,
-      status: String(t.status || 'unknown'),
-      label: String(t.task || t.title || ''),
-      receiptId: t.receiptId || (t.receipt && t.receipt.receipt_id) || null,
-      startedAt: t.startedAt || null,
-      completedAt: t.completedAt || null
+      id: t.event || null,                       // opaque public event id, never an internal id
+      status: String(t.state || 'unknown'),
+      label: String(t.summary || ''),
+      agent: t.agent || null,
+      receipted: t.receipt === true,
+      startedAgoMin: (typeof t.startedAgoMin === 'number') ? t.startedAgoMin : null,
+      settledAgoMin: (typeof t.settledAgoMin === 'number') ? t.settledAgoMin : null
     }));
-    items.sort((a, b) => String(b.startedAt || '').localeCompare(String(a.startedAt || '')));
+    items.sort((a, b) => (a.startedAgoMin == null ? 1e9 : a.startedAgoMin) - (b.startedAgoMin == null ? 1e9 : b.startedAgoMin));
     return items.slice(0, cap || 20);
   }
 
@@ -313,14 +316,15 @@ const CityCore = (() => {
      backend truth and carries no skins, so nothing here invents backend state. */
   const WORLD_SKIN_POOL = ['blank_blue', 'blank_green', 'blank_red', 'blank_amber', 'blank'];
   function worldSpawnPlan(citizens) {
-    const list = (Array.isArray(citizens) ? citizens : []).filter(c => c && c.id);
-    const hi = list.findIndex(c => c.id === 'agent');
+    // public DTO citizens have no internal ids: the roster NAME is the body's identity
+    const list = (Array.isArray(citizens) ? citizens : []).filter(c => c && c.name);
+    const hi = list.findIndex(c => c.hero === true || c.role === 'orchestrator');
     const ordered = hi > 0 ? [list[hi]].concat(list.slice(0, hi), list.slice(hi + 1)) : list;
     let pool = 0;
     return ordered.map((c, i) => {
       const hero = i === 0;
-      const skin = (hero && c.id === 'agent') ? 'heisenberg' : WORLD_SKIN_POOL[(pool++) % WORLD_SKIN_POOL.length];
-      return { id: c.id, name: c.name || c.id, hero, skin };
+      const skin = (hero && String(c.name).toUpperCase() === 'HEISENBERG') ? 'heisenberg' : WORLD_SKIN_POOL[(pool++) % WORLD_SKIN_POOL.length];
+      return { id: String(c.name), name: String(c.name), hero, skin };
     });
   }
 
@@ -333,7 +337,8 @@ const CityCore = (() => {
     const out = new Set();
     const tasks = (status && Array.isArray(status.activeTasks)) ? status.activeTasks : [];
     for (const t of tasks) {
-      if (t && t.status === 'running' && t.context && t.context.agentId) out.add(String(t.context.agentId));
+      // the DTO binds work by the agent's PUBLIC roster name; bodies spawn under that name
+      if (t && t.state === 'running' && t.agent) out.add(String(t.agent));
     }
     return out;
   }
@@ -349,6 +354,42 @@ const CityCore = (() => {
     return changes;
   }
 
+
+  /* OCCUPIED ROOM FRAME — which room the agents are BOUND to (desk/bay prop.agentId),
+     not where bodies happen to be standing at camera time. Transient spawn clustering
+     otherwise frames the empty spawn hab; bay bindings are the honest occupancy signal.
+     Densest bound room wins; ties go to the hero's room. Pure. */
+  function occupiedRoomFrame(rooms, props, tile) {
+    const T = tile || 12;
+    const rects = (rooms && typeof rooms === 'object' ? Object.values(rooms) : [])
+      .filter(r => r && Array.isArray(r.rects) && r.rects.length)
+      .map(r => ({ id: r.id, name: r.name, rect: r.rects[0] }))
+      .filter(r => r.rect && isFinite(r.rect.x1));
+    if (!rects.length) return null;
+    const counts = new Map(rects.map(r => [r.id, 0]));
+    let heroRoom = null;
+    for (const p of (Array.isArray(props) ? props : [])) {
+      if (!p || !p.agentId || !isFinite(p.x) || !isFinite(p.y)) continue;
+      for (const r of rects) {
+        const q = r.rect;
+        if (p.x >= q.x1 && p.x <= q.x2 + 1 && p.y >= q.y1 && p.y <= q.y2 + 1) {
+          counts.set(r.id, counts.get(r.id) + 1);
+          if (String(p.agentId).toUpperCase() === 'HEISENBERG') heroRoom = r.id;
+          break;
+        }
+      }
+    }
+    let best = rects[0], bestN = -1;
+    for (const r of rects) {
+      const n = counts.get(r.id);
+      if (n > bestN || (n === bestN && r.id === heroRoom)) { best = r; bestN = n; }
+    }
+    const q = best.rect;
+    return {
+      room: best.id, name: best.name || best.id, count: counts.get(best.id),
+      cx: ((q.x1 + q.x2 + 1) / 2) * T, cy: ((q.y1 + q.y2 + 1) / 2) * T
+    };
+  }
 
   /* OCCUPIED FRAME — bounding box (world pixels) around every placed agent body, padded, so
      the web surface can open the camera on the occupied buildings and visible agents instead
@@ -367,7 +408,7 @@ const CityCore = (() => {
     return { x0: x0 - m, y0: y0 - m, x1: x1 + m, y1: y1 + m, count: pts.length };
   }
 
-  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, occupiedFrame, WORLD_SKIN_POOL, MAP };
+  return { cityModel, flattenSlots, classifyStatus, seatCitizens, buildTaskPayload, normalizeTask, layoutCity, deriveActivity, agentPlacements, diffPlacements, activityFeed, walkPath, worldSpawnPlan, worldWorkSet, worldActivityDiff, occupiedFrame, occupiedRoomFrame, WORLD_SKIN_POOL, MAP };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = CityCore;

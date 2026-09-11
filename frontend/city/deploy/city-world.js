@@ -41,6 +41,7 @@
   }
 
   let spawned = false;
+  let lastWorld = null;   // the gateway world doc (rooms/props) — drives the boot camera
   function spawnBodies(citizens) {
     const plan = CityCore.worldSpawnPlan(citizens);
     if (!plan.length) return false;
@@ -50,6 +51,11 @@
         if (typeof registerAgent === 'function') registerAgent(p.id, undefined);
         if (p.hero) World.spawn({ id: p.id, name: p.name, skin: p.skin });
         else World.spawnAgent({ id: p.id, name: p.name, skin: p.skin });
+        // City-scale floors strand a fresh body at the spawn hab (only belt-fed bays pre-place via the
+        // routing plan) — a hundred tiles outside the zone its own desk/bay anchor computes, so the idle
+        // engine freezes it there. Re-foot it at its bound workstation, the same spot the desktop plan
+        // would have put it.
+        if (typeof World.placeAtWorkstation === 'function') World.placeAtWorkstation(p.id);
         if (typeof SPRITES !== 'undefined' && SPRITES.ensureSkin) SPRITES.ensureSkin(p.skin);
       } catch (_) { /* one broken body must not take down the city */ }
     }
@@ -91,6 +97,7 @@
       return s ? { mount: s.mount || null, stack: !!s.stack, surface: !!s.surface, flat: !!s.flat } : null;
     });
 
+    lastWorld = w.station;
     let station;
     try { station = WorldModel.deserialize(w.station); }
     catch (e) { fallback('The live world geometry could not be read (' + e.message + ').'); return; }
@@ -122,7 +129,12 @@
       try {
         if (typeof World.bodySnapshots !== 'function') return;
         const snaps = World.bodySnapshots();
-        const hero = snaps.find(b => b && b.placed && b.id === 'agent');
+        // Frame the densest BOUND room (bay/desk assignments — the honest occupancy signal),
+        // never the empty spawn hab bodies walk out of. Tie -> hero's room. Fallbacks: hero body,
+        // body bbox, whole-map fit.
+        const rf = (lastWorld && CityCore.occupiedRoomFrame) ? CityCore.occupiedRoomFrame(lastWorld.rooms, lastWorld.props, 12) : null;
+        if (rf && rf.count >= 1 && typeof World.centerView === 'function') { World.centerView(rf.cx, rf.cy, 2.7); return; }
+        const hero = snaps.find(b => b && b.placed && b.id === 'HEISENBERG') || snaps.find(b => b && b.placed);
         if (hero && typeof World.centerView === 'function') { World.centerView(hero.x, hero.y, 2.7); return; }
         if (typeof World.frameRect === 'function' && CityCore.occupiedFrame) {
           const f = CityCore.occupiedFrame(snaps);
@@ -130,7 +142,7 @@
         }
       } catch (_) { /* framing is a nicety, never a boot blocker */ }
     }, 2200);
-    note('Live world: ' + (w.station.meta && w.station.meta.name || "PAULI'S PLACE") + ' — agents walk only while the gateway reports a real running task.');
+    note('Live world: ' + (w.station.meta && w.station.meta.name || "PAULI'S PLACE") + ' — idle agents stroll their own area (desktop behavior); work runs bind to gateway-reported tasks.');
     applyStatus(status);
   }
 

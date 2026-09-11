@@ -1401,9 +1401,35 @@ const World = (() => {
   // the camera on where agents actually are. Positions only — no state beyond placed/unplaced.
   function bodySnapshots() {
     const out = [];
-    if (agent) out.push({ id: 'agent', x: agent.px, y: agent.py, placed: !agent.unplaced });
+    if (agent) out.push({ id: agent.id || 'agent', x: agent.px, y: agent.py, placed: !agent.unplaced });
     for (const b of crew) out.push({ id: b.id || 'crew', x: b.px, y: b.py, placed: !b.unplaced });
     return out;
+  }
+  /* placeAtWorkstation(id): re-foot a spawned body at its OWN bound workstation (desk first, then bay —
+     the same resolution anchorFor/zoneFor use) and pin its stable home there. syncCrewFromPlan only
+     pre-places BELT-FED bay bodies; on a city-scale floor (9 districts, workstations a hundred tiles
+     from the spawn hab) a beltless-bay roster body materializes at the spawn ring, OUTSIDE the zone its
+     own anchor computes — every idle picker then comes up empty and the body freezes in the hab. The
+     public city surface calls this once per rostered citizen right after spawn; desktop boots are
+     unchanged (their belted bays already place bodies through the plan). Mirrors syncCrewFromPlan's
+     bay-foot placement exactly (south PropAnchor approach, bottom-centre fallback). */
+  function placeAtWorkstation(id) {
+    if (!geo || !id) return false;
+    const body = (agent && agent.id === id) ? agent : crew.find(b => b && b.id === id);
+    if (!body || body.unplaced) return false;
+    const wp = deskPropFor(id) || (geo.props && geo.props.find(pp => pp.t === 'bay' && pp.agentId === id));
+    if (!wp) return false;
+    let f = null;
+    if (typeof PropAnchor !== 'undefined') {
+      const a = PropAnchor.deriveAnchor(wp, geo, { approach: 'south', extra: blocked });
+      if (a) f = footOf(a.tx, a.ty);
+    }
+    if (!f) f = { x: (wp.x + ((wp.w || 1) > 1 ? 1 : 0)) * T + T / 2, y: (wp.y + (wp.h || 1) - 1) * T + T - 1 };
+    body.px = f.x; body.py = f.y;
+    body.seatPx = f.x; body.seatPy = f.y;
+    body.home = tileOf(f.x, f.y);
+    body.target = null; body.pathPts = null; body.pathIdx = 0;
+    return true;
   }
   // the Turn: the newborn finds the Commander — head leads, then the body pivots north -> side -> south and holds your gaze
   function awakenTurn() {
@@ -9052,7 +9078,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {

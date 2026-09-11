@@ -47,36 +47,31 @@ for (const a of roster.agents) {
 A.eq(CityCore.classifyStatus(null).mode, 'offline', 'no payload is offline, never live');
 A.eq(CityCore.classifyStatus({}).mode, 'degraded', 'empty payload is not live');
 A.eq(CityCore.classifyStatus({ degraded: true }).mode, 'degraded', 'degraded flag honored');
-A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mode, 'live', 'proven online health is live');
-A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'unrecognized health is not upgraded to live');
+A.eq(CityCore.classifyStatus({ live: true, citizens: [] }).mode, 'live', 'the DTO live flag is the only live signal');
+A.eq(CityCore.classifyStatus({ live: false }).mode, 'degraded', 'not-live is never upgraded');
+A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mode, 'degraded', 'a raw gateway shape is NOT live - only the sanitized DTO counts');
 // activeTasks must survive classifyStatus - updateActivity merges them into movement;
 // dropping them froze every token on the live map (caught by live pixel verification).
 {
-  const cs = CityCore.classifyStatus({ health: { status: 'online' }, citizens: [], activeTasks: [{ id: 't1', status: 'running', task: 'probe', context: { district: 'commerce', building: 'commerce_factory', slot: 'operator', agentId: 'ecom-merci' } }] });
-  A.eq(cs.activeTasks.length, 1, 'classifyStatus carries activeTasks through');
-  const model2 = CityCore.cityModel(CityOS);
-  const layout2 = CityCore.layoutCity(model2);
-  const seating2 = CityCore.seatCitizens(model2, [{ agentId: 'ecom-merci', name: 'MERCI', role: 'operator', district: 'commerce' }]);
-  const act2 = CityCore.deriveActivity({ missions: [].concat(cs.activeTasks), tasks: [] });
-  const pl2 = CityCore.agentPlacements(model2, layout2, seating2, act2);
-  const merci = pl2.find(p => p.agentId === 'ecom-merci');
-  A.ok(merci && merci.working === true, 'a running gateway activeTask marks its agent working (end-to-end through classifyStatus)');
+  const cs = CityCore.classifyStatus({ live: true, citizens: [{ name: 'MERCI', role: 'operator', district: 'commerce' }], activity: [{ event: 'ev_1', state: 'running', agent: 'MERCI', summary: 'probe', startedAgoMin: 2, receipt: false }] });
+  A.eq(cs.activeTasks.length, 1, 'classifyStatus carries the DTO activity through');
+  A.eq(cs.citizens[0].name, 'MERCI', 'DTO citizens ride through by public name');
 }
 
 // activityFeed: the all-viewers gateway feed is the same activeTasks the map moves on -
 // normalized, newest first, capped, statuses verbatim, receipts carried.
 {
   const feed = CityCore.activityFeed({ activeTasks: [
-    { id: 'old', status: 'failed', task: 'earlier task', receiptId: 'r-old', startedAt: '2026-09-11T07:00:00Z', completedAt: '2026-09-11T07:05:00Z' },
-    { id: 'new', status: 'running', task: 'current task', receipt: { receipt_id: 'r-new' }, startedAt: '2026-09-11T07:10:00Z' }
+    { event: 'ev_old', state: 'failed', agent: 'MERCI', summary: 'earlier task', receipt: true, startedAgoMin: 20, settledAgoMin: 15 },
+    { event: 'ev_new', state: 'running', agent: 'HEISENBERG', summary: 'current task', receipt: false, startedAgoMin: 3 }
   ] });
   A.eq(feed.length, 2, 'feed carries both entries');
-  A.eq(feed[0].id, 'new', 'newest first');
-  A.eq(feed[0].receiptId, 'r-new', 'receipt id from nested receipt object');
+  A.eq(feed[0].id, 'ev_new', 'newest (smallest age) first');
+  A.eq(feed[1].receipted, true, 'receipt presence carried as a boolean');
   A.eq(feed[1].status, 'failed', 'failed stays failed - verbatim, never dressed up');
-  A.eq(feed[1].completedAt, '2026-09-11T07:05:00Z', 'completedAt carried for the settled line');
+  A.eq(feed[1].settledAgoMin, 15, 'settled age carried for the settled line');
   A.eq(CityCore.activityFeed(null).length, 0, 'no status means an honestly empty feed');
-  A.eq(CityCore.activityFeed({ activeTasks: Array.from({ length: 30 }, (_, i) => ({ id: 't' + i, startedAt: '2026-09-11T07:' + String(i).padStart(2, '0') + ':00Z' })) }).length, 20, 'feed capped at 20');
+  A.eq(CityCore.activityFeed({ activeTasks: Array.from({ length: 30 }, (_, i) => ({ event: 'ev_' + i, startedAgoMin: i })) }).length, 20, 'feed capped at 20');
 }
 // source-locked wiring: the panel sections, the map-header line, and the poll calls.
 {
@@ -124,27 +119,27 @@ A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'un
 // worldSpawnPlan: hero identity + deterministic neutral skins, roster-truthful.
 {
   const plan = CityCore.worldSpawnPlan([
-    { id: 'ecom-merci', name: 'MERCI' }, { id: 'agent', name: 'HEISENBERG' }, { id: 'ecom-ledger', name: 'LEDGER' }
+    { name: 'MERCI', role: 'operator' }, { name: 'HEISENBERG', role: 'orchestrator', hero: true }, { name: 'LEDGER', role: 'treasurer' }
   ]);
-  A.eq(plan[0], { id: 'agent', name: 'HEISENBERG', hero: true, skin: 'heisenberg' }, 'the orchestrator is the hero with its namesake skin');
+  A.eq(plan[0], { id: 'HEISENBERG', name: 'HEISENBERG', hero: true, skin: 'heisenberg' }, 'the orchestrator is the hero with its namesake skin, bodied under its public name');
   A.eq(plan.length, 3, 'every citizen gets a body');
   A.ok(plan[1].hero === false && plan[1].skin !== 'heisenberg', 'crew never wears the hero skin');
   A.eq(CityCore.worldSpawnPlan([]).length, 0, 'empty roster spawns nobody - no invented agents');
-  A.eq(CityCore.worldSpawnPlan([{ id: 'ecom-merci' }])[0].skin, CityCore.WORLD_SKIN_POOL[0], 'a non-Heisenberg hero draws from the neutral pool');
+  A.eq(CityCore.worldSpawnPlan([{ name: 'MERCI', role: 'operator' }])[0].skin, CityCore.WORLD_SKIN_POOL[0], 'a non-Heisenberg hero draws from the neutral pool');
 }
 
 // worldActivityDiff: bodies work iff the gateway shows a running task naming them.
 {
   const running = { activeTasks: [
-    { id: 't1', status: 'running', context: { agentId: 'agent' } },
-    { id: 't2', status: 'failed', context: { agentId: 'ecom-merci' } },
-    { id: 't3', status: 'completed', context: { agentId: 'ecom-ledger' } }
+    { event: 'ev_1', state: 'running', agent: 'HEISENBERG' },
+    { event: 'ev_2', state: 'failed', agent: 'MERCI' },
+    { event: 'ev_3', state: 'completed', agent: 'LEDGER' }
   ] };
-  A.eq(Array.from(CityCore.worldWorkSet(running)), ['agent'], 'only RUNNING tasks light a body');
-  A.eq(CityCore.worldActivityDiff({}, running, ['agent', 'ecom-merci']), [{ id: 'agent', kind: 'task' }], 'task start seizes exactly the named body');
-  A.eq(CityCore.worldActivityDiff({ agent: true }, running, ['agent']), [], 'a still-running task is not re-seized');
-  A.eq(CityCore.worldActivityDiff({ agent: true }, { activeTasks: [] }, ['agent']), [{ id: 'agent', kind: 'idle' }], 'task settle releases the body back to idle');
-  A.eq(CityCore.worldActivityDiff({}, { activeTasks: [{ id: 't9', status: 'running' }] }, ['agent']), [], 'a task without an agentId moves nobody');
+  A.eq(Array.from(CityCore.worldWorkSet(running)), ['HEISENBERG'], 'only RUNNING tasks light a body');
+  A.eq(CityCore.worldActivityDiff({}, running, ['HEISENBERG', 'MERCI']), [{ id: 'HEISENBERG', kind: 'task' }], 'task start seizes exactly the named body');
+  A.eq(CityCore.worldActivityDiff({ HEISENBERG: true }, running, ['HEISENBERG']), [], 'a still-running task is not re-seized');
+  A.eq(CityCore.worldActivityDiff({ HEISENBERG: true }, { activeTasks: [] }, ['HEISENBERG']), [{ id: 'HEISENBERG', kind: 'idle' }], 'task settle releases the body back to idle');
+  A.eq(CityCore.worldActivityDiff({}, { activeTasks: [{ event: 'ev_9', state: 'running' }] }, ['HEISENBERG']), [], 'a task without a public agent name moves nobody');
 }
 
 // occupiedFrame: the boot camera frames occupied buildings + visible agents, honestly.
@@ -192,6 +187,42 @@ A.eq(CityCore.classifyStatus({ health: { status: 'ok' } }).mode, 'degraded', 'un
   A.ok(app.includes('function centerView(') && app.includes('frameRect, centerView, bodySnapshots,'), 'world.js exports centerView for the boot camera');
   const css = fs.readFileSync(__dirname + '/../frontend/city/city.css', 'utf8');
   A.ok(css.includes('#nl-badge-frame'), 'the Netlify HUD is tucked out of the play space');
+}
+
+// occupiedRoomFrame: the boot camera frames the densest BAY-BOUND room, ties to the hero.
+{
+  const rooms = {
+    r1: { id: 'r1', name: 'HAB-01', rects: [{ x1: 0, y1: 0, x2: 17, y2: 10 }] },
+    r2: { id: 'r2', name: 'COMMERCE FACTORY', rects: [{ x1: 30, y1: 0, x2: 47, y2: 10 }] }
+  };
+  const props = [
+    { t: 'desk', x: 5, y: 2, agentId: 'HEISENBERG' },
+    { t: 'bay', x: 33, y: 8, agentId: 'MERCI' },
+    { t: 'bay', x: 36, y: 8, agentId: 'BEACON' },
+    { t: 'bay', x: 39, y: 8, agentId: 'HERALD' },
+    { t: 'crate', x: 10, y: 8 },
+    { t: 'bay', x: 200, y: 200, agentId: 'GHOST' }
+  ];
+  const f = CityCore.occupiedRoomFrame(rooms, props, 12);
+  A.eq(f.room, 'r2', 'the densest bay-bound room wins - not the spawn hab bodies walk out of');
+  A.eq(f.count, 3, 'bound props counted per room');
+  A.eq(f.cx, ((30 + 47 + 1) / 2) * 12, 'the camera targets the room pixel center');
+  const tie = CityCore.occupiedRoomFrame(rooms, props.slice(0, 2), 12);
+  A.eq(tie.room, 'r1', 'a tie goes to the hero-bound room');
+  A.eq(CityCore.occupiedRoomFrame(rooms, [], 12).room, 'r1', 'no bindings still yields a valid target');
+  A.eq(CityCore.occupiedRoomFrame({}, props, 12), null, 'no rooms means no frame');
+}
+// dressing: buildings get machinery/cables/clutter/light through the real props catalog.
+{
+  const fs = require('fs');
+  const src = fs.readFileSync(__dirname + '/../frontend/app/cityos.js', 'utf8');
+  A.ok(src.includes('function placeDressing'), 'CityOS owns the dressing pass');
+  A.ok(src.includes("dressing: ['cablerun'"), 'templates carry catalog dressing');
+  const plan = require('child_process').execSync('node ' + __dirname + '/../scripts/compile-city.js /tmp/city-test-station.json').toString();
+  const doc = JSON.parse(require('fs').readFileSync('/tmp/city-test-station.json', 'utf8'));
+  const types = new Set(doc.props.map(p => p.t));
+  A.ok(types.has('cablerun') && types.has('arc_floorlight') && types.has('steamvent'), 'the compiled city carries dressing props');
+  A.ok(doc.props.length > 100, 'no building is a sparse hangar (' + doc.props.length + ' props)');
 }
 
 // --- seating honesty ---

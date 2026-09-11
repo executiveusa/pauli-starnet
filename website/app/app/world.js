@@ -1373,6 +1373,64 @@ const World = (() => {
   function camCreep() { if (!cache || !agent || agent.unplaced || camAnim || !awakeFrozen) return; const [s, x, y] = camCenterOn(agent.px, agent.py - 4, scale * 1.035); camTweenTo(s, x, y, 600); }   // a hair closer with each truth — ceremony-only (the deferred interview must never steal the live camera)
   function camPunch() { if (!agent || agent.unplaced || camAnim) return; const b = scale; const [s1, x1, y1] = camCenterOn(agent.px, agent.py - 4, b * 1.06); const [s0, x0, y0] = camCenterOn(agent.px, agent.py - 4, b); camTweenTo(s1, x1, y1, 150, t => t, () => camTweenTo(s0, x0, y0, 240)); }   // eyes finding yours
   function camPullBack() { if (!cache) return; const W = cache.W, H = cache.H; const s = clampz(Math.min(cv.width / W, cv.height / H), MINZ, MAXZ); camTweenTo(s, (cv.width - W * s) / 2, (cv.height - H * s) / 2, 1700); }   // recompute fit at fire time -> no jump on release
+  // frameRect(x0,y0,x1,y1,margin): fit the camera on a WORLD-space rect. The live city surface
+  // uses it at boot to open on the occupied buildings + visible agents instead of the empty
+  // architecture a whole-map fit frames. Direct set, no tween — it runs before the user has a
+  // view worth preserving, and it cancels the pending fit-all so fitCamera can't override it.
+  function frameRect(x0, y0, x1, y1, margin) {
+    if (!cache || !cv) return false;
+    const m = (typeof margin === 'number') ? margin : 48;
+    const w = Math.max(1, x1 - x0) + 2 * m, h = Math.max(1, y1 - y0) + 2 * m;
+    const s = clampz(Math.min(Math.min(cv.width / w, cv.height / h), 2.4), MINZ, MAXZ);
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    scale = s; panX = cv.width / 2 - cx * s; panY = cv.height / 2 - cy * s;
+    fitNeeded = false; fitW = cv.width; fitH = cv.height;
+    return true;
+  }
+  // centerView(px,py,sc): aim the camera at a world point at an explicit zoom. The live city
+  // surface boots on the occupied hero building at a readable desktop-like zoom this way.
+  // Uses cv.width/height (device px) exactly like fitCamera, so DPR handling is identical.
+  function centerView(px, py, sc) {
+    if (!cache || !cv) return false;
+    scale = clampz((typeof sc === 'number' && sc > 0) ? sc : 2.6, MINZ, MAXZ);
+    panX = cv.width / 2 - px * scale; panY = cv.height / 2 - py * scale;
+    fitNeeded = false; fitW = cv.width; fitH = cv.height;
+    return true;
+  }
+  // bodySnapshots(): live positions of every placed body (hero + crew) so callers can frame
+  // the camera on where agents actually are. Positions only — no state beyond placed/unplaced.
+  function bodySnapshots() {
+    const out = [];
+    if (agent) out.push({ id: agent.id || 'agent', x: agent.px, y: agent.py, placed: !agent.unplaced });
+    for (const b of crew) out.push({ id: b.id || 'crew', x: b.px, y: b.py, placed: !b.unplaced });
+    return out;
+  }
+  /* placeAtWorkstation(id): re-foot a spawned body at its OWN bound workstation (desk first, then bay —
+     the same resolution anchorFor/zoneFor use) and pin its stable home there. syncCrewFromPlan only
+     pre-places BELT-FED bay bodies; on a city-scale floor (9 districts, workstations a hundred tiles
+     from the spawn hab) a beltless-bay roster body materializes at the spawn ring, OUTSIDE the zone its
+     own anchor computes — every idle picker then comes up empty and the body freezes in the hab. The
+     public city surface calls this once per rostered citizen right after spawn; desktop boots are
+     unchanged (their belted bays already place bodies through the plan). Mirrors syncCrewFromPlan's
+     bay-foot placement exactly (south PropAnchor approach, bottom-centre fallback). */
+  function placeAtWorkstation(id) {
+    if (!geo || !id) return false;
+    const body = (agent && agent.id === id) ? agent : crew.find(b => b && b.id === id);
+    if (!body || body.unplaced) return false;
+    const wp = deskPropFor(id) || (geo.props && geo.props.find(pp => pp.t === 'bay' && pp.agentId === id));
+    if (!wp) return false;
+    let f = null;
+    if (typeof PropAnchor !== 'undefined') {
+      const a = PropAnchor.deriveAnchor(wp, geo, { approach: 'south', extra: blocked });
+      if (a) f = footOf(a.tx, a.ty);
+    }
+    if (!f) f = { x: (wp.x + ((wp.w || 1) > 1 ? 1 : 0)) * T + T / 2, y: (wp.y + (wp.h || 1) - 1) * T + T - 1 };
+    body.px = f.x; body.py = f.y;
+    body.seatPx = f.x; body.seatPy = f.y;
+    body.home = tileOf(f.x, f.y);
+    body.target = null; body.pathPts = null; body.pathIdx = 0;
+    return true;
+  }
   // the Turn: the newborn finds the Commander — head leads, then the body pivots north -> side -> south and holds your gaze
   function awakenTurn() {
     if (!agent) return;
@@ -9020,7 +9078,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {
