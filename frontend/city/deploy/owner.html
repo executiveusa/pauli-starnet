@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pauli's Place — Owner</title>
+<link rel="stylesheet" href="city.css">
+<style>
+  body { padding: 18px; font-family: 'VT323', 'Courier New', monospace; }
+  .ownwrap { max-width: 860px; margin: 0 auto; display: grid; gap: 14px; }
+  .card { border: 1px solid rgba(120,220,255,.25); background: rgba(8,14,20,.85); padding: 12px 14px; border-radius: 6px; }
+  .card h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: .12em; color: #9fdcff; }
+  .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  .instr { text-align: center; } .instr b { display: block; font-size: 26px; color: #eaffff; }
+  .instr span { font-size: 12px; letter-spacing: .15em; opacity: .7; }
+  input[type=password], textarea, select { width: 100%; background: #05090d; color: #d7f4ff; border: 1px solid rgba(120,220,255,.3); padding: 8px; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+  textarea { min-height: 90px; resize: vertical; }
+  button { background: #123; color: #9fdcff; border: 1px solid rgba(120,220,255,.4); padding: 8px 18px; font-family: inherit; font-size: 16px; letter-spacing: .1em; cursor: pointer; }
+  button:hover { background: #1a2a3a; }
+  .crewrow { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed rgba(120,220,255,.12); font-size: 15px; }
+  .ok { color: #7dffb0; } .bad { color: #ff8a8a; } .muted { opacity: .65; font-size: 13px; }
+  #composer-out { font-size: 14px; min-height: 18px; }
+</style>
+</head>
+<body>
+<div class="ownwrap">
+  <div class="card"><h2>OWNER MODE — PAULI'S PLACE</h2>
+    <div class="muted">Authenticated control surface. The public city stays read-only; this page talks only to the session-gated owner function. Spend and destructive actions are not here — they stay behind the desktop app's approval gates. <a style="color:#9fdcff" href="/">← back to the public city</a></div>
+  </div>
+
+  <div class="card" id="login-card" hidden>
+    <h2>UNLOCK</h2>
+    <form id="login-form"><input type="password" id="login-secret" autocomplete="current-password" placeholder="owner secret" required><br><br>
+    <button type="submit">UNLOCK</button> <span id="login-out" class="bad"></span></form>
+  </div>
+
+  <div id="owner-panels" hidden>
+    <div class="card"><h2>INSTRUMENTS</h2><div class="row" id="instruments"></div></div>
+    <div class="card"><h2>CREW</h2><div id="crew"></div></div>
+    <div class="card"><h2>TASK COMPOSER</h2>
+      <textarea id="task-text" maxlength="2000" placeholder="task for Heisenberg…"></textarea><br><br>
+      <div class="row">
+        <select id="task-district"><option value="">district…</option><option>command</option><option>commerce</option><option>intelligence</option><option>creative</option><option>ops</option></select>
+        <select id="task-slot"><option value="">slot…</option><option>orchestrator</option><option>researcher</option><option>operator</option><option>optimizer</option><option>publisher</option><option>treasurer</option><option>engineer</option><option>analyst</option></select>
+        <button id="task-send" type="button">DISPATCH</button>
+      </div>
+      <div id="composer-out"></div>
+    </div>
+    <div class="card"><h2>ACTIVITY (gateway receipts)</h2><div id="activity"></div></div>
+    <div class="card"><button id="logout" type="button">LOCK</button></div>
+  </div>
+</div>
+<script>
+const FN = '/.netlify/functions/owner';
+const GW = '/.netlify/functions/gw';
+const $ = s => document.querySelector(s);
+async function j(r) { try { return await r.json(); } catch (_) { return {}; } }
+async function boot() {
+  const s = await j(await fetch(FN + '/session', { cache: 'no-store' }));
+  if (s.owner) { $('#owner-panels').hidden = false; refresh(); }
+  else $('#login-card').hidden = false;
+}
+$('#login-form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const r = await fetch(FN + '/login', { method: 'POST', body: JSON.stringify({ secret: $('#login-secret').value }) });
+  if (r.ok) { $('#login-card').hidden = true; $('#owner-panels').hidden = false; refresh(); }
+  else { const d = await j(r); $('#login-out').textContent = d.error === 'owner mode not configured' ? 'owner mode not configured on this deployment yet' : 'wrong secret'; }
+});
+$('#logout').addEventListener('click', async () => { await fetch(FN + '/logout', { method: 'POST' }); location.reload(); });
+$('#task-send').addEventListener('click', async () => {
+  const out = $('#composer-out'); out.className = ''; out.textContent = '…';
+  const r = await fetch(FN + '/tasks', { method: 'POST', body: JSON.stringify({ task: $('#task-text').value, context: { district: $('#task-district').value, slot: $('#task-slot').value } }) });
+  const d = await j(r);
+  if (r.ok) { out.className = 'ok'; out.textContent = 'accepted · receipt: ' + (d.receipt ? 'yes' : 'pending'); $('#task-text').value = ''; setTimeout(refresh, 3000); }
+  else { out.className = 'bad'; out.textContent = d.error || ('failed (' + r.status + ')'); }
+});
+async function refresh() {
+  const s = await j(await fetch(GW + '/v1/city/status', { cache: 'no-store' }));
+  const on = (s.citizens || []).filter(c => c.status === 'online').length;
+  $('#instruments').innerHTML = [
+    ['STATE', s.live ? '<b class="ok">LIVE</b>' : '<b class="bad">DEGRADED</b>'],
+    ['CREW ONLINE', '<b>' + on + ' / ' + (s.citizens || []).length + '</b>'],
+    ['RECENT RUNS', '<b>' + (s.activity || []).length + '</b>'],
+    ['UPDATED', '<b>' + (s.generatedAgoMin === 0 ? 'just now' : (s.generatedAgoMin || '?') + ' min ago') + '</b>']
+  ].map(([k, v]) => '<div class="instr">' + v + '<span>' + k + '</span></div>').join('');
+  $('#crew').innerHTML = (s.citizens || []).map(c =>
+    '<div class="crewrow"><span>' + c.name + (c.hero ? ' ★' : '') + ' <span class="muted">' + (c.role || '') + ' · ' + (c.district || '') + '</span></span><span class="' + (c.status === 'online' ? 'ok' : 'bad') + '">' + c.status + '</span></div>').join('') || '<div class="muted">no roster</div>';
+  $('#activity').innerHTML = (s.activity || []).map(t =>
+    '<div class="crewrow"><span>[' + (t.category || 'task') + '] ' + (t.agent || '—') + ' <span class="muted">' + (t.startedAgoMin === 0 ? 'just now' : (t.startedAgoMin == null ? '' : t.startedAgoMin + ' min ago')) + '</span></span><span>' + t.state + (t.receipt ? ' · receipt' : '') + '</span></div>').join('') || '<div class="muted">no recent gateway activity</div>';
+}
+boot();
+</script>
+</body>
+</html>
