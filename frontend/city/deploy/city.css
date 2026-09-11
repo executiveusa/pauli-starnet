@@ -72,3 +72,11 @@ dialog .row { display: flex; gap: 10px; margin-top: 10px; }
 #panel-close:hover { color: var(--ink); border-color: var(--line); }
 body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(--accent); }
 #netlify-badge { display: none !important; }
+/* Netlify HUD: tucked out of the play space (Netlify documents per-project off + visitor
+   dismissal; the durable UI toggle is Project configuration > General > Powered by Netlify
+   badge, which the sites API does not expose as writable). */
+#nl-badge-frame { display: none !important; }
+@media (max-width: 700px) {
+  header { gap: 6px; }
+  header .ghostbtn { padding: 3px 7px; font-size: 14px; }
+}
