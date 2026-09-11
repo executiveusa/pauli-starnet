@@ -41,7 +41,7 @@
       const payload = await r.json();
       const c = CityCore.classifyStatus(payload);
       state.status = c;
-      setMode(c.mode, c.label + (c.generatedAt ? ' · ' + new Date(c.generatedAt).toLocaleTimeString() : ''));
+      setMode(c.mode, c.label + (c.generatedAgoMin != null ? (c.generatedAgoMin < 1 ? ' · just now' : ' · ' + c.generatedAgoMin + ' min ago') : ''));
       renderFeed(); renderLastAct();
       for (const fn of subs) { try { fn(c); } catch (_) {} }
       if (window.CityWorld && window.CityWorld.applyStatus) { try { window.CityWorld.applyStatus(c); } catch (_) {} }
@@ -65,9 +65,10 @@
       head.appendChild(document.createTextNode(' ' + (t.label || '').slice(0, 140)));
       row.appendChild(head);
       const meta = [];
-      if (t.receiptId) meta.push('receipt ' + t.receiptId);
-      if (t.startedAt) meta.push(new Date(t.startedAt).toLocaleTimeString());
-      if (t.completedAt) meta.push('settled ' + new Date(t.completedAt).toLocaleTimeString());
+      if (t.agent) meta.push(t.agent);
+      if (t.receipted) meta.push('receipted');
+      if (t.startedAgoMin != null) meta.push(t.startedAgoMin < 1 ? 'just now' : t.startedAgoMin + ' min ago');
+      if (t.settledAgoMin != null) meta.push('settled ' + (t.settledAgoMin < 1 ? 'just now' : t.settledAgoMin + ' min ago'));
       row.appendChild(el('div', 'meta', meta.join(' · ')));
       list.appendChild(row);
     }
@@ -79,8 +80,7 @@
     const items = CityCore.activityFeed(state.status, 1);
     if (!items.length) { n.textContent = ''; return; }
     const t = items[0];
-    const when = t.completedAt || t.startedAt;
-    const ago = when ? Math.max(0, Math.round((Date.now() - new Date(when).getTime()) / 60000)) : null;
+    const ago = t.settledAgoMin != null ? t.settledAgoMin : t.startedAgoMin;
     n.textContent = ' — last gateway activity: ' + t.status + (ago != null ? ' · ' + (ago < 1 ? 'just now' : ago + ' min ago') : '');
   }
 
