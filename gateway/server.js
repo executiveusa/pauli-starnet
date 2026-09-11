@@ -173,6 +173,10 @@ function runToCompletion(agentId, message, context) {
       // Without this flag the loop got tools:[] - the model saw capabilities in its prompt but had no
       // wire tools, so it NARRATED tool calls in text and zero executed (research lane, 2026-09-11).
       isTask: true,
+      // SLIM RESEARCH WIRE: dish-only gateway tasks run the least-privilege profile (sidecar/task-profile.js) —
+      // grants+wire shrink to web_search/web_fetch, everything else fail-closed withheld. Keeps the request
+      // small enough for free-tier per-minute input caps (measured 16,969 -> target <7k tokens).
+      taskClass: 'web-research',
       // THE CITY STATION HAS A DISH PLACED: object = capability (sidecar/capability/registry.js
       // maps dish -> web_search/web_fetch, read-scope, network, no consent). /api/run composes a
       // compute-only office on the interactive surface unless the floor's placed props ride the

@@ -94,7 +94,8 @@ const { makeCapCtx } = require('./capability/capGate.js');
 const { composeOffice, stationWithObject, stationWithConnectors } = require('./capability/office.js');   // THE MOAT: interactive office = compute freebie + placed caps
 const { summarizeCapabilities } = require('./capability/capsummary.js');   // truthful "what you can/can't do" so the agent stops over-promising
 const { starnetManual } = require('./manual.js');   // truthful "how StarNet works" so the agent can guide a stuck Commander (interactive only)
-const FinishLine = require('./finish-line.js');     // immutable "crawl to the finish line" task doctrine at the final prompt seam
+const FinishLine = require('./finish-line.js');
+const TaskProfile = require('./task-profile.js');       // slim least-privilege run profiles (web-research lane)     // immutable "crawl to the finish line" task doctrine at the final prompt seam
 const { makeHarnessSnapshot } = require('./harness-snapshot.js');   // bounded secret-free build/scheduler/connectors/diagnostics truth for station.inspect
 const { makeOpenRouterProvider } = require('./providers/openrouter.js');
 const edgetts = require('./edgetts.js');   // V-EDGE: free keyless neural TTS floor (decoupled from the LLM provider)
@@ -13687,6 +13688,7 @@ async function handleRun(req, res) {
       // the work as unscoped rather than asserting a folder relationship the grant layer can't back.
       projectRoot: projectBlessed ? projectRootRaw : '',
       preloadSkills,
+      taskClass: body && body.taskClass,   // slim-profile gate: the gateway marks dish-only research dispatches 'web-research'
       extraObjects,    // a placed WORKBENCH -> shell.exec + verify.run, additive on the default office
       stationObjects,  // Class Loadouts (shared-gear): station-wide gear for SKILL availability (tools stay room-scoped)
       /* MEMORY FORMS ON EVERY REAL RUN. This flag used to be set HERE ALONE, with the rationale "only the WATCHED
@@ -13796,6 +13798,7 @@ async function runOnce(o) {
   }
   const internal = !!o.internal;   // reason-only self-talk: system prompt stays VERBATIM, no memory/transcript injection
   let isTask = !!o.isTask;
+  const slimResearch = TaskProfile.isSlimResearchRun(o, isTask);   // headless web-research lane: grants+wire cut to web_search/web_fetch below
   // A short channel reply such as "operators" is not independently task-shaped. Durable brief continuity is
   // stronger evidence than the generic classifier, so resume it as task work without asking the user to restate it.
   if (!isTask && o.taskKey) {
@@ -14617,6 +14620,7 @@ async function runOnce(o) {
   resolved = enforceSyntheticOnly(resolved, realDesktopAuthority);
   resolved = enforceRunAuthority(resolved, registry, userControlAuthority);
   resolved = enforceEnabledToolsets(resolved, registry, unrestrictedHostNow() ? null : o.enabledToolsets);
+  if (slimResearch) resolved = TaskProfile.slimResearchToolset(resolved);   // everything not web_search/web_fetch becomes WITHHELD (fail-closed)
   if (imageTask) {
     const imageRoomId = station.agents && station.agents[agentId] && station.agents[agentId].room;
     const imageRoom = imageRoomId && station.rooms && station.rooms[imageRoomId];
@@ -15475,7 +15479,7 @@ async function runOnce(o) {
   // the browser pushed via /api/roster) AND SUMMON new specialists (team.summon). Only the lead gets this (it alone
   // gets the orchestrator object above); a non-lead worker stays byte-identical (empty) so it can never re-delegate.
   let teamNote = '';
-  if (o.lead) {
+  if (o.lead && !slimResearch) {   // slim research runs grant no team.* tools, so the orchestration doctrine would lie
     teamNote = '\n\n[ORCHESTRATION] You are the lead orchestrator. You can build and direct a crew for the Commander:';
     const lines = [];
     // S3: each crew line carries that specialist's EARNED track record when it has one (browser-computed,
@@ -15542,12 +15546,12 @@ async function runOnce(o) {
     // Class Loadouts S1: union the running agent's per-agent class SKILL PACKAGE (roster record) with the global
     // prefs — ADD-only (see catalog.compose). Still gated by the station gear + the budget; package composes first.
     const agentSkills = (rosterIdent && Array.isArray(rosterIdent.skills)) ? rosterIdent.skills : [];
-    skillBlock = skillsCatalog.compose(SKILL_LIBRARY, { overrides: skillPrefs.overrides(), placedTypes: skillPlacedTypes, agentSkills: agentSkills });
+    if (!slimResearch) skillBlock = skillsCatalog.compose(SKILL_LIBRARY, { overrides: skillPrefs.overrides(), placedTypes: skillPlacedTypes, agentSkills: agentSkills });   // slim: no skill tools granted, no library advertised
   } catch (_) { /* a skill-injection hiccup must never break a run */ }
   // STARNET OPERATOR MANUAL: how the station works, so the agent can guide a stuck Commander. Interactive
   // only (same gate as capsummary — a Commander is present to help and the build UI exists). Sits right
   // BEFORE the authoritative <capabilities_ground_truth>, which it defers to, so the two never disagree.
-  const manualBlock = (surface === 'interactive') ? starnetManual() : '';
+  const manualBlock = (surface === 'interactive' && !slimResearch) ? starnetManual() : '';   // slim: the operator manual serves a present Commander, not a headless research run
   const runtimeVersion = computeVersionSurface();
   const runtimeBlock = runtimeIdentityBlock({ provider: providerId, model, agentId, runId, surface, trigger, fallbackModels, harness: runtimeVersion.harness, app: runtimeVersion.app });
   // RUNTIME SKILL LIBRARY (skill-builder-gap): index the agent's own authored skills + preload any it invokes,
