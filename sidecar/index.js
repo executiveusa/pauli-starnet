@@ -72,6 +72,7 @@ const spotifyPkce = require('./spotify/pkce.js');                          // pu
 const { makeSaveStore } = require('./savestore.js');
 const { mergeNotes } = require('./notebookrestore.js');
 const { makeRunStore } = require('./runstore.js');
+const routePolicy = require('./providers/route-policy.js');   // Heisenberg model-route policy (opt-in; inert unless STARNET_ROUTE_POLICY=heisenberg-v1)
 const { makeGrowthRatings, deriveRating: deriveGrowthRating } = require('./growthratings.js');
 const { makeAutonomyLedger } = require('./autonomy-ledger.js');   // NS-0: durable append-only ledger of autonomy decisions
 const { makeArtifactCollector } = require('./artifacts.js');   // work-visibility: per-run "what did it produce" ledger
@@ -13816,14 +13817,36 @@ async function runOnce(o) {
   // (identityFallback) so the gap is visible in history instead of the run silently masquerading as that agent.
   const identityFallback = !rosterIdent && String(agentId || '') !== '' && String(agentId || '') !== 'agent';
   if (identityFallback) warnRosterMiss(agentId, 'runOnce');
-  const providerId = normalizeProvider(o.provider || (rosterIdent && rosterIdent.provider) || '');
-  const usingCodex = providerUsesCodex(providerId);
-  const usingDeviceOAuth = providerUsesDeviceOAuth(providerId);
-  const providerUnmetered = !!((getProviderProfile(providerId) || {}).unmetered);
+  let providerId = normalizeProvider(o.provider || (rosterIdent && rosterIdent.provider) || '');
+  let usingCodex = providerUsesCodex(providerId);
+  let usingDeviceOAuth = providerUsesDeviceOAuth(providerId);
+  let providerUnmetered = !!((getProviderProfile(providerId) || {}).unmetered);
   // Class Loadouts S1: reasoning-effort precedence = explicit run-option > this agent's roster record (the class
   // applied default) > provider default. An explicit per-run choice still wins; the roster only fills a gap.
-  const reasoningEffort = resolveReasoningEffort(providerId, o.reasoningEffort || o.reasoning_effort || (o.reasoning && o.reasoning.effort) || (rosterIdent && rosterIdent.reasoningEffort));
+  let reasoningEffort = resolveReasoningEffort(providerId, o.reasoningEffort || o.reasoning_effort || (o.reasoning && o.reasoning.effort) || (rosterIdent && rosterIdent.reasoningEffort));
   let model = String((o && o.model) || '').trim() || (rosterIdent && rosterIdent.model ? String(rosterIdent.model).trim() : '') || (usingCodex ? CODEX_DEFAULT_MODEL : CRON_DEFAULT_MODEL);
+  // HEISENBERG ROUTE POLICY (opt-in — providers/route-policy.js). Armed only by STARNET_ROUTE_POLICY=
+  // heisenberg-v1: the fleet default becomes the verified $0 Groq route (openai/gpt-oss-120b), and OpenRouter
+  // can serve ONLY as the deliberately-armed, allowlisted, per-run-capped SECONDARY lane. A denied or unarmed
+  // OpenRouter request falls back to the free route and the denial rides the run record's route receipt.
+  // Unarmed => decision.applied === false and every line below is byte-identical to before.
+  const routeDecision = routePolicy.resolve({
+    requestedProvider: String((o && o.provider) || '').trim() ? providerId : '',
+    requestedModel: String((o && o.model) || '').trim(),
+    credentialFor: pid => providerHasCredential(pid, providerRuntimeKey(pid, ''), providerRuntimeBaseUrl(pid, ''))
+  }, process.env);
+  if (routeDecision.applied) {
+    providerId = routeDecision.route.provider;
+    model = routeDecision.route.model || model;
+    usingCodex = providerUsesCodex(providerId);
+    usingDeviceOAuth = providerUsesDeviceOAuth(providerId);
+    providerUnmetered = !!((getProviderProfile(providerId) || {}).unmetered);
+    reasoningEffort = resolveReasoningEffort(providerId, o.reasoningEffort || o.reasoning_effort || (o.reasoning && o.reasoning.effort) || (rosterIdent && rosterIdent.reasoningEffort));
+    if (routeDecision.fallbackProviders.length) {
+      const existingFallbackProviders = Array.isArray(o.fallbackProviders) ? o.fallbackProviders : [];
+      o = Object.assign({}, o, { fallbackProviders: existingFallbackProviders.concat(routeDecision.fallbackProviders) });
+    }
+  }
   const baseUrl = providerRuntimeBaseUrl(providerId, o.baseUrl || o.base_url || '');
   const runKey = providerRuntimeKey(providerId, key);
   const streamId = o.streamId || null;   // M-mem.2b (browser run only; the headless hub omits it → global memory)
@@ -14012,6 +14035,9 @@ async function runOnce(o) {
   let runCapUsd = (o.maxCostUsd > 0 && isFinite(o.maxCostUsd)) ? o.maxCostUsd
     : (providerUnmetered ? Infinity
     : ((effectiveCaps.perRun > 0 && isFinite(effectiveCaps.perRun)) ? effectiveCaps.perRun : Infinity));
+  // The secondary lane's own hard ceiling clamps too: an OpenRouter run can never outspend
+  // STARNET_OPENROUTER_MAX_USD_PER_RUN, whatever the station cap says.
+  if (routeDecision.applied && routeDecision.budgetCapUsd > 0) runCapUsd = Math.min(runCapUsd, routeDecision.budgetCapUsd);
   // Same rule as o.maxCostUsd for the TURN budget: an explicit caller cap (o.maxIters -- e.g. a delegated
   // worker's ORCH_WORKER_MAX_ITERS) is honored, but may only LOWER the ceiling. Without this the value
   // orchestration.js has always passed was silently dropped and every worker ran the lead's full budget.
@@ -16036,7 +16062,7 @@ async function runOnce(o) {
         }
       }
       const runEndedAt = Date.now();
-      runStore.record({ runId, parentRunId: o.parentRunId || '', agentId, reason: ((result && result.reason) || 'done'), clarifying: taskQuestionAsked, turns: finalTurns, tokens: finalTokens, usd: finalUsd, title: title, streamId: o.streamId || '', sessionTitle: o.sessionTitle || '', deliveryPrompt: o.sessionPrompt || '', deliveryText, recipeId: o.recipeId || '', projectRoot: o.projectRoot || '', deliverable: deliverableNotes.take(runId), model: finalModel, reasoningEffort, unmetered: providerUnmetered, artifacts: execution.artifactList(), toolsOk: execution.toolsOk(), toolTrace: execution.toolTraceList(), failureStage: execution.failureStage(), failureCode: execution.failureCode(), uncertainMutations: execution.uncertainMutations(), completionEvidence: finalCompletionEvidence, recoveryAttempts: execution.recoveryAttempts(), startedAt: runStartedAt, endedAt: runEndedAt, durationMs: runEndedAt - runStartedAt, identityFallback, internal });   // execution terminal stays separate from the neutral Task Brief outcome used by progression
+      runStore.record({ runId, parentRunId: o.parentRunId || '', agentId, reason: ((result && result.reason) || 'done'), clarifying: taskQuestionAsked, turns: finalTurns, tokens: finalTokens, usd: finalUsd, title: title, streamId: o.streamId || '', sessionTitle: o.sessionTitle || '', deliveryPrompt: o.sessionPrompt || '', deliveryText, recipeId: o.recipeId || '', projectRoot: o.projectRoot || '', deliverable: deliverableNotes.take(runId), model: finalModel, reasoningEffort, unmetered: providerUnmetered, artifacts: execution.artifactList(), toolsOk: execution.toolsOk(), toolTrace: execution.toolTraceList(), failureStage: execution.failureStage(), failureCode: execution.failureCode(), uncertainMutations: execution.uncertainMutations(), completionEvidence: finalCompletionEvidence, recoveryAttempts: execution.recoveryAttempts(), startedAt: runStartedAt, endedAt: runEndedAt, durationMs: runEndedAt - runStartedAt, identityFallback, internal, route: routeDecision.applied ? routePolicy.receipt(routeDecision, { result: ((result && result.reason) || 'done'), tokens: finalTokens, usd: finalUsd }) : null });   // execution terminal stays separate from the neutral Task Brief outcome used by progression
 
       // P0.1/H1.1: persist the full DIALOGUE (not just the outcome) — a durable server-side transcript for EVERY
       // run, incl. headless ones (cron/Telegram/delegated). Append the triggering user directive, then EVERY new

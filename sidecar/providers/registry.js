@@ -33,7 +33,7 @@
       apiMode: 'chat_completions',
       authType: 'api_key',
       keyRequired: true,
-      keyEnv: ['OPENROUTER_KEY', 'OPENROUTER_API_KEY'],
+      keyEnv: ['OPENROUTER_KEY', 'OPENROUTER_API_KEY', 'OPEN_ROUTER_API'],   // OPEN_ROUTER_API: the fleet's Infisical-verified secret name (2026-09-10)
       modelsRequireAuth: false,
       baseUrl: 'https://openrouter.ai/api/v1',
       baseUrlEnv: ['OPENROUTER_BASE'],
@@ -295,7 +295,7 @@
       apiMode: 'chat_completions',
       authType: 'api_key',
       keyRequired: true,
-      keyEnv: ['GROQ_API_KEY'],
+      keyEnv: ['GROQ_API_TOKEN', 'GROQ_API_KEY'],   // GROQ_API_TOKEN first: the fleet's Infisical-verified valid key (2026-09-10); the GROQ_API_KEY entry was found expired
       modelsRequireAuth: true,
       baseUrl: 'https://api.groq.com/openai/v1',
       baseUrlEnv: ['GROQ_BASE_URL'],

@@ -213,6 +213,28 @@
     catch (e) { rows = []; }
     if (rows.length > ramMax) rows = rows.slice(rows.length - ramMax);   // bound even a large bounded-boot load
 
+    // Heisenberg route-policy receipt normalizer: bounded shape, no credentials, null when the run
+    // carried no policy decision (legacy rows stay byte-shaped).
+    function routeReceipt(v) {
+      if (!v || typeof v !== 'object') return null;
+      return {
+        policy: str(v.policy).slice(0, 60),
+        lane: str(v.lane).slice(0, 40),
+        requestedProvider: str(v.requestedProvider).slice(0, 40),
+        requestedModel: str(v.requestedModel).slice(0, 120),
+        provider: str(v.provider).slice(0, 40),
+        model: str(v.model).slice(0, 120),
+        denied: !!v.denied,
+        reason: str(v.reason).slice(0, 80),
+        budgetCapUsd: num(v.budgetCapUsd),
+        fallbackProviders: Array.isArray(v.fallbackProviders)
+          ? v.fallbackProviders.slice(0, 4).map(f => ({ provider: str(f && f.provider).slice(0, 40), model: str(f && f.model).slice(0, 120) }))
+          : [],
+        tokens: num(v.tokens), usd: num(v.usd),
+        result: str(v.result).slice(0, 40)
+      };
+    }
+
     function record(e) {
       e = e || {};
       const entry = {
@@ -235,6 +257,7 @@
         artifacts: artifactList(e.artifacts),   // work-visibility: what the run PRODUCED (additive; [] default)
         toolsOk: num(e.toolsOk),                // crate-honesty (additive): successful tool results — proven work, not just talk. Old rows default 0.
         identityFallback: !!e.identityFallback, // P1.2 (additive): TRUE when this run's agentId was MISSING from the roster and it ran on the station-persona/default-model fallback — an honest marker that it was NOT the named specialist. Old rows lack it and default false.
+        route: routeReceipt(e.route),             // Heisenberg route-policy receipt (additive; null on legacy rows): route/model/token/cost/result — never credentials
         internal: !!e.internal,                 // progression catch-up excludes harness self-talk from agent work
         clarifying: !!e.clarifying,             // additive outcome truth; `reason` remains the execution terminal
         toolTrace: toolTraceList(e.toolTrace),
