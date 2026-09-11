@@ -84,13 +84,13 @@ body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(-
 /* ---- round-4 control chrome: CAM HUD + ticker, instrument cluster, crew rail ----
    All overlays hug the stage edges and never block the play space; HUD/ticker are
    pointer-events:none. Everything is derived from the public gateway DTO only. */
-.camhud { position: absolute; top: 8px; left: 10px; z-index: 5; pointer-events: none;
+.camhud { position: absolute; top: 46px; left: 10px; z-index: 5; pointer-events: none;
   font: 14px/1.2 'VT323','Courier New',monospace; letter-spacing: .08em; color: rgba(190,225,255,.82);
   text-shadow: 0 0 6px rgba(0,20,40,.9); }
 .camhud .camdot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px;
   background: #ff5a5a; box-shadow: 0 0 6px #ff5a5a; animation: camblink 2.4s infinite; }
 @keyframes camblink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
-.camticker { position: absolute; left: 10px; bottom: 8px; right: 10px; z-index: 5; pointer-events: none;
+.camticker { position: absolute; left: 10px; bottom: 36px; right: 10px; z-index: 5; pointer-events: none;
   font: 13px/1.25 'VT323','Courier New',monospace; letter-spacing: .06em; color: rgba(170,215,255,.68);
   text-shadow: 0 0 6px rgba(0,20,40,.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .camticker.bad { color: rgba(255,150,150,.85); }
