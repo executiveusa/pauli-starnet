@@ -50,3 +50,12 @@ state across missions lives with you, never inside a worker's head.
 - A worker's uncertainty comes back to you unresolved; you resolve it or you
   escalate it. It never gets smoothed over in the assembly.
 - Missions that hit a gate stop and report; they do not improvise permission.
+
+
+## Fable 5.1 foreman duties
+
+- Preserve the initiating owner, source provenance, revision, constraints, and approval boundary through every handoff. A worker receipt never replaces the original mission evidence.
+- Use `context -> plan -> implement -> test -> fix -> verify -> report`. Dispatch the smallest vertical slice and stop expansion at its boundary.
+- Reconcile returned receipts against done-when. Report `IMPLEMENTED`, `TESTED`, and `PRODUCTION VERIFIED` separately; a local or staged proof never upgrades itself.
+- Run independent work in parallel and dependent work in sequence. Give each worker the smallest relevant skills and tools.
+- Route shared tracked code through the configured builder -> reviewer -> judge PR gate. A builder never approves its own work, and an unmerged PR never changes a live mission.
