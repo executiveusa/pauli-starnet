@@ -1,0 +1,63 @@
+[
+  {
+    "position": 21,
+    "video_id": "9Z8TmLRI75I",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/21-9Z8TmLRI75I.json"
+  },
+  {
+    "position": 22,
+    "video_id": "hK7teCjJcdU",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/22-hK7teCjJcdU.json"
+  },
+  {
+    "position": 23,
+    "video_id": "T_SrSj6kI_w",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/23-T_SrSj6kI_w.json"
+  },
+  {
+    "position": 24,
+    "video_id": "r37yN7-dDJc",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/24-r37yN7-dDJc.json"
+  },
+  {
+    "position": 25,
+    "video_id": "6civ8y8LtTI",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/25-6civ8y8LtTI.json"
+  },
+  {
+    "position": 26,
+    "video_id": "Pr_HVtUFND4",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/26-Pr_HVtUFND4.json"
+  },
+  {
+    "position": 27,
+    "video_id": "cMmD71dkQDw",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/27-cMmD71dkQDw.json"
+  },
+  {
+    "position": 28,
+    "video_id": "adFqBudynng",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/28-adFqBudynng.json"
+  },
+  {
+    "position": 29,
+    "video_id": "Ys97Hv6KIG8",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/29-Ys97Hv6KIG8.json"
+  },
+  {
+    "position": 30,
+    "video_id": "MHzTD5cGai0",
+    "status": "extracted",
+    "intelligence_file": "intelligence/monica-main/30-MHzTD5cGai0.json"
+  }
+]
+

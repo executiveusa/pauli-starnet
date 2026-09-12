@@ -1,0 +1,1467 @@
+{
+  "generated_at": "2026-09-08T20:02:07.098Z",
+  "channels": [
+    {
+      "name": "Joanne Toller - Fundraising Coach",
+      "handle": "@CauseSpecialist",
+      "url": "https://www.youtube.com/@CauseSpecialist/videos",
+      "videos": [
+        {
+          "position": 1,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=mMlYgNvOiWU",
+          "video_id": "mMlYgNvOiWU",
+          "duration": "PT12M16S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Biggest Fundraising Opportunity During a Bad Economy",
+          "publication": "2026-09-02T09:00:06-07:00",
+          "transcript_file": "transcripts/cause-specialist/01-mMlYgNvOiWU.md",
+          "timestamp_status": "official caption timestamps available",
+          "timestamp_file": "official-captions/mMlYgNvOiWU.en-orig.vtt",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/01-mMlYgNvOiWU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 2,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=NVJyUFfRQtM",
+          "video_id": "NVJyUFfRQtM",
+          "duration": "PT12M8S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Before a Funder Gives You Money, They Check THIS",
+          "publication": "2026-08-26T09:15:37-07:00",
+          "transcript_file": "transcripts/cause-specialist/02-NVJyUFfRQtM.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/02-NVJyUFfRQtM.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 3,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=N5qxCeEymDE",
+          "video_id": "N5qxCeEymDE",
+          "duration": "PT14M19S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Your First Major Donor Is Closer Than You Think",
+          "publication": "2026-08-12T16:59:47-07:00",
+          "transcript_file": "transcripts/cause-specialist/03-N5qxCeEymDE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/03-N5qxCeEymDE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 4,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=CJB7W7XcD3c",
+          "video_id": "CJB7W7XcD3c",
+          "duration": "PT9M3S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How Claude Cut Grant Writing From 30 Hours to 4",
+          "publication": "2026-08-05T09:15:39-07:00",
+          "transcript_file": "transcripts/cause-specialist/04-CJB7W7XcD3c.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/04-CJB7W7XcD3c.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 5,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=TSxNCtQ9pbU",
+          "video_id": "TSxNCtQ9pbU",
+          "duration": "PT7M24S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "These 5 Fundraising Materials Are All You Need",
+          "publication": "2026-07-29T09:15:28-07:00",
+          "transcript_file": "transcripts/cause-specialist/05-TSxNCtQ9pbU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/05-TSxNCtQ9pbU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 6,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=iJgi48rlgNA",
+          "video_id": "iJgi48rlgNA",
+          "duration": "PT9M22S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Most Small Nonprofits Are Looking in the Wrong Place",
+          "publication": "2026-07-22T09:15:05-07:00",
+          "transcript_file": "transcripts/cause-specialist/06-iJgi48rlgNA.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/06-iJgi48rlgNA.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 7,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=pnEA7OIhKiM",
+          "video_id": "pnEA7OIhKiM",
+          "duration": "PT8M10S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The 4 Skills That Raise More Money for Your Nonprofit",
+          "publication": "2026-07-15T08:45:21-07:00",
+          "transcript_file": "transcripts/cause-specialist/07-pnEA7OIhKiM.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/07-pnEA7OIhKiM.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 8,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=lCbS9WGy5sk",
+          "video_id": "lCbS9WGy5sk",
+          "duration": "PT6M42S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Real Reason Donors Don't Give (10 Fundraising Mistakes to Fix Today)",
+          "publication": "2026-07-08T09:15:03-07:00",
+          "transcript_file": "transcripts/cause-specialist/08-lCbS9WGy5sk.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/08-lCbS9WGy5sk.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 9,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=H4sRioiq3sY",
+          "video_id": "H4sRioiq3sY",
+          "duration": "PT8M27S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Before You Use ChatGPT for Fundraising, Watch This",
+          "publication": "2026-07-01T09:00:01-07:00",
+          "transcript_file": "transcripts/cause-specialist/09-H4sRioiq3sY.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/09-H4sRioiq3sY.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 10,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=YwcNARhitp4",
+          "video_id": "YwcNARhitp4",
+          "duration": "PT8M39S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "You're Looking for Donors in the Wrong Place",
+          "publication": "2026-06-24T09:15:01-07:00",
+          "transcript_file": "transcripts/cause-specialist/10-YwcNARhitp4.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/10-YwcNARhitp4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 11,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=RWzH5Yo8OXY",
+          "video_id": "RWzH5Yo8OXY",
+          "duration": "PT5M59S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Why Most New Nonprofits Fail at Fundraising",
+          "publication": "2026-06-17T09:15:34-07:00",
+          "transcript_file": "transcripts/cause-specialist/11-RWzH5Yo8OXY.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/11-RWzH5Yo8OXY.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 12,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=YGRD7dqsYFk",
+          "video_id": "YGRD7dqsYFk",
+          "duration": "PT7M8S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Claude AI for Nonprofits: Save Hours on Fundraising Work",
+          "publication": "2026-06-10T09:15:13-07:00",
+          "transcript_file": "transcripts/cause-specialist/12-YGRD7dqsYFk.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/12-YGRD7dqsYFk.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 13,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=frYHWEoL6bg",
+          "video_id": "frYHWEoL6bg",
+          "duration": "PT9M54S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "7 Fundraiser Ideas That Actually Work (Most Nonprofits Ignore These)",
+          "publication": "2026-06-03T09:15:37-07:00",
+          "transcript_file": "transcripts/cause-specialist/13-frYHWEoL6bg.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/13-frYHWEoL6bg.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 14,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=qV2oypyXG3o",
+          "video_id": "qV2oypyXG3o",
+          "duration": "PT7M54S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Why Your Nonprofit Looks Unprofessional (And How to Fix It for Free)",
+          "publication": "2026-05-27T09:30:05-07:00",
+          "transcript_file": "transcripts/cause-specialist/14-qV2oypyXG3o.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/14-qV2oypyXG3o.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 15,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=jT2pUGBDXLo",
+          "video_id": "jT2pUGBDXLo",
+          "duration": "PT6M14S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Why Most Nonprofits Never Ask for Billions in Available Donations",
+          "publication": "2026-05-20T07:30:36-07:00",
+          "transcript_file": "transcripts/cause-specialist/15-jT2pUGBDXLo.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/15-jT2pUGBDXLo.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 16,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=EEvMEzOWnjI",
+          "video_id": "EEvMEzOWnjI",
+          "duration": "PT11M8S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Most Nonprofits Are Fundraising Wrong",
+          "publication": "2026-05-13T09:30:28-07:00",
+          "transcript_file": "transcripts/cause-specialist/16-EEvMEzOWnjI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/16-EEvMEzOWnjI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 17,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=QRGUAqOmDKc",
+          "video_id": "QRGUAqOmDKc",
+          "duration": "PT8M7S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Is Zeffy REALLY Free? A Nonprofit Coach Explains",
+          "publication": "2026-05-08T05:15:39-07:00",
+          "transcript_file": "transcripts/cause-specialist/17-QRGUAqOmDKc.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/17-QRGUAqOmDKc.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 18,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=EFrneGFHOn4",
+          "video_id": "EFrneGFHOn4",
+          "duration": "PT7M57S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The #1 Mistake That Kills Nonprofit Campaigns",
+          "publication": "2026-04-27T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/18-EFrneGFHOn4.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/18-EFrneGFHOn4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 19,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=hfXIFn439tU",
+          "video_id": "hfXIFn439tU",
+          "duration": "PT8M30S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The $20K Mistake Killing Your Gala Fundraiser",
+          "publication": "2026-04-20T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/19-hfXIFn439tU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/19-hfXIFn439tU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 20,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=Ib-BZHen7yc",
+          "video_id": "Ib-BZHen7yc",
+          "duration": "PT7M42S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How to Get Started on Zeffy for Free in Under 10 Minutes",
+          "publication": "2026-04-13T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/20-Ib-BZHen7yc.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/20-Ib-BZHen7yc.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 21,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=fUocc4b13ro",
+          "video_id": "fUocc4b13ro",
+          "duration": "PT9M20S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Fundraising Is Changing Fast. Here’s What Small Nonprofits Need to Know Now",
+          "publication": "2026-03-30T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/21-fUocc4b13ro.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/21-fUocc4b13ro.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 22,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=UCJO7aNMfeU",
+          "video_id": "UCJO7aNMfeU",
+          "duration": "PT5M35S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Grant LOI Getting Rejected? Here's Why",
+          "publication": "2026-03-23T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/22-UCJO7aNMfeU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/22-UCJO7aNMfeU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 23,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=pOfNNXjQa_k",
+          "video_id": "pOfNNXjQa_k",
+          "duration": "PT8M4S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Most Nonprofits Skip This Critical Fundraising Step",
+          "publication": "2026-03-16T08:30:00-07:00",
+          "transcript_file": "transcripts/cause-specialist/23-pOfNNXjQa_k.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/23-pOfNNXjQa_k.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 24,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=1K93EfwIYIo",
+          "video_id": "1K93EfwIYIo",
+          "duration": "PT8M3S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Real Reason Donors Ignore Your Fundraising Emails",
+          "publication": "2026-03-09T14:44:54-07:00",
+          "transcript_file": "transcripts/cause-specialist/24-1K93EfwIYIo.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/24-1K93EfwIYIo.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 25,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=xl1Ccs9HGaA",
+          "video_id": "xl1Ccs9HGaA",
+          "duration": "PT7M45S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Small Nonprofits Keep Making These 4 Fundraising Mistakes",
+          "publication": "2026-03-02T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/25-xl1Ccs9HGaA.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/25-xl1Ccs9HGaA.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 26,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=JgBckjNfw9M",
+          "video_id": "JgBckjNfw9M",
+          "duration": "PT17M57S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Matching Donations - Double Gifts Without Asking for More",
+          "publication": "2026-02-23T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/26-JgBckjNfw9M.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/26-JgBckjNfw9M.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 27,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=hdk5pvzKDHI",
+          "video_id": "hdk5pvzKDHI",
+          "duration": "PT5M33S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Tells That Funders Use to Reject AI Fundraising",
+          "publication": "2026-02-16T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/27-hdk5pvzKDHI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/27-hdk5pvzKDHI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 28,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=FSQFw_ZvKBU",
+          "video_id": "FSQFw_ZvKBU",
+          "duration": "PT7M21S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Here's How Small Nonprofits Find Donors",
+          "publication": "2026-02-09T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/28-FSQFw_ZvKBU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/28-FSQFw_ZvKBU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 29,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=FjEOQXbWeRM",
+          "video_id": "FjEOQXbWeRM",
+          "duration": "PT12M36S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How to Start a Monthly Donor Program Without a Big Donor List",
+          "publication": "2026-02-02T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/29-FjEOQXbWeRM.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/29-FjEOQXbWeRM.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 30,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=gRRLWd6hW_g",
+          "video_id": "gRRLWd6hW_g",
+          "duration": "PT12M53S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Stop Pitching Corporations. Start Building Real Partnerships.",
+          "publication": "2026-01-26T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/30-gRRLWd6hW_g.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/30-gRRLWd6hW_g.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 31,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=0SkEjafvRe8",
+          "video_id": "0SkEjafvRe8",
+          "duration": "PT8M58S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Grant Writing With AI: Why Your Proposal Might Never Be Read",
+          "publication": "2026-01-19T08:30:00-08:00",
+          "transcript_file": "transcripts/cause-specialist/31-0SkEjafvRe8.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/31-0SkEjafvRe8.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 32,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=9uM_Gv8CbVE",
+          "video_id": "9uM_Gv8CbVE",
+          "duration": "PT6M48S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Why Logical Appeals Don't Raise Money",
+          "publication": "2026-01-12T08:30:10-08:00",
+          "transcript_file": "transcripts/cause-specialist/32-9uM_Gv8CbVE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/32-9uM_Gv8CbVE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 33,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=_xlX_Ilnvgk",
+          "video_id": "_xlX_Ilnvgk",
+          "duration": "PT10M53S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Nonprofit Trends for 2026 That Will Change Fundraising Forever",
+          "publication": "2026-01-05T08:30:16-08:00",
+          "transcript_file": "transcripts/cause-specialist/33-_xlX_Ilnvgk.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/33-_xlX_Ilnvgk.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 34,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=FRVdi2VYYlE",
+          "video_id": "FRVdi2VYYlE",
+          "duration": "PT18M58S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Truth About Running a Nonprofit (From a 30-Year Founder)",
+          "publication": "2025-12-22T08:30:06-08:00",
+          "transcript_file": "transcripts/cause-specialist/34-FRVdi2VYYlE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/34-FRVdi2VYYlE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 35,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=5p4qDNjmy3M",
+          "video_id": "5p4qDNjmy3M",
+          "duration": "PT9M55S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Your Board Doesn't Understand Their Role (Yet)",
+          "publication": "2025-12-15T08:30:05-08:00",
+          "transcript_file": "transcripts/cause-specialist/35-5p4qDNjmy3M.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/35-5p4qDNjmy3M.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 36,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=_gRBVWO_HQU",
+          "video_id": "_gRBVWO_HQU",
+          "duration": "PT10M4S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Easy Way to Find New Donors While Fundraising Online",
+          "publication": "2025-12-08T08:30:30-08:00",
+          "transcript_file": "transcripts/cause-specialist/36-_gRBVWO_HQU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/36-_gRBVWO_HQU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 37,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=DUqF9eh_2bA",
+          "video_id": "DUqF9eh_2bA",
+          "duration": "PT10M8S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Give Me 10 Minutes and I’ll Teach You How to Raise $100K - This Year",
+          "publication": "2025-12-01T08:30:09-08:00",
+          "transcript_file": "transcripts/cause-specialist/37-DUqF9eh_2bA.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/37-DUqF9eh_2bA.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 38,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=vvKuDuY4tE0",
+          "video_id": "vvKuDuY4tE0",
+          "duration": "PT10M49S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Nonprofit Sponsorship Packages That Get Funded (Not Ghosted)",
+          "publication": "2025-11-24T08:30:29-08:00",
+          "transcript_file": "transcripts/cause-specialist/38-vvKuDuY4tE0.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/38-vvKuDuY4tE0.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 39,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=38oJ_39gMXU",
+          "video_id": "38oJ_39gMXU",
+          "duration": "PT9M45S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "This Nonprofit Branding Mistake Is Costing You Big Funding",
+          "publication": "2025-11-17T08:00:06-08:00",
+          "transcript_file": "transcripts/cause-specialist/39-38oJ_39gMXU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/39-38oJ_39gMXU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 40,
+          "channel": "Joanne Toller - Fundraising Coach",
+          "url": "https://www.youtube.com/watch?v=tDOHgnbHszI",
+          "video_id": "tDOHgnbHszI",
+          "duration": "PT6M8S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Donation Requests That Get Ignored vs. Funded (Donor POV)",
+          "publication": "2025-11-10T07:45:06-08:00",
+          "transcript_file": "transcripts/cause-specialist/40-tDOHgnbHszI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/cause-specialist/40-tDOHgnbHszI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monica Main",
+      "handle": "@MonicaMain",
+      "url": "https://www.youtube.com/@MonicaMain/videos",
+      "videos": [
+        {
+          "position": 1,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=5JAVglJHzG4",
+          "video_id": "5JAVglJHzG4",
+          "duration": "PT11M13S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "I Can't Believe Nobody Talks About This",
+          "publication": "2026-09-07T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/01-5JAVglJHzG4.md",
+          "timestamp_status": "official caption timestamps available",
+          "timestamp_file": "official-captions/5JAVglJHzG4.en-orig.vtt",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/01-5JAVglJHzG4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 2,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=7z97i1FlBL4",
+          "video_id": "7z97i1FlBL4",
+          "duration": "PT14M38S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Low FICO...$50,000 Approval? Here's How",
+          "publication": "2026-09-03T09:00:29-07:00",
+          "transcript_file": "transcripts/monica-main/02-7z97i1FlBL4.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/02-7z97i1FlBL4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 3,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=E9LhTyRzBoI",
+          "video_id": "E9LhTyRzBoI",
+          "duration": "PT16M50S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Before You Pay ANY Collections...Watch This First",
+          "publication": "2026-08-31T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/03-E9LhTyRzBoI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/03-E9LhTyRzBoI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 4,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=7AE_2IV_Zl8",
+          "video_id": "7AE_2IV_Zl8",
+          "duration": "PT9M6S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Download My FREE Business Blueprint for a LIMITED TIME",
+          "publication": "2026-08-27T09:00:27-07:00",
+          "transcript_file": "transcripts/monica-main/04-7AE_2IV_Zl8.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/04-7AE_2IV_Zl8.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 5,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=LvaMZfgFZhE",
+          "video_id": "LvaMZfgFZhE",
+          "duration": "PT10M31S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Most People Have No Idea This $50K Loan Exists",
+          "publication": "2026-08-24T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/05-LvaMZfgFZhE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/05-LvaMZfgFZhE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 6,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=ygn_aki6-YE",
+          "video_id": "ygn_aki6-YE",
+          "duration": "PT16M37S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Fastest & Cheapest Business You Can Start This Week",
+          "publication": "2026-08-20T09:00:37-07:00",
+          "transcript_file": "transcripts/monica-main/06-ygn_aki6-YE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/06-ygn_aki6-YE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 7,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=km0D2yyg544",
+          "video_id": "km0D2yyg544",
+          "duration": "PT11M11S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Get a $5K+ Loan with a 550 FICO (Even After Being Turned Down)",
+          "publication": "2026-08-17T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/07-km0D2yyg544.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/07-km0D2yyg544.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 8,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=EFKZeCId6n0",
+          "video_id": "EFKZeCId6n0",
+          "duration": "PT10M34S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How to Make Money in Real Estate WITHOUT Buying Any Property",
+          "publication": "2026-08-13T09:00:07-07:00",
+          "transcript_file": "transcripts/monica-main/08-EFKZeCId6n0.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/08-EFKZeCId6n0.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 9,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=fmv_fuwLcug",
+          "video_id": "fmv_fuwLcug",
+          "duration": "PT22M59S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Little-Known Credit Secret for $15,000+ in Unsecured Credit",
+          "publication": "2026-08-10T09:00:07-07:00",
+          "transcript_file": "transcripts/monica-main/09-fmv_fuwLcug.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/09-fmv_fuwLcug.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 10,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=T65oLsH2NZk",
+          "video_id": "T65oLsH2NZk",
+          "duration": "PT12M6S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "3 Profitable AI Writing Businesses You Can Start This Weekend",
+          "publication": "2026-08-06T09:00:38-07:00",
+          "transcript_file": "transcripts/monica-main/10-T65oLsH2NZk.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/10-T65oLsH2NZk.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 11,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=g8NSX6A7-4s",
+          "video_id": "g8NSX6A7-4s",
+          "duration": "PT40M44S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Delete Collections in 30 Days Using This One Secret \"Trick\"",
+          "publication": "2026-08-03T09:00:05-07:00",
+          "transcript_file": "transcripts/monica-main/11-g8NSX6A7-4s.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/11-g8NSX6A7-4s.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 12,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=iwGtHaKrZhI",
+          "video_id": "iwGtHaKrZhI",
+          "duration": "PT16M3S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "3 Ways to Earn Extra Money WITHOUT a Second Job",
+          "publication": "2026-07-30T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/12-iwGtHaKrZhI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/12-iwGtHaKrZhI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 13,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=VGVUKr63DkU",
+          "video_id": "VGVUKr63DkU",
+          "duration": "PT12M23S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "5 Credit Cards Approving Bad Credit in 60 Seconds",
+          "publication": "2026-07-27T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/13-VGVUKr63DkU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/13-VGVUKr63DkU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 14,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=i7wGeEM7Z-A",
+          "video_id": "i7wGeEM7Z-A",
+          "duration": "PT11M18S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "My Secret to Making $10,000 in the Next 30 Days",
+          "publication": "2026-07-24T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/14-i7wGeEM7Z-A.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/14-i7wGeEM7Z-A.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 15,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=10Bl7fAfIHE",
+          "video_id": "10Bl7fAfIHE",
+          "duration": "PT12M33S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "3 Best \"No Ding\" Credit Cards for 2026",
+          "publication": "2026-07-22T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/15-10Bl7fAfIHE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/15-10Bl7fAfIHE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 16,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=VM7n6JIAY6k",
+          "video_id": "VM7n6JIAY6k",
+          "duration": "PT14M35S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Cheapest Business I've Ever Seen...And It Can Pay Big",
+          "publication": "2026-07-20T09:00:11-07:00",
+          "transcript_file": "transcripts/monica-main/16-VM7n6JIAY6k.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/16-VM7n6JIAY6k.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 17,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=rKK89vqBS_c",
+          "video_id": "rKK89vqBS_c",
+          "duration": "PT23M2S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Debt Collector Threat or Lawsuit? Here's What to Do",
+          "publication": "2026-07-17T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/17-rKK89vqBS_c.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/17-rKK89vqBS_c.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 18,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=fgPoiGxog2M",
+          "video_id": "fgPoiGxog2M",
+          "duration": "PT16M29S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The $13K Loan Secret Hiding in Plain Sight",
+          "publication": "2026-07-15T09:00:07-07:00",
+          "transcript_file": "transcripts/monica-main/18-fgPoiGxog2M.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/18-fgPoiGxog2M.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 19,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=KjGzbs7gln0",
+          "video_id": "KjGzbs7gln0",
+          "duration": "PT10M42S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How to Get a FREE Luxury Car (Legally)",
+          "publication": "2026-07-13T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/19-KjGzbs7gln0.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/19-KjGzbs7gln0.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 20,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=om6dVRIjhEk",
+          "video_id": "om6dVRIjhEk",
+          "duration": "PT27M43S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "From $7 to Seven Figures: The Whiteboard Breakdown",
+          "publication": "2026-07-10T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/20-om6dVRIjhEk.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/20-om6dVRIjhEk.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 21,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=9Z8TmLRI75I",
+          "video_id": "9Z8TmLRI75I",
+          "duration": "PT28M48S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "I Found $100K in Unsecured Credit During a Simple Audit",
+          "publication": "2026-07-08T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/21-9Z8TmLRI75I.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/21-9Z8TmLRI75I.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 22,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=hK7teCjJcdU",
+          "video_id": "hK7teCjJcdU",
+          "duration": "PT22M57S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "My Fastest Credit Repair Secret (Learn It in 23 Minutes)",
+          "publication": "2026-07-06T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/22-hK7teCjJcdU.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/22-hK7teCjJcdU.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 23,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=T_SrSj6kI_w",
+          "video_id": "T_SrSj6kI_w",
+          "duration": "PT14M0S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "5 Most Dangerous Scams Happening Right Now",
+          "publication": "2026-07-03T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/23-T_SrSj6kI_w.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/23-T_SrSj6kI_w.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 24,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=r37yN7-dDJc",
+          "video_id": "r37yN7-dDJc",
+          "duration": "PT11M3S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How I'm Using AI to Create Cash Flow in 2026",
+          "publication": "2026-07-01T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/24-r37yN7-dDJc.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/24-r37yN7-dDJc.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 25,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=6civ8y8LtTI",
+          "video_id": "6civ8y8LtTI",
+          "duration": "PT30M6S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Credit Stack Attack: How I Build Six Figures in Unsecured Credit",
+          "publication": "2026-06-29T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/25-6civ8y8LtTI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/25-6civ8y8LtTI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 26,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=Pr_HVtUFND4",
+          "video_id": "Pr_HVtUFND4",
+          "duration": "PT14M44S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "CAUTION: The Risky Strategy Nobody Talks About",
+          "publication": "2026-06-26T09:00:07-07:00",
+          "transcript_file": "transcripts/monica-main/26-Pr_HVtUFND4.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/26-Pr_HVtUFND4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 27,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=cMmD71dkQDw",
+          "video_id": "cMmD71dkQDw",
+          "duration": "PT23M53S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "The Small Channel Secret Nobody Talks About",
+          "publication": "2026-06-24T09:00:22-07:00",
+          "transcript_file": "transcripts/monica-main/27-cMmD71dkQDw.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/27-cMmD71dkQDw.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 28,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=adFqBudynng",
+          "video_id": "adFqBudynng",
+          "duration": "PT12M48S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Want $60K to Start a Business? WATCH THIS!",
+          "publication": "2026-06-22T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/28-adFqBudynng.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/28-adFqBudynng.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 29,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=Ys97Hv6KIG8",
+          "video_id": "Ys97Hv6KIG8",
+          "duration": "PT17M12S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "This High-Income Skill Is Easier to Learn Than Most People Think",
+          "publication": "2026-06-19T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/29-Ys97Hv6KIG8.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/29-Ys97Hv6KIG8.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 30,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=MHzTD5cGai0",
+          "video_id": "MHzTD5cGai0",
+          "duration": "PT10M7S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "3 Secret Cash Flow Side Hustles Using AI",
+          "publication": "2026-06-17T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/30-MHzTD5cGai0.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/30-MHzTD5cGai0.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 31,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=cQRPGJk23Xg",
+          "video_id": "cQRPGJk23Xg",
+          "duration": "PT36M6S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "How I'd Turn a 610 Score Into $50,000 in Unsecured Credit",
+          "publication": "2026-06-15T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/31-cQRPGJk23Xg.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/31-cQRPGJk23Xg.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 32,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=viyhBg2LwnA",
+          "video_id": "viyhBg2LwnA",
+          "duration": "PT18M9S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Once You Understand THIS, Making Money Becomes EASY!",
+          "publication": "2026-06-12T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/32-viyhBg2LwnA.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/32-viyhBg2LwnA.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 33,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=Ki6kNHl_sK0",
+          "video_id": "Ki6kNHl_sK0",
+          "duration": "PT12M30S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "He Was a TOTAL Fraud...PROOF INSIDE!",
+          "publication": "2026-06-10T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/33-Ki6kNHl_sK0.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/33-Ki6kNHl_sK0.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 34,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=EX94n1Zq1cI",
+          "video_id": "EX94n1Zq1cI",
+          "duration": "PT13M48S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "AMEX is Shutting Down Accounts...HERE'S WHY",
+          "publication": "2026-06-08T09:00:14-07:00",
+          "transcript_file": "transcripts/monica-main/34-EX94n1Zq1cI.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/34-EX94n1Zq1cI.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 35,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=o2Z4CGSTHFE",
+          "video_id": "o2Z4CGSTHFE",
+          "duration": "PT26M54S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "One book is making $600K? This is CRAZY!!",
+          "publication": "2026-06-05T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/35-o2Z4CGSTHFE.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/35-o2Z4CGSTHFE.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 36,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=bcFkN8HdC8o",
+          "video_id": "bcFkN8HdC8o",
+          "duration": "PT13M36S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Get $25,000 to $50,000 in Credit From This SECRET Bank",
+          "publication": "2026-06-03T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/36-bcFkN8HdC8o.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/36-bcFkN8HdC8o.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 37,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=65op4qB0i5s",
+          "video_id": "65op4qB0i5s",
+          "duration": "PT84M30S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "Build a $5K–$50K/Month Funding Consulting Business From Home (Complete Masterclass)",
+          "publication": "2026-06-01T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/37-65op4qB0i5s.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/37-65op4qB0i5s.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 38,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=_d-fTvkWqL4",
+          "video_id": "_d-fTvkWqL4",
+          "duration": "PT18M5S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "I Was Sued—and This Is How I Fought Back",
+          "publication": "2026-05-29T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/38-_d-fTvkWqL4.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/38-_d-fTvkWqL4.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 39,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=bzlU-d7WQfA",
+          "video_id": "bzlU-d7WQfA",
+          "duration": "PT11M57S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "My Bank ‘Insider’ to Get an Unsecured $25K Credit Card",
+          "publication": "2026-05-27T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/39-bzlU-d7WQfA.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/39-bzlU-d7WQfA.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        },
+        {
+          "position": 40,
+          "channel": "Monica Main",
+          "url": "https://www.youtube.com/watch?v=PLDqDdyVh6A",
+          "video_id": "PLDqDdyVh6A",
+          "duration": "PT10M17S",
+          "transcript_status": "retrieved",
+          "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+          "title": "7 Banks Offering $10,000 (Soft Pull – Check Before You Apply)",
+          "publication": "2026-05-25T09:00:06-07:00",
+          "transcript_file": "transcripts/monica-main/40-PLDqDdyVh6A.md",
+          "timestamp_status": "timestamps unavailable; no timestamps inferred",
+          "intelligence_status": "extracted",
+          "intelligence_file": "intelligence/monica-main/40-PLDqDdyVh6A.json",
+          "source_postprocessor": [
+            "youtube"
+          ]
+        }
+      ]
+    }
+  ],
+  "method": {
+    "channel_inventory": "yt-dlp flat playlist, newest-first, playlist-end 40",
+    "transcript_text": "Firecrawl YouTube postprocessor",
+    "timed_caption_evidence": "YouTube en-orig WebVTT retrieved independently with yt-dlp for two positive controls",
+    "timestamp_policy": "Firecrawl-generated timestamps were rejected after failing duration integrity; no timestamps were inferred for the remaining videos"
+  }
+}

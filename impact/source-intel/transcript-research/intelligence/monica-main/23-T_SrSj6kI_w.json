@@ -1,0 +1,40 @@
+{
+  "video_id": "T_SrSj6kI_w",
+  "title": "5 Most Dangerous Scams Happening Right Now",
+  "source_url": "https://www.youtube.com/watch?v=T_SrSj6kI_w",
+  "actionable_recommendations": [
+    "Get your LexisNexis full disclosure report to detect identity misuse.",
+    "Request a ChexSystems report regularly to identify unauthorized bank accounts.",
+    "Obtain an IRS PIN to prevent fraudulent tax filings.",
+    "Freeze your credit reports to thwart unauthorized account openings.",
+    "Consider using identity protection services such as LifeLock."
+  ],
+  "claims_requiring_current_verification": [
+    "The effectiveness and requirements of LexisNexis and ChexSystems reports may change over time.",
+    "IRS procedures for establishing and using an IRS PIN may vary by year.",
+    "Identity protection services and their coverage details can fluctuate."
+  ],
+  "intended_organization_or_user": "Individuals concerned about identity theft and fraud.",
+  "major_ideas": [
+    "Identity theft can occur without immediate detection on credit reports.",
+    "Fraudsters can use stolen identities to open bank accounts and take loans without the victim's knowledge.",
+    "Preventative measures, including credit freezes and obtaining reports, are essential for safeguarding against fraud."
+  ],
+  "prerequisites": [
+    "Knowledge of personal information security",
+    "Access to online credit reporting and identity verification services."
+  ],
+  "proposed_workflow": [
+    "Monitor your credit and identity regularly through official reports.",
+    "Implement preventative measures like credit freezes and IRS PINs.",
+    "Engage professional services for credit repair if needed."
+  ],
+  "tools_templates_resources": [
+    "LexisNexis full disclosure reports",
+    "ChexSystems reports",
+    "IRS PIN setup on IRS.gov",
+    "Identity protection services like LifeLock",
+    "Credit monitoring from Experian, Equifax, TransUnion."
+  ]
+}
+

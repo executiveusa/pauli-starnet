@@ -1,0 +1,31 @@
+{
+  "video_id": "H4sRioiq3sY",
+  "source_url": "https://www.youtube.com/watch?v=H4sRioiq3sY",
+  "actionable_recommendations": [
+    "Use AI as an assistant, not as the fundraiser.",
+    "Keep a close eye on the donor's perspective and experiences with AI-generated content."
+  ],
+  "claims_requiring_current_verification": [
+    "AI technologies and practices evolve rapidly; verify specific capabilities and best practices in AI for fundraising.",
+    "Empirical data on fundraising success rates when using AI needs current validation."
+  ],
+  "intended_organization_or_user": "Nonprofit organizations and fundraising professionals",
+  "major_ideas": [
+    "AI can enhance fundraising efforts when used correctly.",
+    "Choosing the right tasks for AI can lead to successful outcomes in nonprofit fundraising processes."
+  ],
+  "prerequisites": [
+    "Understanding of AI functionalities in a fundraising context.",
+    "Basic training in AI tools applicable to fundraising."
+  ],
+  "proposed_workflow": [
+    "Assess which fundraising tasks can benefit from AI assistance.",
+    "Regularly review AI-generated content to ensure quality and relevance.",
+    "Engage with donors to gauge their reactions to AI-generated communications."
+  ],
+  "tools_templates_resources": [
+    "AI writing assistants for generating fundraising content.",
+    "Data analytics tools to evaluate AI effectiveness in donation campaigns."
+  ],
+  "title": "Before You Use ChatGPT for Fundraising, Watch This"
+}

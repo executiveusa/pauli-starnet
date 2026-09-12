@@ -1,0 +1,63 @@
+[
+  {
+    "position": 20,
+    "video_id": "Ib-BZHen7yc",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/20-Ib-BZHen7yc.json"
+  },
+  {
+    "position": 21,
+    "video_id": "fUocc4b13ro",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/21-fUocc4b13ro.json"
+  },
+  {
+    "position": 22,
+    "video_id": "UCJO7aNMfeU",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 23,
+    "video_id": "pOfNNXjQa_k",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/23-pOfNNXjQa_k.json"
+  },
+  {
+    "position": 24,
+    "video_id": "1K93EfwIYIo",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/24-1K93EfwIYIo.json"
+  },
+  {
+    "position": 25,
+    "video_id": "xl1Ccs9HGaA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/25-xl1Ccs9HGaA.json"
+  },
+  {
+    "position": 26,
+    "video_id": "JgBckjNfw9M",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/26-JgBckjNfw9M.json"
+  },
+  {
+    "position": 27,
+    "video_id": "hdk5pvzKDHI",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/27-hdk5pvzKDHI.json"
+  },
+  {
+    "position": 28,
+    "video_id": "FSQFw_ZvKBU",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/28-FSQFw_ZvKBU.json"
+  },
+  {
+    "position": 29,
+    "video_id": "FjEOQXbWeRM",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/29-FjEOQXbWeRM.json"
+  }
+]
+

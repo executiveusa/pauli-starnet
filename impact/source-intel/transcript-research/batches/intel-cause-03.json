@@ -1,0 +1,63 @@
+[
+  {
+    "position": 30,
+    "video_id": "gRRLWd6hW_g",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/30-gRRLWd6hW_g.json"
+  },
+  {
+    "position": 31,
+    "video_id": "0SkEjafvRe8",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/31-0SkEjafvRe8.json"
+  },
+  {
+    "position": 32,
+    "video_id": "9uM_Gv8CbVE",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/32-9uM_Gv8CbVE.json"
+  },
+  {
+    "position": 33,
+    "video_id": "_xlX_Ilnvgk",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/33-_xlX_Ilnvgk.json"
+  },
+  {
+    "position": 34,
+    "video_id": "FRVdi2VYYlE",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/34-FRVdi2VYYlE.json"
+  },
+  {
+    "position": 35,
+    "video_id": "5p4qDNjmy3M",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/35-5p4qDNjmy3M.json"
+  },
+  {
+    "position": 36,
+    "video_id": "_gRBVWO_HQU",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/36-_gRBVWO_HQU.json"
+  },
+  {
+    "position": 37,
+    "video_id": "DUqF9eh_2bA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/37-DUqF9eh_2bA.json"
+  },
+  {
+    "position": 38,
+    "video_id": "vvKuDuY4tE0",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/38-vvKuDuY4tE0.json"
+  },
+  {
+    "position": 39,
+    "video_id": "38oJ_39gMXU",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/39-38oJ_39gMXU.json"
+  }
+]
+

@@ -1,0 +1,30 @@
+{
+  "video_id": "CJB7W7XcD3c",
+  "source_url": "https://www.youtube.com/watch?v=CJB7W7XcD3c",
+  "actionable_recommendations": [
+    "Build a Claude AI grant writing system to save time.",
+    "Combine organizational knowledge, funder research, and quality checks for better proposals.",
+    "Create a reusable AI system for grant applications."
+  ],
+  "claims_requiring_current_verification": [
+    "Claims about reducing grant writing time from 30 hours to 4 based on Claude AI usage should be fact-checked."
+  ],
+  "intended_organization_or_user": "Nonprofit organizations and professionals involved in fundraising and grant writing.",
+  "major_ideas": [
+    "Grant writing is traditionally time-consuming and can be streamlined using AI.",
+    "Utilizing Claude AI can improve the quality of grant proposals and reduce the time taken."
+  ],
+  "prerequisites": [
+    "Understanding of nonprofit organizational knowledge and existing grant writing processes.",
+    "Familiarity with AI tools such as Claude."
+  ],
+  "proposed_workflow": [
+    "Organize nonprofit information efficiently to feed into the AI system.",
+    "Set up project folders and repeatable workflows for consistent grant proposals."
+  ],
+  "tools_templates_resources": [
+    "Claude AI for grant writing.",
+    "Quality check frameworks for grant proposals."
+  ],
+  "title": "How Claude Cut Grant Writing From 30 Hours to 4"
+}

@@ -1,0 +1,35 @@
+{
+  "video_id": "hdk5pvzKDHI",
+  "title": "The Tells That Funders Use to Reject AI Fundraising",
+  "source_url": "https://www.youtube.com/watch?v=hdk5pvzKDHI",
+  "actionable_recommendations": [
+    "Use AI tools like ChatGPT to brainstorm and organize ideas, not as final authors.",
+    "Remove AI-generated content that feels generic before submitting grants or donor documents.",
+    "Add personal experiences and specific details to enhance authenticity."
+  ],
+  "claims_requiring_current_verification": [
+    "Fundraising outcomes may vary based on a nonprofit's readiness and unique situation.",
+    "Funders do not need AI detection software to recognize AI-generated content."
+  ],
+  "intended_organization_or_user": "Small nonprofits seeking funding",
+  "major_ideas": [
+    "AI tools can save time for nonprofits in fundraising.",
+    "Subtle signs of AI use can damage credibility in funding applications.",
+    "Human writing should convey confidence and personal experiences."
+  ],
+  "prerequisites": [
+    "Understanding of how AI tools function in the context of fundraising.",
+    "Awareness of how specific language and formatting can impact credibility."
+  ],
+  "proposed_workflow": [
+    "Utilize AI for brainstorming and organizing notes.",
+    "Draft initial ideas with AI, then edit for authenticity and personal voice.",
+    "Ensure final documents are free from common AI indicators."
+  ],
+  "tools_templates_resources": [
+    "ChatGPT for brainstorming and drafting.",
+    "Examples of human vs AI writing styles to learn from.",
+    "Downloadable AI policy template."
+  ]
+}
+

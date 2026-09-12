@@ -1,0 +1,122 @@
+[
+  {
+    "position": 1,
+    "video_id": "5JAVglJHzG4",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/01-5JAVglJHzG4.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-09-07T09:00:06-07:00",
+    "duration": "PT11M13S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 2,
+    "video_id": "7z97i1FlBL4",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/02-7z97i1FlBL4.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-09-03T09:00:29-07:00",
+    "duration": "PT14M38S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 3,
+    "video_id": "E9LhTyRzBoI",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/03-E9LhTyRzBoI.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-31T09:00:06-07:00",
+    "duration": "PT16M50S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 4,
+    "video_id": "7AE_2IV_Zl8",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/04-7AE_2IV_Zl8.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-27T09:00:27-07:00",
+    "duration": "PT9M6S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 5,
+    "video_id": "LvaMZfgFZhE",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/05-LvaMZfgFZhE.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-24T09:00:06-07:00",
+    "duration": "PT10M31S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 6,
+    "video_id": "ygn_aki6-YE",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/06-ygn_aki6-YE.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-20T09:00:37-07:00",
+    "duration": "PT16M37S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 7,
+    "video_id": "km0D2yyg544",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/07-km0D2yyg544.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-17T09:00:06-07:00",
+    "duration": "PT11M11S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 8,
+    "video_id": "EFKZeCId6n0",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/08-EFKZeCId6n0.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-13T09:00:07-07:00",
+    "duration": "PT10M34S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 9,
+    "video_id": "fmv_fuwLcug",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/09-fmv_fuwLcug.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-10T09:00:07-07:00",
+    "duration": "PT22M59S",
+    "postprocessors": [
+      "youtube"
+    ]
+  },
+  {
+    "position": 10,
+    "video_id": "T65oLsH2NZk",
+    "status": "retrieved",
+    "transcript_file": "transcripts/monica-main/10-T65oLsH2NZk.md",
+    "transcript_source": "Firecrawl YouTube postprocessor; caption text without timestamps",
+    "publication": "2026-08-06T09:00:38-07:00",
+    "duration": "PT12M6S",
+    "postprocessors": [
+      "youtube"
+    ]
+  }
+]

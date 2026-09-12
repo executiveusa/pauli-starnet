@@ -1,0 +1,39 @@
+{
+  "video_id": "0SkEjafvRe8",
+  "title": "Grant Writing With AI: Why Your Proposal Might Never Be Read",
+  "source_url": "https://www.youtube.com/watch?v=0SkEjafvRe8",
+  "actionable_recommendations": [
+    "Use plain language with a logical flow in proposals.",
+    "Ensure consistency between narrative and budget.",
+    "Explicitly align your proposal with the funder's mission using their language.",
+    "Pre-screen your proposal using AI for clarity and compliance."
+  ],
+  "claims_requiring_current_verification": [
+    "Funders are using AI to screen proposals before human review.",
+    "AI systems scan proposals for compliance based on keywords, leading to automatic rejections.",
+    "Specific financial ratios are checked by AI."
+  ],
+  "intended_organization_or_user": "Small Nonprofits seeking funding assistance",
+  "major_ideas": [
+    "AI is used by funders to filter grant proposals.",
+    "Clarity and alignment in proposals are crucial for success.",
+    "Compliance with funder-specific language is necessary to avoid rejection.",
+    "AI can assist in refining and improving grant proposals."
+  ],
+  "prerequisites": [
+    "Understanding of funders' missions and priorities.",
+    "Clear narrative about the organization and its outcomes.",
+    "Basic financial knowledge related to ratios and budgets."
+  ],
+  "proposed_workflow": [
+    "Draft the grant proposal using clarity and consistency.",
+    "Use AI tools to check readability and resolve inconsistencies.",
+    "Ensure compliance with funders’ keyword requirements.",
+    "Finalize the proposal with human insight and narrative."
+  ],
+  "tools_templates_resources": [
+    "AI tools like ChatGPT or Gemini for pre-screening proposals.",
+    "Standard financial documents for submissions."
+  ]
+}
+

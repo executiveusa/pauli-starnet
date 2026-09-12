@@ -1,0 +1,123 @@
+[
+  {
+    "position": 1,
+    "video_id": "mMlYgNvOiWU\\tThe Biggest Fundraising Opportunity During a Bad Economy\\t12:16\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/01-mMlYgNvOiWU\\tThe Biggest Fundraising Opportunity During a Bad Economy\\t12:16\\tNA.json"
+  },
+  {
+    "position": 2,
+    "video_id": "NVJyUFfRQtM\\tBefore a Funder Gives You Money, They Check THIS\\t12:08\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 3,
+    "video_id": "N5qxCeEymDE\\tYour First Major Donor Is Closer Than You Think\\t14:19\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/03-N5qxCeEymDE\\tYour First Major Donor Is Closer Than You Think\\t14:19\\tNA.json"
+  },
+  {
+    "position": 4,
+    "video_id": "CJB7W7XcD3c\\tHow Claude Cut Grant Writing From 30 Hours to 4\\t9:03\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/04-CJB7W7XcD3c\\tHow Claude Cut Grant Writing From 30 Hours to 4\\t9:03\\tNA.json"
+  },
+  {
+    "position": 5,
+    "video_id": "TSxNCtQ9pbU\\tThese 5 Fundraising Materials Are All You Need\\t7:24\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/05-TSxNCtQ9pbU\\tThese 5 Fundraising Materials Are All You Need\\t7:24\\tNA.json"
+  },
+  {
+    "position": 6,
+    "video_id": "iJgi48rlgNA\\tMost Small Nonprofits Are Looking in the Wrong Place\\t9:22\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/06-iJgi48rlgNA\\tMost Small Nonprofits Are Looking in the Wrong Place\\t9:22\\tNA.json"
+  },
+  {
+    "position": 7,
+    "video_id": "pnEA7OIhKiM\\tThe 4 Skills That Raise More Money for Your Nonprofit\\t8:10\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/07-pnEA7OIhKiM\\tThe 4 Skills That Raise More Money for Your Nonprofit\\t8:10\\tNA.json"
+  },
+  {
+    "position": 8,
+    "video_id": "lCbS9WGy5sk\\tThe Real Reason Donors Don't Give (10 Fundraising Mistakes to Fix Today)\\t6:42\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/08-lCbS9WGy5sk\\tThe Real Reason Donors Don't Give (10 Fundraising Mistakes to Fix Today)\\t6:42\\tNA.json"
+  },
+  {
+    "position": 9,
+    "video_id": "H4sRioiq3sY\\tBefore You Use ChatGPT for Fundraising, Watch This\\t8:27\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/09-H4sRioiq3sY\\tBefore You Use ChatGPT for Fundraising, Watch This\\t8:27\\tNA.json"
+  },
+  {
+    "position": 10,
+    "video_id": "YwcNARhitp4\\tYou're Looking for Donors in the Wrong Place\\t8:39\\tNA",
+    "status": "extracted",
+    "intelligence_file": "intelligence/cause-specialist/10-YwcNARhitp4\\tYou're Looking for Donors in the Wrong Place\\t8:39\\tNA.json"
+  },
+  {
+    "position": 11,
+    "video_id": "RWzH5Yo8OXY\\tWhy Most New Nonprofits Fail at Fundraising\\t5:59\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 12,
+    "video_id": "YGRD7dqsYFk\\tClaude AI for Nonprofits: Save Hours on Fundraising Work\\t7:08\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 13,
+    "video_id": "frYHWEoL6bg\\t7 Fundraiser Ideas That Actually Work (Most Nonprofits Ignore These)\\t9:54\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 14,
+    "video_id": "qV2oypyXG3o\\tWhy Your Nonprofit Looks Unprofessional (And How to Fix It for Free)\\t7:54\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 15,
+    "video_id": "jT2pUGBDXLo\\tWhy Most Nonprofits Never Ask for Billions in Available Donations\\t6:14\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 16,
+    "video_id": "EEvMEzOWnjI\\tMost Nonprofits Are Fundraising Wrong\\t11:08\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 17,
+    "video_id": "QRGUAqOmDKc\\tIs Zeffy REALLY Free? A Nonprofit Coach Explains\\t8:07\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 18,
+    "video_id": "EFrneGFHOn4\\tThe #1 Mistake That Kills Nonprofit Campaigns\\t7:57\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 19,
+    "video_id": "hfXIFn439tU\\tThe $20K Mistake Killing Your Gala Fundraiser\\t8:30\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  },
+  {
+    "position": 20,
+    "video_id": "Ib-BZHen7yc\\tHow to Get Started on Zeffy for Free in Under 10 Minutes\\t7:42\\tNA",
+    "status": "failed",
+    "intelligence_file": null
+  }
+]
+
