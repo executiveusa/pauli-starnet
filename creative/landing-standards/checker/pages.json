@@ -1,0 +1,16 @@
+{
+  "generated": "2026-09-12",
+  "note": "All landing pages in the Max Digital Media family. role=bar pages are reference standards, audited for information only - they do not ship.",
+  "pages": [
+    { "name": "Max Digital Media (proof page)", "url": "https://macsdigitalmedia.netlify.app/", "role": "family", "bucket": "storefront" },
+    { "name": "Buffer Blaster (candidate 1)", "url": "https://bufferblaster.netlify.app/", "role": "family", "bucket": "Momentum", "bar": "maxfusion.ai" },
+    { "name": "Buffer Blaster (candidate 2)", "url": "https://buffer-blaster.netlify.app/", "role": "family", "bucket": "Momentum", "bar": "maxfusion.ai" },
+    { "name": "PARE", "url": "https://pauli-para.netlify.app/", "role": "family", "bucket": "Scale" },
+    { "name": "Posta Studio", "url": null, "role": "family", "bucket": "Scale", "bar": "tryitnow.ai", "note": "No public deploy yet - rebuild pending. Add URL when the Netlify rebuild ships." },
+    { "name": "Agent MAXX portal", "url": "https://macs-agent-portal-pi.vercel.app/", "role": "family", "bucket": "Built Here" },
+    { "name": "Taste of Nawlins", "url": "https://tasteofnawlins.netlify.app/", "role": "family", "bucket": "Launch" },
+    { "name": "ASC3ND", "url": "https://asc3nd.org/", "role": "family", "bucket": "Launch" },
+    { "name": "BAR: maxfusion.ai", "url": "https://maxfusion.ai/", "role": "bar" },
+    { "name": "BAR: tryitnow.ai", "url": "https://tryitnow.ai/", "role": "bar" }
+  ]
+}
