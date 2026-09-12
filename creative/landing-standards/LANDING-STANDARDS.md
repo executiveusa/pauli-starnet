@@ -8,7 +8,7 @@ Gauntlet (independent review) gates everything; English first, Mexican Spanish s
 ## Reference bars (pulled live 2026-09-12)
 
 ### Bar A: maxfusion.ai (Buffer Blaster)
-"AI Creative Layer for AGENCIES that scale" - verified live structure, top to bottom:
+"AI Creative Layer for brands / agencies that scale" (hero wordmark animates between BRANDS and AGENCIES; title tag: "AI Creative Layer for Brands and Agencies") - verified live structure, top to bottom:
 1. Announcement pill ("SEEDANCE 2.5 is LIVE!")
 2. Hero: one headline naming category + audience, one subline stating the outcome
    ("Creative infrastructure for teams and agents that ship hundreds of winning ads a week"),
