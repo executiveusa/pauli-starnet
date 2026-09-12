@@ -1,0 +1,26 @@
+[Unit]
+Description=MCP Agent Mail - city comms fabric (agent inboxes, threads, file reservations)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/mcp_agent_mail
+# Secrets come from Infisical (HERMES prod): AGENT_MAIL_BEARER. Never hardcode.
+Environment=APP_ENVIRONMENT=production
+Environment=HTTP_HOST=127.0.0.1
+Environment=HTTP_PORT=8765
+Environment=STORAGE_ROOT=/var/lib/mcp_agent_mail/repo
+EnvironmentFile=-/etc/mcp_agent_mail/env
+ExecStart=/root/.local/bin/uv run python -m mcp_agent_mail
+Restart=on-failure
+RestartSec=5
+# Resource floor on the 2 vCPU / 8 GB box
+CPUQuota=50%
+MemoryMax=768M
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
