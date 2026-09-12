@@ -1,0 +1,16 @@
+'use strict';
+const assert = require('assert');
+const { get } = require('../sidecar/line-templates/catalog.js');
+const { compile } = require('../sidecar/line-templates/compile.js');
+const bindings = { 'researcher-a': 'a', 'researcher-b': 'b', 'researcher-c': 'c', analyst: 'd' };
+const one = compile(get('research-swarm'), bindings), two = compile(get('research-swarm'), bindings);
+assert.deepStrictEqual(one, two, 'compile deterministic');
+assert.strictEqual(one.executable, true);
+assert.deepStrictEqual(one.stages.map(x => x.mode), ['fan-out', 'sequence']);
+assert.strictEqual(one.stages[0].join, true);
+const missing = compile(get('revision-loop'), { writer: 'w' });
+assert.strictEqual(missing.executable, false);
+assert.deepStrictEqual(missing.missingRoles, ['reviewer']);
+assert.deepStrictEqual(missing.stages[1].review, { accept: 'approved', maxPasses: 3 });
+assert.strictEqual(missing.integration, 'library-only');
+console.log('line-templates.compile.test.js OK');
