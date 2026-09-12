@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "constitution": "constitution.md",
+  "agents": {
+    "hermes": ["overlays/hermes.md"],
+    "heisenberg": ["overlays/heisenberg.md"],
+    "bars": ["overlays/bars.md"],
+    "merci": ["overlays/worker.md", "overlays/merci.md"],
+    "beacon": ["overlays/worker.md", "overlays/beacon.md"],
+    "herald": ["overlays/worker.md", "overlays/herald.md"],
+    "ledger": ["overlays/worker.md", "overlays/ledger.md"],
+    "conduit": ["overlays/worker.md", "overlays/conduit.md"],
+    "worker": ["overlays/worker.md"]
+  }
+}
