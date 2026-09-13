@@ -91,7 +91,9 @@
 
   function renderChrome() {
     const c = state.status;
-    const feed = CityCore.activityFeed(c, 10);
+    // 20, not 10: the WORKING counter and LAST RECEIPT must read the full merged
+    // window — a repo-push burst must not hide the newest receipted gateway task.
+    const feed = CityCore.activityFeed(c, 20);
     const working = new Set(feed.filter(t => t.status === 'running' || t.status === 'accepted')
       .map(t => String(t.agent || '').toUpperCase()).filter(Boolean));
     const citizens = (c && Array.isArray(c.citizens)) ? c.citizens : [];
