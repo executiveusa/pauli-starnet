@@ -1,5 +1,7 @@
 # PAULI'S PLACE — Canonical StarNet City Architecture
 
+> **SYNC NOTE (2026-09-13):** This lock doc is superseded in part. HEAD now carries a 10th district (Financial, 6 buildings - commit `37acdd29`), owner-confirmed as canon on 2026-09-13. Current verified truth: 10 districts / 19 buildings. Naming decision same date: Yappyverse = the whole world; Pauli's Place = a venue inside it. See `docs/YAPPYVERSE_CITY_CANONICAL_V1.md` for the current canonical record. The architecture-change rule below still governs future district/building changes.
+
 Status: canonical architecture lock for the current `CityOS` v2 implementation.
 
 Source of truth: `frontend/app/cityos.js` and its website mirror. This document does not create a second city manifest. It explains the architecture already implemented in CityOS and should remain synchronized with it.

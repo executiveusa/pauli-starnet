@@ -1,23 +1,24 @@
 # YAPPYVERSE CITY CANONICAL V1
 
-Status: canonical city truth record, generated 2026-09-13 by the Watcher lane (charter Phase B).
-Authority rule: this document describes the current canonical repo HEAD. It does not invent behavior. Where runtime state is unverified, it says so.
+Status: canonical city truth record, generated 2026-09-13 by the Watcher lane (charter Phase B), updated same day with owner decisions.
+Authority rule: this document describes the current canonical repo HEAD plus owner decisions made 2026-09-13. It does not invent behavior. Where runtime state is unverified, it says so.
 
 ## Verified current truth (2026-09-13)
 
 - Canonical branch: `feat/harness-backend` (repo has no `main`).
-- Canonical SHA at verification: `77d0d3996e2ce7cef921568b6b4555b53c1a600d`.
 - City spec source: `frontend/app/cityos.js` (`CityOS.DEFAULT_SPEC`, CityOS v2, schema `paulis.place.city`) with byte-identical mirror `website/app/app/cityos.js`.
-- World name in spec: `PAULI'S PLACE`.
 - Districts: **10**. Buildings: **19**. (Counted by executing the spec, not by reading prose.)
+- The live public city (Netlify site `pauli-starnet-city`, id `820f3b2f-63e7-4933-90de-4efdf37cebc5`) is STALE: old `world/*.js` stack, `/app/cityos.js` 404, does not reflect canonical HEAD.
 
-## Conflicts found and how this record resolves them
+## Owner decisions locked 2026-09-13 (voice note, relayed via main agent)
 
-1. `docs/PAULIS-PLACE-CITY-ARCHITECTURE.md` (locked 2026-09-10 via PR #12) says 9 districts / 13 buildings and carries an architecture-change rule requiring a reviewed migration to change that. Repo HEAD has carried a 10th district (Financial, 6 buildings) since commit `37acdd29` (2026-09-13 00:51, owner git identity). The doc is stale relative to HEAD. NEEDS OWNER CONFIRMATION: Financial District as permanent canon (see below).
-2. The live public city (Netlify site `pauli-starnet-city`, id `820f3b2f-63e7-4933-90de-4efdf37cebc5`) is STALE and mismatched: title "Yappyverse — Live City", loads an older `world/*.js` stack, and `/app/cityos.js` 404s. It does not reflect canonical HEAD. Redeploy from canonical SHA is required (Phase B §5.5).
-3. Naming (charter §5.2): YAPPYVERSE = the entire world; Pauli's Place = one named venue inside it. Current code names the whole city spec `PAULI'S PLACE` and the live page header says Yappyverse. This is a product-identity decision; parked for owner call, not unilaterally renamed.
-4. Canon locations (charter §5.3): Pauli's Place, Polly's Place, Officina de Bambú, Seattle 2056 are not represented in the current spec. Functions ambiguous; parked for owner confirmation before adding labeled placeholder venues.
-5. Avatars (charter §5.4): sprite packs in `frontend/city/assets/sprites/`: `blank` (5 color variants), `ultron`, `minion`, `heisenberg`. Only `heisenberg` is a named character asset; the rest are generic. Approved Yappyverse character assets are not available in the repo. Blocker surfaced; no fabricated assets; runtime functionality preserved.
+1. FINANCIAL DISTRICT IS CANON. The 10th district (6 buildings, commit `37acdd29`) is owner-confirmed. The 9/10 architecture lock doc (9 districts / 13 buildings) carries a sync note pointing here.
+2. NAMING: **Yappyverse = the whole world, the entire experience. Pauli's Place = one named venue inside it.** Pauli is always spelled P-A-U-L-I, never "Polly". Code and doc renames to match are approved as a direction and land with the PRD implementation, not before.
+3. VENUES: Pauli's Place and the Officina de Bambú (owner's office) are confirmed canon venues to be represented. Seattle 2056 was not mentioned in the decision; remains open.
+4. REDEPLOY: approved in principle, but ONLY once the public city site build is provably complete - no Netlify deploys spent on partial builds. Held until then.
+5. AVATARS: repo sprite library inventoried (38 sets, see below); owner will map his avatar names onto the existing sets. Mapping list delivered 2026-09-13.
+6. FLEET ROUTING: the 2026-09-10 fleet-split approval (free default + OpenRouter paid lane opt-in) is confirmed real. The stale `route-policy.js` will NOT be ported; a reworked routing policy (evaluating a cheaper default such as DeepSeek because Groq keeps hitting free-tier limits, paid lane opt-in, fail-closed) goes into the PRD for owner approval first.
+7. GRAPHICS: full upgrade plan wanted - Unreal Engine direction plus the Stefan 3D channel mine and video-pipeline learnings. Owner verdict on current graphics: not readable enough. PRD covers this.
 
 ## The 10 districts / 19 buildings (canonical HEAD)
 
@@ -45,9 +46,11 @@ Roles below are the spec's desired specialist slots, not proof of seated workers
 | financial | executive_finance | EXECUTIVE FINANCE | controller | files, memory |
 | operations | night_ops | NIGHT OPERATIONS | nightwatch, foreman, operator, scout | files, web, memory, terminal |
 
-## Open owner items from this phase
+## Sprite library inventory (frontend/city/assets/sprites/, mirrored at frontend/assets/sprites/)
 
-1. Confirm Financial District (6 buildings, added 2026-09-13 in `37acdd29`) is owner-approved canon. If yes, the 9/13 district lock doc gets a sync note; if no, the district comes out under one reviewed migration per that doc's own rule.
-2. Naming call: Yappyverse (world) vs Pauli's Place (venue) — current spec names the whole city PAULI'S PLACE.
-3. Canon venues (Polly's Place, Officina de Bambú, Seattle 2056): confirm still required; then added as labeled placeholders only.
-4. Approved character/sprite assets for owner-facing avatars — currently generic packs only.
+38 sets total. 33 named characters: alien, astronaut, bear, capybara, caseyjones, crewmate, crthead, dario, endoskeleton, finn, freddyfazbear, ghostface, grimreaper, heisenberg, masterchief, minion, minionchar, morpheus, ninjaturtle, pepe, pikachu, plaguedoctor, ricksanchez, robocop, robot, samaltman, secretagent, skeleton, ultron, ultrondroid, vaultboy, voidwizard, xenomorph. 5 generic blanks: blank, blank_amber, blank_blue, blank_green, blank_red. 2 technical entries (_assembly, _preset) are not characters. Current city code skins walkers from the 5 blanks only and reserves heisenberg for an agent named HEISENBERG; the other 33 named sets have full animation frames but are not wired to agents yet. Many named sets are third-party IP lookalikes - fine for dev, to be replaced with original art under the graphics upgrade plan.
+
+## Open owner items
+
+1. Seattle 2056 venue: still required? (Not covered in the 2026-09-13 decisions.)
+2. PRD approval: naming renames, venue additions, sprite mapping, reworked routing policy, graphics upgrade plan, redeploy-on-complete - all implement after PRD sign-off.
