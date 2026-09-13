@@ -15,5 +15,9 @@ Upstream: kunchenguid/firstmate | License: MIT (LICENSE-UPSTREAM retained, attri
 ## Tests
 - Port lands with: dispatch-profile contract tests, hold-lifecycle state tests (hold -> escalate -> resume), watcher wake-on-event test. Pattern for test shape: repo's own docs/architecture.md.
 
+## Status
+
+PORT LANDED (chunk 1, 2026-09-13): sidecar/supervisor.js + test/supervisor.test.js (34 assertions) - dispatch profiles, hold lifecycle, durable status + reconcile, zero-token watcher, worktree naming. Not yet wired into sidecar/index.js routes - host wiring is chunk 1b.
+
 ## Archive credit
 Counts as pauli-firstmate's import record; repo becomes archive-eligible after the supervisor port is verified.
