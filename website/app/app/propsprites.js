@@ -3405,13 +3405,24 @@ const PropSprites = (() => {
     inset(x + 7, y - 1, w - 14, 5, bound ? '#0e1c16' : '#101619');
     if (bound) {
       px(x + 8, y, w - 16, 1, '#1e3a2c');
-      ctx.fillStyle = '#7df0c8'; ctx.font = "8px 'VT323','Courier New',monospace";
+      ctx.fillStyle = '#7df0c8';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       // the plate speaks the AGENT'S NAME (f.dockName — resolved LIVE by the caller from bodies/roster,
       // never stored on the prop doc, so a rename repaints next frame). The raw id is only the fallback
       // for a bay whose agent has no resolvable name — an id like `agent` used to render every custom
       // dock as the word AGENT.
-      ctx.fillText(String(f.dockName || String(f.agentId).replace(/^tg_/, '')).slice(0, 5).toUpperCase(), x + (w >> 1), y + 1);
+      // FULL NAME, SHRUNK TO FIT (2026-09-11 city web round 4b): the old slice(0, 5) clipped BEACON to
+      // "BEACO" against the belt and read as a broken label. The plate now fits the whole name by
+      // stepping the font down (8→5px floor) until it clears the bezel inset (w-16), no truncation.
+      const plateName = String(f.dockName || String(f.agentId).replace(/^tg_/, '')).toUpperCase();
+      const plateMaxW = w - 16;
+      let plateFs = 8;
+      ctx.font = plateFs + "px 'VT323','Courier New',monospace";
+      while (plateFs > 5 && ctx.measureText(plateName).width > plateMaxW) {
+        plateFs--;
+        ctx.font = plateFs + "px 'VT323','Courier New',monospace";
+      }
+      ctx.fillText(plateName, x + (w >> 1), y + 1);
       bloom(x + 8, y, w - 16, 3, c, 0.10 + (act ? 0.10 : 0));
     } else {
       px(x + 9, y, w - 18, 1, '#2a3438'); px(x + 9, y + 2, w - 22, 1, '#232c30');   // dim UNASSIGNED bars

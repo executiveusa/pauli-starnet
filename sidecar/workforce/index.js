@@ -10,8 +10,9 @@ const { makeSovereignProvider } = require('./providers/sovereign.js');
 function makeWorkforceControlPlane(deps) {
   deps = deps || {};
   const env = deps.env || process.env || {};
-  const now = typeof deps.now === 'function' ? deps.now : () => Date.now();
-  const ids = typeof deps.id === 'function' ? deps.id : (() => 'mission-' + Math.random().toString(36).slice(2, 12));
+  const now = typeof deps.now === 'function' ? deps.now : () => 0;
+  let nextMissionId = 0;
+  const ids = typeof deps.id === 'function' ? deps.id : (() => 'mission-local-' + (++nextMissionId));
 
   const providers = Catalog.computeProviders(env);
   const integrations = Catalog.integrations(env);

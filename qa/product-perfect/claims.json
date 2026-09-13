@@ -18,8 +18,8 @@
   "expectedClaimCount": 37,
   "releaseSurface": {
     "algorithm": "sha256",
-    "sourceCommit": "0a8b3451b014e48b78ac9a23316692c85164b3c4",
-    "pathSetSha256": "4a4d5044dc5f1a8aa7e16d752bd899dc2b027dcd621bea4ae61df6a29d6a6912",
+    "sourceCommit": "da565def7b5c35fc8fc14e599a87deefe98566c2",
+    "pathSetSha256": "d82935b70fec4db2a08c3e188ef2ab4a65cdfc6d0cbcf72f6ea16b0a30314fb2",
     "files": [
       {
         "path": "INSTALL.md",
@@ -63,8 +63,8 @@
       },
       {
         "path": "frontend/app/app.js",
-        "bytes": 364582,
-        "sha256": "246e70bfd0090edc127307a58946a375dc4b704c89071df5f3aad3513766cddf"
+        "bytes": 364849,
+        "sha256": "b0483dde06b9e2021fafa2e54f889cb6a1ab5a82d9547820ead51abb2552667d"
       },
       {
         "path": "frontend/app/armconfirm.js",
@@ -147,9 +147,14 @@
         "sha256": "7454e86678425e97a885bfe43a19ad8b5ad08e1da66a908d674545bb2df16be1"
       },
       {
+        "path": "frontend/app/cityos.js",
+        "bytes": 31521,
+        "sha256": "75ea9e7fd91a47038d886ec6f53b85ef1887c78ba58b43ca2a08adf45bea4ac5"
+      },
+      {
         "path": "frontend/app/classicons.js",
-        "bytes": 57075,
-        "sha256": "845312f272a020e7cc3fc854bcc5438e213a89541c3436880abec8f14ca5305d"
+        "bytes": 57642,
+        "sha256": "1902e0c87ee6e60a0f31f192756254ae3be01c0d72780c8d762dd6200e0710d9"
       },
       {
         "path": "frontend/app/classify.js",
@@ -493,8 +498,8 @@
       },
       {
         "path": "frontend/app/propsprites.js",
-        "bytes": 742202,
-        "sha256": "67856a295ec67aab83dadcf5f54688e276bf1f2ab0e04a934f71634ef8777836"
+        "bytes": 742771,
+        "sha256": "ffe4b0824b5d6dff47e328413b44be6bd834020ae6f82f0b3c3749b839508985"
       },
       {
         "path": "frontend/app/prospect.js",
@@ -663,8 +668,8 @@
       },
       {
         "path": "frontend/app/save.js",
-        "bytes": 7658,
-        "sha256": "09e57736aafe63190edd6c9a903f08e58976ba2d821ca83369388199ed169e84"
+        "bytes": 8186,
+        "sha256": "8900cff5000fdb036e27afb28a063e3517cb842c9eb12b448561f34a3068d2c5"
       },
       {
         "path": "frontend/app/schedpicker.js",
@@ -723,13 +728,13 @@
       },
       {
         "path": "frontend/app/stationbake.js",
-        "bytes": 283322,
-        "sha256": "7e63b4fec16ec4d19b1c0241a94aa52a36c8e026fd826cba384b3177ac0bef1c"
+        "bytes": 285069,
+        "sha256": "bfe566f68d30dace964d149f363bba9cbd16bcf33d3d6e2ea9099c44b59b2bfd"
       },
       {
         "path": "frontend/app/stationcommands.js",
-        "bytes": 25022,
-        "sha256": "c0b85d692cb59d01cdbfe9ca1ded654bdfc99ad662ff3e8eec262c3d64d042e2"
+        "bytes": 29665,
+        "sha256": "6885bdd9e1d0dee57df48baf96cd0cd78c5f7ba6809b83dd74e47270e038eefe"
       },
       {
         "path": "frontend/app/stationquests.js",
@@ -953,8 +958,8 @@
       },
       {
         "path": "frontend/app/world.js",
-        "bytes": 700041,
-        "sha256": "032e1ba7bf04650fb39666e53e526552993864b7b6298b422c5a4d766dbfeb5b"
+        "bytes": 706522,
+        "sha256": "10bb3a0c6edadfac24feaeeaca486479f8673953658494308e29bf07d3f4f47c"
       },
       {
         "path": "frontend/app/worldmodel.js",
@@ -973,6 +978,221 @@
       },
       {
         "path": "frontend/app/zones.js",
+        "bytes": 12313,
+        "sha256": "5abb6deb7e64dcb053854fae98a3ffbabfc2bab1fbba2398b184aaaa784991aa"
+      },
+      {
+        "path": "frontend/city/city-core.js",
+        "bytes": 22490,
+        "sha256": "81c2f7efedb37177fbbfe50fea425e70be79a1c0c05bcd8cca8239ca5067ee32"
+      },
+      {
+        "path": "frontend/city/city-world.js",
+        "bytes": 9735,
+        "sha256": "374753f7f46d1e21a6bd33d48070bfe3707af1bd9d509856332de3795b4bd487"
+      },
+      {
+        "path": "frontend/city/city.css",
+        "bytes": 8460,
+        "sha256": "4314789f08f9d409ab64258697a92c865d102430b191c2006cb503614a0792b7"
+      },
+      {
+        "path": "frontend/city/city.js",
+        "bytes": 9174,
+        "sha256": "dcde890abf621ca91fe7ef5ee938f9e2ceb326a6c77d5ee2ba96d94656f37bf3"
+      },
+      {
+        "path": "frontend/city/deploy/city-core.js",
+        "bytes": 22490,
+        "sha256": "81c2f7efedb37177fbbfe50fea425e70be79a1c0c05bcd8cca8239ca5067ee32"
+      },
+      {
+        "path": "frontend/city/deploy/city-world.js",
+        "bytes": 9735,
+        "sha256": "374753f7f46d1e21a6bd33d48070bfe3707af1bd9d509856332de3795b4bd487"
+      },
+      {
+        "path": "frontend/city/deploy/city.css",
+        "bytes": 8460,
+        "sha256": "4314789f08f9d409ab64258697a92c865d102430b191c2006cb503614a0792b7"
+      },
+      {
+        "path": "frontend/city/deploy/city.js",
+        "bytes": 9174,
+        "sha256": "dcde890abf621ca91fe7ef5ee938f9e2ceb326a6c77d5ee2ba96d94656f37bf3"
+      },
+      {
+        "path": "frontend/city/deploy/index.html",
+        "bytes": 3292,
+        "sha256": "e64718fdbd5249484f991427a457c851c940be94850d81d01dc528c5fb7bbb5d"
+      },
+      {
+        "path": "frontend/city/deploy/owner.html",
+        "bytes": 8477,
+        "sha256": "6851d8b705555c6db78d7d58f8b05e76ec215f8253f03f3e37019a81c1ddf89c"
+      },
+      {
+        "path": "frontend/city/deploy/world/assets.js",
+        "bytes": 34920,
+        "sha256": "cce4ed38be78209053dc769afef84eee0811b7bf1211d51223544fee35a419bd"
+      },
+      {
+        "path": "frontend/city/deploy/world/cityos.js",
+        "bytes": 32281,
+        "sha256": "070973af759d82bb97f75a0d3ed33deee9f7d294b6184fc1361fb8fae7514665"
+      },
+      {
+        "path": "frontend/city/deploy/world/conveyor.js",
+        "bytes": 45151,
+        "sha256": "d60f36f4015982e9544588f133ee2f4e51a592be05cd4824e77647a970e70c5c"
+      },
+      {
+        "path": "frontend/city/deploy/world/data-shim.js",
+        "bytes": 3958,
+        "sha256": "79af3bc312c523c3ee60eb163280827cbc56e16b8648282b55b8a646e1f7fbd7"
+      },
+      {
+        "path": "frontend/city/deploy/world/pipeline.js",
+        "bytes": 69512,
+        "sha256": "623d57923cedc5641cfc2b145a8c0b16b34d25267134c5fc4c234788f01260e9"
+      },
+      {
+        "path": "frontend/city/deploy/world/propanchor.js",
+        "bytes": 5563,
+        "sha256": "b3df5e78efc7c1abb47193cf45b3a768b7dd6a6de4cf055ed6987fe4e47d8eca"
+      },
+      {
+        "path": "frontend/city/deploy/world/propsprites.js",
+        "bytes": 742771,
+        "sha256": "ffe4b0824b5d6dff47e328413b44be6bd834020ae6f82f0b3c3749b839508985"
+      },
+      {
+        "path": "frontend/city/deploy/world/spacebg.js",
+        "bytes": 70850,
+        "sha256": "b10225c88501b6e7b9a9884dbeb66bbc14b390f9276d3b9b05c23c0038ce98c2"
+      },
+      {
+        "path": "frontend/city/deploy/world/sprite-load-plan.js",
+        "bytes": 1314,
+        "sha256": "a28a41dfb7b9dd19f24b0b59ade9d983c4eaf0f0c93b368c9f7b9d3af367a4d7"
+      },
+      {
+        "path": "frontend/city/deploy/world/stationbake.js",
+        "bytes": 285069,
+        "sha256": "bfe566f68d30dace964d149f363bba9cbd16bcf33d3d6e2ea9099c44b59b2bfd"
+      },
+      {
+        "path": "frontend/city/deploy/world/terrain.js",
+        "bytes": 115304,
+        "sha256": "b041df0ee5cfed5d6e9d39b0cdffb9f2d901f8ce8443d4da436bd5fbe34ebc8e"
+      },
+      {
+        "path": "frontend/city/deploy/world/util.js",
+        "bytes": 31079,
+        "sha256": "c5e152e347f2733b640419b15ef7f96fffcd677900413a02bb69b752e2485b49"
+      },
+      {
+        "path": "frontend/city/deploy/world/waitanchor.js",
+        "bytes": 5193,
+        "sha256": "7691145fd7ba41a0d589eb6426f063d91ce6fada18cc7fea436d3f7547985691"
+      },
+      {
+        "path": "frontend/city/deploy/world/world.js",
+        "bytes": 710679,
+        "sha256": "41a56ddf828abd5cbb4a8b862349ce0afa139ce2d72c57a6dab7df4d348c6c18"
+      },
+      {
+        "path": "frontend/city/deploy/world/worldmodel.js",
+        "bytes": 126795,
+        "sha256": "87e4323f50858b3cf4ef56df9daea240a20129667059c49a355dcf7e7f9a8ec6"
+      },
+      {
+        "path": "frontend/city/deploy/world/zones.js",
+        "bytes": 12313,
+        "sha256": "5abb6deb7e64dcb053854fae98a3ffbabfc2bab1fbba2398b184aaaa784991aa"
+      },
+      {
+        "path": "frontend/city/index.html",
+        "bytes": 3292,
+        "sha256": "e64718fdbd5249484f991427a457c851c940be94850d81d01dc528c5fb7bbb5d"
+      },
+      {
+        "path": "frontend/city/world/assets.js",
+        "bytes": 34920,
+        "sha256": "cce4ed38be78209053dc769afef84eee0811b7bf1211d51223544fee35a419bd"
+      },
+      {
+        "path": "frontend/city/world/cityos.js",
+        "bytes": 32281,
+        "sha256": "070973af759d82bb97f75a0d3ed33deee9f7d294b6184fc1361fb8fae7514665"
+      },
+      {
+        "path": "frontend/city/world/conveyor.js",
+        "bytes": 45151,
+        "sha256": "d60f36f4015982e9544588f133ee2f4e51a592be05cd4824e77647a970e70c5c"
+      },
+      {
+        "path": "frontend/city/world/data-shim.js",
+        "bytes": 3958,
+        "sha256": "79af3bc312c523c3ee60eb163280827cbc56e16b8648282b55b8a646e1f7fbd7"
+      },
+      {
+        "path": "frontend/city/world/pipeline.js",
+        "bytes": 69512,
+        "sha256": "623d57923cedc5641cfc2b145a8c0b16b34d25267134c5fc4c234788f01260e9"
+      },
+      {
+        "path": "frontend/city/world/propanchor.js",
+        "bytes": 5563,
+        "sha256": "b3df5e78efc7c1abb47193cf45b3a768b7dd6a6de4cf055ed6987fe4e47d8eca"
+      },
+      {
+        "path": "frontend/city/world/propsprites.js",
+        "bytes": 742771,
+        "sha256": "ffe4b0824b5d6dff47e328413b44be6bd834020ae6f82f0b3c3749b839508985"
+      },
+      {
+        "path": "frontend/city/world/spacebg.js",
+        "bytes": 70850,
+        "sha256": "b10225c88501b6e7b9a9884dbeb66bbc14b390f9276d3b9b05c23c0038ce98c2"
+      },
+      {
+        "path": "frontend/city/world/sprite-load-plan.js",
+        "bytes": 1314,
+        "sha256": "a28a41dfb7b9dd19f24b0b59ade9d983c4eaf0f0c93b368c9f7b9d3af367a4d7"
+      },
+      {
+        "path": "frontend/city/world/stationbake.js",
+        "bytes": 285069,
+        "sha256": "bfe566f68d30dace964d149f363bba9cbd16bcf33d3d6e2ea9099c44b59b2bfd"
+      },
+      {
+        "path": "frontend/city/world/terrain.js",
+        "bytes": 115304,
+        "sha256": "b041df0ee5cfed5d6e9d39b0cdffb9f2d901f8ce8443d4da436bd5fbe34ebc8e"
+      },
+      {
+        "path": "frontend/city/world/util.js",
+        "bytes": 31079,
+        "sha256": "c5e152e347f2733b640419b15ef7f96fffcd677900413a02bb69b752e2485b49"
+      },
+      {
+        "path": "frontend/city/world/waitanchor.js",
+        "bytes": 5193,
+        "sha256": "7691145fd7ba41a0d589eb6426f063d91ce6fada18cc7fea436d3f7547985691"
+      },
+      {
+        "path": "frontend/city/world/world.js",
+        "bytes": 710679,
+        "sha256": "41a56ddf828abd5cbb4a8b862349ce0afa139ce2d72c57a6dab7df4d348c6c18"
+      },
+      {
+        "path": "frontend/city/world/worldmodel.js",
+        "bytes": 126795,
+        "sha256": "87e4323f50858b3cf4ef56df9daea240a20129667059c49a355dcf7e7f9a8ec6"
+      },
+      {
+        "path": "frontend/city/world/zones.js",
         "bytes": 12313,
         "sha256": "5abb6deb7e64dcb053854fae98a3ffbabfc2bab1fbba2398b184aaaa784991aa"
       },

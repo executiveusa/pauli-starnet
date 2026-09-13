@@ -4017,11 +4017,30 @@ const StationBake = (() => {
       }
     }
 
+    // DISTRICT SIGNAGE stencil — part of the static base bake (nothing per-frame, nothing interactive).
+    if (districtLabels.length) {
+      b.textAlign = 'center';
+      b.font = Math.round(T * 1.5) + "px 'VT323','Courier New',monospace";
+      b.fillStyle = 'rgba(150,205,255,0.30)';
+      for (const d of districtLabels) {
+        if (!d || !isFinite(d.x1) || !isFinite(d.y1)) continue;
+        const label = String(d.label || '').toUpperCase(); if (!label) continue;
+        b.fillText(label, ((d.x1 + d.x2 + 1) / 2) * T, d.y1 * T + Math.round(T * 1.6));
+      }
+    }
+
     bakeHullExtrusion(b);
     bakeInterstitialShadow(b);   // after the skirts: it only claims pixels no wall painted
     b.setTransform(1, 0, 0, 1, 0, 0);
     return baseCv;
   }
+
+  /* DISTRICT SIGNAGE (city web surface): the host page hands the bake district frames
+     ({label, x1,y1,x2,y2} in TILES) derived from the compiled station + the canonical city model,
+     and the bake stencils each district's name along its north band — larger but much dimmer than
+     building nameplates so the two weights never compete. Empty/absent = byte-identical legacy bake. */
+  let districtLabels = [];
+  function setDistrictLabels(list) { districtLabels = Array.isArray(list) ? list.slice() : []; }
 
   /* ---------- public ---------- */
   function setBakeState(geo, viewport) {
@@ -4294,7 +4313,7 @@ const StationBake = (() => {
      doorway and keeps its sill, track, guide ticks and light spill. */
   const seamOpenJoins = geo => [...classifyJoins(geo)].sort();
 
-  return { bake, bakeIncremental, dirtyChunks, visibleChunks, missingVisibleChunks, drawBase, drawLight, sampleMaterial, sampleWall, sampleHull, seamOpenJoins, CHUNK_PX, LIGHT, WALL, DEPTH, SHAPE };
+  return { bake, bakeIncremental, setDistrictLabels, dirtyChunks, visibleChunks, missingVisibleChunks, drawBase, drawLight, sampleMaterial, sampleWall, sampleHull, seamOpenJoins, CHUNK_PX, LIGHT, WALL, DEPTH, SHAPE };
 })();
 
 if (typeof module !== 'undefined' && module.exports) module.exports = StationBake;

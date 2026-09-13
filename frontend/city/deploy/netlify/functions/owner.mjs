@@ -65,6 +65,21 @@ export default async (req) => {
   if (base === '/logout' && req.method === 'POST') {
     return ok({ owner: false }, { 'set-cookie': COOKIE + '=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
   }
+  const taskMatch = base.match(/^\/tasks\/([A-Za-z0-9._-]{1,80})$/);
+  if (taskMatch && req.method === 'GET') {
+    if (!secret) return refuse(503, 'owner mode not configured');
+    if (!(await sessionValid(req, secret))) return refuse(401, 'no session');
+    if (!upstream || !bearer) return refuse(503, 'gateway not configured');
+    const r = await fetch(upstream + '/v1/heisenberg/tasks/' + encodeURIComponent(taskMatch[1]), {
+      headers: { authorization: 'Bearer ' + bearer }
+    }).catch(() => null);
+    if (!r) return refuse(502, 'gateway unreachable');
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) return refuse(r.status === 404 ? 404 : 502, r.status === 404 ? 'task not found' : 'gateway refused the task read');
+    const state = ['running', 'completed', 'failed', 'accepted'].includes(d.status) ? d.status : 'unknown';
+    const result = typeof d.result === 'string' ? d.result.slice(0, 12000) : (d.result == null ? null : JSON.stringify(d.result).slice(0, 12000));
+    return ok({ state, taskId: clean(d.id || d.task_id, 80), receipt: !!(d.receipt && d.receipt.receipt_id), result, error: clean(d.error, 500) });
+  }
   if (base === '/tasks' && req.method === 'POST') {
     if (!secret) return refuse(503, 'owner mode not configured');
     if (!(await sessionValid(req, secret))) return refuse(401, 'no session');

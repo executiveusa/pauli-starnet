@@ -8,6 +8,10 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (provider, errorClass, prices) {
   'use strict';
 
+  const failNote = (typeof require === 'function')
+    ? require('../failopen.js').note
+    : function (tag, e) { console.warn('[failopen] ' + tag + ':', (e && e.message) || e); };
+
   const normalizeFinish = provider.normalizeFinish;
   const classifyApiError = errorClass.classifyApiError;
   const timeouts = provider.timeouts;
@@ -368,7 +372,7 @@
         if (res.ok && res.body) return res;
         let detail = res.statusText || '';
         try { const j = await res.json(); detail = (j && j.error && (j.error.message || j.error.code)) || JSON.stringify(j); }
-        catch (_) { try { detail = (await res.text()).slice(0, 300); } catch (_) {} }
+        catch (_) { try { detail = (await res.text()).slice(0, 300); } catch (e) { failNote('providers.openai-compatible.error-body', e); } }
         // Compatibility self-heal: providers behind the "OpenAI-compatible" label reject different optional
         // params. Strip the named param and retry immediately (remembered per model, so later turns in the
         // run never pay the extra round-trip). Does not consume a transient-retry attempt.

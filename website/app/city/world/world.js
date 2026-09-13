@@ -51,7 +51,7 @@ const World = (() => {
               margin. The cost is ~11% of edge content, never any change to the curvature.
      Both feed the GL path and the CPU LUT path IDENTICALLY — drawCurveGL's probe compares the two and defects
      to CPU on divergence, so they must never drift apart. */
-  const CRT = { scan: 0.43, pitch: 1, fade: 0.25, glow: 0.07, curve: 0.09, vig: 0.30, over: 1.20, dust: 0.5, aberr: 0.35, grain: 0.24 };
+  const CRT = { scan: 0.43, pitch: 1, fade: 0.25, glow: 0.07, curve: 0.09, vig: 0.30, over: 1.12, dust: 0.5, aberr: 0.35, grain: 0.24 };
   let _warpCv = null, _warpCtx = null;   // the barrel-warp snapshot buffer — see drawCurve()
   let _lut = null, _lutKey = '', _outImg = null;   // CPU per-pixel barrel-warp inverse-map LUT + output buffer — see buildLUT()/drawCurveCPU()
   let _gl = null, _glc = null, _glProg = null, _glTex = null, _glKLoc = null, _glAberrLoc = null, _glVigLoc = null, _glOverLoc = null, _glReady = false, _glFailed = false;   // GPU barrel-warp (WebGL) — see initGL()/drawCurveGL()
@@ -82,7 +82,7 @@ const World = (() => {
   let fitW = 0, fitH = 0;   // canvas size the last fitCamera() framed against — a fit on a hidden/degenerate stage doesn't count as a real view
   const MINZ = 0.5, MAXZ = 6;
   const clampz = (v, a, b) => v < a ? a : v > b ? b : v;
-  let drag = null, hoverAgent = null, onClick = null, onArcade = null, onOutbox = null, onMissionBoard = null, onTrophyCase = null, onBayAssign = null, onIntakeFeed = null, onIntakeSample = null, wakeAt = 0;
+  let drag = null, hoverAgent = null, onClick = null, onArcade = null, onOutbox = null, onMissionBoard = null, onTrophyCase = null, onBayAssign = null, onIntakeFeed = null, onIntakeSample = null, onTapMiss = null, wakeAt = 0;
   let camLerp = null;   // {scale,panX,panY} target — a gentle one-on-one framing for voice conversations
   let wakeDark = 0, wakeDarkTarget = 0, awakeFrozen = false;   // the AWAKENING: a darkness veil that lifts to first light, + a freeze so the newborn holds still during its first meeting
   let camAnim = null;                                          // {fromS,toS,fromX,toX,fromY,toY,t,dur,ease,onEnd} — a scripted awakening camera move
@@ -1257,7 +1257,7 @@ const World = (() => {
       hoverOutbox = hit ? null : outboxAt(wp);   // arm the hover-glance crate tag (a glance, never a window)
       cv.style.cursor = (hit || hoverOutbox || arcadeAt(wp) || missionBoardAt(wp) || trophyCaseAt(wp) || unboundBayAt(wp) || intakeSampleAt(wp) || intakeFeedAt(wp)) ? 'pointer' : 'default';   // arcade cabinets + a stacked OUTBOX + the MISSION BOARD + the TROPHY CASE + an unbound BAY + a complete-line INBOX + a starved INTAKE are clickable too
     });
-    cv.addEventListener('mouseup', ev => {
+    const canvasClickUp = ev => {
       if (kindleArmed) { kindleHolding = false; return; }   // releasing during the kindle lets the spark ebb
       const wasDrag = drag && drag.moved; drag = null; cv.style.cursor = 'default';
       if (wasDrag) return;
@@ -1292,9 +1292,72 @@ const World = (() => {
       if (ismp && onIntakeSample) { onIntakeSample({ propId: ismp.id, fed: feedState.known ? !!feedState.fed : null }); return; }
       // a NO-FEED intake's nag says CLICK — the click opens the CHANNELS panel (the fix is wiring a feed)
       const inf = intakeFeedAt(wp);
-      if (inf && onIntakeFeed) onIntakeFeed(inf.id);
-    });
+      if (inf && onIntakeFeed) { onIntakeFeed(inf.id); return; }
+      /* WEB TAP-TO-ZOOM seam: a tap that hit no interactive subject still names a PLACE on the city.
+         The city web surface uses it for mobile room zoom; the desktop app leaves it unset (no-op). */
+      if (onTapMiss) onTapMiss(wp);
+    };
+    cv.addEventListener('mouseup', canvasClickUp);
     cv.addEventListener('mouseleave', () => { if (kindleArmed) kindleHolding = false; hoverAgent = null; hoverBeltTile = null; hoverOutbox = null; if (!drag) cv.style.cursor = 'default'; });
+
+    /* TOUCH CAMERA (phone/tablet): one finger drags (the same pan the mouse owns), two
+       fingers pinch-zoom around the fingers' midpoint, and a clean tap runs the SAME
+       click path a mouse click runs (agent taps, prop seams, the web tap-to-zoom miss).
+       The canvas carries touch-action:none so the browser never double-handles the
+       gesture, and touchend's preventDefault suppresses the synthetic mouse events a
+       mobile browser fires after a tap — every gesture lands exactly once. */
+    let tDrag = null;    // single-finger: {sx, sy, lx, ly, moved, acc}
+    let tPinch = null;   // two-finger:   {d0, s0, wx, wy} — world point pinned under the midpoint
+    const tPoint = t => { const r = cv.getBoundingClientRect(); return { x: (t.clientX - r.left) * (cv.width / r.width), y: (t.clientY - r.top) * (cv.height / r.height) }; };
+    cv.addEventListener('touchstart', ev => {
+      camLerp = null; camLock = null; camUserAt = performance.now();   // the user is driving the camera
+      if (ev.touches.length === 2) {
+        const a = tPoint(ev.touches[0]), b = tPoint(ev.touches[1]);
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        tPinch = { d0: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), s0: scale, wx: (mx - panX) / scale, wy: (my - panY) / scale };
+        tDrag = null;   // the second finger converts the gesture: no tap, no drag
+      } else if (ev.touches.length === 1) {
+        const p = tPoint(ev.touches[0]);
+        tDrag = { sx: p.x, sy: p.y, lx: p.x, ly: p.y, moved: false, acc: 0 };
+      }
+      ev.preventDefault();
+    }, { passive: false });
+    cv.addEventListener('touchmove', ev => {
+      camUserAt = performance.now();
+      if (tPinch && ev.touches.length === 2) {
+        const a = tPoint(ev.touches[0]), b = tPoint(ev.touches[1]);
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const d1 = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+        scale = clampz(tPinch.s0 * (d1 / tPinch.d0), MINZ, MAXZ);
+        panX = mx - tPinch.wx * scale; panY = my - tPinch.wy * scale;
+      } else if (tDrag && ev.touches.length === 1) {
+        const p = tPoint(ev.touches[0]);
+        if (!tDrag.moved) {
+          tDrag.acc += Math.hypot(p.x - tDrag.lx, p.y - tDrag.ly);
+          tDrag.lx = p.x; tDrag.ly = p.y;
+          if (tDrag.acc <= 12) { ev.preventDefault(); return; }   // fat-finger jitter is not a pan (wider than the mouse's 4px)
+          tDrag.moved = true;
+        }
+        panX += p.x - tDrag.lx; panY += p.y - tDrag.ly;
+        tDrag.lx = p.x; tDrag.ly = p.y;
+      }
+      ev.preventDefault();
+    }, { passive: false });
+    cv.addEventListener('touchend', ev => {
+      const wasPinch = !!tPinch;
+      if (ev.touches.length < 2) tPinch = null;
+      if (tDrag && ev.touches.length === 0) {
+        const tap = (!tDrag.moved && !wasPinch) ? tDrag : null;
+        tDrag = null;
+        if (tap) {
+          // canvas px back to client px so the shared click path sees a real event shape
+          const r = cv.getBoundingClientRect();
+          canvasClickUp({ clientX: r.left + tap.sx * (r.width / cv.width), clientY: r.top + tap.sy * (r.height / cv.height) });
+        }
+      }
+      ev.preventDefault();
+    }, { passive: false });
+    cv.addEventListener('touchcancel', () => { tDrag = null; tPinch = null; }, { passive: false });
   }
 
   function resize() {
@@ -1318,6 +1381,16 @@ const World = (() => {
       else { panX += (nw - cv.width) / 2; panY += (nh - cv.height) / 2; }
     }
     cv.width = nw; cv.height = nh;
+    // resize mid-tween (e.g. Whole city fit in flight): the tween's captured from/to geometry is
+    // stale for the new canvas size, and the frame loop would lerp the view to pre-resize coords.
+    // Cancel the move, drop any queued auto-fit, and re-arm the cinecam idle clock so the director
+    // stays parked until fresh hands-off. The awakening ceremony is exempt - its tween chain owns
+    // the camera and must not be broken mid-beat.
+    if (camAnim && !awakeFrozen) {
+      camAnim = null;
+      fitNeeded = false;
+      camUserAt = performance.now();
+    }
   }
 
   // A canvas resize blanks the bitmap, and the repaint only lands on the NEXT rAF — so dragging the
@@ -1390,7 +1463,10 @@ const World = (() => {
     // scale division keeps a real on-screen margin even when the fit is exactly height- or
     // width-bound (world-unit margins vanish by construction in the bound axis).
     const SM = Math.max(14, (typeof margin === 'number' ? margin : 24) / 2);
-    const s = clampz(Math.min((cv.width - SM * 2) / (x1 - x0), (cv.height - SM * 2) / (y1 - y0)), FIT_MINZ, MAXZ);
+    // The CRT barrel warp magnifies the frame by ~CRT.over at the edges, so a camera fit computed
+    // against the raw viewport loses that fraction of edge content to overscan. Divide it back out.
+    const over = (typeof CRT === 'object' && CRT.over > 1) ? CRT.over : 1;
+    const s = clampz(Math.min((cv.width - SM * 2) / (x1 - x0), (cv.height - SM * 2) / (y1 - y0)) / over, FIT_MINZ, MAXZ);
     camTweenTo(s, cv.width / 2 - ((x0 + x1) / 2) * s, cv.height / 2 - ((y0 + y1) / 2) * s, 900, null, null, FIT_MINZ);
   }
   // frameRect(x0,y0,x1,y1,margin): fit the camera on a WORLD-space rect. The live city surface
@@ -1406,6 +1482,19 @@ const World = (() => {
     scale = s; panX = cv.width / 2 - cx * s; panY = cv.height / 2 - cy * s;
     fitNeeded = false; fitW = cv.width; fitH = cv.height;
     return true;
+  }
+  /* zoomStep(factor): one tap of the web surface's + / - zoom buttons — a clamped zoom
+     anchored at the canvas CENTRE (the wheel zooms under the cursor; a button has no
+     cursor, so the view centre is the honest anchor). Marks the camera user-driven so
+     the cinecam/follow-lock release exactly as they do for the wheel. */
+  function zoomStep(factor) {
+    if (!cv) return;
+    const f = (typeof factor === 'number' && isFinite(factor) && factor > 0) ? factor : 1;
+    const cx = cv.width / 2, cy = cv.height / 2;
+    const wx = (cx - panX) / scale, wy = (cy - panY) / scale;
+    scale = clampz(scale * f, MINZ, MAXZ);
+    panX = cx - wx * scale; panY = cy - wy * scale;
+    camLerp = null; camLock = null; camUserAt = performance.now();
   }
   // centerView(px,py,sc): aim the camera at a world point at an explicit zoom. The live city
   // surface boots on the occupied hero building at a readable desktop-like zoom this way.
@@ -6925,6 +7014,7 @@ const World = (() => {
   }
 
   function setOnClick(fn) { onClick = fn; }
+  function setOnTapMiss(fn) { onTapMiss = fn; }
   function setOnArcade(fn) { onArcade = fn; }
   function setOnOutbox(fn) { onOutbox = fn; }
   function setOnBayAssign(fn) { onBayAssign = fn; }   // click an UNBOUND bay → open the assign flow (app wires to REFIT's picker)
@@ -9098,7 +9188,7 @@ const World = (() => {
       const errors = (routingPlan && routingPlan.errors ? routingPlan.errors : []).filter(e => !e.warn);
       return planPoster.flush().then(s => Object.assign({ errors: errors, hash: routingPlan ? routingPlan.hash : null }, s));
     },
-    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, bodySnapshots, placeAtWorkstation, fitWorld, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
+    loadStation, spawn, spawnAgent, despawnAgent, setSkin, relabel, setActivityFor, agentRunsLive, dropRun: noteRunEnd, focusBody, lockBody, cameraMode, frameRect, centerView, zoomStep, bodySnapshots, placeAtWorkstation, fitWorld, setCinecamIdle, setChatFocus, chatFocusPing, start, stop, setActivity, wakeIn, beginAwakening, setWakeProgress, igniteSpark, armKindle, kindleHold, camPushIn, camCreep, camPunch, camPullBack, awakenTurn, truthPulse, beginFlood, collapseFlood, endAwakening, releaseAwakening, say, focusAgent, getActivity: () => activity, getUse: () => (agent ? agent.usingProp : null), setOnClick, setOnTapMiss, setOnArcade, setOnOutbox, setOnMissionBoard, setOnTrophyCase, setOnBayAssign, setOnIntakeFeed, setOnIntakeSample, refit, pauseBridge, resumeBridge, linkState, _dbgSeedRun, _dbgAgeRun, _dbgReconcile, _dbgSweep, _dbgLinkState, _dbgDropBridge, _dbgCurveState, _dbgLoseCurveContext, _dbgLoseCanvases, _dbgCanvasLoss, _dbgKillStageContext, _dbgStageState, _dbgBeltLegibility, _dbgPropClientPoint, _dbgSleep, _dbgUseProp, _dbgArrive, _dbgLeisure,
     // AGENT GROWTH: XpStore pushes pre-computed Xp.compute() snapshots here; pulseLevelUp fires
     // the addressed body's gold ring. The colony headline is the top-bar STATION chip.
     setXp: (agentId, a) => {
