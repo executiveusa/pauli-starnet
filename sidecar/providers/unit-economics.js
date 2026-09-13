@@ -45,7 +45,7 @@ function blankRecord(sku, provider) {
 // ─── CALCULATE MARGINS ─────────────────────────────────────────────────────────
 // Returns a new record with computed fields filled in.
 // Any null input leaves the computed field null — no invented values.
-function calculate(record) {
+function calculate(record, now) {
   const r = Object.assign({}, record);
   
   // Gross margin: sale - base cost - shipping
@@ -83,17 +83,19 @@ function calculate(record) {
   }
 
   // Data quality
-  r.data_quality = assessQuality(r);
+  r.data_quality = assessQuality(r, now);
   return r;
 }
 
 // ─── DATA QUALITY ASSESSMENT ──────────────────────────────────────────────────
-function assessQuality(r) {
+function assessQuality(r, now) {
   const requiredFields = ['sale_price', 'base_cost', 'shipping_cost', 'marketplace_fee_pct', 'payment_fee_pct'];
   const hasAll = requiredFields.every(f => r[f] !== null);
   if (!hasAll) return 'partial';
   if (!r.last_updated) return 'unknown';
-  const age = Date.now() - new Date(r.last_updated).getTime();
+  const current = typeof now === 'function' ? Number(now()) : Number(now);
+  if (!Number.isFinite(current)) return 'unknown';
+  const age = current - new Date(r.last_updated).getTime();
   return age > STALE_DAYS * MS_PER_DAY ? 'stale' : 'fresh';
 }
 
@@ -107,7 +109,7 @@ const ETSY_FEES = {
 
 // ─── PRINTIFY COST ESTIMATE ────────────────────────────────────────────────────
 // Builds a blank record with Printify + Etsy fee presets applied.
-function printifyEtsyTemplate(sku, salePrice, baseCost, shippingCost) {
+function printifyEtsyTemplate(sku, salePrice, baseCost, shippingCost, now) {
   const r = blankRecord(sku, 'printify');
   r.sale_price = salePrice || null;
   r.base_cost = baseCost || null;
@@ -116,8 +118,9 @@ function printifyEtsyTemplate(sku, salePrice, baseCost, shippingCost) {
   r.marketplace_fee_fixed = 0; // listing fee amortized separately
   r.payment_fee_pct = ETSY_FEES.payment_processing_pct;
   r.payment_fee_fixed = ETSY_FEES.payment_processing_fixed;
-  r.last_updated = new Date().toISOString();
-  return calculate(r);
+  const current = typeof now === 'function' ? Number(now()) : Number(now);
+  r.last_updated = Number.isFinite(current) ? new Date(current).toISOString() : null;
+  return calculate(r, current);
 }
 
 // ─── FORMAT FOR DISPLAY ────────────────────────────────────────────────────────

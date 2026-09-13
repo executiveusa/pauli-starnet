@@ -47,7 +47,7 @@
      18 successful web calls). Wrap the provider so stream() starts are spaced minIntervalMs apart. Pure wrapper:
      every other member delegates untouched; now/sleep injectable for tests. */
   function paceProvider(provider, minIntervalMs, now, sleep) {
-    now = now || (() => Date.now());
+    now = now || (() => 0);
     sleep = sleep || ((ms) => new Promise(r => setTimeout(r, ms)));
     let lastStart = -Infinity;   // no call yet: the first request never waits
     const paced = async function* (req) {
