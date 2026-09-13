@@ -13,7 +13,7 @@ Upstream: yc-software/qm | License: MIT (LICENSE-UPSTREAM retained)
 
 ## Status
 
-PORT LANDED (chunk 3, 2026-09-13): sidecar/pauli-council.js + test/pauli-council.test.js (65 assertions) - room-scoped sessions with isolated per-participant keychains, FIFO work queue, the COUNCIL.md adversarial 3-turn debate protocol (per-role information gating, judge-model separation, halt -> escalate, locked-ruling contract saved to icm/memory/decisions/<date>/<debate_id>.json), hashed minutes receipt on close. Live model execution wiring (actually calling advocate/critic/judge workers) remains open for the Astra-lane chunk.
+PORT LANDED (chunk 3, 2026-09-13): sidecar/pauli-council.js + test/pauli-council.test.js (65 assertions) - room-scoped sessions with isolated per-participant keychains, FIFO work queue, the COUNCIL.md adversarial 3-turn debate protocol (per-role information gating, judge-model separation, halt -> escalate, locked-ruling contract saved to icm/memory/decisions/<date>/<debate_id>.json), hashed minutes receipt on close. Live model execution wiring LANDED (chunk 5, 2026-09-13): sidecar/pauli-council-runner.js + test/pauli-council-runner.test.js (43 assertions) - estimate-first pricing with the math exposed, deny-by-default Astra gate (mission-bound grant with provider/model/expiry/budget; over-budget refused before any model call), per-role prompts through the council information gate, hashed execution receipts to pauli-council/executions.jsonl. Production binding of callModel to the execution router remains open.
 
 ## Archive credit
 Counts as pauli-multiplayer-ai's import record once council sessions run.
