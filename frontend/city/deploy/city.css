@@ -109,7 +109,9 @@ body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(-
 @keyframes pulseglow { 0% { box-shadow: 0 0 0 0 rgba(120,200,255,.55); } 100% { box-shadow: 0 0 0 12px rgba(120,200,255,0); } }
 @media (max-width: 700px) {
   .crewrail { top: auto; bottom: 12vh; max-height: 44vh; }
-  .camhud { font-size: 13px; }
+  .camhud { font-size: 13px; top: 96px; }   /* below the two-row phone header */
+  header { flex-wrap: wrap; row-gap: 6px; }   /* 360px: brand + counter + zoom on row 1, Whole city + Activity on row 2 — never clipped */
+  .worldnote { bottom: 60px; }   /* above the ticker on phones */
   #statusline { display: none; }   /* the dot carries live/degraded on phones; the text wrap clipped against the buttons */
   .inst { display: none; }   /* phones keep the WORKING/IDLE counter; the task/receipt instruments stay on larger viewports */
   #inst-agents.inst { display: inline-block; font-size: 12px; padding: 4px 6px; }   /* the number he checks: who is working right now */
