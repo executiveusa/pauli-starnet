@@ -125,12 +125,28 @@ const CityOS = (() => {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
       dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad']
+    },
+    paulis_penthouse: {
+      label: "PAULI'S PENTHOUSE", kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
+      slots: ['pauli', 'archivist'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['bigscreen'],
+      dressing: ['arc_floorlight', 'ticker', 'cablerun', 'plasmaglobe']
+    },
+    paulis_place: {
+      label: "PAULI'S PLACE", kind: 'hab', floorStyle: 'cobalt', floorMat: 'spine',
+      slots: ['council_chair', 'herald', 'analyst'], caps: ['files', 'web', 'memory'], decor: ['missionboard'],
+      dressing: ['bookstack', 'chartwall', 'lavalamp', 'arc_floorlight']
+    },
+    hall_of_canon: {
+      label: 'HALL OF CANON', kind: 'storage', floorStyle: 'indigo', floorMat: 'panel',
+      slots: ['curator', 'cartographer'], caps: ['files', 'memory'], decor: ['bigscreen'],
+      dressing: ['bookstack', 'cablerun', 'lavalamp']
     }
   });
 
   const DEFAULT_SPEC = Object.freeze({
     schema: 'paulis.place.city', version: 2, name: "PAULI'S PLACE",
     districts: [
+      { id: 'pauli', label: "PAULI'S HOUSE", buildings: [{ template: 'paulis_penthouse' }, { template: 'paulis_place' }, { template: 'hall_of_canon' }] },
       { id: 'command', label: 'COMMAND DISTRICT', buildings: [{ template: 'executive_hq' }] },
       { id: 'production', label: 'PRODUCTION DISTRICT', buildings: [{ template: 'software_factory' }, { template: 'pi_foundry' }] },
       { id: 'revenue', label: 'REVENUE DISTRICT', buildings: [{ template: 'revenue_center' }] },

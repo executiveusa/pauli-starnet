@@ -14,8 +14,8 @@ const Specialties = require('../shared/specialties.js');
 
 // --- canonical model ---
 const model = CityCore.cityModel(CityOS);
-A.eq(model.counts.districts, 10, 'app city model includes Financial District');
-A.eq(model.counts.buildings, 19, 'app city model includes six Financial buildings');
+A.eq(model.counts.districts, 11, 'app city model includes Pauli and Financial districts');
+A.eq(model.counts.buildings, 22, 'app city model includes three Pauli and six Financial buildings');
 A.eq(model.schema, 'paulis.place.city', 'city model keeps canonical schema id');
 A.eq(model.version, 2, 'city model keeps CityOS version 2');
 
@@ -256,9 +256,9 @@ A.eq(dseat.seating['revenue/revenue_center/treasurer'].id, 'econ', 'district-les
 
 // --- live map: layout, placement, movement honesty ---
 const layout = CityCore.layoutCity(model);
-A.eq(layout.districts.length, 10, 'map lays out all app districts including Financial');
+A.eq(layout.districts.length, 11, 'map lays out all app districts including Pauli and Financial');
 const mapBuildings = layout.districts.reduce((n, d) => n + d.buildings.length, 0);
-A.eq(mapBuildings, 19, 'map lays out all app buildings including Financial');
+A.eq(mapBuildings, 22, 'map lays out all app buildings including Pauli and Financial');
 const keys = new Set();
 let inside = true;
 for (const d of layout.districts) for (const b of d.buildings) {
@@ -266,7 +266,7 @@ for (const d of layout.districts) for (const b of d.buildings) {
   keys.add(b.key);
   if (b.x < 0 || b.y < 0 || b.x + b.w > layout.width || b.y + b.h > layout.height) inside = false;
 }
-A.ok(inside && keys.size === 19, 'building blocks unique and inside the viewBox');
+A.ok(inside && keys.size === 22, 'building blocks unique and inside the viewBox');
 
 const seat2 = CityCore.seatCitizens(model, [
   { id: 'ecom-beacon', name: 'BEACON', role: 'optimizer', status: 'online' },
