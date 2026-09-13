@@ -71,6 +71,17 @@ test('owner mode', async (t) => {
     } finally { globalThis.fetch = orig; }
   });
 
+  await t.test('task read: session required, result compacted, bearer stays server-side', async () => {
+    assert.equal((await fn(new Request(BASE + '/tasks/t-123'))).status, 401);
+    let seen = null; const orig = globalThis.fetch;
+    globalThis.fetch = async (url, init) => { seen = { url, init }; return new Response(JSON.stringify({ id: 't-123', status: 'completed', receipt: { receipt_id: 'r-9' }, result: 'sourced brief' }), { status: 200 }); };
+    try {
+      const r = await fn(new Request(BASE + '/tasks/t-123', { headers: { cookie: cookie.split(';')[0] } }));
+      assert.equal(r.status, 200); assert.deepEqual(await r.json(), { state: 'completed', taskId: 't-123', receipt: true, result: 'sourced brief', error: null });
+      assert.equal(seen.url, 'https://upstream.test/v1/heisenberg/tasks/t-123'); assert.equal(seen.init.headers.authorization, 'Bearer SERVER-SIDE-BEARER');
+    } finally { globalThis.fetch = orig; }
+  });
+
   await t.test('verbs/routes locked', async () => {
     assert.equal((await fn(new Request(BASE + '/login'))).status, 404);
     assert.equal((await fn(new Request(BASE + '/tasks'))).status, 404);

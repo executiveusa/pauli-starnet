@@ -38,13 +38,18 @@
     <div class="card"><h2>INSTRUMENTS</h2><div class="row" id="instruments"></div></div>
     <div class="card"><h2>CREW</h2><div id="crew"></div></div>
     <div class="card"><h2>TASK COMPOSER</h2>
+      <div class="row" id="task-presets">
+        <button type="button" data-task="Research the newest public evidence and produce a sourced decision brief. State what is proven, uncertain, and next." data-district="intelligence" data-slot="researcher">RESEARCH BRIEF</button>
+        <button type="button" data-task="Build one useful, reviewable artifact for the current highest-priority project. Return its path and verification evidence." data-district="production" data-slot="engineer">MAKE ARTIFACT</button>
+        <button type="button" data-task="Audit the current project state, run the relevant checks, and return a proven/not-proven readiness report." data-district="ops" data-slot="analyst">RUN READINESS</button>
+      </div><br>
       <textarea id="task-text" maxlength="2000" placeholder="task for Heisenberg…"></textarea><br><br>
       <div class="row">
         <select id="task-district"><option value="">district…</option><option>command</option><option>commerce</option><option>intelligence</option><option>creative</option><option>ops</option></select>
         <select id="task-slot"><option value="">slot…</option><option>orchestrator</option><option>researcher</option><option>operator</option><option>optimizer</option><option>publisher</option><option>treasurer</option><option>engineer</option><option>analyst</option></select>
         <button id="task-send" type="button">DISPATCH</button>
       </div>
-      <div id="composer-out"></div>
+      <div id="composer-out"></div><pre id="task-result" class="muted" style="white-space:pre-wrap;max-height:320px;overflow:auto"></pre>
     </div>
     <div class="card"><h2>ACTIVITY (gateway receipts)</h2><div id="activity"></div></div>
     <div class="card"><button id="logout" type="button">LOCK</button></div>
@@ -67,11 +72,29 @@ $('#login-form').addEventListener('submit', async ev => {
   else { const d = await j(r); $('#login-out').textContent = d.error === 'owner mode not configured' ? 'owner mode not configured on this deployment yet' : 'wrong secret'; }
 });
 $('#logout').addEventListener('click', async () => { await fetch(FN + '/logout', { method: 'POST' }); location.reload(); });
+$('#task-presets').addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-task]'); if (!b) return;
+  $('#task-text').value = b.dataset.task; $('#task-district').value = b.dataset.district; $('#task-slot').value = b.dataset.slot;
+});
+async function watchTask(id) {
+  const out = $('#composer-out'), result = $('#task-result');
+  for (let i = 0; i < 120; i++) {
+    await new Promise(r => setTimeout(r, i ? 3000 : 800));
+    const r = await fetch(FN + '/tasks/' + encodeURIComponent(id), { cache: 'no-store' }); const d = await j(r);
+    if (!r.ok) { out.className = 'bad'; out.textContent = d.error || 'task read failed'; return; }
+    out.className = d.state === 'failed' ? 'bad' : 'ok'; out.textContent = d.state + (d.receipt ? ' · receipted' : '');
+    if (d.result) result.textContent = d.result;
+    if (d.error) result.textContent = d.error;
+    refresh();
+    if (d.state === 'completed' || d.state === 'failed') return;
+  }
+  out.className = 'bad'; out.textContent = 'still running - visible in Activity';
+}
 $('#task-send').addEventListener('click', async () => {
   const out = $('#composer-out'); out.className = ''; out.textContent = '…';
   const r = await fetch(FN + '/tasks', { method: 'POST', body: JSON.stringify({ task: $('#task-text').value, context: { district: $('#task-district').value, slot: $('#task-slot').value } }) });
   const d = await j(r);
-  if (r.ok) { out.className = 'ok'; out.textContent = 'accepted · receipt: ' + (d.receipt ? 'yes' : 'pending'); $('#task-text').value = ''; setTimeout(refresh, 3000); }
+  if (r.ok) { out.className = 'ok'; out.textContent = 'accepted · receipt: ' + (d.receipt ? 'yes' : 'pending'); $('#task-result').textContent = ''; $('#task-text').value = ''; watchTask(d.taskId); }
   else { out.className = 'bad'; out.textContent = d.error || ('failed (' + r.status + ')'); }
 });
 async function refresh() {
