@@ -18,7 +18,7 @@
   "expectedClaimCount": 37,
   "releaseSurface": {
     "algorithm": "sha256",
-    "sourceCommit": "c58f5823150e1e7a265e7129f757e266891cb0db",
+    "sourceCommit": "da565def7b5c35fc8fc14e599a87deefe98566c2",
     "pathSetSha256": "d82935b70fec4db2a08c3e188ef2ab4a65cdfc6d0cbcf72f6ea16b0a30314fb2",
     "files": [
       {
@@ -1028,8 +1028,8 @@
       },
       {
         "path": "frontend/city/deploy/owner.html",
-        "bytes": 6565,
-        "sha256": "9dbdb148b4faa92b470a8366fa25824870d25feabe51c9e5fb57864faa8542bf"
+        "bytes": 8477,
+        "sha256": "6851d8b705555c6db78d7d58f8b05e76ec215f8253f03f3e37019a81c1ddf89c"
       },
       {
         "path": "frontend/city/deploy/world/assets.js",
