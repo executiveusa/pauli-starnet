@@ -692,5 +692,6 @@ test/city-web.test.js
 test/gateway-cors.test.js
 test/gateway-activetasks.test.js
 test/supervisor.test.js
+test/pauli-memory.test.js
 
 test/coolify-city-server.test.mjs

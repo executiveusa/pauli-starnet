@@ -13,5 +13,9 @@ Upstream: ShenSeanChen/waku-agent | License: MIT (LICENSE-UPSTREAM retained)
 ## Tests
 - Port the deterministic memory evals against the Pauli memory implementation (same dataset shape, starnet harness).
 
+## Status
+
+PORT LANDED (chunk 2, 2026-09-13): sidecar/pauli-memory.js + test/pauli-memory.test.js (31 assertions) - 3-tier memory (episodic/semantic/procedural), provenance-required semantic writes, consolidation gate, stale-flagged recall, procedure versioning. Separate-process MCP exposure + the waku eval dataset port remain open.
+
 ## Archive credit
 Counts as pauli-waku-agent's import record once evals run green.
