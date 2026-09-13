@@ -105,6 +105,16 @@ const CityOS = (() => {
       slots: ['analyst', 'apptester', 'reviewer', 'optimizer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
       dressing: ['steamvent', 'plasmaglobe', 'hazardpad', 'toolbox']
     },
+    video_studio: {
+      label: 'VIDEO STUDIO', kind: 'lab', floorStyle: 'violet', floorMat: 'tile',
+      slots: ['producer', 'editor', 'designer', 'publisher'], caps: ['files', 'web', 'memory', 'images'], decor: ['bigscreen'],
+      dressing: ['plasmaglobe', 'cablerun', 'arc_floorlight', 'ticker']
+    },
+    render_bay: {
+      label: 'RENDER BAY', kind: 'factory', floorStyle: 'cobalt', floorMat: 'tread',
+      slots: ['operator', 'engineer', 'treasurer', 'reviewer'], caps: ['files', 'web', 'memory', 'terminal'], connectorPorts: 2, decor: ['missionboard'],
+      dressing: ['steamvent', 'hazardpad', 'cablerun', 'toolbox']
+    },
     night_ops: {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
@@ -123,6 +133,7 @@ const CityOS = (() => {
       { id: 'commerce', label: 'COMMERCE DISTRICT', buildings: [{ template: 'commerce_factory' }, { template: 'connector_exchange' }] },
       { id: 'intelligence', label: 'INTELLIGENCE DISTRICT', buildings: [{ template: 'intelligence_center' }, { template: 'memory_archive' }] },
       { id: 'experiment', label: 'EXPERIMENT DISTRICT', buildings: [{ template: 'experiment_lab' }] },
+      { id: 'video', label: 'VIDEO DEPARTMENT', buildings: [{ template: 'video_studio' }, { template: 'render_bay' }] },
       { id: 'operations', label: 'OPERATIONS DISTRICT', buildings: [{ template: 'night_ops' }] }
     ]
   });
