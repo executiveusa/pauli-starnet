@@ -11,5 +11,9 @@ Upstream: yc-software/qm | License: MIT (LICENSE-UPSTREAM retained)
 ## Tests
 - Session isolation test (participant A cannot read B's keychain), queue ordering test, minutes-receipt emission test.
 
+## Status
+
+PORT LANDED (chunk 3, 2026-09-13): sidecar/pauli-council.js + test/pauli-council.test.js (65 assertions) - room-scoped sessions with isolated per-participant keychains, FIFO work queue, the COUNCIL.md adversarial 3-turn debate protocol (per-role information gating, judge-model separation, halt -> escalate, locked-ruling contract saved to icm/memory/decisions/<date>/<debate_id>.json), hashed minutes receipt on close. Live model execution wiring (actually calling advocate/critic/judge workers) remains open for the Astra-lane chunk.
+
 ## Archive credit
 Counts as pauli-multiplayer-ai's import record once council sessions run.
