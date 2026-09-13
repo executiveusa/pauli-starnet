@@ -1,0 +1,71 @@
+{
+  "agent_id": "demo-agent",
+  "budget_decision_ref": null,
+  "build_id": "build-001",
+  "cost": {
+    "actual_billed_minor_units": 0,
+    "credit_minor_units": 0,
+    "currency": "USD",
+    "estimated_minor_units": 0,
+    "list_minor_units": 0,
+    "provider_bill_refs": [
+      "synthetic-fixture"
+    ],
+    "reconciliation_status": "invoice_reconciled"
+  },
+  "duration_ms": 3000,
+  "ended_at": "2026-09-13T03:00:03Z",
+  "infrastructure": [
+    {
+      "provider": "local",
+      "quantity": 3,
+      "region": null,
+      "resource_type": "cpu",
+      "unit": "seconds"
+    }
+  ],
+  "models": [
+    {
+      "cached_units": 0,
+      "calls": 1,
+      "duration_ms": 2000,
+      "input_units": 100,
+      "model": "demo-model",
+      "output_units": 20,
+      "provider": "example",
+      "request_receipt_refs": [],
+      "unit_name": "tokens",
+      "version": "pinned"
+    }
+  ],
+  "outputs": [
+    {
+      "artifact_id": "artifact-demo",
+      "kind": "test",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "project_id": "financial-district-proof",
+  "provenance": {
+    "created_at": "2026-09-13T03:00:03Z",
+    "created_by": "test-fixture",
+    "source_refs": [
+      "synthetic"
+    ],
+    "supersedes_receipt_id": null
+  },
+  "receipt_id": "receipt-example-001",
+  "schema_version": "starnet.receipt/v1",
+  "started_at": "2026-09-13T03:00:00Z",
+  "status": "succeeded",
+  "tenant_id": "pauli-place",
+  "tools": [
+    {
+      "calls": 1,
+      "duration_ms": 500,
+      "name": "local-test",
+      "outcome": "succeeded"
+    }
+  ],
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

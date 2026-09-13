@@ -105,6 +105,12 @@ const CityOS = (() => {
       slots: ['analyst', 'apptester', 'reviewer', 'optimizer'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['whiteboard'],
       dressing: ['steamvent', 'plasmaglobe', 'hazardpad', 'toolbox']
     },
+    revenue_hall: { label: 'REVENUE HALL', kind: 'hab', floorStyle: 'amber', floorMat: 'spine', slots: ['controller', 'analyst'], caps: ['files', 'web', 'memory'], decor: ['missionboard'], dressing: ['ticker', 'chartwall', 'bookstack'] },
+    treasury_payments: { label: 'TREASURY + PAYMENTS', kind: 'storage', floorStyle: 'teal', floorMat: 'grate', slots: ['treasurer'], caps: ['files', 'memory'], decor: ['bigscreen'], dressing: ['crate', 'cablerun', 'hazardpad'] },
+    cost_tokenomics: { label: 'COST + TOKENOMICS', kind: 'lab', floorStyle: 'indigo', floorMat: 'tile', slots: ['analyst', 'auditor'], caps: ['files', 'memory', 'terminal'], decor: ['whiteboard'], dressing: ['chartwall', 'ticker', 'cablerun'] },
+    accounting_close: { label: 'ACCOUNTING + CLOSE', kind: 'hab', floorStyle: 'sterile', floorMat: 'panel', slots: ['controller', 'accountant'], caps: ['files', 'memory'], decor: ['whiteboard'], dressing: ['bookstack', 'chartwall'] },
+    tax_office: { label: 'TAX OFFICE', kind: 'hab', floorStyle: 'amber', floorMat: 'panel', slots: ['taxreviewer'], caps: ['files', 'memory'], decor: ['whiteboard'], dressing: ['bookstack', 'crate'] },
+    executive_finance: { label: 'EXECUTIVE FINANCE', kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel', slots: ['controller'], caps: ['files', 'memory'], decor: ['bigscreen'], dressing: ['ticker', 'chartwall', 'arc_floorlight'] },
     night_ops: {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
@@ -123,6 +129,7 @@ const CityOS = (() => {
       { id: 'commerce', label: 'COMMERCE DISTRICT', buildings: [{ template: 'commerce_factory' }, { template: 'connector_exchange' }] },
       { id: 'intelligence', label: 'INTELLIGENCE DISTRICT', buildings: [{ template: 'intelligence_center' }, { template: 'memory_archive' }] },
       { id: 'experiment', label: 'EXPERIMENT DISTRICT', buildings: [{ template: 'experiment_lab' }] },
+      { id: 'financial', label: 'FINANCIAL DISTRICT', buildings: [{ template: 'revenue_hall' }, { template: 'treasury_payments' }, { template: 'cost_tokenomics' }, { template: 'accounting_close' }, { template: 'tax_office' }, { template: 'executive_finance' }] },
       { id: 'operations', label: 'OPERATIONS DISTRICT', buildings: [{ template: 'night_ops' }] }
     ]
   });

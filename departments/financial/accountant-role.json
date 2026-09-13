@@ -1,0 +1,10 @@
+{
+  "schema_version": "starnet.finance-role/v1",
+  "role_id": "human-accountant",
+  "status": "unassigned",
+  "default_deny": true,
+  "grant_requires": ["verified_person", "owner_evidence_ref", "tenant", "legal_entity", "purpose", "capabilities", "expires_at", "revocation_path"],
+  "available_capabilities": ["read_reconciled_ledger", "read_source_receipts", "prepare_adjustment", "prepare_close", "prepare_tax_package"],
+  "never_implicit": ["read_bamboo_house", "move_money", "connect_account", "accept_terms", "sign", "file_tax", "message_external_party"],
+  "assignees": []
+}

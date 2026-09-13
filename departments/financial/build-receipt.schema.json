@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://starnet.local/schemas/build-receipt-v1.json",
+  "title": "StarNet Build Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "tenant_id", "project_id", "build_id", "started_at", "ended_at", "duration_ms", "status", "models", "tools", "infrastructure", "cost", "outputs", "provenance"],
+  "properties": {
+    "schema_version": {"const": "starnet.receipt/v1"},
+    "receipt_id": {"type": "string", "minLength": 12, "maxLength": 128},
+    "tenant_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "build_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "agent_id": {"type": ["string", "null"], "maxLength": 128},
+    "trace_id": {"type": ["string", "null"], "pattern": "^[0-9a-f]{32}$"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "ended_at": {"type": "string", "format": "date-time"},
+    "duration_ms": {"type": "integer", "minimum": 0},
+    "status": {"enum": ["succeeded", "failed", "cancelled", "partial", "unknown"]},
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["provider", "model", "version", "calls", "input_units", "output_units", "cached_units", "duration_ms"],
+        "properties": {
+          "provider": {"type": "string"}, "model": {"type": "string"}, "version": {"type": ["string", "null"]},
+          "calls": {"type": "integer", "minimum": 0}, "input_units": {"type": ["integer", "null"], "minimum": 0},
+          "output_units": {"type": ["integer", "null"], "minimum": 0}, "cached_units": {"type": ["integer", "null"], "minimum": 0},
+          "unit_name": {"type": ["string", "null"]}, "duration_ms": {"type": "integer", "minimum": 0},
+          "request_receipt_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    },
+    "tools": {"type": "array", "items": {"type": "object", "required": ["name", "calls", "duration_ms", "outcome"], "properties": {"name": {"type": "string"}, "calls": {"type": "integer", "minimum": 0}, "duration_ms": {"type": "integer", "minimum": 0}, "outcome": {"type": "string"}}, "additionalProperties": false}},
+    "infrastructure": {"type": "array", "items": {"type": "object", "required": ["provider", "resource_type", "quantity", "unit"], "properties": {"provider": {"type": "string"}, "resource_type": {"type": "string"}, "quantity": {"type": "number", "minimum": 0}, "unit": {"type": "string"}, "region": {"type": ["string", "null"]}}, "additionalProperties": false}},
+    "cost": {
+      "type": "object", "additionalProperties": false,
+      "required": ["currency", "estimated_minor_units", "list_minor_units", "credit_minor_units", "actual_billed_minor_units", "reconciliation_status"],
+      "properties": {
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "estimated_minor_units": {"type": ["integer", "null"], "minimum": 0},
+        "list_minor_units": {"type": ["integer", "null"], "minimum": 0},
+        "credit_minor_units": {"type": ["integer", "null"], "minimum": 0},
+        "actual_billed_minor_units": {"type": ["integer", "null"], "minimum": 0},
+        "reconciliation_status": {"enum": ["estimated", "provider_reported", "invoice_reconciled", "unknown"]},
+        "provider_bill_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "budget_decision_ref": {"type": ["string", "null"]},
+    "outputs": {"type": "array", "items": {"type": "object", "required": ["artifact_id", "sha256", "kind"], "properties": {"artifact_id": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "kind": {"type": "string"}}, "additionalProperties": false}},
+    "provenance": {"type": "object", "required": ["created_by", "created_at", "source_refs"], "properties": {"created_by": {"type": "string"}, "created_at": {"type": "string", "format": "date-time"}, "source_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}, "supersedes_receipt_id": {"type": ["string", "null"]}}, "additionalProperties": false}
+  }
+}

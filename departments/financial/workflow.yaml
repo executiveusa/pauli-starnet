@@ -1,0 +1,13 @@
+version: 0.1.0
+status: local_runtime_proven_dark
+agent: financial-controller
+rooms: [revenue-hall, treasury-payments, cost-tokenomics, accounting-close, tax-office, executive-finance]
+inputs: [build_receipts, read_only_provider_exports, owner_approved_financial_records]
+outputs: [tokenomics_views, budget_variance, trial_balance, executive_summary, professional_review_tax_package]
+stops_before: [connect_payment_rail, accept_terms, charge, accept_payment, send_invoice, pay, refund, withdraw, set_live_price, subscribe, spend_credits, file_tax, make_tax_election, give_professional_advice]
+rules:
+  unknown_cost_is_not_zero: true
+  estimate_credit_list_actual_separate: true
+  append_only_history: true
+  house_data_not_accessible: true
+  human_accountant_requires_named_grant: true
