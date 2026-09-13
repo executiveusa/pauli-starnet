@@ -96,7 +96,9 @@
       .map(t => String(t.agent || '').toUpperCase()).filter(Boolean));
     const citizens = (c && Array.isArray(c.citizens)) ? c.citizens : [];
     const ia = $('#inst-agents'), it = $('#inst-tasks'), ir = $('#inst-receipt');
-    if (ia) ia.textContent = 'AGENTS ' + working.size + ' WORKING / ' + Math.max(0, citizens.length - working.size) + ' IDLE';
+    const idle = Math.max(0, citizens.length - working.size);
+    const narrow = (typeof window.matchMedia === 'function') && window.matchMedia('(max-width: 700px)').matches;
+    if (ia) ia.textContent = narrow ? (working.size + ' WORKING / ' + idle + ' IDLE') : ('AGENTS ' + working.size + ' WORKING / ' + idle + ' IDLE');
     if (it) it.textContent = 'TASKS ' + feed.length + ' LOGGED';
     const rec = feed.filter(t => t.receipted);
     const newest = rec.length ? (rec[0].settledAgoMin != null ? rec[0].settledAgoMin : rec[0].startedAgoMin) : null;

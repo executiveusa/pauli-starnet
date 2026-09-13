@@ -160,7 +160,7 @@
         }
       } catch (_) { /* framing is a nicety, never a boot blocker */ }
     }, 2200);
-    note('Live world: ' + (w.station.meta && w.station.meta.name || "PAULI'S PLACE") + ' — idle agents stroll their own area (desktop behavior); work runs bind to gateway-reported tasks.');
+    note('Live world: ' + (w.station.meta && w.station.meta.name || "PAULI'S PLACE") + ' — idle agents stroll their own area (desktop behavior); work runs bind to gateway-reported tasks and fresh pushes to real repos.');
     applyStatus(status);
   }
 

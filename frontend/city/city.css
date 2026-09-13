@@ -110,7 +110,9 @@ body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(-
 @media (max-width: 700px) {
   .crewrail { top: auto; bottom: 12vh; max-height: 44vh; }
   .camhud { font-size: 13px; }
-  .inst { display: none; }   /* phones keep the status line + Whole city; instruments stay on larger viewports */
+  #statusline { display: none; }   /* the dot carries live/degraded on phones; the text wrap clipped against the buttons */
+  .inst { display: none; }   /* phones keep the WORKING/IDLE counter; the task/receipt instruments stay on larger viewports */
+  #inst-agents.inst { display: inline-block; font-size: 12px; padding: 4px 6px; }   /* the number he checks: who is working right now */
   #whole-city { font-size: 16px; padding: 10px 14px; }   /* large tap target, obvious return from room zoom */
   .zoombtn { font-size: 20px; padding: 8px 14px; min-width: 44px; min-height: 40px; }   /* 44px-class tap targets: one-finger zoom on a 360px phone */
 }
