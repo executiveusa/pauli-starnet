@@ -297,7 +297,7 @@ const CityCore = (() => {
     const items = raw.map(t => ({
       id: t.event || null,                       // opaque public event id, never an internal id
       status: String(t.state || 'unknown'),
-      label: String(t.category || 'task'),   // coarse server-picked category enum - task text never reaches this surface
+      label: String(t.category || 'task') + (t.detail ? ' · ' + String(t.detail).slice(0, 60) : ''),   // coarse server-picked category + the server's allowlisted evidence detail (public repo name); task text never reaches this surface
       agent: t.agent || null,
       receipted: t.receipt === true,
       startedAgoMin: (typeof t.startedAgoMin === 'number') ? t.startedAgoMin : null,

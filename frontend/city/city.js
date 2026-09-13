@@ -129,11 +129,16 @@
   function boot() {
     if (typeof CityOS !== 'undefined' && typeof CityCore !== 'undefined') {
       state.model = CityCore.cityModel(CityOS);
-      $('#cityname').textContent = state.model.name;
-      $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
+      $('#cityname').textContent = 'YAPPYVERSE';   // the world is the Yappyverse; Pauli's Place is the city inside it
+      $('#counts').textContent = state.model.name + ' · ' + state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
     }
     setMode('offline', 'Connecting…');
     $('#whole-city').addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.fitWorld) World.fitWorld(48); else if (typeof World !== 'undefined' && World.camPullBack) World.camPullBack(); } catch (_) {} });
+    // ZOOM CONTROLS: explicit + / - buttons (phone-first — pinch also works on the canvas
+    // itself; the buttons are the one-finger path and the discoverable one).
+    const zIn = $('#zoom-in'), zOut = $('#zoom-out');
+    if (zIn) zIn.addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.zoomStep) World.zoomStep(1.4); } catch (_) {} });
+    if (zOut) zOut.addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.zoomStep) World.zoomStep(1 / 1.4); } catch (_) {} });
     document.getElementById('whole-city').addEventListener('click', () => { const v = document.getElementById('cam-view'); if (v) v.textContent = 'WHOLE CITY'; });
     const ct = document.getElementById('crew-tab'); if (ct) ct.addEventListener('click', () => document.getElementById('crew-rail').classList.toggle('open'));
     setInterval(tickTicker, 6000);

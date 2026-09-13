@@ -62,10 +62,17 @@ const A = require('assert');
     }
   };
 
+  let githubEvents = null;   // null: GitHub 404s (offline); array: the public firehose fixture
+  const POISON_REPO = { id: 'evil1', type: 'PushEvent', created_at: new Date().toISOString(),
+    repo: { name: 'executiveusa/evil\' OR 1=1--' }, payload: { size: 1, commits: [{ message: 'msg ' + POISON }] }, actor: { login: POISON } };
   globalThis.fetch = async (url, opts) => {
     upstreamCalls.push({ url: String(url), opts });
     if (String(url).endsWith('/v1/city/status')) return new Response(JSON.stringify(ADVERSARIAL_STATUS), { status: 200 });
     if (String(url).endsWith('/v1/city/world')) return new Response(JSON.stringify(ADVERSARIAL_WORLD), { status: 200 });
+    if (String(url).includes('api.github.com/')) {
+      if (githubEvents === null) return new Response('nope', { status: 404 });
+      return new Response(JSON.stringify(githubEvents), { status: 200 });
+    }
     return new Response('nope', { status: 404 });
   };
 
@@ -112,7 +119,7 @@ const A = require('assert');
     headers: { authorization: 'Bearer VISITOR-FORGED', cookie: 'session=' + POISON }
   }));
   ok(rs.status === 200, 'status read passes');
-  const call = upstreamCalls[upstreamCalls.length - 1];
+  const call = upstreamCalls.filter(c => c.url.startsWith('https://gw.test')).pop();
   ok(call.opts.headers.authorization === 'Bearer ' + TOKEN && !('cookie' in call.opts.headers), 'server-side token only; visitor headers dropped');
   const pub = await rs.json();
   const pubStr = JSON.stringify(pub);
@@ -136,6 +143,46 @@ const A = require('assert');
   ok(/^(research|comms|commerce|ops)$/.test(pub.activity[0].category), 'category is a closed enum');
   ok(pub.activity[0].receipt === true && pub.activity[1].receipt === false, 'receipt presence is a boolean');
   ok(typeof pub.activity[0].startedAgoMin === 'number', 'relative ages only');
+
+  // --- real-work pulse: GitHub public events merge into activity, truthfully + leak-free ---
+  {
+    const minsAgo = m => new Date(Date.now() - m * 60000).toISOString();
+    githubEvents = [
+      { id: 'gh1', type: 'PushEvent', created_at: minsAgo(5), repo: { name: 'executiveusa/kupuri-media-main-site' },
+        payload: { size: 3, commits: [{ message: 'PRIVATE COMMIT MSG ' + POISON }] }, actor: { login: 'someone ' + POISON } },
+      { id: 'gh2', type: 'PushEvent', created_at: minsAgo(6), repo: { name: 'executiveusa/kupuri-media-main-site' },
+        payload: { size: 1, commits: [{ message: POISON }] }, actor: { login: POISON } },
+      { id: 'gh3', type: 'PullRequestEvent', created_at: minsAgo(90), repo: { name: 'executiveusa/pauli-starnet' },
+        payload: { action: 'merged', pull_request: { title: 'PRIVATE TITLE ' + POISON } }, actor: { login: POISON } },
+      { id: 'gh4', type: 'WatchEvent', created_at: minsAgo(2), repo: { name: 'executiveusa/pauli-starnet' }, actor: { login: POISON } },
+      { id: 'gh5', type: 'PushEvent', created_at: minsAgo(60 * 24), repo: { name: 'executiveusa/old-repo' },
+        payload: { size: 1, commits: [{ message: POISON }] }, actor: { login: POISON } },
+      POISON_REPO
+    ];
+    // the module caches the pulse 60s; the earlier status call already cached the 404, so
+    // reset the module by re-importing with a cache-busting query is impossible in one
+    // process — instead the fixture is set BEFORE this status read and the TTL expired
+    // naturally? No: force a fresh module instance.
+    const gw2 = (await import('../frontend/city/deploy/netlify/functions/gw.mjs?pulse=' + Date.now())).default;
+    const rp = await gw2(new Request('https://site.test' + PATH + '/v1/city/status'));
+    ok(rp.status === 200, 'status read with pulse passes');
+    const pp = await rp.json();
+    const ppStr = JSON.stringify(pp);
+    ok(!ppStr.includes(POISON), 'no commit message / author / PR title ever escapes through the pulse');
+    ok(!ppStr.includes('evil'), 'a repo name failing the allowlist is dropped whole');
+    const gh = pp.activity.filter(t => String(t.detail || '').includes('kupuri-media-main-site'));
+    ok(gh.length === 1, 'a push burst to one repo collapses to its newest event');
+    ok(gh[0].state === 'running' && gh[0].category === 'ops', 'a push inside the running window reads running/ops');
+    ok(gh[0].receipt === false, 'observed repo events are never dressed as gateway receipts');
+    ok(gh[0].detail === 'push ×3 → kupuri-media-main-site', 'detail carries the inspectable public evidence (kind + repo)');
+    ok(gh[0].agent === 'HEISENBERG', 'a district with no seated citizen falls to the orchestrator-foreman');
+    const pr = pp.activity.filter(t => String(t.detail || '').includes('pauli-starnet'));
+    ok(pr.length === 1 && pr[0].state === 'completed' && pr[0].detail.startsWith('pr merged'), 'an older PR event reads completed with its action');
+    ok(pp.activity.every(t => !String(t.detail || '').includes('old-repo')), 'events outside the 6h window are dropped');
+    ok(pp.activity.every(t => t.event.startsWith('ev_')), 'pulse rows carry opaque event ids only');
+    ok(pp.activity.some(t => t.receipt === true), 'gateway-receipted activity survives the merge');
+    githubEvents = null;
+  }
 
   // --- world DTO ---
   const rw = await gw(new Request('https://site.test' + PATH + '/v1/city/world'));

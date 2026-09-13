@@ -57,6 +57,119 @@ function categorize(t) {
   return 'ops';
 }
 
+/* ── REAL-WORK PULSE ─────────────────────────────────────────────────────────
+   GitHub's own PUBLIC event firehose is the second evidence source. The fleet's
+   builds land as real pushes/PRs on the owner's PUBLIC repos — verifiable by
+   anyone, and exactly the work the gateway task queue cannot see. Only public-
+   event fields are read (type, public repo name, created_at); commit messages,
+   authors, and anything private never enter. A repo binds to a district by an
+   explicit table; the bound agent is a roster citizen of that district, else the
+   orchestrator (the fleet foreman — the control chain routes all work through
+   him). An event inside PULSE_RUNNING_MIN reads as RUNNING (that district is
+   mid-build right now); older reads as completed. receipt is always false:
+   these are observed repo events, not gateway receipts. The row carries the
+   public repo name in `detail` so the evidence is inspectable. GitHub failure
+   never fails the status read — stale cache beats blank, blank beats a 502. */
+const GH_USER = () => process.env.CITY_GITHUB_USER || 'executiveusa';
+const PULSE_RUNNING_MIN = 20;
+const PULSE_WINDOW_MIN = 360;
+const PULSE_TTL_MS = 90000;   // ~40 req/hr per warm instance: inside GitHub's 60/hr unauth ceiling; if a GITHUB_TOKEN env is later added the hook is already in the fetch
+let pulseCache = { at: 0, items: [] };
+
+const REPO_DISTRICT = [
+  [/kupuri|synthia[-_]?avatar|akash/i, 'creative'],
+  [/asce?3nd|video|montage|render/i, 'video'],
+  [/second[-_]?brain|memory|archive/i, 'intelligence'],
+  [/fish[-_]?on/i, 'production'],
+  [/task[-_]?master|mvp|template|telegram|transportation|directory|strapi/i, 'production'],
+  [/gateway|connector|clonely|fanz|shop|store|commerce/i, 'commerce'],
+  [/starnet|skynet|pauli|yappyverse|bamboo|heisenberg/i, 'command']
+];
+const districtForRepo = repo => { for (const [re, d] of REPO_DISTRICT) if (re.test(repo)) return d; return 'command'; };
+
+/* The roster's own districts decide who carries the work; a district with no
+   seated citizen falls to the orchestrator (hero), who coordinates every lane. */
+function pickPulseAgent(citizens, district, seed) {
+  const list = Array.isArray(citizens) ? citizens.filter(c => c && c.name) : [];
+  let pool = list.filter(c => String(c.district || '').toLowerCase() === district);
+  if (!pool.length) pool = list.filter(c => c.hero === true || String(c.role || '').toLowerCase() === 'orchestrator');
+  if (!pool.length) return null;
+  let h = 0;
+  for (const ch of String(seed)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return pool[h % pool.length].name;
+}
+
+const REPO_NAME = /^[A-Za-z0-9_.-]{1,60}$/;
+async function pulseEvents(now) {
+  if (now - pulseCache.at < PULSE_TTL_MS) return pulseCache.items;
+  try {
+    const headers = { accept: 'application/vnd.github+json', 'user-agent': 'pauli-city-pulse' };
+    if (process.env.GITHUB_TOKEN) headers.authorization = 'Bearer ' + process.env.GITHUB_TOKEN;
+    const r = await fetch('https://api.github.com/users/' + encodeURIComponent(GH_USER()) + '/events/public?per_page=50', { headers });
+    if (!r.ok) return pulseCache.items;
+    const events = await r.json();
+    const byKey = new Map();   // repo+kind: keep only the NEWEST of a burst
+    if (Array.isArray(events)) {
+      for (const e of events) {
+        if (!e || typeof e !== 'object' || typeof e.id !== 'string') continue;
+        const repo = (e.repo && typeof e.repo.name === 'string') ? e.repo.name.split('/').pop() : '';
+        if (!REPO_NAME.test(repo)) continue;
+        const age = agoMin(e.created_at, now);
+        if (age == null || age > PULSE_WINDOW_MIN) continue;
+        let kind = null;
+        if (e.type === 'PushEvent') {
+          const n = num(e.payload && e.payload.size);
+          kind = 'push' + (n && n > 1 ? ' ×' + Math.min(n, 99) : '');
+        } else if (e.type === 'PullRequestEvent') {
+          const a = text(e.payload && e.payload.action, 12);
+          kind = 'pr ' + (/^(opened|closed|merged|reopened|synchronize)$/.test(a || '') ? a : 'update');
+        } else if (e.type === 'CreateEvent') {
+          const rt = text(e.payload && e.payload.ref_type, 10);
+          kind = 'new ' + (/^(repository|branch|tag)$/.test(rt || '') ? rt : 'repo');
+        } else if (e.type === 'ReleaseEvent') {
+          kind = 'release';
+        } else continue;   // watches, forks, comments: presence, not work
+        const key = repo + '|' + kind.split(' ')[0];
+        const prev = byKey.get(key);
+        if (prev && prev.age <= age) continue;
+        byKey.set(key, { id: e.id, repo, kind, age });
+      }
+    }
+    const items = Array.from(byKey.values()).map(x => ({
+      event: eventId('gh:' + x.id),
+      state: x.age <= PULSE_RUNNING_MIN ? 'running' : 'completed',
+      district: districtForRepo(x.repo),
+      category: 'ops',
+      detail: text(x.kind + ' → ' + x.repo, 80),
+      startedAgoMin: x.age,
+      settledAgoMin: x.age,
+      receipt: false
+    }));
+    pulseCache = { at: now, items };
+  } catch (_) { /* GitHub unreachable: serve the stale cache, never break status */ }
+  return pulseCache.items;
+}
+
+/* Merge gateway-proven activity with repo-proven activity, newest first, capped.
+   Agent binding happens HERE, against the sanitized public roster. */
+function mergeActivity(upstream, pulse, citizens) {
+  const merged = (Array.isArray(upstream) ? upstream.slice() : []);
+  for (const p of (Array.isArray(pulse) ? pulse : [])) {
+    merged.push({
+      event: p.event,
+      state: p.state,
+      agent: pickPulseAgent(citizens, p.district, p.event),
+      category: p.category,
+      detail: p.detail,
+      startedAgoMin: p.startedAgoMin,
+      settledAgoMin: p.settledAgoMin,
+      receipt: false
+    });
+  }
+  merged.sort((a, b) => (a.startedAgoMin == null ? 1e9 : a.startedAgoMin) - (b.startedAgoMin == null ? 1e9 : b.startedAgoMin));
+  return merged.slice(0, 20);
+}
+
 /* Public status DTO. Citizens carry no internal ids; task receipts carry no
    internal ids, no prompts, no errors, NO TASK TEXT — an opaque event id, a
    coarse state, the bound agent's PUBLIC name, a coarse category, relative ages. */
@@ -81,11 +194,13 @@ function statusDTO(src, now) {
         ? text(((Array.isArray(s.citizens) ? s.citizens : []).find(c => c && c.id === t.context.agentId) || {}).name, 40) || null
         : null,
       category: categorize(t),
+      detail: null,
       startedAgoMin: agoMin(t.startedAt, now),
       settledAgoMin: agoMin(t.completedAt, now),
       receipt: !!(t.receiptId)
     } : null)
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(t => { if (t.detail == null) delete t.detail; return t; });
   return {
     live: health,
     city: { name: text(s.city && s.city.name, 60) || "Pauli's Place" },
@@ -178,7 +293,10 @@ export default async (req) => {
 
   try {
     if (route.kind === 'status') {
-      return new Response(JSON.stringify(statusDTO(await get('/v1/city/status'), Date.now())), { status: 200, headers: JSONH });
+      const now = Date.now();
+      const dto = statusDTO(await get('/v1/city/status'), now);
+      dto.activity = mergeActivity(dto.activity, await pulseEvents(now), dto.citizens);
+      return new Response(JSON.stringify(dto), { status: 200, headers: JSONH });
     }
     // world: geometry + the id->public-name map from the status read
     const [world, status] = await Promise.all([get('/v1/city/world'), get('/v1/city/status')]);

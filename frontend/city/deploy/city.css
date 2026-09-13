@@ -112,4 +112,5 @@ body:not(.panel-hidden) #feed-toggle { border-color: var(--accent); color: var(-
   .camhud { font-size: 13px; }
   .inst { display: none; }   /* phones keep the status line + Whole city; instruments stay on larger viewports */
   #whole-city { font-size: 16px; padding: 10px 14px; }   /* large tap target, obvious return from room zoom */
+  .zoombtn { font-size: 20px; padding: 8px 14px; min-width: 44px; min-height: 40px; }   /* 44px-class tap targets: one-finger zoom on a 360px phone */
 }
