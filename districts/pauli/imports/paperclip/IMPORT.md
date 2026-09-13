@@ -11,5 +11,9 @@ Upstream: paperclipai/paperclip | License: MIT (LICENSE-UPSTREAM retained)
 ## Tests
 - Registry roundtrip + provenance-required validation test (entry without source SHA rejected).
 
+## Status
+
+PORT LANDED (chunk 4, 2026-09-13): sidecar/pauli-registry.js + test/pauli-registry.test.js (37 assertions) - one registry for agents/skills/tools with REQUIRED provenance (source + sourceSha + license; no-source-SHA entries rejected), draft -> reviewed -> canon ladder with reviewer trail, license law enforcement (NOASSERTION/none/AGPL on permanent hold out of canon), version-superseding re-registration with full provenance history, JSONL-replay persistence. Wiring starnet's existing 370-skill library into the registry remains open as a follow-on chunk.
+
 ## Archive credit
 Counts as paperclip-pauli-clip's import record once the registry layer lands.
