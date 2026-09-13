@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const src = fs.readFileSync(new URL('../deploy/coolify/server.mjs', import.meta.url), 'utf8');
+assert.match(src, /const ROOT = '\/app\/frontend\/city\/deploy'/, 'Coolify root is the live city, not the desktop shell');
+assert.match(src, /ownerHandler/, 'authenticated owner task proxy is mounted');
+assert.match(src, /startsWith\('\/\.netlify\/functions\/owner'\)/, 'owner function keeps the same-origin route used by owner.html');
+assert.match(src, /startsWith\('\/\.netlify\/functions\/gw'\)/, 'public allowlisted gateway remains mounted');
+assert.match(src, /path\.resolve\(ROOT, '\.' \+ relative\)/, 'static paths resolve under the city root');
+assert.match(src, /f !== ROOT && !f\.startsWith\(ROOT \+ path\.sep\)/, 'static traversal fails closed');
+console.log('coolify-city-server.test: OK (6 assertions)');
