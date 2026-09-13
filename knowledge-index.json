@@ -373,7 +373,8 @@
           "districts/creative/video/playbooks/ugc-influencer-production.md"
         ],
         "transcripts_dir": "districts/creative/video/transcripts/ (150 files, video-ID named)",
-        "r2_mirror": "https://video-exports.thepaulieffect.com/knowledge/metricsmule/ (playbook md, catalog.tsv, transcripts-150.tar.gz)"
+        "r2_mirror": "https://video-exports.thepaulieffect.com/knowledge/metricsmule/ (playbook md, catalog.tsv, transcripts-150.tar.gz)",
+        "preschema_original": "districts/creative/video/knowledge/metricsmule-knowledge-graph-preschema.json"
       },
       "teaches": [
         "prompt-generator meta-workflow (feed official model guides to an LLM, build reusable generators)",
@@ -385,11 +386,19 @@
         "UGC angle: Higgsfield Marketing Studio presets, ultra-realistic AI influencer formula"
       ],
       "workflow_stages": [
-        "video_prompting",
-        "ugc_ads",
-        "character_consistency",
-        "model_selection",
-        "prompt_iteration"
+        "all",
+        "content-strategy",
+        "editing",
+        "faceless-channels",
+        "gauntlet",
+        "generation",
+        "ideation",
+        "offer-lane",
+        "pre-flight",
+        "prompting",
+        "qa",
+        "research",
+        "ugc-ads"
       ],
       "tags": [
         "video",
@@ -407,31 +416,31 @@
       "context_contract": "districts/creative/video/README.md",
       "lane_spec": "districts/creative/video/VIDEO-LANE.md",
       "learnings_doc": "districts/creative/video/METRICSMULE-LEARNINGS.md",
-      "schema_note": "Video graph node shape: id, title, type, workflow_stage, confidence, evidence, interpretation. Mozi shape: id, name, type, applies[], edges[], evidence_verbatim, summary_interpretation. Unification pending; both preserve verbatim/interpretation separation.",
+      "schema_note": "Normalized 2026-09-13 to Mozi canonical schema {id,name,type,applies[],edges[],evidence_verbatim,summary_interpretation}; pre-normalization original at districts/creative/video/knowledge/metricsmule-knowledge-graph-preschema.json",
       "nodes": [
         {
           "id": "llm-as-prompt-engineer",
-          "title": "Never hand-write prompts; build an LLM prompt generator per model",
+          "name": "Never hand-write prompts; build an LLM prompt generator per model",
           "type": "doctrine",
-          "workflow_stage": [
+          "applies": [
             "ideation",
             "prompting"
           ]
         },
         {
           "id": "seedance-structure",
-          "title": "Seedance 2.5 structured prompt rules",
+          "name": "Seedance 2.5 structured prompt rules",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "prompting",
             "generation"
           ]
         },
         {
           "id": "reference-stacks",
-          "title": "Reference-image stacks drive consistency and product placement",
+          "name": "Reference-image stacks drive consistency and product placement",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "prompting",
             "generation",
             "ugc-ads"
@@ -439,34 +448,34 @@
         },
         {
           "id": "moderation-playbook",
-          "title": "Write prompts like a filmmaker to pass moderation",
+          "name": "Write prompts like a filmmaker to pass moderation",
           "type": "doctrine",
-          "workflow_stage": [
+          "applies": [
             "prompting",
             "pre-flight"
           ]
         },
         {
           "id": "veo-5-part-formula",
-          "title": "Veo 3.1 five-part prompt formula",
+          "name": "Veo 3.1 five-part prompt formula",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "prompting"
           ]
         },
         {
           "id": "kling-director-formula",
-          "title": "Kling 3.0 director-style multi-shot formula",
+          "name": "Kling 3.0 director-style multi-shot formula",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "prompting"
           ]
         },
         {
           "id": "realism-mandate",
-          "title": "Captured, not created - the realism doctrine",
+          "name": "Captured, not created - the realism doctrine",
           "type": "doctrine",
-          "workflow_stage": [
+          "applies": [
             "prompting",
             "qa",
             "gauntlet"
@@ -474,70 +483,70 @@
         },
         {
           "id": "reverse-engineer-viral",
-          "title": "Reverse-engineer any viral video's prompt, then V2-upgrade",
+          "name": "Reverse-engineer any viral video's prompt, then V2-upgrade",
           "type": "pattern",
-          "workflow_stage": [
+          "applies": [
             "research",
             "ideation"
           ]
         },
         {
           "id": "extend-continuity",
-          "title": "Extend clips scene-by-scene with character/scene continuity",
+          "name": "Extend clips scene-by-scene with character/scene continuity",
           "type": "pattern",
-          "workflow_stage": [
+          "applies": [
             "generation",
             "editing"
           ]
         },
         {
           "id": "multi-character-ensembles",
-          "title": "Multi-character casts in one video via multi-reference",
+          "name": "Multi-character casts in one video via multi-reference",
           "type": "pattern",
-          "workflow_stage": [
+          "applies": [
             "generation"
           ]
         },
         {
           "id": "ai-influencer-2-step",
-          "title": "Two-step ultra-realistic AI influencer formula",
+          "name": "Two-step ultra-realistic AI influencer formula",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "ugc-ads",
             "generation"
           ]
         },
         {
           "id": "ugc-preset-libraries",
-          "title": "Higgsfield Marketing Studio: 1,500+ UGC/ad presets; Cinema Studio V4",
+          "name": "Higgsfield Marketing Studio: 1,500+ UGC/ad presets; Cinema Studio V4",
           "type": "tool-fact",
-          "workflow_stage": [
+          "applies": [
             "ugc-ads",
             "offer-lane"
           ]
         },
         {
           "id": "json-prompt-framework",
-          "title": "Detailed JSON prompt structure for image models",
+          "name": "Detailed JSON prompt structure for image models",
           "type": "framework",
-          "workflow_stage": [
+          "applies": [
             "prompting"
           ]
         },
         {
           "id": "channel-format-template",
-          "title": "The MetricsMule video format itself is a template",
+          "name": "The MetricsMule video format itself is a template",
           "type": "pattern",
-          "workflow_stage": [
+          "applies": [
             "faceless-channels",
             "content-strategy"
           ]
         },
         {
           "id": "watcher-visual-patterns",
-          "title": "Watcher frame-level pass findings (deduped against this graph)",
+          "name": "Watcher frame-level pass findings (deduped against this graph)",
           "type": "cross-ref",
-          "workflow_stage": [
+          "applies": [
             "all"
           ]
         }
