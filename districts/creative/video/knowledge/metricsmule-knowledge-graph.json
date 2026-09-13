@@ -1,0 +1,91 @@
+{
+  "id": "metricsmule-knowledge-graph",
+  "version": "1.0",
+  "built": "2026-09-13",
+  "source": {
+    "channel": "https://youtube.com/@metricsmule",
+    "channel_facts": {"videos_total_approx": 395, "subs": "67.4K", "cadence": "3 videos/week", "site": "https://metricsmule.com"},
+    "corpus": "150 most-recent video transcripts (293,825 words) + metricsmule.com prompt-library pages",
+    "mined_by": "metricsmule extraction lane (task agent), transcripts via yt-dlp auto-captions",
+    "visual_pass": "Watcher lane frame-level pass 2026-09-13 2:13 PM PDT (contact sheets mm_sheet1/mm_sheet3)"
+  },
+  "evidence_rule": "VERBATIM = exact transcript words with video_id, or exact site-prompt text with URL. INTERPRETATION = our synthesis. Never lift transcript text into client-facing assets; transcripts are training evidence.",
+  "nodes": [
+    {"id": "llm-as-prompt-engineer", "type": "doctrine", "title": "Never hand-write prompts; build an LLM prompt generator per model", "workflow_stage": ["ideation","prompting"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "9poJVwhCTOU", "quote": "we're going to leverage this dense 38-page C Dance 2.5 guide... We're going to let ChatGPT do everything for us"},
+       {"video_id": "tC9Gg5RgB8Q", "quote": "would you like a V2 cinematic upgrade with more advanced Hollywood-level camera direction"}],
+      "site": ["https://metricsmule.com/ai/metricsmule-youtube/"]},
+     "interpretation": "Standing workflow: paste the model's official guide into ChatGPT/Claude, ask for a reusable prompt generator, iterate with a 'V2 cinematic upgrade' pass. Our pipeline instance: Seedance 2.5 guide + this graph loaded into a Claude project as the video team's prompt engineer."},
+
+    {"id": "seedance-structure", "type": "framework", "title": "Seedance 2.5 structured prompt rules", "workflow_stage": ["prompting","generation"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "zoCu91kWxLk", "quote": "when it comes to AI video, specifically C Dance 2.5, structure matters. Timestamps, character lock, global lock, one camera movement per scene and shot. You don't want to have multiple camera movements in one paragraph. If you do, split it up in different timestamps"},
+       {"video_id": "8pB5fR8V7ek", "quote": "anything you want a global lock for, i.e. a character, tag that in the very beginning, global lock, and then tag your image. And so the next thing when it comes to timestamps, this is perhaps the most crucial part"}]},
+     "interpretation": "Timestamps per shot block; GLOBAL LOCK (character + reference image) tagged first; character lock per scene; one camera movement per block; long structured beats short clever. Re-author our Seedance b-roll/demo scenes to this."},
+
+    {"id": "reference-stacks", "type": "framework", "title": "Reference-image stacks drive consistency and product placement", "workflow_stage": ["prompting","generation","ugc-ads"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "zoCu91kWxLk", "quote": "how to structure a 50 input reference stack. Now, that's one of the things C-Dance does. You can upload up to 50 images"},
+       {"video_id": "8pB5fR8V7ek", "quote": "What are we going to tag as the product being referenced? In this case, let's go with my specific energy drin"}]},
+     "interpretation": "Seedance accepts up to 50 reference images; tag character AND product references. Yappyverse 16-image character packs are ready-made reference sets (Watcher visual pass, pattern 1). This is the mechanism behind AI product placement (Watcher pattern 4)."},
+
+    {"id": "moderation-playbook", "type": "doctrine", "title": "Write prompts like a filmmaker to pass moderation", "workflow_stage": ["prompting","pre-flight"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "zdyNqdAkQLQ", "quote": "a prompt that reads like a filmmaker describing a shot tends to pass. A prompt that reads like a note to a friend, that tends to get flagged"},
+       {"video_id": "zdyNqdAkQLQ", "quote": "real faces of identifiable people... celebrities, politicians, and public figures... named copyright or trademarked items"}]},
+     "interpretation": "Seedance LLM-reads whole prompts. Pre-flight rule for client spots: production language only, no identifiable real faces, no trademarked IP."},
+
+    {"id": "veo-5-part-formula", "type": "framework", "title": "Veo 3.1 five-part prompt formula", "workflow_stage": ["prompting"], "confidence": "high",
+     "evidence": {"site": ["https://metricsmule.com/ai/ai-video-prompt-engineering/"]},
+     "interpretation": "[Camera movement + lens] -> [Subject + physics/secondary motion] -> [Lighting + atmosphere] -> [Layered audio: foreground/mid/background] -> [Technical tokens: 8k, temporal coherence, photorealistic, cinematic color grading]."},
+
+    {"id": "kling-director-formula", "type": "framework", "title": "Kling 3.0 director-style multi-shot formula", "workflow_stage": ["prompting"], "confidence": "high",
+     "evidence": {"site": ["https://metricsmule.com/ai/ai-video-prompt-engineering/"]},
+     "interpretation": "Subject + Action + Setting + Camera + Style in explicit shot language; native multi-shot storyboards [Shot 1]-[Shot 6]; native audio/dialogue cues ('Man speaks: ...')."},
+
+    {"id": "realism-mandate", "type": "doctrine", "title": "Captured, not created - the realism doctrine", "workflow_stage": ["prompting","qa","gauntlet"], "confidence": "high",
+     "evidence": {"site": ["https://metricsmule.com/ai/ai-video-prompt-engineering/"]},
+     "interpretation": "Named camera systems (ARRI ALEXA 35/Mini LF, RED V-RAPTOR 8K), cinema lenses, explicit focal length + aperture, preserved grain/imperfect focus, physically motivated lighting, genre-adaptive token sets. Modes: MOVIE_SET vs STILLS_ARCHIVE. Plastic skin/glow/CGI sharpness = fail. This is the gauntlet Realism axis externalized."},
+
+    {"id": "reverse-engineer-viral", "type": "pattern", "title": "Reverse-engineer any viral video's prompt, then V2-upgrade", "workflow_stage": ["research","ideation"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "tC9Gg5RgB8Q", "quote": "I was definitely successful in reverse engineering that prompt... when you look at the two videos side by side"}]},
+     "interpretation": "Feed a viral video/screenshot to the LLM, reverse the prompt, apply the V2 cinematic upgrade. Use for competitor ad teardowns and the gauntlet calibration set."},
+
+    {"id": "extend-continuity", "type": "pattern", "title": "Extend clips scene-by-scene with character/scene continuity", "workflow_stage": ["generation","editing"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "dLEdCq0pB2Q", "quote": "with this easy extend feature, you can instantly create the next scene, scene after scene"}]},
+     "interpretation": "Higgsfield extend-video chains clips into full-length pieces; fal model families have extend equivalents (Watcher substitution verdict). Pair with shot-list discipline (Watcher pattern 6)."},
+
+    {"id": "multi-character-ensembles", "type": "pattern", "title": "Multi-character casts in one video via multi-reference", "workflow_stage": ["generation"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "XOvUP2goSnc", "quote": "9 different people in 1 AI video"}]},
+     "interpretation": "Minimax H3 multi-reference; fal multi-reference families cover it (Watcher). Cast-sheet presentation. Enables Yappyverse ensemble scenes."},
+
+    {"id": "ai-influencer-2-step", "type": "framework", "title": "Two-step ultra-realistic AI influencer formula", "workflow_stage": ["ugc-ads","generation"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "8pB5fR8V7ek", "quote": "full step-by-step guide on how to create awesome videos... using Cance 2.5 in Higsfield AI... one word structure"}]},
+     "interpretation": "Soul-style character preset + Seedance 2.5 with global-locked reference = persistent influencer identity across outfits/locations/styles (Watcher patterns 1 and 5). Direct map: Yappyverse characters as persistent video personas."},
+
+    {"id": "ugc-preset-libraries", "type": "tool-fact", "title": "Higgsfield Marketing Studio: 1,500+ UGC/ad presets; Cinema Studio V4", "workflow_stage": ["ugc-ads","offer-lane"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "8pB5fR8V7ek", "quote": "1,500 plus new presets that we can choose from to easily make UGC videos and promotional ads... Cinema Studio. We have V4 now available"}]},
+     "interpretation": "Competitor feature list for the offer lane's positioning; also a production shortcut worth testing with the UGC lane's fal keys."},
+
+    {"id": "json-prompt-framework", "type": "framework", "title": "Detailed JSON prompt structure for image models", "workflow_stage": ["prompting"], "confidence": "medium",
+     "evidence": {"verbatim": [
+       {"video_id": "KDc5Fg9QD2Y", "quote": "Provide the prompt in detailed JSON structure"}]},
+     "interpretation": "Nano Banana class models take structured JSON prompts; useful for reproducible pipelines and DB-stored prompt templates."},
+
+    {"id": "channel-format-template", "type": "pattern", "title": "The MetricsMule video format itself is a template", "workflow_stage": ["faceless-channels","content-strategy"], "confidence": "high",
+     "evidence": {"verbatim": [
+       {"video_id": "9poJVwhCTOU", "quote": "Okay, late night gym vlog. Basically empty in here. I look tired, but we're still doing this"}],
+      "visual_pass": "Watcher patterns 2,7,8: real+AI composites, overlay system (callouts, quick-look cards, CTA chips, karaoke captions), branded props/sets"},
+     "interpretation": "Cold-open AI skit (made with the same tools) -> lesson -> screen demo -> free prompt giveaway -> community CTA. Reference format for Bambu's faceless-channel plan."},
+
+    {"id": "watcher-visual-patterns", "type": "cross-ref", "title": "Watcher frame-level pass findings (deduped against this graph)", "workflow_stage": ["all"], "confidence": "high",
+     "evidence": {"visual_pass": "2026-09-13 2:13 PM PDT, contact sheets mm_sheet1/mm_sheet3 delivered to Bambu"},
+     "interpretation": "8 visual patterns: recurring influencer (= ai-influencer-2-step + reference-stacks), real+AI composites (visual-only, not in transcripts), multi-character ensembles (= multi-character-ensembles), AI product placement (= reference-stacks), style-spanning identity (= ai-influencer-2-step), shot-list discipline (= seedance-structure), overlay system (visual-only), props/sets (visual-only). Replication verdict: YES in kind via fal (Seedance 2/Kling multi-reference) + RunPod self-host; polish gap is gauntlet-measured. Full-motion assessment was 403-blocked; transcripts in this package cover the spoken content."}
+  ]
+}
