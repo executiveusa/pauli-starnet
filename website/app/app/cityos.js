@@ -117,7 +117,7 @@ const CityOS = (() => {
       dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad']
     },
     paulis_penthouse: {
-      label: "PAULI'S PENTHOUSE", kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
+      label: 'THE PENTHOUSE', kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
       slots: ['pauli', 'archivist'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['bigscreen'],
       dressing: ['arc_floorlight', 'ticker', 'cablerun', 'plasmaglobe']
     },
@@ -136,7 +136,7 @@ const CityOS = (() => {
   const DEFAULT_SPEC = Object.freeze({
     schema: 'paulis.place.city', version: 2, name: "PAULI'S PLACE",
     districts: [
-      { id: 'pauli', label: "PAULI'S HOUSE", buildings: [{ template: 'paulis_penthouse' }, { template: 'paulis_place' }, { template: 'hall_of_canon' }] },
+      { id: 'pauli', label: "PAULI'S PENTHOUSE", buildings: [{ template: 'paulis_penthouse' }, { template: 'paulis_place' }, { template: 'hall_of_canon' }] },
       { id: 'command', label: 'COMMAND DISTRICT', buildings: [{ template: 'executive_hq' }] },
       { id: 'production', label: 'PRODUCTION DISTRICT', buildings: [{ template: 'software_factory' }, { template: 'pi_foundry' }] },
       { id: 'revenue', label: 'REVENUE DISTRICT', buildings: [{ template: 'revenue_center' }] },

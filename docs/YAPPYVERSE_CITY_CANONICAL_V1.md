@@ -8,7 +8,7 @@ Authority rule: this document describes the current canonical repo HEAD plus own
 - Canonical branch: `feat/harness-backend` (repo has no `main`).
 - City spec source: `frontend/app/cityos.js` (`CityOS.DEFAULT_SPEC`, CityOS v2, schema `paulis.place.city`) with byte-identical mirror `website/app/app/cityos.js`.
 - Districts: **11**. Buildings: **22**. (Counted by executing the spec, not by reading prose.)
-- PAULI district ("PAULI'S HOUSE") added 2026-09-13: PAULI'S PENTHOUSE + PAULI'S PLACE + HALL OF CANON, owner-approved same day, first district in spec order. Pauli persona slots are honest vacancies until the persona lands (Phase 2).
+- PAULI district ("PAULI'S PENTHOUSE") added 2026-09-13: THE PENTHOUSE + PAULI'S PLACE + HALL OF CANON, owner-approved same day, first district in spec order. Pauli persona slots are honest vacancies until the persona lands (Phase 2).
 - The live public city (Netlify site `pauli-starnet-city`, id `820f3b2f-63e7-4933-90de-4efdf37cebc5`) is STALE: old `world/*.js` stack, `/app/cityos.js` 404, does not reflect canonical HEAD.
 
 ## Owner decisions locked 2026-09-13 (voice note, relayed via main agent)
@@ -27,7 +27,7 @@ Roles below are the spec's desired specialist slots, not proof of seated workers
 
 | District | Building | Label | Slots | Capabilities |
 |---|---|---|---|---|
-| pauli | paulis_penthouse | PAULI'S PENTHOUSE | pauli, archivist | files, web, memory, terminal |
+| pauli | paulis_penthouse | THE PENTHOUSE | pauli, archivist | files, web, memory, terminal |
 | pauli | paulis_place | PAULI'S PLACE | council_chair, herald, analyst | files, web, memory |
 | pauli | hall_of_canon | HALL OF CANON | curator, cartographer | files, memory |
 | command | executive_hq | HEISENBERG HQ | orchestrator | files, web, memory, terminal |
@@ -56,11 +56,11 @@ Roles below are the spec's desired specialist slots, not proof of seated workers
 
 ## Owner decisions locked 2026-09-13 (Pauli consolidation, via Instinct main agent)
 
-8. PAULI DISTRICT IS CANON. Names approved: district "PAULI'S HOUSE", buildings PAULI'S PENTHOUSE / PAULI'S PLACE / HALL OF CANON. Pauli = one super-agent, constitutional watcher + portfolio governor, seated between owner and Hermes, never bypassing approval/budget/capability gates.
-9. ASTRA RULE (standing): GPT-6 Astra via HyperAgent powers Pauli only when necessary and EVERY run needs per-mission owner permission - "always get permission to run pauli since hes expensive." No standing ceiling. Free-first routing is the default brain; Astra is deny-by-default escalation with a ledger receipt.
+8. PAULI DISTRICT IS CANON. Names approved then refined same day: district "PAULI'S PENTHOUSE", buildings THE PENTHOUSE / PAULI'S PLACE / HALL OF CANON. Pauli = one super-agent, constitutional watcher + portfolio governor, never bypassing approval/budget/capability gates. POSITION REFINED 5:28 PM: Pauli is ON-CALL, not in the standing chain - summoned as independent architect or judge ("the silent ruler of the city"); standing chain stays owner -> Instinct -> Hermes -> Heisenberg.
+9. ASTRA RULE (standing): GPT-6 Astra via HyperAgent powers Pauli only when necessary and EVERY run needs per-mission owner permission - "always get permission to run pauli since hes expensive." No standing ceiling. REFINED 5:28 PM: every permission request shows a COMPLETE TOKEN ESTIMATE of the job before the run; he approves the estimate, not a blank check. Free-first routing is the default brain; Astra is deny-by-default escalation with a ledger receipt.
 10. PAULIS-PLACE repo declared owner-authored canon; vision imports quote docs by path+SHA. Hermes, command-center, pi-agent stay separate dependency repos.
 11. Repo census approved: 8 keep / 15 import / 92 archive. Archives execute per-batch only, each batch manifest signed off first; nothing deleted.
-12. Pauli's Rime speaker: distinct pick (not bond = BARS, not masonry = command center), recorded in deploy config, easily changeable.
+12. Pauli's voice REFINED 5:28 PM: Italian-mobster-type voice, distinct from bond/masonry. Watcher picks from the live Rime arcana catalog against that direction at deploy (no guessed names), ElevenLabs fallback. Recorded in deploy config, easily changeable.
 
 ## Open owner items
 
