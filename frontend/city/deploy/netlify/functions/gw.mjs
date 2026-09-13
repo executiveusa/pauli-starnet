@@ -154,7 +154,10 @@ async function pulseEvents(now) {
    Agent binding happens HERE, against the sanitized public roster. */
 function mergeActivity(upstream, pulse, citizens) {
   const merged = (Array.isArray(upstream) ? upstream.slice() : []);
-  for (const p of (Array.isArray(pulse) ? pulse : [])) {
+  // A repo-event burst (a big sync night) must never flush the gateway's own
+  // RECEIPTED history out of the feed: the pulse takes at most 12 of the 20
+  // slots, so the newest receipts stay visible in the HUD and the panel.
+  for (const p of (Array.isArray(pulse) ? pulse.slice(0, 12) : [])) {
     merged.push({
       event: p.event,
       state: p.state,
