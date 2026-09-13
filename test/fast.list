@@ -699,5 +699,6 @@ test/pauli-registry.test.js
 test/pauli-canon-sync.test.js
 test/pauli-memory-mcp.test.js
 test/pauli-memory-eval.test.js
+test/pauli-foundry.test.js
 
 test/coolify-city-server.test.mjs
