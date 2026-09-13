@@ -42,7 +42,7 @@
       const c = CityCore.classifyStatus(payload);
       state.status = c;
       setMode(c.mode, c.label + (c.generatedAgoMin != null ? (c.generatedAgoMin < 1 ? ' · just now' : ' · ' + c.generatedAgoMin + ' min ago') : ''));
-      renderFeed(); renderLastAct();
+      renderFeed(); renderLastAct(); renderChrome();
       for (const fn of subs) { try { fn(c); } catch (_) {} }
       if (window.CityWorld && window.CityWorld.applyStatus) { try { window.CityWorld.applyStatus(c); } catch (_) {} }
     } catch (_) {
@@ -84,14 +84,68 @@
     n.textContent = ' — last gateway activity: ' + t.status + (ago != null ? ' · ' + (ago < 1 ? 'just now' : ago + ' min ago') : '');
   }
 
+  /* ROUND-4 CONTROL CHROME — CAM ticker, header instruments, crew rail. Every value below is derived
+     from the SAME public gateway DTO the activity feed uses (names, coarse category enums, relative
+     ages, receipt booleans only): the chrome can never claim more than the gateway proved. */
+  let tickerItems = [], tickerIdx = 0;
+
+  function renderChrome() {
+    const c = state.status;
+    // 20, not 10: the WORKING counter and LAST RECEIPT must read the full merged
+    // window — a repo-push burst must not hide the newest receipted gateway task.
+    const feed = CityCore.activityFeed(c, 20);
+    const working = new Set(feed.filter(t => t.status === 'running' || t.status === 'accepted')
+      .map(t => String(t.agent || '').toUpperCase()).filter(Boolean));
+    const citizens = (c && Array.isArray(c.citizens)) ? c.citizens : [];
+    const ia = $('#inst-agents'), it = $('#inst-tasks'), ir = $('#inst-receipt');
+    const idle = Math.max(0, citizens.length - working.size);
+    const narrow = (typeof window.matchMedia === 'function') && window.matchMedia('(max-width: 700px)').matches;
+    if (ia) ia.textContent = narrow ? (working.size + ' WORKING / ' + idle + ' IDLE') : ('AGENTS ' + working.size + ' WORKING / ' + idle + ' IDLE');
+    if (it) it.textContent = 'TASKS ' + feed.length + ' LOGGED';
+    const rec = feed.filter(t => t.receipted);
+    const newest = rec.length ? (rec[0].settledAgoMin != null ? rec[0].settledAgoMin : rec[0].startedAgoMin) : null;
+    if (ir) ir.textContent = newest == null ? 'NO RECEIPTS YET' : 'LAST RECEIPT ' + (newest < 1 ? 'JUST NOW' : newest + ' MIN AGO');
+    tickerItems = feed.slice(0, 5).map(t => ({
+      text: t.status.toUpperCase() + ' · ' + t.label + (t.agent ? ' · ' + t.agent : '') + (t.receipted ? ' · receipted' : ''),
+      bad: t.status === 'failed'
+    }));
+    const list = $('#crew-list');
+    if (list) {
+      list.textContent = '';
+      if (!citizens.length) list.appendChild(el('div', 'note', 'No crew roster reported by the gateway.'));
+      for (const cz of citizens) {
+        const name = String(cz.name || cz.id || '?').toUpperCase();
+        const row = el('div', 'crewrow');
+        row.appendChild(el('span', 'pill ' + (working.has(name) ? 'running' : 'idle'), working.has(name) ? 'working' : 'idle'));
+        row.appendChild(document.createTextNode(' ' + name));
+        list.appendChild(row);
+      }
+    }
+  }
+
+  function tickTicker() {
+    const n = $('#cam-ticker'); if (!n) return;
+    if (!tickerItems.length) { n.textContent = 'NO GATEWAY ACTIVITY RECORDED — IDLE IS A STATE, NOT A MALFUNCTION'; n.classList.remove('bad'); return; }
+    const item = tickerItems[tickerIdx % tickerItems.length]; tickerIdx++;
+    n.textContent = item.text; n.classList.toggle('bad', !!item.bad);
+  }
+
   function boot() {
     if (typeof CityOS !== 'undefined' && typeof CityCore !== 'undefined') {
       state.model = CityCore.cityModel(CityOS);
-      $('#cityname').textContent = state.model.name;
-      $('#counts').textContent = state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
+      $('#cityname').textContent = 'YAPPYVERSE';   // the world is the Yappyverse; Pauli's Place is the city inside it
+      $('#counts').textContent = state.model.name + ' · ' + state.model.counts.districts + ' districts · ' + state.model.counts.buildings + ' buildings · ' + state.model.counts.slots + ' specialist slots';
     }
     setMode('offline', 'Connecting…');
     $('#whole-city').addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.fitWorld) World.fitWorld(48); else if (typeof World !== 'undefined' && World.camPullBack) World.camPullBack(); } catch (_) {} });
+    // ZOOM CONTROLS: explicit + / - buttons (phone-first — pinch also works on the canvas
+    // itself; the buttons are the one-finger path and the discoverable one).
+    const zIn = $('#zoom-in'), zOut = $('#zoom-out');
+    if (zIn) zIn.addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.zoomStep) World.zoomStep(1.4); } catch (_) {} });
+    if (zOut) zOut.addEventListener('click', () => { try { if (typeof World !== 'undefined' && World.zoomStep) World.zoomStep(1 / 1.4); } catch (_) {} });
+    document.getElementById('whole-city').addEventListener('click', () => { const v = document.getElementById('cam-view'); if (v) v.textContent = 'WHOLE CITY'; });
+    const ct = document.getElementById('crew-tab'); if (ct) ct.addEventListener('click', () => document.getElementById('crew-rail').classList.toggle('open'));
+    setInterval(tickTicker, 6000);
     $('#feed-toggle').addEventListener('click', () => document.body.classList.toggle('panel-hidden'));
     $('#panel-close').addEventListener('click', () => document.body.classList.add('panel-hidden'));
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') document.body.classList.add('panel-hidden'); });
