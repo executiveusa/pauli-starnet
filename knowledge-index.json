@@ -1,0 +1,547 @@
+{
+  "meta": {
+    "name": "Yappyverse city-wide knowledge index",
+    "version": "1.0.0",
+    "built": "2026-09-13",
+    "method": "ICM - Interpretable Context Methodology (Jake Van Clief, github.com/RinDig/Interpretable-Context-Methodology)",
+    "human_index": "KNOWLEDGE.md",
+    "update_rule": "Every new extraction registers here in the same commit as its files. One home per fact; this index points, never copies.",
+    "query_rule": "Filter sources/nodes by tag or workflow stage, then open only the cited pointer. Verbatim evidence and interpretation stay separated when citing."
+  },
+  "sources": [
+    {
+      "id": "mozi-sales",
+      "name": "Mozi Sales Knowledge (Hormozi mine)",
+      "district": "sales",
+      "home": "repo",
+      "context_contract": "districts/sales/mozi/README.md",
+      "district_spec": "districts/sales/mozi/SALES-DISTRICT.md",
+      "learnings_doc": "districts/sales/mozi/HORMOZI-LEARNINGS.md",
+      "entry": {
+        "graph": "districts/sales/mozi/knowledge/hormozi-knowledge-graph.json",
+        "video_index": "districts/sales/mozi/knowledge/video-index.json",
+        "playbooks": [
+          "districts/sales/mozi/playbooks/offer-architecture.md",
+          "districts/sales/mozi/playbooks/scripts-and-frames.md",
+          "districts/sales/mozi/playbooks/call-prep.md",
+          "districts/sales/mozi/playbooks/ab-test-designs.md",
+          "districts/sales/mozi/playbooks/team-training.md"
+        ],
+        "transcripts_dir": "districts/sales/mozi/transcripts/ (43 files, video-ID named; ~107 pending rate-limit retry)"
+      },
+      "workflow_stages": [
+        "diagnose",
+        "pain_research",
+        "offer_design",
+        "call_prep",
+        "discovery",
+        "pitch",
+        "objection_handling",
+        "close",
+        "reinforce_onboard",
+        "retention_ascension",
+        "referral_partners",
+        "traffic"
+      ],
+      "tags": [
+        "sales",
+        "offers",
+        "closing",
+        "objections",
+        "retention",
+        "referrals",
+        "pricing",
+        "call-prep",
+        "training",
+        "ab-tests"
+      ],
+      "nodes": [
+        {
+          "id": "back-to-front-fix",
+          "name": "Fix the business back to front",
+          "type": "framework",
+          "applies": [
+            "diagnose"
+          ]
+        },
+        {
+          "id": "offer-value-variables",
+          "name": "Value variables: speed, risk, ease",
+          "type": "framework",
+          "applies": [
+            "offer_design"
+          ]
+        },
+        {
+          "id": "break-commodity-frame",
+          "name": "Break the commodity frame or die on price",
+          "type": "doctrine",
+          "applies": [
+            "offer_design",
+            "pitch",
+            "objection_handling"
+          ]
+        },
+        {
+          "id": "seeds-of-doubt",
+          "name": "Seeds of doubt against the competition",
+          "type": "doctrine",
+          "applies": [
+            "pitch",
+            "objection_handling"
+          ]
+        },
+        {
+          "id": "start-high-tiering",
+          "name": "Present the top tier first, walk down",
+          "type": "doctrine",
+          "applies": [
+            "pitch",
+            "close"
+          ]
+        },
+        {
+          "id": "internal-certification-levels",
+          "name": "Invent internal certification levels",
+          "type": "pattern",
+          "applies": [
+            "offer_design"
+          ]
+        },
+        {
+          "id": "price-cap-risk-reversal",
+          "name": "The price cap (risk reversal)",
+          "type": "pattern",
+          "applies": [
+            "offer_design",
+            "objection_handling"
+          ]
+        },
+        {
+          "id": "speed-premium",
+          "name": "Charge for speed, keep raising until they say no",
+          "type": "doctrine",
+          "applies": [
+            "offer_design"
+          ]
+        },
+        {
+          "id": "vip-partner-incentive",
+          "name": "Pay referral partners in status, not cash",
+          "type": "pattern",
+          "applies": [
+            "referral_partners",
+            "offer_design"
+          ]
+        },
+        {
+          "id": "false-offer",
+          "name": "The false offer (opt-out inclusion)",
+          "type": "pattern",
+          "applies": [
+            "offer_design"
+          ]
+        },
+        {
+          "id": "structured-pitch-architecture",
+          "name": "Structured pitch architecture (webinar/VSL/presentation)",
+          "type": "framework",
+          "applies": [
+            "pitch",
+            "call_prep"
+          ]
+        },
+        {
+          "id": "sell-during-delivery",
+          "name": "Sell during the delivery, not after",
+          "type": "doctrine",
+          "applies": [
+            "retention_ascension",
+            "close"
+          ]
+        },
+        {
+          "id": "sell-to-cold",
+          "name": "Sell like everyone is cold",
+          "type": "doctrine",
+          "applies": [
+            "pitch",
+            "traffic"
+          ]
+        },
+        {
+          "id": "good-selling-feels-good",
+          "name": "People only feel sold to when it's done badly",
+          "type": "belief_breaker",
+          "applies": [
+            "call_prep",
+            "discovery"
+          ]
+        },
+        {
+          "id": "checkout-convenience-premium",
+          "name": "Charge extra for the high-touch path",
+          "type": "pattern",
+          "applies": [
+            "offer_design",
+            "close"
+          ]
+        },
+        {
+          "id": "opt-out-billing",
+          "name": "Opt-out renewal, not opt-in",
+          "type": "pattern",
+          "applies": [
+            "retention_ascension"
+          ]
+        },
+        {
+          "id": "guarantee-reframe",
+          "name": "Guarantee framed at the hidden objector",
+          "type": "pattern",
+          "applies": [
+            "close",
+            "objection_handling"
+          ]
+        },
+        {
+          "id": "never-email-invoice",
+          "name": "Never present an invoice by email",
+          "type": "rule",
+          "applies": [
+            "close",
+            "objection_handling"
+          ]
+        },
+        {
+          "id": "vsl-before-call",
+          "name": "VSL before every sales conversation",
+          "type": "pattern",
+          "applies": [
+            "call_prep",
+            "pitch"
+          ]
+        },
+        {
+          "id": "faq-by-frequency",
+          "name": "FAQ by frequency, answered live",
+          "type": "pattern",
+          "applies": [
+            "pitch",
+            "objection_handling",
+            "call_prep"
+          ]
+        },
+        {
+          "id": "closer-framework",
+          "name": "CLOSER call framework",
+          "type": "framework",
+          "applies": [
+            "call_prep",
+            "discovery",
+            "pitch",
+            "objection_handling",
+            "close",
+            "reinforce_onboard"
+          ]
+        },
+        {
+          "id": "three-pillar-pitch",
+          "name": "Every offer pitches as three pillars",
+          "type": "pattern",
+          "applies": [
+            "pitch",
+            "offer_design"
+          ]
+        },
+        {
+          "id": "pain-cycle-loop",
+          "name": "The 'what else' pain loop",
+          "type": "doctrine",
+          "applies": [
+            "discovery",
+            "pain_research"
+          ]
+        },
+        {
+          "id": "closer-reinforce",
+          "name": "Reinforce the decision after the yes",
+          "type": "doctrine",
+          "applies": [
+            "reinforce_onboard",
+            "retention_ascension"
+          ]
+        },
+        {
+          "id": "money-models-billing-match",
+          "name": "Match billing shape to value shape",
+          "type": "principle",
+          "applies": [
+            "offer_design",
+            "retention_ascension"
+          ]
+        },
+        {
+          "id": "pain-first-research",
+          "name": "Pain and problem before product (house rule)",
+          "type": "principle",
+          "applies": [
+            "pain_research",
+            "diagnose",
+            "call_prep"
+          ]
+        },
+        {
+          "id": "churn-leaky-bucket",
+          "name": "Churn as leaky bucket: joins vs cancels, benchmarks",
+          "type": "framework",
+          "applies": [
+            "retention_ascension",
+            "diagnose"
+          ]
+        },
+        {
+          "id": "churn-drops-with-tenure",
+          "name": "Churn collapses with tenure - engineer day-90 and month-6",
+          "type": "doctrine",
+          "applies": [
+            "retention_ascension",
+            "reinforce_onboard"
+          ]
+        },
+        {
+          "id": "cancel-reason-loop",
+          "name": "Ask why they canceled, fix patterns not anecdotes",
+          "type": "pattern",
+          "applies": [
+            "retention_ascension",
+            "diagnose"
+          ]
+        },
+        {
+          "id": "ask-why-they-stay",
+          "name": "Ask your best members why they stay - then subtract",
+          "type": "pattern",
+          "applies": [
+            "retention_ascension",
+            "offer_design"
+          ]
+        },
+        {
+          "id": "price-tier-evidence",
+          "name": "Price complaints: tier down only for the ideal buyer",
+          "type": "doctrine",
+          "applies": [
+            "offer_design",
+            "objection_handling",
+            "retention_ascension"
+          ]
+        },
+        {
+          "id": "overwhelm-kills-retention",
+          "name": "Overwhelm is the #1 churn driver - more stuff is more reasons to cancel",
+          "type": "doctrine",
+          "applies": [
+            "retention_ascension",
+            "offer_design"
+          ]
+        },
+        {
+          "id": "front-load-the-win",
+          "name": "Front-load the fast win; design busy path + power path",
+          "type": "pattern",
+          "applies": [
+            "reinforce_onboard",
+            "retention_ascension"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "metricsmule-video",
+      "name": "Metrics Mule Video Prompting Mine (@metricsmule, 150 videos)",
+      "district": "creative",
+      "home": "repo",
+      "entry": {
+        "graph": "districts/creative/video/knowledge/metricsmule-knowledge-graph.json",
+        "video_index": "districts/creative/video/knowledge/video-index.json",
+        "playbooks": [
+          "districts/creative/video/playbooks/model-formulas.md",
+          "districts/creative/video/playbooks/prompt-generator-system.md",
+          "districts/creative/video/playbooks/realism-doctrine.md",
+          "districts/creative/video/playbooks/seedance-structure.md",
+          "districts/creative/video/playbooks/ugc-influencer-production.md"
+        ],
+        "transcripts_dir": "districts/creative/video/transcripts/ (150 files, video-ID named)",
+        "r2_mirror": "https://video-exports.thepaulieffect.com/knowledge/metricsmule/ (playbook md, catalog.tsv, transcripts-150.tar.gz)"
+      },
+      "teaches": [
+        "prompt-generator meta-workflow (feed official model guides to an LLM, build reusable generators)",
+        "Seedance 2.5 structure rules (timestamps per shot, GLOBAL LOCK character reference, one camera move per block)",
+        "per-model formulas: Veo 3.1 five-part, Kling 3.0 director-style, Nano Banana JSON",
+        "realism doctrine: captured-not-created, named cameras/lenses, preserved grain",
+        "moderation behavior: filmmaker language passes, note-to-a-friend flags, real faces/IP near-auto-flag",
+        "multi-character consistency (Minimax H3 multi-reference, up to 50 reference images)",
+        "UGC angle: Higgsfield Marketing Studio presets, ultra-realistic AI influencer formula"
+      ],
+      "workflow_stages": [
+        "video_prompting",
+        "ugc_ads",
+        "character_consistency",
+        "model_selection",
+        "prompt_iteration"
+      ],
+      "tags": [
+        "video",
+        "prompting",
+        "seedance",
+        "kling",
+        "veo",
+        "higgsfield",
+        "ugc",
+        "ai-influencer",
+        "realism",
+        "multi-character"
+      ],
+      "visual_evidence": "Watcher frame-level contact sheets reported 2026-09-13 (recurring AI influencer, real+AI composites, numbered ensemble casts, product placement, shot-list storyboards)",
+      "context_contract": "districts/creative/video/README.md",
+      "lane_spec": "districts/creative/video/VIDEO-LANE.md",
+      "learnings_doc": "districts/creative/video/METRICSMULE-LEARNINGS.md",
+      "schema_note": "Video graph node shape: id, title, type, workflow_stage, confidence, evidence, interpretation. Mozi shape: id, name, type, applies[], edges[], evidence_verbatim, summary_interpretation. Unification pending; both preserve verbatim/interpretation separation.",
+      "nodes": [
+        {
+          "id": "llm-as-prompt-engineer",
+          "title": "Never hand-write prompts; build an LLM prompt generator per model",
+          "type": "doctrine",
+          "workflow_stage": [
+            "ideation",
+            "prompting"
+          ]
+        },
+        {
+          "id": "seedance-structure",
+          "title": "Seedance 2.5 structured prompt rules",
+          "type": "framework",
+          "workflow_stage": [
+            "prompting",
+            "generation"
+          ]
+        },
+        {
+          "id": "reference-stacks",
+          "title": "Reference-image stacks drive consistency and product placement",
+          "type": "framework",
+          "workflow_stage": [
+            "prompting",
+            "generation",
+            "ugc-ads"
+          ]
+        },
+        {
+          "id": "moderation-playbook",
+          "title": "Write prompts like a filmmaker to pass moderation",
+          "type": "doctrine",
+          "workflow_stage": [
+            "prompting",
+            "pre-flight"
+          ]
+        },
+        {
+          "id": "veo-5-part-formula",
+          "title": "Veo 3.1 five-part prompt formula",
+          "type": "framework",
+          "workflow_stage": [
+            "prompting"
+          ]
+        },
+        {
+          "id": "kling-director-formula",
+          "title": "Kling 3.0 director-style multi-shot formula",
+          "type": "framework",
+          "workflow_stage": [
+            "prompting"
+          ]
+        },
+        {
+          "id": "realism-mandate",
+          "title": "Captured, not created - the realism doctrine",
+          "type": "doctrine",
+          "workflow_stage": [
+            "prompting",
+            "qa",
+            "gauntlet"
+          ]
+        },
+        {
+          "id": "reverse-engineer-viral",
+          "title": "Reverse-engineer any viral video's prompt, then V2-upgrade",
+          "type": "pattern",
+          "workflow_stage": [
+            "research",
+            "ideation"
+          ]
+        },
+        {
+          "id": "extend-continuity",
+          "title": "Extend clips scene-by-scene with character/scene continuity",
+          "type": "pattern",
+          "workflow_stage": [
+            "generation",
+            "editing"
+          ]
+        },
+        {
+          "id": "multi-character-ensembles",
+          "title": "Multi-character casts in one video via multi-reference",
+          "type": "pattern",
+          "workflow_stage": [
+            "generation"
+          ]
+        },
+        {
+          "id": "ai-influencer-2-step",
+          "title": "Two-step ultra-realistic AI influencer formula",
+          "type": "framework",
+          "workflow_stage": [
+            "ugc-ads",
+            "generation"
+          ]
+        },
+        {
+          "id": "ugc-preset-libraries",
+          "title": "Higgsfield Marketing Studio: 1,500+ UGC/ad presets; Cinema Studio V4",
+          "type": "tool-fact",
+          "workflow_stage": [
+            "ugc-ads",
+            "offer-lane"
+          ]
+        },
+        {
+          "id": "json-prompt-framework",
+          "title": "Detailed JSON prompt structure for image models",
+          "type": "framework",
+          "workflow_stage": [
+            "prompting"
+          ]
+        },
+        {
+          "id": "channel-format-template",
+          "title": "The MetricsMule video format itself is a template",
+          "type": "pattern",
+          "workflow_stage": [
+            "faceless-channels",
+            "content-strategy"
+          ]
+        },
+        {
+          "id": "watcher-visual-patterns",
+          "title": "Watcher frame-level pass findings (deduped against this graph)",
+          "type": "cross-ref",
+          "workflow_stage": [
+            "all"
+          ]
+        }
+      ]
+    }
+  ]
+}
