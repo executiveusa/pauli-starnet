@@ -80,18 +80,18 @@ const { makeSkillPrefs } = require('../sidecar/skills/prefs.js');
   // why almost every port ships default:false; forcing them ALL on must degrade gracefully, never blow the window).
   const ALL_OBJECTS = ['computer', 'notebook', 'cabinet', 'dish', 'workbench', 'studio', 'jukebox', 'orchestrator', 'connector'];
   const forceOn = {}; for (const s of skills) forceOn[s.slug] = true;
-  const full = C.compose(skills, { overrides: forceOn, placedTypes: ALL_OBJECTS, budget: 12000 });
+  const full = C.compose(skills, { overrides: forceOn, placedTypes: ALL_OBJECTS, budget: 13200 });
   A.ok(/omitted here to keep the prompt lean/.test(full), 'the full expanded catalog exceeds 12k -> compose omit-flags the overflow (no silent truncation)');
   // the SHIPPED-DEFAULT set (frontmatter default:true only) fits under budget and omits nothing — proof the ports
   // didn't sneak anything on-by-default that eats the prompt window. The legibility redesign intentionally ships
   // EVERY no-gear (compute-only) recipe ON so a fresh station injects a useful set, not just 2; each is a small,
   // broadly-usable body, so the whole set still fits the 12k compose budget with no omission.
-  const shipped = C.compose(skills, { overrides: {}, placedTypes: ALL_OBJECTS, budget: 12000 });
-  A.ok(shipped.length < 12000 && !/omitted/.test(shipped), 'the default-on shipped skill set fits the compose budget with no omission');
+  const shipped = C.compose(skills, { overrides: {}, placedTypes: ALL_OBJECTS, budget: 13200 });
+  A.ok(shipped.length < 13200 && !/omitted/.test(shipped), 'the default-on shipped skill set fits the compose budget with no omission');
   // pin the shipped default set: exactly the no-gear (compute-only) recipes ship ON. If a new gear-gated skill ever
   // flips default:true (eating the prompt window), or a no-gear one silently regresses to off, this catches it.
   const shippedOn = skills.filter(s => s.default).map(s => s.slug).sort();
-  const expectedOn = ['ascii-art', 'creative-ideation', 'decision-1-3-1', 'humanizer', 'plan'].sort();
+  const expectedOn = ['ascii-art', 'creative-ideation', 'decision-1-3-1', 'humanizer', 'plan', 'skillopt'].sort();
   A.eq(shippedOn.join(','), expectedOn.join(','), 'exactly the no-gear compute-only recipes ship enabled by default');
   // and every default-on recipe is genuinely gear-free (a gear-gated default would be dark on a fresh station AND eat budget)
   for (const s of skills) if (s.default) A.eq(s.requires.length, 0, s.slug + ': a shipped-default skill needs no gear');

@@ -121,7 +121,7 @@
   function compose(skills, opts) {
     opts = opts || {};
     const placed = asSet(opts.placedTypes);
-    const budget = opts.budget > 0 ? opts.budget : 12000;
+    const budget = opts.budget > 0 ? opts.budget : 13200;  // raised 12000->13200 (2026-09-13) so SkillOpt can ship default-on; prior set sat at 11952/12000
     // Class Loadouts S1: opts.agentSkills = this agent's class package (slugs). Union ADD-only with global prefs.
     const agentSet = (opts.agentSkills && (opts.agentSkills.size || opts.agentSkills.length))
       ? asSet(Array.isArray(opts.agentSkills) ? opts.agentSkills : [...opts.agentSkills]) : null;

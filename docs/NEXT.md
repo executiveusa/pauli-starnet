@@ -1,5 +1,18 @@
 # NEXT.md — current priorities & task queue
 
+## DONE 2026-09-13 — SkillOpt added to the bundled skill library (global default-on)
+
+- microsoft/SkillOpt (MIT, v0.2.0, repo main @ 79124b3) ported as `sidecar/skills/library/skillopt.md`:
+  gear-free (`requires: []`) + `default: true`, so EVERY agent's system prompt now injects the SkillOpt
+  recipe (rollout → reflect → gate → ship best_skill.md; sleep = staged, human-adopted only).
+- Compose budget raised 12000 → 13200 (`skills/catalog.js` default): the 5 shipped defaults sat at
+  11952/12000, so any default-on addition required either trimming an existing recipe or bumping the cap.
+  Chose the cap bump — no existing recipe content touched. Pinned test in `skills.library.test.js`
+  revisited per the warning here (NEXT.md 2026-07-07): budget assertions + `expectedOn` pin now include
+  `skillopt`. Gates green: skills.library (364), skills, goldens, package-format, registry, metrics,
+  abilities-lane, review-approval, exchange, lint-determinism, lint-evidence-secrets.
+
+
 ## DONE 2026-08-25 — CUSTOM HTTP MCP OAUTH (`agent/custom-mcp-oauth`)
 
 GitHub issue #1 is confirmed open on current trunk: the manual MCP form exposes HTTP bearer and
