@@ -1,0 +1,17 @@
+# IMPORT SPEC - pauli-waku-agent (memory loop concepts + evals)
+Source: executiveusa/pauli-waku-agent @ 8328f567ab52d07921445cb40feed23cbc5ea2ad (main)
+Upstream: ShenSeanChen/waku-agent | License: MIT (LICENSE-UPSTREAM retained)
+
+## Take (file-pinned at source SHA)
+- `docs/memory-backends-playbook.md` - backend comparison for semantic/episodic/procedural memory.
+- `evals/` (deterministic suite: test_cli_memory.py, test_coding_eval.py, dataset.jsonl) - the eval harness shape for memory recall quality.
+- Memory consolidation gate concept (from README + docs): promote short-term to durable only through a gate, never silently.
+
+## Destination
+- Pauli memory design for the Penthouse archivist: three-tier memory (semantic/episodic/procedural) + consolidation gate + eval harness ported as starnet tests. Concepts + eval shape; no wholesale file copy.
+
+## Tests
+- Port the deterministic memory evals against the Pauli memory implementation (same dataset shape, starnet harness).
+
+## Archive credit
+Counts as pauli-waku-agent's import record once evals run green.
