@@ -1,0 +1,745 @@
+{
+ "meta": {
+  "name": "Mozi Sales Knowledge Graph",
+  "source": "Alex Hormozi YouTube channel (@AlexHormozi), last-150 transcript mine, ordered newest first from /videos tab",
+  "built": "2026-09-13",
+  "fetched_transcripts": 43,
+  "target_transcripts": 150,
+  "fetch_status": "YouTube rate-limited the sandbox IP after 43; retry scheduled; graph is built to extend - attach new video evidence to existing nodes, add nodes only for genuinely new doctrines",
+  "evidence_rule": "Every node separates VERBATIM evidence (exact transcript words, video_id + quote) from INTERPRETATION (our synthesis). Agents reasoning over this graph must preserve that separation when they cite it.",
+  "provenance_extra": "Nodes 19-22 cite the CLOSER short (youtube.com/shorts/ZMW8AfQeGqQ) transcript-verified 2026-09-13 by the offer lane, and the money-models extraction handed off by the offer lane the same day. Those are part of the same canon mine even though they sit outside the 43 fetched files."
+ },
+ "workflow_stages": [
+  "diagnose",
+  "pain_research",
+  "offer_design",
+  "call_prep",
+  "discovery",
+  "pitch",
+  "objection_handling",
+  "close",
+  "reinforce_onboard",
+  "retention_ascension",
+  "referral_partners",
+  "traffic"
+ ],
+ "nodes": [
+  {
+   "id": "back-to-front-fix",
+   "type": "framework",
+   "name": "Fix the business back to front",
+   "summary_interpretation": "Diagnose and fix in this order: (1) the thing you sell (offer), (2) how you sell it (conversion/sales process), (3) who you sell to and how they find out (traffic). Never start with traffic. Mozi runs every engagement as this sequence.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "if you think about fixing a business, I always fix things from back to front. So it's like the thing you sell, how we sell it, who we're going to sell it to, and how we get them to find out about it"
+    },
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "we're going to fix this in standard fashion and by standard fashion, I like doing things back to front. So, we'll fix offer and then we'll fix the conversion process ... and then we'll go to traffic"
+    }
+   ],
+   "applies": [
+    "diagnose"
+   ],
+   "edges": [
+    "offer-value-variables",
+    "structured-pitch-architecture",
+    "sell-to-cold"
+   ]
+  },
+  {
+   "id": "offer-value-variables",
+   "type": "framework",
+   "name": "Value variables: speed, risk, ease",
+   "summary_interpretation": "Differentiation is built from value variables - speed, risk, ease (the operational face of the value equation: dream outcome, perceived likelihood, time delay, effort/sacrifice). When a product looks commoditized, add components that move these variables, not discounts.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "how many other things can we do there? So, we have speed, risk, and ease."
+    },
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "when you're selling a commodity, you're basically sowing seeds of doubt against the competition"
+    }
+   ],
+   "applies": [
+    "offer_design"
+   ],
+   "edges": [
+    "seeds-of-doubt",
+    "break-commodity-frame",
+    "speed-premium",
+    "price-cap-risk-reversal"
+   ]
+  },
+  {
+   "id": "break-commodity-frame",
+   "type": "doctrine",
+   "name": "Break the commodity frame or die on price",
+   "summary_interpretation": "If the buyer compares you on one measured unit (hourly rate), you are a commodity. Reframe the unit (per job, per outcome) and load the conversation with other variables, because buyers default to price only when given nothing else to evaluate.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "Customers will always go to price if you don't give them any other variables to consider."
+    },
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "you will become a commodity if you're using the exact same measured unit ... I would break that frame and just say, 'We don't do it by hourly. We just do it by job.'"
+    }
+   ],
+   "applies": [
+    "offer_design",
+    "pitch",
+    "objection_handling"
+   ],
+   "edges": [
+    "seeds-of-doubt",
+    "offer-value-variables"
+   ]
+  },
+  {
+   "id": "seeds-of-doubt",
+   "type": "doctrine",
+   "name": "Seeds of doubt against the competition",
+   "summary_interpretation": "Win commodity comparisons by surfacing the competitor's hidden costs and risks the buyer didn't think to ask about (nickel-and-diming, uninsured labor, no price cap, day-labor hires). Frame as questions, not attacks: 'Did the other guys give you a cap?'",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "if you get on the phone and say, 'Hey, did the other guys give you a cap?' And they'll be like, 'No.' And you're like, 'Oh.' Well, yeah, that's how they're going to get you."
+    },
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "a lot of my competitors, they can win on price cuz they're just literally going to take someone off the street ... you don't know if they have a record"
+    }
+   ],
+   "applies": [
+    "pitch",
+    "objection_handling"
+   ],
+   "edges": [
+    "break-commodity-frame",
+    "price-cap-risk-reversal"
+   ]
+  },
+  {
+   "id": "start-high-tiering",
+   "type": "doctrine",
+   "name": "Present the top tier first, walk down",
+   "summary_interpretation": "Always present the premium tier first; buyers with money 'just want it done' and need the opportunity to buy at the top. On a budget objection, walk down to standard - never start low and try to walk up.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "I would start with VIP ... I would do it to everybody. I always start high. Cuz the thing is is when you get on the phone with somebody who has money, they don't care. They just want it done ... as soon as someone says, 'No, I'm on a budget.' You're like, 'No worries, then just do standard.'"
+    }
+   ],
+   "applies": [
+    "pitch",
+    "close"
+   ],
+   "edges": [
+    "vip-partner-incentive",
+    "checkout-convenience-premium"
+   ]
+  },
+  {
+   "id": "internal-certification-levels",
+   "type": "pattern",
+   "name": "Invent internal certification levels",
+   "summary_interpretation": "Turn undifferentiated labor into tiered perceived expertise with internal certification levels (Level 3 master mover = 50+ moves; Level 3 trainer = 1,000 sessions). Converts a risk variable into a named, sellable asset at near-zero cost.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "I created three levels of internal certification. I'd be like, you're going to have a level three master trainer ... a level three was like they'd done a thousand sessions."
+    }
+   ],
+   "applies": [
+    "offer_design"
+   ],
+   "edges": [
+    "offer-value-variables",
+    "seeds-of-doubt"
+   ]
+  },
+  {
+   "id": "price-cap-risk-reversal",
+   "type": "pattern",
+   "name": "The price cap (risk reversal)",
+   "summary_interpretation": "Offer a cost ceiling ('it will not be more than this') to reverse the buyer's open-ended-meter fear, then use it as a seed of doubt against competitors who won't cap.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "So, we'll be this, and we won't exceed this ... that way, cuz again, we're trying to sow seeds of doubt."
+    }
+   ],
+   "applies": [
+    "offer_design",
+    "objection_handling"
+   ],
+   "edges": [
+    "seeds-of-doubt",
+    "guarantee-reframe"
+   ]
+  },
+  {
+   "id": "speed-premium",
+   "type": "doctrine",
+   "name": "Charge for speed, keep raising until they say no",
+   "summary_interpretation": "Speed is one of the biggest things people pay for. Add a same-day/expedite surcharge (start 10%, move toward 20%+) and keep raising prices until the market objects.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "if someone does same day, you can just say we have a same day surcharge of 10% ... cuz I want you to get used to charging it, because speed is one of the biggest things people pay for."
+    },
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "Now if everyone is wants to pay this, then great. We raise our prices."
+    }
+   ],
+   "applies": [
+    "offer_design"
+   ],
+   "edges": [
+    "offer-value-variables"
+   ]
+  },
+  {
+   "id": "vip-partner-incentive",
+   "type": "pattern",
+   "name": "Pay referral partners in status, not cash",
+   "summary_interpretation": "Referral partners (realtors, past clients) value making their own clients happy more than small kickbacks. Give referred buyers VIP-tier service at standard price instead of a discount or cash - it makes the referrer look good and costs little.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "They probably don't care about the $250 ... you probably get way more referrals if you said I'll give everybody who you send a VIP service for the price of standard. That will probably mean more to them than getting $250."
+    }
+   ],
+   "applies": [
+    "referral_partners",
+    "offer_design"
+   ],
+   "edges": [
+    "start-high-tiering",
+    "false-offer"
+   ]
+  },
+  {
+   "id": "false-offer",
+   "type": "pattern",
+   "name": "The false offer (opt-out inclusion)",
+   "summary_interpretation": "Include a high-perceived-value component most buyers will decline (e.g. unpacking). It inflates offer value at near-zero delivery cost because you know customer behavior better than they do.",
+   "evidence_verbatim": [
+    {
+     "video_id": "zzleYxkf39k",
+     "quote": "you could have offered unpacking and if everybody says no then that's that, right? Like it's like we'll even unpack it and then people might just opt out ... It's almost like a false offer. Because you know more about the the customer than they do which is the whole point."
+    }
+   ],
+   "applies": [
+    "offer_design"
+   ],
+   "edges": [
+    "offer-value-variables"
+   ]
+  },
+  {
+   "id": "structured-pitch-architecture",
+   "type": "framework",
+   "name": "Structured pitch architecture (webinar/VSL/presentation)",
+   "summary_interpretation": "Any persuasive presentation follows: (1) big promise - why stay; (2) who am I / origin story as old-way vs new-way transformation; (3) the 3 biggest problems, each handled as what-they-think > why-it's-wrong > what's-right > proof (stats, stories, as many forms as possible); (4) the offer; (5) FAQ by frequency. Structure raises value-per-second; it is clear communication, not 'bro marketing'.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "There's going to be a big promise right before that ... Who am I? ... This is the old way, new way ... the big three biggest concerns that people have about this is problem number one, problem number two, problem number three. And then you just systematically break down each of the three problems ... what they think ... why wrong? ... What's right? And then proof. And proof can be anything."
+    },
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "webinars have this very specific language pattern. It's No, it's just it's really clear communication."
+    }
+   ],
+   "applies": [
+    "pitch",
+    "call_prep"
+   ],
+   "edges": [
+    "faq-by-frequency",
+    "sell-to-cold",
+    "vsl-before-call"
+   ]
+  },
+  {
+   "id": "sell-during-delivery",
+   "type": "doctrine",
+   "name": "Sell during the delivery, not after",
+   "summary_interpretation": "Make the upsell/renewal asks at the halfway point, the two-thirds point, and the end - while the buyer is mid-decision and still hot. Selling only at the end converts about a third; selling during converts half or more. More asks = more takes.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "ideally you want to sell at the halfway point and then at like the two-thirds and then you do a last chance at the end ... The more times you ask the more likely they are to take the purchase offer."
+    },
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "You want to sell them when they're hot. Cuz everyone cools off over time ... you want to sell when they're mid-decision, not making a new decision."
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "close"
+   ],
+   "edges": [
+    "opt-out-billing",
+    "closer-reinforce"
+   ]
+  },
+  {
+   "id": "sell-to-cold",
+   "type": "doctrine",
+   "name": "Sell like everyone is cold",
+   "summary_interpretation": "Build every pitch as if the audience does not know you. Pitches built for cold audiences convert warm ones too; pitches built for warm audiences convert only warm ones and cap scale.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "you have to sell like they don't know ... if you sell like it's cold to warm and it converts everything. If you sell like it's warm to everyone, you'll only convert warm."
+    }
+   ],
+   "applies": [
+    "pitch",
+    "traffic"
+   ],
+   "edges": [
+    "structured-pitch-architecture"
+   ]
+  },
+  {
+   "id": "good-selling-feels-good",
+   "type": "belief_breaker",
+   "name": "People only feel sold to when it's done badly",
+   "summary_interpretation": "Use on founders/agents who resist selling. Every purchase they made happily was engineered by a seller; good structure is service, not pressure. Blocking sales structure blocks the mission.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "People only feel sold to if it's bad ... A good selling feels good ... think about how many things you've bought over the last month. How many did you feel sold to? ... every one of those purchases, somebody for sure thought about how to get you to buy."
+    }
+   ],
+   "applies": [
+    "call_prep",
+    "discovery"
+   ],
+   "edges": [
+    "structured-pitch-architecture"
+   ]
+  },
+  {
+   "id": "checkout-convenience-premium",
+   "type": "pattern",
+   "name": "Charge extra for the high-touch path",
+   "summary_interpretation": "Self-serve checkout at base price; talk-to-a-human path costs more (e.g. +$500 for a 1:1). Monetizes the founder's time, pushes buyers to the scalable path, and prices the exception honestly.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "I want you to have $2,500 checkout price ... And want to have a $3,000 one-on-one price. So, if I have to talk to you one-on-one, it's it's $500 extra."
+    }
+   ],
+   "applies": [
+    "offer_design",
+    "close"
+   ],
+   "edges": [
+    "start-high-tiering"
+   ]
+  },
+  {
+   "id": "opt-out-billing",
+   "type": "pattern",
+   "name": "Opt-out renewal, not opt-in",
+   "summary_interpretation": "Structure renewals so the customer continues by default and must actively cancel (biannual auto-continuation), instead of requiring a new purchase decision every cycle.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "we're selling biannually so automatically this whole thing is going to switch because they're going to have to opt out rather than opting in."
+    }
+   ],
+   "applies": [
+    "retention_ascension"
+   ],
+   "edges": [
+    "sell-during-delivery",
+    "money-models-billing-match"
+   ]
+  },
+  {
+   "id": "guarantee-reframe",
+   "type": "pattern",
+   "name": "Guarantee framed at the hidden objector",
+   "summary_interpretation": "Give a short no-sweat guarantee (e.g. 3 days) and aim it at the decision-blocker who is not in the room (the spouse). The guarantee language should name the absurd version of the objection, not just state terms.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "give a three-day no sweat uh guarantee ... if for some reason in the next three days you talk to your husband and he's like, I don't want our kid to get better ... If he says that, no worries, just let me know refund you."
+    }
+   ],
+   "applies": [
+    "close",
+    "objection_handling"
+   ],
+   "edges": [
+    "price-cap-risk-reversal"
+   ]
+  },
+  {
+   "id": "never-email-invoice",
+   "type": "rule",
+   "name": "Never present an invoice by email",
+   "summary_interpretation": "Price and proposals are always presented live (phone/call) so objections surface and get handled in the moment. Emailed pricing kills deals silently.",
+   "evidence_verbatim": [
+    {
+     "video_id": "mRlSb0O5QNU",
+     "quote": "I have very few rules of law, but a rule of sales is never present an invoice via email. It should always be over the phone because they're going to have questions"
+    }
+   ],
+   "applies": [
+    "close",
+    "objection_handling"
+   ],
+   "edges": [
+    "vsl-before-call"
+   ]
+  },
+  {
+   "id": "vsl-before-call",
+   "type": "pattern",
+   "name": "VSL before every sales conversation",
+   "summary_interpretation": "Send a video sales letter before every sales conversation type (one per conversation: first call, renewal, event rebook). The VSL pre-frames the call and pre-handles that conversation's specific objections; the call then starts mid-funnel.",
+   "evidence_verbatim": [
+    {
+     "video_id": "mRlSb0O5QNU",
+     "quote": "before you like before you ever talk to a customer you should have a video sales letter. Now if you have two conversations there's two VSLs ... the objections are going to be the ones that happen after someone has an event and is thinking about booking"
+    }
+   ],
+   "applies": [
+    "call_prep",
+    "pitch"
+   ],
+   "edges": [
+    "structured-pitch-architecture",
+    "never-email-invoice"
+   ]
+  },
+  {
+   "id": "faq-by-frequency",
+   "type": "pattern",
+   "name": "FAQ by frequency, answered live",
+   "summary_interpretation": "Mine the real question log (DMs, calls, inbox), bucket the questions, and answer them in order of greatest percentage - 40% question first, then 25%, then the long tail, live, for as long as people stay. There are no new questions.",
+   "evidence_verbatim": [
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "answer it in in order of greatest percentage of questions ... if I had only pick one question to answer it'd be this one and it's going to be 40% of people ... there's no new questions. There's no new questions ... As long as they're on, keep answering."
+    }
+   ],
+   "applies": [
+    "pitch",
+    "objection_handling",
+    "call_prep"
+   ],
+   "edges": [
+    "structured-pitch-architecture",
+    "pain-first-research"
+   ]
+  },
+  {
+   "id": "closer-framework",
+   "type": "framework",
+   "name": "CLOSER call framework",
+   "summary_interpretation": "The sales-call spine: C - Clarify why the person is there (label current state, desired state, the gap; position yourself as the bridge). L - Label them with a problem. O - Overview past pain: what they tried; associate with what they liked, disassociate from what they hated; loop 'what else' (the pain cycle). S - Sell the vacation: pitch as three pillars (any offer chunks up or down to three). E - Explain away concerns: people blame circumstances, other people, or avoid deciding; answer, then close. R - Reinforce the decision: after the yes, make next steps clear and keep those exact promises on time - the sale-to-onboarding handoff.",
+   "evidence_verbatim": [
+    {
+     "video_id": "shorts:ZMW8AfQeGqQ",
+     "quote": "CLOSER: Clarify, Label, Overview past pain, Sell the vacation, Explain away concerns, Reinforce the decision (offer-lane transcript extraction 2026-09-13, verified against frames)"
+    }
+   ],
+   "applies": [
+    "call_prep",
+    "discovery",
+    "pitch",
+    "objection_handling",
+    "close",
+    "reinforce_onboard"
+   ],
+   "edges": [
+    "three-pillar-pitch",
+    "pain-cycle-loop",
+    "closer-reinforce",
+    "pain-first-research"
+   ]
+  },
+  {
+   "id": "three-pillar-pitch",
+   "type": "pattern",
+   "name": "Every offer pitches as three pillars",
+   "summary_interpretation": "Chunk any offer into exactly three pillars (fitness example: fitness, nutrition, accountability; realtor-leads example: timely, exclusive, qualified). Three is the memorable, sellable unit.",
+   "evidence_verbatim": [
+    {
+     "video_id": "shorts:ZMW8AfQeGqQ",
+     "quote": "There's always three you can chunk up or down to."
+    }
+   ],
+   "applies": [
+    "pitch",
+    "offer_design"
+   ],
+   "edges": [
+    "closer-framework",
+    "structured-pitch-architecture"
+   ]
+  },
+  {
+   "id": "pain-cycle-loop",
+   "type": "doctrine",
+   "name": "The 'what else' pain loop",
+   "summary_interpretation": "In discovery, keep asking 'what else' until the buyer has voiced the full pain inventory; associate your mechanism with what they liked in past attempts, disassociate from what they hated. Unheard pain becomes mid-pitch objections.",
+   "evidence_verbatim": [
+    {
+     "video_id": "shorts:ZMW8AfQeGqQ",
+     "quote": "what they tried before; associate with what they liked, disassociate from what they hated; loop 'what else' (the pain cycle)"
+    }
+   ],
+   "applies": [
+    "discovery",
+    "pain_research"
+   ],
+   "edges": [
+    "closer-framework",
+    "pain-first-research"
+   ]
+  },
+  {
+   "id": "closer-reinforce",
+   "type": "doctrine",
+   "name": "Reinforce the decision after the yes",
+   "summary_interpretation": "The sale is not done at payment. Immediately make next steps explicit and keep those exact promises on time; the post-sale window is where refunds and churn are decided. This is the sale-to-onboarding handoff.",
+   "evidence_verbatim": [
+    {
+     "video_id": "shorts:ZMW8AfQeGqQ",
+     "quote": "after the yes, make next steps clear and keep those exact promises on time - the sale-to-onboarding handoff (added years later as the R)"
+    }
+   ],
+   "applies": [
+    "reinforce_onboard",
+    "retention_ascension"
+   ],
+   "edges": [
+    "closer-framework",
+    "sell-during-delivery"
+   ]
+  },
+  {
+   "id": "money-models-billing-match",
+   "type": "principle",
+   "name": "Match billing shape to value shape",
+   "summary_interpretation": "Education is not recurring revenue; services and consumables are. Bill high-value one-time components upfront; bill lower-value consumable backends recurring. Never bill flat monthly for value that decays after delivery. Feeds offer architecture and the 'sell the vacation' pillar design.",
+   "evidence_verbatim": [
+    {
+     "video_id": "offer-lane:money-models-extraction",
+     "quote": "handoff from the offer lane 2026-09-13, distinguishing verbatim evidence from interpretation; folded in as a core offer-architecture principle"
+    }
+   ],
+   "applies": [
+    "offer_design",
+    "retention_ascension"
+   ],
+   "edges": [
+    "opt-out-billing",
+    "sell-during-delivery",
+    "three-pillar-pitch"
+   ]
+  },
+  {
+   "id": "pain-first-research",
+   "type": "principle",
+   "name": "Pain and problem before product (house rule)",
+   "summary_interpretation": "House rule aligning Mozi to the landing-page standard: before any offer or pitch work, mine the buyer's real pain in their own words (Reddit/forum verbatims, DM/FAQ logs, reviews). Every product is different; the workflow is the same: understand the pain and problem first, then apply the Hormozi spine. Hooks and first lines pressure-test against those verbatims.",
+   "evidence_verbatim": [
+    {
+     "video_id": "house:landing-page-standard",
+     "quote": "Hooks and first lines get pressure-tested against real buyer pain (Reddit and forum verbatims) and run through the gauntlet before they lock. (memory decision 2026-09-12)"
+    },
+    {
+     "video_id": "8VqSFBMMS4M",
+     "quote": "I think you actually have an avatar that's in a ton of pain and wants to buy"
+    }
+   ],
+   "applies": [
+    "pain_research",
+    "diagnose",
+    "call_prep"
+   ],
+   "edges": [
+    "faq-by-frequency",
+    "pain-cycle-loop"
+   ]
+  },
+  {
+   "id": "churn-leaky-bucket",
+   "type": "framework",
+   "name": "Churn as leaky bucket: joins vs cancels, benchmarks",
+   "summary_interpretation": "Track joins vs cancels monthly and label the business growing/flat/declining. Skool platform benchmarks: 80% monthly retention is average, 90%+ is best, under 70% means retention is the highest-ROI lever. Moving retention 80->90% doubles LTV - small churn deltas are huge LTV swings.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "track those two numbers on a monthly basis, joins versus cancels, and then force yourself to label the businesses growing, flat, or declining"
+    },
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "if you take your retention from 80 to 90%, you didn't just get a 10 or 12% boost, you got a double in the LTV per customer"
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "diagnose"
+   ],
+   "edges": [
+    "churn-drops-with-tenure",
+    "cancel-reason-loop",
+    "money-models-billing-match"
+   ]
+  },
+  {
+   "id": "churn-drops-with-tenure",
+   "type": "doctrine",
+   "name": "Churn collapses with tenure - engineer day-90 and month-6",
+   "summary_interpretation": "Months 1-3 churn 20%+; past day 90 it halves to ~10%; by month 6 it drops to ~2% (5x LTV). So the tactical question is never 'lower churn' but 'what gets them past day 90' (activation, onboarding, expectation setting, honest front-end promises) and 'what gets them past month 6' (delivered outcome + connection to other members). Never overhaul the business off month-1 churn - it is structurally the highest.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "month one to three are the highest churn ... if you keep someone 90 days ... it drops to around 10% or less ... by month six ... it goes from like 10% to 2%"
+    },
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "have a very specific strategy for getting people past the first month cuz that's the biggest month of churn"
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "reinforce_onboard"
+   ],
+   "edges": [
+    "churn-leaky-bucket",
+    "front-load-the-win",
+    "closer-reinforce"
+   ]
+  },
+  {
+   "id": "cancel-reason-loop",
+   "type": "pattern",
+   "name": "Ask why they canceled, fix patterns not anecdotes",
+   "summary_interpretation": "Message every canceler, tag the reason (price, overwhelm, not using, missing feature, not what I expected), and every ~20 cancels fix the top 1-2 reasons. Keep a tight loop between support complaints and what gets built.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "message people who are canceling say, 'Hey, why are you canceling?' ... for every 20 cancels or so, review the top one or two reasons, and then fix those"
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "diagnose"
+   ],
+   "edges": [
+    "ask-why-they-stay",
+    "pain-first-research"
+   ]
+  },
+  {
+   "id": "ask-why-they-stay",
+   "type": "pattern",
+   "name": "Ask your best members why they stay - then subtract",
+   "summary_interpretation": "Ask the longest-tenured, most-engaged customers what the number one value is; whatever repeats becomes the retention engine and everything else is optional. Fix retention by subtraction and friction-removal around the original promise, not by adding features.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "If you can only do one thing that gets people to stay, why would you do five?"
+    },
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "the businesses, the products, and the services that win are the ones that simply make all the things that suck about achieving the good thing go away"
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "offer_design"
+   ],
+   "edges": [
+    "overwhelm-kills-retention",
+    "cancel-reason-loop"
+   ]
+  },
+  {
+   "id": "price-tier-evidence",
+   "type": "doctrine",
+   "name": "Price complaints: tier down only for the ideal buyer",
+   "summary_interpretation": "If IDEAL customers say it is too expensive, add a cheaper tier (Skool went $99->$9 for hobbyists, 11x cheaper). If non-ideal people complain, the price is doing its job as a filter - ignore it.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "if your ideal customer say the price is the issue, then you can add a lower tier or a standard plan. If non-ideal people say it's too expensive, just ignore it. That means that the price is actually acting as a good filter"
+    }
+   ],
+   "applies": [
+    "offer_design",
+    "objection_handling",
+    "retention_ascension"
+   ],
+   "edges": [
+    "start-high-tiering",
+    "break-commodity-frame"
+   ]
+  },
+  {
+   "id": "overwhelm-kills-retention",
+   "type": "doctrine",
+   "name": "Overwhelm is the #1 churn driver - more stuff is more reasons to cancel",
+   "summary_interpretation": "Outside price, overwhelm ('I can't keep up') drives churn. Five features where the customer uses one feels like 20% value; one feature feels like 100%. Planet Fitness won by stripping to the 10-15% people actually used. A Skool community DELETED content and cut churn from 30% to 5% (6x LTV). Sell value per second, not seconds of value.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "The number one reason people churn, outside of price, is overwhelm. It is the churn driver. And this is why doing less can often retain more."
+    },
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "we want to think about value per second, not seconds of value"
+    }
+   ],
+   "applies": [
+    "retention_ascension",
+    "offer_design"
+   ],
+   "edges": [
+    "ask-why-they-stay",
+    "front-load-the-win"
+   ]
+  },
+  {
+   "id": "front-load-the-win",
+   "type": "pattern",
+   "name": "Front-load the fast win; design busy path + power path",
+   "summary_interpretation": "Move the stickiest thing (the long ladder) into onboarding; pin a fast win in the first 24 hours; remove snakes (friction, confusion, overwhelm). Design two explicit paths: a 'start here / weekly cadence' busy-member path and optional depth for power users. Owner shows up daily - communities with daily-active owners retain measurably higher.",
+   "evidence_verbatim": [
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "you want to pin the fast win up front so new members hit that value ideally within the first 24 hours"
+    },
+    {
+     "video_id": "-j8_YCWZ05Q",
+     "quote": "the owners who showed up in the community on a daily basis had significantly higher retention"
+    }
+   ],
+   "applies": [
+    "reinforce_onboard",
+    "retention_ascension"
+   ],
+   "edges": [
+    "churn-drops-with-tenure",
+    "closer-reinforce"
+   ]
+  }
+ ],
+ "test_loop_rule": "Every doctrine application ships as a named experiment (see playbooks/ab-test-designs.md) with a metric and a result field. Mozi's graph gains or loses confidence from results, not from repetition. 'Stick to the strategy and test whether it works' - owner directive 2026-09-13."
+}

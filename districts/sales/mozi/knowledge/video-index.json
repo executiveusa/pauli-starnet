@@ -1,0 +1,597 @@
+{
+ "channel": "@AlexHormozi",
+ "fetched": 43,
+ "target": 150,
+ "note": "last-N uploads from /videos tab; fetch paused by YouTube IP rate-limit at 43, retry scheduled",
+ "videos": [
+  {
+   "video_id": "Jmkq5RLjm0U",
+   "title": "If I Wanted To Grow An Audience In 2026, I'd Do This",
+   "url": "https://www.youtube.com/watch?v=Jmkq5RLjm0U",
+   "word_count": 33711,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "N5MExtki_VI",
+   "title": "If I Wanted To Scale A Service Business In 2026, Here's What I'd Do",
+   "url": "https://www.youtube.com/watch?v=N5MExtki_VI",
+   "word_count": 14700,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "zzleYxkf39k",
+   "title": "Give Me 42 Minutes, I'll Show You How To Sell Like The Top 1%",
+   "url": "https://www.youtube.com/watch?v=zzleYxkf39k",
+   "word_count": 9893,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "jqo0lVveh98",
+   "title": "Watch This If You Have a Service Business",
+   "url": "https://www.youtube.com/watch?v=jqo0lVveh98",
+   "word_count": 9490,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "mRlSb0O5QNU",
+   "title": "How to Get Rich for Service-Based Businesses (Thank Me Later)",
+   "url": "https://www.youtube.com/watch?v=mRlSb0O5QNU",
+   "word_count": 9197,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "8C_6qojTA78",
+   "title": "Helping E-Commerce Business Owners Scale",
+   "url": "https://www.youtube.com/watch?v=8C_6qojTA78",
+   "word_count": 8817,
+   "topics": [
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "OQf2Ba-Lp_4",
+   "title": "Building a $2,500,000 Business for a Stranger in 36 Minutes",
+   "url": "https://www.youtube.com/watch?v=OQf2Ba-Lp_4",
+   "word_count": 8811,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "8VqSFBMMS4M",
+   "title": "If You Hate Selling, Please Watch This",
+   "url": "https://www.youtube.com/watch?v=8VqSFBMMS4M",
+   "word_count": 8396,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "uaLNfijnp-8",
+   "title": "This Video Should Be Required Viewing for Business Owners",
+   "url": "https://www.youtube.com/watch?v=uaLNfijnp-8",
+   "word_count": 8062,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "0EqJD2o-Mnk",
+   "title": "Helping 6 Business Owners Scale in 33 Minutes",
+   "url": "https://www.youtube.com/watch?v=0EqJD2o-Mnk",
+   "word_count": 7772,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "ZuJryiwxjDw",
+   "title": "Why you aren't making as much money as you want",
+   "url": "https://www.youtube.com/watch?v=ZuJryiwxjDw",
+   "word_count": 7756,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "B-ogfFiQpXg",
+   "title": "$100M Worth of Marketing Knowledge in 32 Minutes",
+   "url": "https://www.youtube.com/watch?v=B-ogfFiQpXg",
+   "word_count": 7034,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "6BQ3whjWG3M",
+   "title": "How the Top 1% Actually Think About Money",
+   "url": "https://www.youtube.com/watch?v=6BQ3whjWG3M",
+   "word_count": 6598,
+   "topics": [
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "xRxVpjeHmeA",
+   "title": "Can I Save This Failing Theme Park in 90 Days?",
+   "url": "https://www.youtube.com/watch?v=xRxVpjeHmeA",
+   "word_count": 6551,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "j2TZMFkj71Q",
+   "title": "Building a $3,000,000 Business for a Stranger in 31 Minutes",
+   "url": "https://www.youtube.com/watch?v=j2TZMFkj71Q",
+   "word_count": 6515,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "o64cI6tebnU",
+   "title": "How I Would Build a $10M Service Business (If I Had to Start Over)",
+   "url": "https://www.youtube.com/watch?v=o64cI6tebnU",
+   "word_count": 6270,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "sL16tsGafcQ",
+   "title": "If You Want To Create Wealth In 2026, Watch This (4 Paths)",
+   "url": "https://www.youtube.com/watch?v=sL16tsGafcQ",
+   "word_count": 5804,
+   "topics": [
+    "offer_architecture",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "_KlZoPxbStk",
+   "title": "It took me 36 years to realize what I\u2019ll tell you in 26 minutes\u2026",
+   "url": "https://www.youtube.com/watch?v=_KlZoPxbStk",
+   "word_count": 5675,
+   "topics": [
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "BYpTRiRqS1Y",
+   "title": "Helping 4 Educational Business Owners Build a $1M Business in 25 Minutes",
+   "url": "https://www.youtube.com/watch?v=BYpTRiRqS1Y",
+   "word_count": 5650,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "MH-IMJxbUY4",
+   "title": "Building a $12,000,000 Business for a Stranger in 25 Minutes",
+   "url": "https://www.youtube.com/watch?v=MH-IMJxbUY4",
+   "word_count": 5618,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "9q5ojtkqsBs",
+   "title": "How to Win With AI in 2026",
+   "url": "https://www.youtube.com/watch?v=9q5ojtkqsBs",
+   "word_count": 5597,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "HGZOxBfnF-E",
+   "title": "Building a $1,000,000 Business for a Stranger in 26 Minutes",
+   "url": "https://www.youtube.com/watch?v=HGZOxBfnF-E",
+   "word_count": 5571,
+   "topics": [
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics"
+   ]
+  },
+  {
+   "video_id": "3fsJFUvA6Ts",
+   "title": "What Makes The Perfect Business (5 Things)",
+   "url": "https://www.youtube.com/watch?v=3fsJFUvA6Ts",
+   "word_count": 4841,
+   "topics": [
+    "offer_architecture",
+    "pricing",
+    "retention_ascension",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "-j8_YCWZ05Q",
+   "title": "How to Get Your Customers to Stay FOREVER",
+   "url": "https://www.youtube.com/watch?v=-j8_YCWZ05Q",
+   "word_count": 4232,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar"
+   ]
+  },
+  {
+   "video_id": "MZPVPCIeUpg",
+   "title": "How to Change Your Life",
+   "url": "https://www.youtube.com/watch?v=MZPVPCIeUpg",
+   "word_count": 4110,
+   "topics": [
+    "offer_architecture",
+    "pricing",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "A248pGXTSoY",
+   "title": "Why Ambitious People Stay Mediocre",
+   "url": "https://www.youtube.com/watch?v=A248pGXTSoY",
+   "word_count": 3911,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "mindset_beliefs"
+   ]
+  },
+  {
+   "video_id": "OHu1FY1R-x0",
+   "title": "It took me 37 years to realize what I'll tell you in 18 minutes.",
+   "url": "https://www.youtube.com/watch?v=OHu1FY1R-x0",
+   "word_count": 3832,
+   "topics": [
+    "offer_architecture",
+    "pricing"
+   ]
+  },
+  {
+   "video_id": "jfW6gL6hKhk",
+   "title": "If I Wanted to Make My First $100K in 2026, I\u2019d Do This",
+   "url": "https://www.youtube.com/watch?v=jfW6gL6hKhk",
+   "word_count": 3829,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar"
+   ]
+  },
+  {
+   "video_id": "ZTSI3DDP_4A",
+   "title": "My Actual Social Media Strategy For 2027 - The Algorithm",
+   "url": "https://www.youtube.com/watch?v=ZTSI3DDP_4A",
+   "word_count": 3774,
+   "topics": [
+    "lead_gen_traffic",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "rMJIOK_FgJk",
+   "title": "The 6 Levels of Making Money",
+   "url": "https://www.youtube.com/watch?v=rMJIOK_FgJk",
+   "word_count": 3722,
+   "topics": [
+    "offer_architecture",
+    "pricing",
+    "lead_gen_traffic",
+    "unit_economics"
+   ]
+  },
+  {
+   "video_id": "hHkdbr6_JJs",
+   "title": "How Acquisition.com Makes Money",
+   "url": "https://www.youtube.com/watch?v=hHkdbr6_JJs",
+   "word_count": 3467,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing",
+    "retention_ascension",
+    "lead_gen_traffic",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "fr78adfAnuA",
+   "title": "How to Use AI in Your Business in 2026",
+   "url": "https://www.youtube.com/watch?v=fr78adfAnuA",
+   "word_count": 3463,
+   "topics": [
+    "sales_process",
+    "lead_gen_traffic",
+    "unit_economics",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "XsWSvz-aewA",
+   "title": "The New Way of Making Content In The Age of AI",
+   "url": "https://www.youtube.com/watch?v=XsWSvz-aewA",
+   "word_count": 3116,
+   "topics": [
+    "retention_ascension",
+    "lead_gen_traffic",
+    "niche_avatar",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "SCi464zfAUM",
+   "title": "If I Started A Personal Brand In 2026, I'd Do This - Dolly Parton",
+   "url": "https://www.youtube.com/watch?v=SCi464zfAUM",
+   "word_count": 3085,
+   "topics": [
+    "lead_gen_traffic",
+    "mindset_beliefs",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "EonibwnAEME",
+   "title": "How to Catch Up In Life (Using Logic)",
+   "url": "https://www.youtube.com/watch?v=EonibwnAEME",
+   "word_count": 2589,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "pricing"
+   ]
+  },
+  {
+   "video_id": "fj5uxdv_j5Y",
+   "title": "Learn 97% of How to Get Rich in 11 Mins",
+   "url": "https://www.youtube.com/watch?v=fj5uxdv_j5Y",
+   "word_count": 2338,
+   "topics": [
+    "sales_process",
+    "retention_ascension",
+    "lead_gen_traffic"
+   ]
+  },
+  {
+   "video_id": "aRVv5NLVRwE",
+   "title": "My honest advice to someone who wants to get rich.",
+   "url": "https://www.youtube.com/watch?v=aRVv5NLVRwE",
+   "word_count": 2241,
+   "topics": [
+    "offer_architecture",
+    "lead_gen_traffic",
+    "niche_avatar"
+   ]
+  },
+  {
+   "video_id": "k5-57282taI",
+   "title": "How The Top 1% Actually Think About Trust",
+   "url": "https://www.youtube.com/watch?v=k5-57282taI",
+   "word_count": 2103,
+   "topics": [
+    "sales_process",
+    "lead_gen_traffic"
+   ]
+  },
+  {
+   "video_id": "138y93ywE_g",
+   "title": "3 signs you're going to be a successful entrepreneur.",
+   "url": "https://www.youtube.com/watch?v=138y93ywE_g",
+   "word_count": 2055,
+   "topics": [
+    "lead_gen_traffic",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "WttZ6b-KUP4",
+   "title": "Why AI won't make you rich in 2026",
+   "url": "https://www.youtube.com/watch?v=WttZ6b-KUP4",
+   "word_count": 2025,
+   "topics": [
+    "offer_architecture",
+    "sales_process",
+    "retention_ascension",
+    "ai_content"
+   ]
+  },
+  {
+   "video_id": "yb2cLMMuMdQ",
+   "title": "How to make progress faster than everyone",
+   "url": "https://www.youtube.com/watch?v=yb2cLMMuMdQ",
+   "word_count": 1769,
+   "topics": [
+    "lead_gen_traffic"
+   ]
+  },
+  {
+   "video_id": "Q8xXSMe8E4Q",
+   "title": "Reacting to My First Videos 10 Years Later",
+   "url": "https://www.youtube.com/watch?v=Q8xXSMe8E4Q",
+   "word_count": 1381,
+   "topics": [
+    "offer_architecture",
+    "lead_gen_traffic"
+   ]
+  },
+  {
+   "video_id": "Z5rKn1ZIp3A",
+   "title": "I can\u2019t hide this anymore.",
+   "url": "https://www.youtube.com/watch?v=Z5rKn1ZIp3A",
+   "word_count": 333,
+   "topics": [
+    "pricing",
+    "mindset_beliefs"
+   ]
+  }
+ ]
+}
