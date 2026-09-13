@@ -1,0 +1,12 @@
+'use strict';
+const assert = require('assert');
+const { descriptor } = require('../sidecar/connector-packs/cloudflare-bindings.js');
+const d = descriptor();
+assert.strictEqual(d.endpoint, 'https://bindings.mcp.cloudflare.com/mcp');
+assert.strictEqual(d.auth, 'oauth');
+assert.strictEqual(d.status, 'descriptor-only');
+assert.strictEqual(d.installable, false);
+assert.deepStrictEqual(d.advertisedTools, [], 'descriptor makes no unverified tool claims');
+assert.ok(d.officialDocs.startsWith('https://developers.cloudflare.com/'));
+assert.ok(!/token|secret|password/i.test(JSON.stringify(d).replace(/descriptor grants nothing/, '')), 'no secret-bearing fields');
+console.log('connector-pack.cloudflare-bindings.test.js OK');

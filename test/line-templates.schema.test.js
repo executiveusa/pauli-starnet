@@ -1,0 +1,10 @@
+'use strict';
+const assert = require('assert');
+const Schema = require('../sidecar/line-templates/schema.js');
+const { CATALOG } = require('../sidecar/line-templates/catalog.js');
+for (const t of CATALOG) assert.deepStrictEqual(Schema.validate(t), { ok: true, errors: [] }, t.id);
+assert.strictEqual(new Set(CATALOG.map(x => x.id)).size, CATALOG.length, 'template ids unique');
+assert.strictEqual(Schema.validate({ id: 'bad', name: 'Bad', stages: [{ id: 'x', mode: 'fan-out', roles: ['a', 'b'] }] }).ok, false, 'fan-out must join');
+assert.strictEqual(Schema.validate({ id: 'bad', name: 'Bad', stages: [{ id: 'x', mode: 'review-loop', roles: ['a'], maxPasses: 99, accept: 'ok' }] }).ok, false, 'loop ceiling enforced');
+assert.strictEqual(Schema.validate({ id: 'bad', name: 'Bad', stages: [{ id: 'x', mode: 'single', roles: ['a'] }], effects: ['publish'] }).ok, false, 'implicit publishing refused');
+console.log('line-templates.schema.test.js OK');
