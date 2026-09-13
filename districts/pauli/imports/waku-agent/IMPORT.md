@@ -15,7 +15,7 @@ Upstream: ShenSeanChen/waku-agent | License: MIT (LICENSE-UPSTREAM retained)
 
 ## Status
 
-PORT LANDED (chunk 2, 2026-09-13): sidecar/pauli-memory.js + test/pauli-memory.test.js (31 assertions) - 3-tier memory (episodic/semantic/procedural), provenance-required semantic writes, consolidation gate, stale-flagged recall, procedure versioning. Separate-process MCP exposure + the waku eval dataset port remain open.
+PORT LANDED (chunk 2, 2026-09-13): sidecar/pauli-memory.js + test/pauli-memory.test.js (31 assertions) - 3-tier memory (episodic/semantic/procedural), provenance-required semantic writes, consolidation gate, stale-flagged recall, procedure versioning. Eval dataset port LANDED (chunk 7, 2026-09-13): sidecar/pauli-memory-evals.js + test/pauli-memory-eval.test.js - 7 deterministic cases pinning the recall contract and the fail-open law (a stale memory beats a lost one), with a teeth check: a memory that loses everything fails loudly. MCP exposure landed in the openchronicle import.
 
 ## Archive credit
 Counts as pauli-waku-agent's import record once evals run green.

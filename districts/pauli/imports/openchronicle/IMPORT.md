@@ -16,7 +16,7 @@ Upstream: Einsia/OpenChronicle | License: MIT (LICENSE-UPSTREAM retained)
 
 ## Status
 
-PORT LANDED (chunk 2, 2026-09-13): sidecar/pauli-memory.js + test/pauli-memory.test.js (31 assertions) - 3-tier memory (episodic/semantic/procedural), provenance-required semantic writes, consolidation gate, stale-flagged recall, procedure versioning. Separate-process MCP exposure + the waku eval dataset port remain open.
+PORT LANDED (chunk 2, 2026-09-13): sidecar/pauli-memory.js + test/pauli-memory.test.js (31 assertions) - 3-tier memory (episodic/semantic/procedural), provenance-required semantic writes, consolidation gate, stale-flagged recall, procedure versioning. Separate-process MCP exposure LANDED (chunk 7, 2026-09-13): sidecar/mcp/pauli-memory-core.js (pure, read-only, call-first INSTRUCTIONS, 4 tools: stats/recall/recent/read-by-id drill-down) + sidecar/mcp/pauli-memory-serve.js (stdio edge) + test/pauli-memory-mcp.test.js (21 assertions incl. a spawned separate-process proof over pipes).
 
 ## Archive credit
 Counts as pauli-OpenChronicle's import record once the adapter is running.
