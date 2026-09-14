@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostaStudios - Maneja toda tu presencia en redes desde un solo calendario</title>
+<meta name="description" content="PostaStudios es un estudio de programación de redes sociales: un calendario visual, un copiloto de IA que escribe con la voz de tu marca y publicación nativa en 12 redes.">
+<link rel="alternate" hreflang="es-MX" href="./">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF6F0; --paper-soft:#F3EDE3; --ink:#17130E; --ink-soft:#3A342B;
+  --verm:#C2410C; --green:#1B4D3E; --muted:#6B6257; --line:#E4DCD0;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.08;letter-spacing:-.01em}
+.kicker{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--verm);margin-bottom:14px}
+.rule-top{border-top:1px solid var(--line)}
+nav{position:sticky;top:0;background:rgba(250,246,240,.92);border-bottom:1px solid var(--line);z-index:50}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.wordmark{font-family:var(--serif);font-weight:600;font-size:21px;text-decoration:none}
+.wordmark em{font-style:italic;color:var(--verm)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{text-decoration:none;font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--verm)}
+.lang{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;text-decoration:none;color:var(--ink-soft)}
+.btn{display:inline-block;text-decoration:none;font-weight:600;font-size:15px;border-radius:10px;padding:12px 22px;border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--verm);color:#fff}
+.btn-primary:hover{background:#a8380a}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{border-color:var(--verm);color:var(--verm)}
+.btn-sm{padding:8px 16px;font-size:14px}
+.hero{padding:96px 0 80px;text-align:left;border-bottom:1px solid var(--line)}
+.badge{display:inline-block;border:1px solid var(--verm);color:var(--verm);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:26px}
+.hero h1{font-size:clamp(40px,6vw,68px);max-width:16ch;margin-bottom:22px}
+.hero h1 em{font-style:italic;color:var(--verm)}
+.hero .sub{font-size:18px;color:var(--ink-soft);max-width:56ch;margin-bottom:34px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.proof{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);display:flex;gap:26px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.proof b{color:var(--ink);font-weight:600}
+section{padding:84px 0}
+.sec-head{max-width:640px;margin-bottom:48px}
+.sec-head h2{font-size:clamp(30px,4vw,44px);margin-bottom:14px}
+.sec-head p{color:var(--ink-soft);font-size:17px}
+.sides{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.side{padding:44px 40px}
+.side:first-child{border-right:1px solid var(--line);background:var(--paper-soft)}
+.side h3{font-size:26px;margin-bottom:10px}
+.side .tag{font-size:12px;font-weight:600;letter-spacing:.16em;color:var(--green);text-transform:uppercase;margin-bottom:14px}
+.side p{color:var(--ink-soft);margin-bottom:20px}
+.side ul{list-style:none}
+.side li{padding:9px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink-soft)}
+.side li::before{content:"";display:inline-block;width:14px;height:1px;background:var(--verm);margin-right:10px;vertical-align:middle}
+.spotlight{background:var(--ink);color:var(--paper)}
+.spotlight .kicker{color:#E8B39A}
+.spotlight h2{color:var(--paper)}
+.spotlight .sec-head p{color:#C9C0B2}
+.cal{background:var(--paper);color:var(--ink);border-radius:14px;padding:26px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.cal-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
+.cal-head .month{font-family:var(--serif);font-size:22px;font-weight:600}
+.cal-head .preview-note{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.cal-day{border:1px solid var(--line);border-radius:8px;min-height:118px;padding:8px;background:#fff}
+.cal-day .d{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.08em}
+.post{border-left:3px solid var(--verm);background:var(--paper-soft);border-radius:4px;padding:6px 8px;font-size:12px;line-height:1.4;margin-bottom:6px}
+.post.g{border-color:var(--green)}
+.post .net{font-weight:600;color:var(--ink)}
+.post .st{color:var(--muted)}
+.cal-cap{margin-top:16px;font-size:13.5px;color:#C9C0B2}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:30px;background:#fff}
+.card h3{font-size:22px;margin-bottom:10px}
+.card h3 .n{font-family:var(--serif);font-style:italic;color:var(--verm);font-size:16px;margin-right:8px}
+.card p{color:var(--ink-soft);font-size:15px}
+.paths{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.path{border-top:2px solid var(--ink);padding-top:20px}
+.path h3{font-size:20px;margin-bottom:8px}
+.path p{color:var(--ink-soft);font-size:15px}
+.path .who{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--verm);margin-bottom:10px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.step .num{font-family:var(--serif);font-size:44px;font-style:italic;color:var(--verm);line-height:1;margin-bottom:12px}
+.step h3{font-size:19px;margin-bottom:8px}
+.step p{color:var(--ink-soft);font-size:14.5px}
+.closing{text-align:center;padding:96px 0;background:var(--paper-soft);border-top:1px solid var(--line)}
+.closing h2{font-size:clamp(30px,4.5vw,48px);max-width:22ch;margin:0 auto 18px}
+.closing p{color:var(--ink-soft);max-width:52ch;margin:0 auto 30px}
+footer{background:var(--ink);color:#C9C0B2;padding:60px 0 40px;font-size:14px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:36px}
+footer h4{color:var(--paper);font-family:var(--sans);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+footer a{color:#C9C0B2;text-decoration:none;display:block;padding:3px 0}
+footer a:hover{color:var(--paper)}
+.foot-mark{font-family:var(--serif);font-size:20px;color:var(--paper);margin-bottom:10px}
+.foot-legal{border-top:1px solid #33291F;padding-top:22px;font-size:12.5px;color:#8B8172;max-width:78ch}
+@media(max-width:860px){
+  .nav-links .btn{display:none}
+  .sides,.cards,.paths,.steps{grid-template-columns:1fr}
+  .side:first-child{border-right:none;border-bottom:1px solid var(--line)}
+  .cal-grid{grid-template-columns:repeat(2,1fr)}
+  .cal-day{min-height:96px}
+  .nav-links a:not(.lang):not(.btn){display:none}
+  .foot-grid{grid-template-columns:1fr}
+  .hero{padding:64px 0 56px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap nav-in">
+    <a class="wordmark" href="./">Posta<em>Studios</em></a>
+    <div class="nav-links">
+      <a href="#studio">Estudio</a>
+      <a href="#how">Cómo funciona</a>
+      <a href="#who">Para quién es</a>
+      <a class="lang" href="../" hreflang="en">EN</a>
+      <a class="btn btn-primary btn-sm" href="#access">Pedir acceso</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Estudio de programación de redes sociales</span>
+    <h1>Maneja toda tu presencia en redes desde <em>un solo calendario.</em></h1>
+    <p class="sub">Planea el mes de un vistazo, deja que el copiloto redacte con la voz de tu marca y publica directo en 12 redes. PostaStudios es el estudio de programación - sin redirecciones, sin "termínalo en la app", sin veinte pestañas abiertas.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#access">Pedir acceso</a>
+      <a class="btn btn-ghost" href="#studio">Ver el estudio</a>
+    </div>
+    <div class="proof">
+      <span><b>12</b> redes nativas</span>
+      <span><b>Copiloto de IA</b> con perfil de marca</span>
+      <span><b>MCP + API</b> para agentes de IA</span>
+      <span><b>Auto-hospedaje</b> o nube</span>
+    </div>
+  </div>
+</header>
+
+<section id="sides">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Los dos lados del estudio</p>
+      <h2>Planéalo. Luego publícalo.</h2>
+      <p>Una superficie para pensar con tiempo y otra para sacar el trabajo. Nada se pierde entre las dos.</p>
+    </div>
+    <div class="sides">
+      <div class="side">
+        <p class="tag">Planear</p>
+        <h3>Un calendario, todas las redes</h3>
+        <p>Vistas de mes, semana y día. Arrastra cualquier post a un nuevo horario y se reprograma en todas partes.</p>
+        <ul>
+          <li>Vistas de mes, semana y día</li>
+          <li>Reprograma arrastrando entre redes</li>
+          <li>Vista previa por red, escritas lado a lado</li>
+        </ul>
+      </div>
+      <div class="side">
+        <p class="tag">Publicar</p>
+        <h3>Aprueba una vez, publica en todos lados</h3>
+        <p>Publicación nativa en 12 plataformas, con automatizaciones que corren en el servidor mientras duermes.</p>
+        <ul>
+          <li>Publicación nativa en 12 redes</li>
+          <li>Automatizaciones: horarios, RSS, webhooks, pasos de IA</li>
+          <li>Espacios de trabajo, roles y flujos de aprobación</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="spotlight" id="studio">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">El estudio</p>
+      <h2>El calendario es el producto.</h2>
+      <p>Todo gira alrededor de una sola vista: qué sale, dónde y cuándo. Escribe una vez, ajusta por red y mira cómo se llena el mes.</p>
+    </div>
+    <div class="cal">
+      <div class="cal-head">
+        <span class="month">Octubre - Semana 41</span>
+        <span class="preview-note">Vista del estudio - plan de muestra</span>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-day"><div class="d">LUN 6</div>
+          <div class="post"><span class="net">Instagram</span><br>Carrusel: menú de otoño, 5 láminas<br><span class="st">Borrador del copiloto - 9:00 AM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">MAR 7</div>
+          <div class="post g"><span class="net">TikTok</span><br>Detrás de la barra, 20s<br><span class="st">Programado - 6:30 PM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">MIÉ 8</div>
+          <div class="post"><span class="net">X + LinkedIn</span><br>Nota de lanzamiento, ajustada por red<br><span class="st">Esperando aprobación</span></div>
+        </div>
+        <div class="cal-day"><div class="d">JUE 9</div>
+          <div class="post g"><span class="net">YouTube</span><br>Short: la pregunta de la semana<br><span class="st">Programado - 12:00 PM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">VIE 10</div>
+          <div class="post"><span class="net">Instagram</span><br>Horario de fin de semana + fotos<br><span class="st">Automatización RSS - 8:00 AM</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="cal-cap">Vista del estudio - una semana de muestra, no una cuenta real. El compositor, el calendario y el flujo de aprobación vienen del conjunto de funciones real del producto.</p>
+  </div>
+</section>
+
+<section id="capabilities">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Lo que hace el estudio</p>
+      <h2>Cuatro cosas, bien hechas.</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="n">01</span>Un calendario que piensa en meses</h3>
+        <p>Planea el mes de un vistazo. Arrastra un post a otro horario y se mueve en todas las redes donde va. Vistas de semana y día cuando las necesitas de cerca.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">02</span>Un copiloto que conoce tu marca</h3>
+        <p>Captions, ganchos, borradores completos y carruseles de varias láminas con tu tono, tu voz y tus colores. El copiloto lee tu perfil de marca en cada generación, y tú revisas todo antes de que se programe.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">03</span>Automatizaciones que corren solas</h3>
+        <p>Un constructor visual de flujos: disparadores por horario, feeds RSS, webhooks, condiciones y pasos de generación con IA - todo en el servidor. Lo configuras una vez y dejas que publique.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">04</span>Hecho para carteras, no solo cuentas</h3>
+        <p>Espacios de trabajo, roles y flujos de aprobación, para que un freelancer o agencia maneje toda su cartera de marcas sin hojas de cálculo. Además, un servidor MCP y API REST de primera clase, para que tu asistente de IA también pueda redactar y programar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="who">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Para quién es</p>
+      <h2>Tres tipos de estudio.</h2>
+    </div>
+    <div class="paths">
+      <div class="path">
+        <p class="who">El creador independiente</p>
+        <h3>Trabaja el domingo, descansa toda la semana</h3>
+        <p>Escribe los posts de la semana en una sola sentada, deja que el copiloto llene los huecos con tu voz y que el calendario publique mientras haces lo que sigue.</p>
+      </div>
+      <div class="path">
+        <p class="who">El freelancer</p>
+        <h3>Cada cliente en su propio carril</h3>
+        <p>Un espacio por cliente, aprobaciones antes de que salga nada, y vista previa por red para que el caption de Instagram nunca termine en LinkedIn.</p>
+      </div>
+      <div class="path">
+        <p class="who">La agencia</p>
+        <h3>Una cartera sin hojas de cálculo</h3>
+        <p>Roles, flujos de aprobación y automatizaciones en todas las marcas que manejas - con API y servidor MCP cuando tu equipo quiera construir encima.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="rule-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Cómo funciona</p>
+      <h2>Cuatro pasos para un mes completo.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <p class="num">1</p>
+        <h3>Conecta tus canales</h3>
+        <p>Vincula las redes donde publicas. Doce tienen soporte nativo - sin rodeos, sin "termínalo en tu teléfono".</p>
+      </div>
+      <div class="step">
+        <p class="num">2</p>
+        <h3>Define tu perfil de marca</h3>
+        <p>Tono, voz, idioma y colores, una sola vez. El copiloto lo lee en cada borrador que escribe para ti.</p>
+      </div>
+      <div class="step">
+        <p class="num">3</p>
+        <h3>Planea el mes</h3>
+        <p>Redacta tú o deja que el copiloto arranque. Ajusta por red y acomoda todo en el calendario arrastrando.</p>
+      </div>
+      <div class="step">
+        <p class="num">4</p>
+        <h3>Aprueba y despreocúpate</h3>
+        <p>Revisa una vez, aprueba y el estudio publica en horario. Las automatizaciones mantienen los posts de rutina fluyendo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="access">
+  <div class="wrap">
+    <h2>Tu próximo mes de redes, planeado en una sola sentada.</h2>
+    <p>PostaStudios está abriendo acceso por etapas. Cuéntanos dónde publicas y te escribimos cuando tu lugar esté listo.</p>
+    <a class="btn btn-primary" href="mailto:hello@postastudios.com?subject=Acceso%20a%20PostaStudios">Pedir acceso</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <p class="foot-mark">Posta<em style="color:var(--verm);font-style:italic">Studios</em></p>
+        <p>Un estudio de programación de redes sociales: un calendario, un copiloto de IA con la voz de tu marca, publicación nativa en 12 redes y una API que tus agentes pueden manejar.</p>
+      </div>
+      <div>
+        <h4>Estudio</h4>
+        <a href="#studio">El calendario</a>
+        <a href="#capabilities">Capacidades</a>
+        <a href="#how">Cómo funciona</a>
+      </div>
+      <div>
+        <h4>Acceso</h4>
+        <a href="#access">Pedir acceso</a>
+        <a href="../" hreflang="en">English version</a>
+      </div>
+    </div>
+    <p class="foot-legal">PostaStudios es un producto de estudio independiente construido sobre software de programación de código abierto (AGPL-3.0). Las descripciones de funciones reflejan el código fuente actual del producto; el calendario mostrado arriba es una muestra etiquetada, no una cuenta real. Los borradores generados con IA siempre pasan por tu revisión antes de programarse. &copy; 2026 PostaStudios.</p>
+  </div>
+</footer>
+</body>
+</html>

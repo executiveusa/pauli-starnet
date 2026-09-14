@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostaStudios - Run your whole social presence from one calendar</title>
+<meta name="description" content="PostaStudios is a social media scheduling studio: one visual calendar, an AI copilot that writes in your brand voice, and native publishing to 12 networks.">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="alternate" hreflang="es-MX" href="./es/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF6F0; --paper-soft:#F3EDE3; --ink:#17130E; --ink-soft:#3A342B;
+  --verm:#C2410C; --green:#1B4D3E; --muted:#6B6257; --line:#E4DCD0;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.08;letter-spacing:-.01em}
+.kicker{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--verm);margin-bottom:14px}
+.rule-top{border-top:1px solid var(--line)}
+/* nav */
+nav{position:sticky;top:0;background:rgba(250,246,240,.92);backdrop-filter:none;border-bottom:1px solid var(--line);z-index:50}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.wordmark{font-family:var(--serif);font-weight:600;font-size:21px;text-decoration:none}
+.wordmark em{font-style:italic;color:var(--verm)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{text-decoration:none;font-size:14px;color:var(--ink-soft)}
+.nav-links a:hover{color:var(--verm)}
+.lang{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;text-decoration:none;color:var(--ink-soft)}
+.btn{display:inline-block;text-decoration:none;font-weight:600;font-size:15px;border-radius:10px;padding:12px 22px;border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--verm);color:#fff}
+.btn-primary:hover{background:#a8380a}
+.btn-ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-ghost:hover{border-color:var(--verm);color:var(--verm)}
+.btn-sm{padding:8px 16px;font-size:14px}
+/* hero */
+.hero{padding:96px 0 80px;text-align:left;border-bottom:1px solid var(--line)}
+.badge{display:inline-block;border:1px solid var(--verm);color:var(--verm);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:26px}
+.hero h1{font-size:clamp(40px,6vw,68px);max-width:16ch;margin-bottom:22px}
+.hero h1 em{font-style:italic;color:var(--verm)}
+.hero .sub{font-size:18px;color:var(--ink-soft);max-width:56ch;margin-bottom:34px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.proof{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);display:flex;gap:26px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.proof b{color:var(--ink);font-weight:600}
+/* sections */
+section{padding:84px 0}
+.sec-head{max-width:640px;margin-bottom:48px}
+.sec-head h2{font-size:clamp(30px,4vw,44px);margin-bottom:14px}
+.sec-head p{color:var(--ink-soft);font-size:17px}
+/* two sides */
+.sides{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.side{padding:44px 40px}
+.side:first-child{border-right:1px solid var(--line);background:var(--paper-soft)}
+.side h3{font-size:26px;margin-bottom:10px}
+.side .tag{font-size:12px;font-weight:600;letter-spacing:.16em;color:var(--green);text-transform:uppercase;margin-bottom:14px}
+.side p{color:var(--ink-soft);margin-bottom:20px}
+.side ul{list-style:none}
+.side li{padding:9px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink-soft)}
+.side li::before{content:"";display:inline-block;width:14px;height:1px;background:var(--verm);margin-right:10px;vertical-align:middle}
+/* spotlight (ink) */
+.spotlight{background:var(--ink);color:var(--paper)}
+.spotlight .kicker{color:#E8B39A}
+.spotlight h2{color:var(--paper)}
+.spotlight .sec-head p{color:#C9C0B2}
+.cal{background:var(--paper);color:var(--ink);border-radius:14px;padding:26px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.cal-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
+.cal-head .month{font-family:var(--serif);font-size:22px;font-weight:600}
+.cal-head .preview-note{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.cal-day{border:1px solid var(--line);border-radius:8px;min-height:118px;padding:8px;background:#fff}
+.cal-day .d{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.08em}
+.post{border-left:3px solid var(--verm);background:var(--paper-soft);border-radius:4px;padding:6px 8px;font-size:12px;line-height:1.4;margin-bottom:6px}
+.post.g{border-color:var(--green)}
+.post .net{font-weight:600;color:var(--ink)}
+.post .st{color:var(--muted)}
+.cal-cap{margin-top:16px;font-size:13.5px;color:#C9C0B2}
+/* capability cards */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{border:1px solid var(--line);border-radius:12px;padding:30px;background:#fff}
+.card h3{font-size:22px;margin-bottom:10px}
+.card h3 .n{font-family:var(--serif);font-style:italic;color:var(--verm);font-size:16px;margin-right:8px}
+.card p{color:var(--ink-soft);font-size:15px}
+/* paths */
+.paths{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.path{border-top:2px solid var(--ink);padding-top:20px}
+.path h3{font-size:20px;margin-bottom:8px}
+.path p{color:var(--ink-soft);font-size:15px}
+.path .who{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--verm);margin-bottom:10px}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.step .num{font-family:var(--serif);font-size:44px;font-style:italic;color:var(--verm);line-height:1;margin-bottom:12px}
+.step h3{font-size:19px;margin-bottom:8px}
+.step p{color:var(--ink-soft);font-size:14.5px}
+/* closing */
+.closing{text-align:center;padding:96px 0;background:var(--paper-soft);border-top:1px solid var(--line)}
+.closing h2{font-size:clamp(30px,4.5vw,48px);max-width:22ch;margin:0 auto 18px}
+.closing p{color:var(--ink-soft);max-width:52ch;margin:0 auto 30px}
+/* footer */
+footer{background:var(--ink);color:#C9C0B2;padding:60px 0 40px;font-size:14px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:36px}
+footer h4{color:var(--paper);font-family:var(--sans);font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+footer a{color:#C9C0B2;text-decoration:none;display:block;padding:3px 0}
+footer a:hover{color:var(--paper)}
+.foot-mark{font-family:var(--serif);font-size:20px;color:var(--paper);margin-bottom:10px}
+.foot-legal{border-top:1px solid #33291F;padding-top:22px;font-size:12.5px;color:#8B8172;max-width:78ch}
+@media(max-width:860px){
+  .nav-links .btn{display:none}
+  .sides,.cards,.paths,.steps{grid-template-columns:1fr}
+  .side:first-child{border-right:none;border-bottom:1px solid var(--line)}
+  .cal-grid{grid-template-columns:repeat(2,1fr)}
+  .cal-day{min-height:96px}
+  .nav-links a:not(.lang):not(.btn){display:none}
+  .foot-grid{grid-template-columns:1fr}
+  .hero{padding:64px 0 56px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap nav-in">
+    <a class="wordmark" href="./">Posta<em>Studios</em></a>
+    <div class="nav-links">
+      <a href="#studio">Studio</a>
+      <a href="#how">How it works</a>
+      <a href="#who">Who it is for</a>
+      <a class="lang" href="./es/" hreflang="es-MX">ES</a>
+      <a class="btn btn-primary btn-sm" href="#access">Request access</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Social media scheduling studio</span>
+    <h1>Run your whole social presence from <em>one calendar.</em></h1>
+    <p class="sub">Plan a month at a glance, let the copilot draft in your brand voice, and publish natively to 12 networks. PostaStudios is the scheduling studio - no redirects, no "finish in the mobile app," no tab sprawl.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#access">Request access</a>
+      <a class="btn btn-ghost" href="#studio">See the studio</a>
+    </div>
+    <div class="proof">
+      <span><b>12</b> native networks</span>
+      <span><b>AI copilot</b> with brand profile</span>
+      <span><b>MCP + API</b> for AI agents</span>
+      <span><b>Self-host</b> or cloud</span>
+    </div>
+  </div>
+</header>
+
+<section id="sides">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Two sides of the studio</p>
+      <h2>Plan it. Then publish it.</h2>
+      <p>One surface for thinking ahead, one surface for getting it out the door. Nothing falls between them.</p>
+    </div>
+    <div class="sides">
+      <div class="side">
+        <p class="tag">Plan</p>
+        <h3>One calendar, every network</h3>
+        <p>Month, week, and day views. Drag any post to a new slot and it reschedules everywhere.</p>
+        <ul>
+          <li>Month, week, and day views</li>
+          <li>Drag-and-drop rescheduling across networks</li>
+          <li>Per-network previews, written side by side</li>
+        </ul>
+      </div>
+      <div class="side">
+        <p class="tag">Publish</p>
+        <h3>Approve once, publish everywhere</h3>
+        <p>Native publishing to 12 platforms, with automations that run server-side while you sleep.</p>
+        <ul>
+          <li>Native publishing to 12 networks</li>
+          <li>Automations: schedule, RSS, webhooks, AI steps</li>
+          <li>Workspaces, roles, and approval flows</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="spotlight" id="studio">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">The studio</p>
+      <h2>The calendar is the product.</h2>
+      <p>Everything orbits one view: what goes out, where, and when. Write once, tailor per network, and watch the month fill in.</p>
+    </div>
+    <div class="cal">
+      <div class="cal-head">
+        <span class="month">October - Week 41</span>
+        <span class="preview-note">Studio preview - sample plan</span>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-day"><div class="d">MON 6</div>
+          <div class="post"><span class="net">Instagram</span><br>Carousel: fall menu, 5 slides<br><span class="st">Copilot draft - 9:00 AM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">TUE 7</div>
+          <div class="post g"><span class="net">TikTok</span><br>Behind the counter, 20s<br><span class="st">Scheduled - 6:30 PM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">WED 8</div>
+          <div class="post"><span class="net">X + LinkedIn</span><br>Launch note, tailored per network<br><span class="st">Awaiting approval</span></div>
+        </div>
+        <div class="cal-day"><div class="d">THU 9</div>
+          <div class="post g"><span class="net">YouTube</span><br>Short: customer question of the week<br><span class="st">Scheduled - 12:00 PM</span></div>
+        </div>
+        <div class="cal-day"><div class="d">FRI 10</div>
+          <div class="post"><span class="net">Instagram</span><br>Weekend hours + photo set<br><span class="st">RSS automation - 8:00 AM</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="cal-cap">Studio preview - a sample week, not a live account. The composer, calendar, and approval flow are from the product's real feature set.</p>
+  </div>
+</section>
+
+<section id="capabilities">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">What the studio does</p>
+      <h2>Four things, done properly.</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="n">01</span>A calendar that thinks in months</h3>
+        <p>Plan a month at a glance. Drag a post to a new slot and it moves on every network it belongs to. Week and day views when you need them closer.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">02</span>A copilot that knows your brand</h3>
+        <p>Captions, hooks, full drafts, and multi-slide carousels in your tone, voice, and colors. The copilot reads your brand profile on every generation, and you review everything before it schedules.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">03</span>Automations that run themselves</h3>
+        <p>A visual workflow builder: schedule triggers, RSS feeds, webhooks, conditions, and AI generation steps - all server-side. Set it once, let it post.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">04</span>Built for rosters, not just accounts</h3>
+        <p>Workspaces, roles, and approval flows, so a freelancer or agency can run a roster of brands without spreadsheets. Plus a first-class MCP server and REST API, so your AI assistant can draft and schedule too.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="who">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Who it is for</p>
+      <h2>Three kinds of studios.</h2>
+    </div>
+    <div class="paths">
+      <div class="path">
+        <p class="who">The solo creator</p>
+        <h3>Batch Sunday, coast all week</h3>
+        <p>Write the week's posts in one sitting, let the copilot fill the gaps in your voice, and let the calendar publish while you make the next thing.</p>
+      </div>
+      <div class="path">
+        <p class="who">The freelancer</p>
+        <h3>Every client in their own lane</h3>
+        <p>A workspace per client, approvals before anything ships, and per-network previews so the Instagram caption never leaks into LinkedIn.</p>
+      </div>
+      <div class="path">
+        <p class="who">The agency</p>
+        <h3>A roster without the spreadsheets</h3>
+        <p>Roles, approval flows, and automations across every brand you run - with an API and MCP server when your team wants to build on top.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="rule-top">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">How it works</p>
+      <h2>Four steps to a full month.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <p class="num">1</p>
+        <h3>Connect your channels</h3>
+        <p>Link the networks you publish to. Twelve are supported natively - no workarounds, no "finish on your phone."</p>
+      </div>
+      <div class="step">
+        <p class="num">2</p>
+        <h3>Set your brand profile</h3>
+        <p>Tone, voice, language, and colors, once. The copilot reads it on every draft it writes for you.</p>
+      </div>
+      <div class="step">
+        <p class="num">3</p>
+        <h3>Plan the month</h3>
+        <p>Draft yourself or let the copilot start it. Tailor per network, drag everything into place on the calendar.</p>
+      </div>
+      <div class="step">
+        <p class="num">4</p>
+        <h3>Approve and walk away</h3>
+        <p>Review once, approve, and the studio publishes on schedule. Automations keep the routine posts flowing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="access">
+  <div class="wrap">
+    <h2>Your next month of social, planned in one sitting.</h2>
+    <p>PostaStudios is opening access in stages. Tell us where you publish and we will reach out when your seat is ready.</p>
+    <a class="btn btn-primary" href="mailto:hello@postastudios.com?subject=PostaStudios%20access">Request access</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <p class="foot-mark">Posta<em style="color:var(--verm);font-style:italic">Studios</em></p>
+        <p>A social media scheduling studio: one calendar, an AI copilot in your brand voice, native publishing to 12 networks, and an API your agents can drive.</p>
+      </div>
+      <div>
+        <h4>Studio</h4>
+        <a href="#studio">The calendar</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div>
+        <h4>Access</h4>
+        <a href="#access">Request access</a>
+        <a href="./es/" hreflang="es-MX">Versión en español</a>
+      </div>
+    </div>
+    <p class="foot-legal">PostaStudios is an independent studio product built on open-source scheduling software (AGPL-3.0). Feature descriptions reflect the current product source; the calendar shown above is a labeled sample, not a live account. AI-generated drafts always go through your review before scheduling. &copy; 2026 PostaStudios.</p>
+  </div>
+</footer>
+</body>
+</html>

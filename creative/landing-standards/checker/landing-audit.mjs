@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const pagesPath = process.argv[2] || new URL('./pages.json', import.meta.url).pathname;
 const { pages } = JSON.parse(readFileSync(pagesPath, 'utf8'));
 
-const CTA_WORDS = /\b(get started|sign up|try|start|discuss|contact|apply|explore|learn more|book|buy|subscribe|request|join|see how|watch|demo|meet|tell us)\b/i;
+const CTA_WORDS = /\b(get started|sign up|try|start|discuss|contact|apply|explore|learn more|book|buy|subscribe|request|join|see how|watch|demo|meet|tell us|pedir|pide|solicitar|solicita|acceso|empieza|empezar|comienza|prueba|probar|agenda|agendar|únete|unete|regístrate|registrate|contáctanos|contactanos|ver|conoce|descubre|cuéntanos|cuentanos)\b/i;
 
 async function fetchWithRedirects(url, max = 6) {
   const chain = [];
