@@ -22,7 +22,7 @@ http://localhost:8902/
 | CTA found: Request access | PASS | yes |
 | viewport meta present | PASS | yes |
 | image alt coverage 100% (0/0) | PASS | no |
-| HTML 17 KB | PASS | no |
+| HTML 19 KB | PASS | no |
 
 ## PostaStudios v1 (es-MX) - STRUCTURAL-PASS
 
@@ -39,5 +39,5 @@ http://localhost:8902/es/
 | CTA found: Pedir acceso / Ver el estudio | PASS | yes |
 | viewport meta present | PASS | yes |
 | image alt coverage 100% (0/0) | PASS | no |
-| HTML 17 KB | PASS | no |
+| HTML 20 KB | PASS | no |
 

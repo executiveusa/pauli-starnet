@@ -1,0 +1,15 @@
+[Unit]
+Description=PostaStudios inquiry endpoint
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /srv/postastudios/site/api/inquiry.py
+Environment=POSTA_DATA_DIR=/srv/postastudios/inquiries
+Environment=POSTA_PORT=8903
+Restart=always
+RestartSec=2
+DynamicUser=yes
+StateDirectory=postastudios
+
+[Install]
+WantedBy=multi-user.target

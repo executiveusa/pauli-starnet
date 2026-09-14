@@ -38,3 +38,19 @@ adjudication). Extended with Spanish CTA vocabulary. Root-cause fix in the check
 NOT in v1 (honest edges): no live app link, no real screenshots (no deploy to capture), no
 pricing, no blog/docs, hello@postastudios.com mailbox assumed from domain convention - VERIFY
 that mailbox exists or swap the CTA target before the URL goes public.
+
+## v2 update (2026-09-13, 6:52 PM owner directive via Main)
+- Rebrand sweep: zero TryPost/Postiz/template/lorem references (grep-verified; the only
+  upstream mention is the AGPL-3.0 license line, kept deliberately for license honesty).
+- Dead mailto CTA (postastudios.com has no DNS) REPLACED with a real inquiry form
+  (name/email/networks/message + honeypot) posting to /api/inquiry.
+- Backend: api/inquiry.py, stdlib-Python-only service, tested live: valid POST stores
+  one JSONL line, honeypot silently drops, bad email 422, no-JS form POST works.
+- Deploy target changed Netlify -> VPS srv1099662 via the watcher; DEPLOY.md in the
+  bundle carries the layout, systemd unit, nginx sketch, and verification curls.
+- Owner said "make the sensible calls" - recorded: wordmark stays "PostaStudios"
+  (established everywhere; the voice-note "Posta Studios" spacing reads as STT);
+  inquiries STORE to jsonl only (no mailbox exists anywhere; forwarding waits on the
+  owner picking a destination); Google Fonts is the only external asset.
+- Re-verified: audit STRUCTURAL-PASS both languages; form + accents visually inspected
+  at 390/768/1440 in both languages.
