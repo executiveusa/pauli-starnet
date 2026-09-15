@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "service": "terabithia",
+  "version": "3.2.0-continuity",
+  "timestamp": "2026-09-15T12:23:52.995Z",
+  "dependencies": {
+    "coolify": "unreachable",
+    "coolify_version": "unknown",
+    "services_count": 34
+  }
+}

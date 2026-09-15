@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "events": [
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:859e5d0a4583a3375f8d81fd6a2c61f3e00dde8245eaaaff19ebbff19dc0063d",
+      "observed_at": "2026-08-14T10:29:42.000Z",
+      "source": "lightning-fixture",
+      "type": "evaluation",
+      "sensitivity": "shared",
+      "payload": {
+        "mission_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "origin_evidence_count": 0,
+        "verdict": "pass"
+      },
+      "evidence_refs": [
+        "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "content_hash": "sha256:c097e8f8f8a22fa7de3bf65597fb9b2cd3c3afead1685e258432c83410365933",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    }
+  ]
+}

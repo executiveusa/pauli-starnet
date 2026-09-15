@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "mode": "shadow",
+  "cost_usd": 0,
+  "generated_at": "2026-09-15T09:40:00Z",
+  "events": [
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:38993db41eb0b901da4da9ff69b2ec4ff1104d696627df5ee612f2f68da9de0c",
+      "observed_at": "2026-08-14T10:29:40.000Z",
+      "source": "yappyverse-codex-proof",
+      "type": "mission",
+      "sensitivity": "shared",
+      "payload": {
+        "mission_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "paid_route": false,
+        "status": "done"
+      },
+      "evidence_refs": [
+        "https://github.com/executiveusa/YAPPYVERSE-FACTORY/blob/c7b2048538f798a4359faa4b70feeeb5183e2887/docs/terabithia-codex-live-test.md"
+      ],
+      "content_hash": "sha256:2e0df9cdf9266a8e500942b930a659a972380d0194d52fee9641fb084c8f3238",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    },
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:251c3b9635ba4273df7f7d0387eeb684da464385342fa0963f162ecb04442dfb",
+      "observed_at": "2026-08-14T10:29:41.000Z",
+      "source": "fixture-primary",
+      "type": "result",
+      "sensitivity": "shared",
+      "payload": {
+        "evidence": [],
+        "mission_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "done"
+      },
+      "evidence_refs": [
+        "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "content_hash": "sha256:1b618e4d9a0b0e68244b2e6f398e3954fe72adaa6e410caea3a9c4df62d64248",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    },
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:859e5d0a4583a3375f8d81fd6a2c61f3e00dde8245eaaaff19ebbff19dc0063d",
+      "observed_at": "2026-08-14T10:29:42.000Z",
+      "source": "lightning-fixture",
+      "type": "evaluation",
+      "sensitivity": "shared",
+      "payload": {
+        "mission_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "origin_evidence_count": 0,
+        "verdict": "pass"
+      },
+      "evidence_refs": [
+        "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "content_hash": "sha256:c097e8f8f8a22fa7de3bf65597fb9b2cd3c3afead1685e258432c83410365933",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    },
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:f711b7bb09ac61235fd3f667e1425092e23b6ebd26a94a7bde8381e9a41045a4",
+      "observed_at": "2026-08-14T10:29:43.000Z",
+      "source": "monitoring-fixture",
+      "type": "health",
+      "sensitivity": "shared",
+      "payload": {
+        "seeded": true,
+        "status": "healthy"
+      },
+      "evidence_refs": [
+        "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ],
+      "content_hash": "sha256:4fbb24af8819ce7aafaf99704d5bdecbaffaf88db14a78543dc1e4133c0ef869",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    },
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:6b0bdd866d380adf23ee4606a844f56aff95410f86cd978cc37e8f924990f8ba",
+      "observed_at": "2026-08-14T10:29:44.000Z",
+      "source": "legacy-watcher-fixture",
+      "type": "evaluation",
+      "sensitivity": "restricted",
+      "payload": {
+        "proposed_mutation": true,
+        "verdict": "needs_correction"
+      },
+      "evidence_refs": [
+        "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ],
+      "content_hash": "sha256:ee78ea02203600e4817bf40c9faa3ea9e5aa91c26454452955117c1a816726f3",
+      "receipt_bindings": [],
+      "schema_valid": true,
+      "verification_level": "shape-only",
+      "verified": false
+    }
+  ]
+}

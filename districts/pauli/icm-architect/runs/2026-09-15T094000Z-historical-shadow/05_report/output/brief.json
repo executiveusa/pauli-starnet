@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "cost_usd": 0,
+  "material_change": true,
+  "critical": [],
+  "daily": [
+    {
+      "id": "missing-evidence-evt:sha256:251c3b9635ba4273df7f7d0387eeb684da464385342fa0963f162ecb04442dfb",
+      "status": "open",
+      "severity": "high",
+      "pattern_count": 1,
+      "observed": "Completion has no evidence.",
+      "evidence_refs": [
+        "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "affected_goal_refs": [],
+      "hypothesis": "Result may be a false success.",
+      "recommended_change": "Require an acceptance receipt before completion.",
+      "expected_gain": "More truthful and auditable fleet state.",
+      "risk": "False positive requires human review.",
+      "approval_required": true,
+      "created_at": "2026-09-15T09:40:00Z",
+      "content_hash": "sha256:ce2f4c7cca992eab924062a9e5d091a5bea871e2baf9d73cda71baba0a6220b0"
+    },
+    {
+      "id": "false-pass-evt:sha256:859e5d0a4583a3375f8d81fd6a2c61f3e00dde8245eaaaff19ebbff19dc0063d",
+      "status": "open",
+      "severity": "high",
+      "pattern_count": 1,
+      "observed": "Evaluator passed a result with no acceptance evidence.",
+      "evidence_refs": [
+        "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "affected_goal_refs": [],
+      "hypothesis": "Evaluator rule is incomplete.",
+      "recommended_change": "Add a deterministic evidence prerequisite.",
+      "expected_gain": "More truthful and auditable fleet state.",
+      "risk": "False positive requires human review.",
+      "approval_required": true,
+      "created_at": "2026-09-15T09:40:00Z",
+      "content_hash": "sha256:cffec5372a7e259cd52f639e3c108784f4d3cd8ca5418b965bacf2475fc97551"
+    },
+    {
+      "id": "seeded-health-evt:sha256:f711b7bb09ac61235fd3f667e1425092e23b6ebd26a94a7bde8381e9a41045a4",
+      "status": "open",
+      "severity": "medium",
+      "pattern_count": 1,
+      "observed": "Seeded health copy was presented as system state.",
+      "evidence_refs": [
+        "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ],
+      "affected_goal_refs": [],
+      "hypothesis": "UI or watcher may confuse initialization with proof.",
+      "recommended_change": "Exclude seeded events from live status.",
+      "expected_gain": "More truthful and auditable fleet state.",
+      "risk": "False positive requires human review.",
+      "approval_required": true,
+      "created_at": "2026-09-15T09:40:00Z",
+      "content_hash": "sha256:a2ca8bde3f2e0cead3b83502bec88a08abd4c223cd4e6494a23e3305203f5afb"
+    },
+    {
+      "id": "mutation-evt:sha256:6b0bdd866d380adf23ee4606a844f56aff95410f86cd978cc37e8f924990f8ba",
+      "status": "open",
+      "severity": "high",
+      "pattern_count": 1,
+      "observed": "Watcher proposed a direct mutation.",
+      "evidence_refs": [
+        "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ],
+      "affected_goal_refs": [],
+      "hypothesis": "Watcher crossed the observe/propose boundary.",
+      "recommended_change": "Convert the effect into a human-reviewed proposal.",
+      "expected_gain": "More truthful and auditable fleet state.",
+      "risk": "False positive requires human review.",
+      "approval_required": true,
+      "created_at": "2026-09-15T09:40:00Z",
+      "content_hash": "sha256:a970884939b4320195e2ec21e663c0846510606134278ecaa2bba1b0193f1f92"
+    }
+  ],
+  "weekly": {
+    "finding_count": 4,
+    "by_severity": {
+      "high": 3,
+      "medium": 1
+    }
+  }
+}

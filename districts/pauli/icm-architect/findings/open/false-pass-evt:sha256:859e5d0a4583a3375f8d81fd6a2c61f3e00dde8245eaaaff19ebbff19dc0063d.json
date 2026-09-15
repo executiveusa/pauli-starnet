@@ -1,0 +1,18 @@
+{
+  "id": "false-pass-evt:sha256:859e5d0a4583a3375f8d81fd6a2c61f3e00dde8245eaaaff19ebbff19dc0063d",
+  "status": "open",
+  "severity": "high",
+  "pattern_count": 1,
+  "observed": "Evaluator passed a result with no acceptance evidence.",
+  "evidence_refs": [
+    "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "affected_goal_refs": [],
+  "hypothesis": "Evaluator rule is incomplete.",
+  "recommended_change": "Add a deterministic evidence prerequisite.",
+  "expected_gain": "More truthful and auditable fleet state.",
+  "risk": "False positive requires human review.",
+  "approval_required": true,
+  "created_at": "2026-09-15T09:40:00Z",
+  "content_hash": "sha256:cffec5372a7e259cd52f639e3c108784f4d3cd8ca5418b965bacf2475fc97551"
+}

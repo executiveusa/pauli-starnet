@@ -1,0 +1,18 @@
+{
+  "id": "mutation-evt:sha256:6b0bdd866d380adf23ee4606a844f56aff95410f86cd978cc37e8f924990f8ba",
+  "status": "open",
+  "severity": "high",
+  "pattern_count": 1,
+  "observed": "Watcher proposed a direct mutation.",
+  "evidence_refs": [
+    "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  ],
+  "affected_goal_refs": [],
+  "hypothesis": "Watcher crossed the observe/propose boundary.",
+  "recommended_change": "Convert the effect into a human-reviewed proposal.",
+  "expected_gain": "More truthful and auditable fleet state.",
+  "risk": "False positive requires human review.",
+  "approval_required": true,
+  "created_at": "2026-09-15T09:40:00Z",
+  "content_hash": "sha256:a970884939b4320195e2ec21e663c0846510606134278ecaa2bba1b0193f1f92"
+}

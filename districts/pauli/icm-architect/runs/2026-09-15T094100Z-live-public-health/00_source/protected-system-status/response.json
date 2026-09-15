@@ -1,0 +1,4 @@
+{
+  "error": "Unauthorized",
+  "message": "Valid Bearer TERABITHIA_API_KEY required."
+}
