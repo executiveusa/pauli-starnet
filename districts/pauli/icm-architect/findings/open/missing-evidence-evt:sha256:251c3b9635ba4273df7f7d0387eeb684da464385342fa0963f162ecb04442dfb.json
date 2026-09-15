@@ -1,0 +1,18 @@
+{
+  "id": "missing-evidence-evt:sha256:251c3b9635ba4273df7f7d0387eeb684da464385342fa0963f162ecb04442dfb",
+  "status": "open",
+  "severity": "high",
+  "pattern_count": 1,
+  "observed": "Completion has no evidence.",
+  "evidence_refs": [
+    "trace://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "affected_goal_refs": [],
+  "hypothesis": "Result may be a false success.",
+  "recommended_change": "Require an acceptance receipt before completion.",
+  "expected_gain": "More truthful and auditable fleet state.",
+  "risk": "False positive requires human review.",
+  "approval_required": true,
+  "created_at": "2026-09-15T09:40:00Z",
+  "content_hash": "sha256:ce2f4c7cca992eab924062a9e5d091a5bea871e2baf9d73cda71baba0a6220b0"
+}

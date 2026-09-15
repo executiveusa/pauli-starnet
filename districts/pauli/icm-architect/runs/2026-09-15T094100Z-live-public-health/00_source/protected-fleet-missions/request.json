@@ -1,0 +1,12 @@
+{
+  "requested_at": "2026-09-15T12:23:53.148Z",
+  "method": "GET",
+  "url": "https://api.thepaulieffect.com/terabithia/api/v1/fleet/missions",
+  "status": 401,
+  "location": null,
+  "request_headers": {
+    "Accept": "application/json"
+  },
+  "response_encoding": "utf-8 exact bytes",
+  "body_sha256": "sha256:e9f09aa53a5d7bb020ce7ae038dc9d173c5a099076915280c6fbc879cc6543fa"
+}

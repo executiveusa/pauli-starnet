@@ -1,0 +1,12 @@
+{
+  "requested_at": "2026-09-15T12:23:52.802Z",
+  "method": "GET",
+  "url": "https://api.thepaulieffect.com/terabithia/health",
+  "status": 200,
+  "location": null,
+  "request_headers": {
+    "Accept": "application/json"
+  },
+  "response_encoding": "utf-8 exact bytes",
+  "body_sha256": "sha256:baaef1590921a5ca0d8133fa858c8e40b8f3f527cbb9c3f6a29847f38d6dcc88"
+}

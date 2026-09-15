@@ -1,0 +1,18 @@
+{
+  "id": "seeded-health-evt:sha256:f711b7bb09ac61235fd3f667e1425092e23b6ebd26a94a7bde8381e9a41045a4",
+  "status": "open",
+  "severity": "medium",
+  "pattern_count": 1,
+  "observed": "Seeded health copy was presented as system state.",
+  "evidence_refs": [
+    "source://sha256/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  ],
+  "affected_goal_refs": [],
+  "hypothesis": "UI or watcher may confuse initialization with proof.",
+  "recommended_change": "Exclude seeded events from live status.",
+  "expected_gain": "More truthful and auditable fleet state.",
+  "risk": "False positive requires human review.",
+  "approval_required": true,
+  "created_at": "2026-09-15T09:40:00Z",
+  "content_hash": "sha256:a2ca8bde3f2e0cead3b83502bec88a08abd4c223cd4e6494a23e3305203f5afb"
+}

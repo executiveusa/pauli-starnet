@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "event_id": "evt:sha256:812949b4b3cd03a50aca355c732a4445c976155b3b4ce7878e218516d3ea4a79",
+  "observed_at": "2026-09-15T12:23:52.995Z",
+  "source": "https://api.thepaulieffect.com/terabithia/health",
+  "type": "health",
+  "sensitivity": "shared",
+  "payload": {
+    "dependencies": {
+      "coolify": "unreachable",
+      "coolify_version": "unknown",
+      "services_count": 34
+    },
+    "service": "terabithia",
+    "status": "ok",
+    "timestamp": "2026-09-15T12:23:52.995Z",
+    "version": "3.2.0-continuity"
+  },
+  "evidence_refs": [
+    "https://api.thepaulieffect.com/terabithia/health",
+    "receipt://runs/live-public-health/health/request.json",
+    "receipt://runs/live-public-health/health/response.json"
+  ],
+  "content_hash": "sha256:970214f2821d36e4d6af5df097bd2b19415273e6d1b2a9a0afa93cad2cac336e"
+}

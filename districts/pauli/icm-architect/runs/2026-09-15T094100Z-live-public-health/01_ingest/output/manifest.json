@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "mode": "live-read-only",
+  "cost_usd": 0,
+  "generated_at": "2026-09-15T12:23:52.995Z",
+  "events": [
+    {
+      "schema_version": 1,
+      "event_id": "evt:sha256:812949b4b3cd03a50aca355c732a4445c976155b3b4ce7878e218516d3ea4a79",
+      "observed_at": "2026-09-15T12:23:52.995Z",
+      "source": "https://api.thepaulieffect.com/terabithia/health",
+      "type": "health",
+      "sensitivity": "shared",
+      "payload": {
+        "dependencies": {
+          "coolify": "unreachable",
+          "coolify_version": "unknown",
+          "services_count": 34
+        },
+        "service": "terabithia",
+        "status": "ok",
+        "timestamp": "2026-09-15T12:23:52.995Z",
+        "version": "3.2.0-continuity"
+      },
+      "evidence_refs": [
+        "https://api.thepaulieffect.com/terabithia/health",
+        "receipt://runs/live-public-health/health/request.json",
+        "receipt://runs/live-public-health/health/response.json"
+      ],
+      "content_hash": "sha256:970214f2821d36e4d6af5df097bd2b19415273e6d1b2a9a0afa93cad2cac336e",
+      "receipt_bindings": [
+        {
+          "name": "health",
+          "request_sha256": "sha256:dc43edadbe58e2b2127ee0c797aa580fef374e2aa10ed8ed6b1c178bfdaf34ea",
+          "response_sha256": "sha256:baaef1590921a5ca0d8133fa858c8e40b8f3f527cbb9c3f6a29847f38d6dcc88",
+          "payload_sha256": "sha256:c78f2c4ff013627c3b15ba44c4d13fdb08510a012d63a22d3ff5b2d7ed3e0ff9"
+        }
+      ],
+      "schema_valid": true,
+      "verification_level": "receipt-bound",
+      "verified": true
+    }
+  ]
+}

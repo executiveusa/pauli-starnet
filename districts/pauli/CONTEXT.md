@@ -35,3 +35,7 @@ Owner decisions (2026-09-13, owner's own WhatsApp channel, verified observation 
 - Pauli's voice (owner direction 2026-09-13, 5:28 PM): an Italian-mobster-type voice, distinct from bond (BARS) and masonry (command center). The Watcher picks from the LIVE Rime arcana catalog against that character direction at deploy and records the speaker in deploy config (easily changeable); ElevenLabs is the fallback source if Rime's catalog has no fitting voice. No guessed speaker names - the pick is verified against the live catalog.
 - BARS keeps his own persona as subordinate bounded operator; Pauli inherits trust-spine patterns (single-use confirmations, receipts) as infrastructure, not personality.
 - An empty slot is an honest vacancy: 'pauli' seats only when the persona lands (Phase 2).
+
+## Permanent ICM architect
+
+Pauli's observe-and-propose watcher architecture lives at `icm-architect/CLAUDE.md`. Terabithia remains separate infrastructure at `../../infrastructure/terabithia/CONTEXT.md`; this district receives only sanitized read-only event records.
