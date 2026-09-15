@@ -157,7 +157,8 @@
     "release:promotion-gate": "node scripts/release-promotion-gate.mjs",
     "security:secrets": "node scripts/scan-history-secrets.mjs",
     "eval:skills": "node scripts/eval/skills.mjs",
-    "test:pauli-icm": "node test/pauli-icm-walk.test.js && node test/pauli-icm-architect.test.js"
+    "test:pauli-icm": "node test/pauli-icm-walk.test.js && node test/pauli-icm-architect.test.js",
+    "watch:pauli-icm": "node scripts/pauli-icm/run-live-watch.js"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"
