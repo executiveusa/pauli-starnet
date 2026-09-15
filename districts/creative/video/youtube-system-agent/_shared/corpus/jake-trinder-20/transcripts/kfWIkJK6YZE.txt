@@ -1,0 +1,850 @@
+# We speedran from 0 to $1m on YouTube in 6 months.. here's how
+# https://www.youtube.com/watch?v=kfWIkJK6YZE
+[00:00:00.000] But we ran some of the numbers and we
+[00:00:02.160] have just about a million dollars of
+[00:00:05.360] total GMV attributed to YouTube.
+[00:00:07.960] >> Um.
+[00:00:08.640] >> That's about a 10x ROI off of gross
+[00:00:10.800] margin what we put into the program over
+[00:00:12.640] the last 6 months. The beauty of YouTube
+[00:00:14.600] is we made the video 6 months ago,
+[00:00:17.240] they're still paying us. Old videos are
+[00:00:20.160] getting more views than some of our
+[00:00:21.680] newer videos. That's something I really
+[00:00:23.320] like about YouTube is like there can be
+[00:00:24.720] spikes in interest for the content 6
+[00:00:28.640] months a year later. And you know, we're
+[00:00:31.160] getting thousands, tens of thousands of
+[00:00:32.759] views, ultimately inbound, you know,
+[00:00:34.520] recruits, inbound customers from
+[00:00:36.520] something we did 6 months ago. So, I
+[00:00:38.240] think that's really exciting.
+[00:00:39.520] >> Yeah, the second speed running video,
+[00:00:41.080] that one's like 220, 230,000 views now.
+[00:00:44.040] So, that one's actually creeping up on
+[00:00:45.240] the original and it's getting like
+[00:00:46.720] thousands of views a day still. The Alex
+[00:00:48.160] Hormozi advice on cold calling one, that
+[00:00:49.360] one's getting hundreds of views a day
+[00:00:50.680] still. Straight, that's just crossed
+[00:00:52.080] over 100,000 views. But yeah, are we
+[00:00:53.880] rolling or do you should we
+[00:00:56.960] >> Yeah, we're we're rolling. So, yeah,
+[00:00:58.840] feel free to kick it off and
+[00:01:01.040] >> Uh cool, cool, nice. Yeah, all right.
+[00:01:03.320] So,
+[00:01:03.920] >> I got to say okay, I got to say I got to
+[00:01:05.600] say one thing. I got to say one thing,
+[00:01:07.120] which is with our model, the way like
+[00:01:10.000] our kind of payouts work, yeah, we made
+[00:01:13.000] a 10x ROI, but we've also had multiple,
+[00:01:16.360] multiple guys make, you know, 8, 10, 12,
+[00:01:18.960] you know, 14K a month just doing the
+[00:01:21.800] cold calling itself. So, because of the
+[00:01:23.720] deals that we brought in, they are able
+[00:01:25.360] to get access to that income
+[00:01:27.360] opportunity. And on the flip side,
+[00:01:30.120] they're just introduced to our
+[00:01:31.800] opportunity as well. And so, like if
+[00:01:33.520] you, you know, we did the last couple of
+[00:01:35.040] user case studies, both of our top guys
+[00:01:38.040] and a lot of our top guys found us
+[00:01:39.880] through YouTube, which is really
+[00:01:41.160] exciting. And so, on top of that, our
+[00:01:43.640] agency partners are making between 20
+[00:01:46.200] and 30K a month running their business
+[00:01:48.040] on top of our platform. And again, we
+[00:01:50.240] feed we Glenn Cook doesn't take
+[00:01:51.680] customers anymore, we feed them directly
+[00:01:53.520] to our agency partners and they close
+[00:01:55.120] them down. So, they're making
+[00:01:57.120] and we've got another gentleman out of
+[00:01:58.640] the UK, you should chat with him
+[00:02:00.160] sometime. But, he cleared like 35k in
+[00:02:03.400] USD take home this last month. Every
+[00:02:06.120] single one of the deals that he's
+[00:02:08.080] working were from inbound leads from
+[00:02:10.520] YouTube. So, yeah, really really
+[00:02:12.640] exciting. So, even if it's like, you
+[00:02:14.360] know, Glenn Coco didn't itself didn't
+[00:02:15.840] make a million dollars, but we're able
+[00:02:17.400] to provide incredible opportunities for
+[00:02:19.280] people to build a business and become
+[00:02:21.240] great sales folks on our platform again
+[00:02:23.280] because of YouTube.
+[00:02:24.160] >> Yeah, that's that's huge. Like, that's a
+[00:02:25.640] whole other avenue of like the benefits,
+[00:02:28.560] which is super cool. All right, then.
+[00:02:30.160] Well, I guess let's run it then. So,
+[00:02:32.400] we're back for the second time. So,
+[00:02:35.760] Micah, can you give a introduction on
+[00:02:37.640] who you are and what you do for the
+[00:02:39.200] people who didn't watch the previous
+[00:02:40.640] one?
+[00:02:40.920] >> Yeah, for sure. My name's Micah Vu. I'm
+[00:02:43.320] head of sales for a company software
+[00:02:45.200] company called Glenn Coco. We are a B2B
+[00:02:48.280] outbound sales marketplace. And so, we
+[00:02:51.320] have a network of sales development reps
+[00:02:53.800] that will do appointment setting
+[00:02:55.320] services, lead gen services. And then on
+[00:02:57.080] the flip side, we have, you know, dozens
+[00:02:59.239] of B2B mostly like software companies,
+[00:03:01.519] logistic companies, AI companies that we
+[00:03:03.720] will represent and book sales qualified
+[00:03:06.400] meetings for.
+[00:03:07.040] >> Beautiful. Great intro. So, yeah, if you
+[00:03:09.200] didn't watch the previous one, we did an
+[00:03:10.920] interview I think that was the first 60
+[00:03:13.160] days. So, this is like an updated one.
+[00:03:15.720] So, I guess we can kind of take it from
+[00:03:17.200] the top all right from the beginning and
+[00:03:19.519] then, you know, obviously where we left
+[00:03:21.880] off the last time and how things have
+[00:03:24.040] changed over like the following months.
+[00:03:26.519] We started the channel from zero
+[00:03:28.280] technically eight months ago, but only
+[00:03:31.120] really 12 now 13 videos ago cuz we've
+[00:03:33.600] just we've just got it going again. So,
+[00:03:35.519] I guess going all the way back, you
+[00:03:37.239] know, what what was the situation
+[00:03:38.840] before? What state was, you know, Glenn
+[00:03:41.040] Coco in and also the YouTube channel as
+[00:03:43.320] well? Then we can talk about how things
+[00:03:45.239] have changed since we started working
+[00:03:46.959] together.
+[00:03:47.320] >> Yeah, for sure. I think our strategy,
+[00:03:49.920] our go-to-market strategy was sort of a
+[00:03:51.960] shotgun approach. We did a little bit of
+[00:03:53.480] LinkedIn, did some like blog and email
+[00:03:56.920] newsletter stuff. You know, our biggest
+[00:03:59.320] need was more customers as well as more
+[00:04:03.040] talent on our marketplace. So, we have,
+[00:04:05.680] you know, fractional sales reps that can
+[00:04:07.480] kind of work on their own schedule, work
+[00:04:09.120] on whatever campaign they want. And so,
+[00:04:11.360] we had a few different things going. We
+[00:04:13.040] had some like okay success. We were
+[00:04:14.800] growing like maybe a little slower as a
+[00:04:17.359] VC-backed startup would and should be.
+[00:04:19.640] And so, we got referred to you by one of
+[00:04:22.320] our partners. We were a little hesitant
+[00:04:25.160] to put quite a few eggs in one basket.
+[00:04:27.120] You know, it definitely was a decent
+[00:04:28.919] size investment, but we believed in you.
+[00:04:32.880] We trusted the guy, the gentleman that
+[00:04:35.160] introduced us to you. So, we took a shot
+[00:04:37.120] and the first 90 days exceeded our
+[00:04:40.520] expectation. I think we maybe a little
+[00:04:43.480] fortune, little bit of luck, little bit
+[00:04:44.960] of the good stuff, and we started
+[00:04:47.720] getting a lot of momentum really early
+[00:04:49.600] on. I think I talked about this on the
+[00:04:50.880] last like update. But, we had one
+[00:04:52.880] gentleman who was like an American
+[00:04:55.040] Express finance partner. Sam Altman was
+[00:04:57.280] his lead investor in his company. And he
+[00:04:59.480] said, "Love your YouTube content. I want
+[00:05:01.680] to be the your number one client on your
+[00:05:03.600] marketplace. How much do I need to pay
+[00:05:05.360] to be the best?" And he signed within a
+[00:05:07.440] week and was one of our most successful
+[00:05:09.120] campaigns we've run to date. And that
+[00:05:11.560] was from a YouTube video. I think it's
+[00:05:13.200] just such a organic content is such a
+[00:05:15.040] paradigm shift where you're building
+[00:05:18.160] trust with your audience without
+[00:05:20.440] actually having to do much, right? It's
+[00:05:22.800] almost like a trust-building flywheel.
+[00:05:25.480] And by the time people are ready for
+[00:05:27.280] your service or product or whatever it
+[00:05:28.800] might be to engage with you, they show
+[00:05:30.720] up and they're like, "Love your stuff.
+[00:05:32.000] What what what's the next steps? How do
+[00:05:33.560] I get started?" And so, sales cycles
+[00:05:35.800] close a lot faster, recruiting cycles
+[00:05:38.160] close, you know, close a lot faster. And
+[00:05:41.320] I would say, you know, since then, we
+[00:05:44.800] took a little bit of a break against my
+[00:05:46.640] will. I wanted to keep the the party
+[00:05:48.360] going, but the holiday season's a little
+[00:05:50.160] slower for us and we had some other kind
+[00:05:52.200] of initiatives we were working on. But,
+[00:05:53.960] we just spun up a couple weeks ago, got
+[00:05:56.600] restarted with you guys. I'm more than
+[00:05:58.200] thrilled. Our team's like very excited.
+[00:06:00.320] Our sales guys who take in the inbound
+[00:06:03.200] meetings are very excited because
+[00:06:05.360] >> About what?
+[00:06:06.320] >> We we we feed them the inbound deals.
+[00:06:08.680] And so, to date, we just did the ROI
+[00:06:11.200] analysis. Even after we took a pause, we
+[00:06:13.760] were still getting inbound customers.
+[00:06:15.440] And I mentioned this earlier, but that's
+[00:06:17.000] the beauty of YouTube is like you build
+[00:06:18.919] it once and that thing just keeps paying
+[00:06:20.960] you. You have a body of work and that
+[00:06:23.040] thing is pretty much your moat. It's
+[00:06:24.680] very hard to uproot that momentum. And
+[00:06:27.640] so, even though we weren't filming
+[00:06:28.880] videos in, you know, December and
+[00:06:30.320] January, we were still getting a lot of
+[00:06:32.840] inbound requests for, you know, sales
+[00:06:34.840] reps as well as uh customers. And to
+[00:06:37.240] date, we've a top line have generated a
+[00:06:40.520] million dollars is like 1.038
+[00:06:43.960] million dollars attributed to YouTube.
+[00:06:46.480] And for us, that with our margins and
+[00:06:48.520] everything, it was about a 10.4x
+[00:06:51.200] ROI, return on ad spend or return on
+[00:06:53.320] investment, whatever you want to call
+[00:06:54.480] it. Uh return on content. And so, yeah,
+[00:06:56.919] one of our best-performing, you know,
+[00:06:58.600] marketing channels and just really
+[00:07:00.720] excited to continue to run up the score.
+[00:07:02.400] We've got a lot of great challenge
+[00:07:03.520] videos uh in the works and um content
+[00:07:06.919] that I think people are going to
+[00:07:07.840] appreciate, going to get a lot of value
+[00:07:09.200] out of, and ultimately going to continue
+[00:07:10.720] help us grow our business.
+[00:07:12.240] >> No bot starting. The thing is it's like
+[00:07:14.520] it's still so early because, you know,
+[00:07:16.160] obviously, you know, we have we've been,
+[00:07:17.760] technically speaking, working together
+[00:07:19.440] {slash} running the channel for months,
+[00:07:20.800] but really like we've only posted 12
+[00:07:22.600] videos and just posted the 13th. So,
+[00:07:25.440] like it's [laughter]
+[00:07:26.680] to have that sort of result from so
+[00:07:28.840] early on as well, you know, like and I I
+[00:07:30.600] I do want to set the expectation for
+[00:07:32.040] like the audience that you should go
+[00:07:33.320] into YouTube with that long-term mindset
+[00:07:35.280] and, you know, the not the mindset that
+[00:07:36.640] you'll see the same results that early
+[00:07:38.840] on and the the it is entirely possible
+[00:07:40.919] and it's um, you know, especially if
+[00:07:42.360] you're doing the right things but you
+[00:07:43.560] should go into YouTube with that
+[00:07:44.600] long-term mindset but it does also show
+[00:07:47.200] that it isn't necessarily a case of it
+[00:07:49.520] has to take so long to see results from
+[00:07:51.880] content and even specifically YouTube
+[00:07:53.920] which is known to be or at least thought
+[00:07:55.880] to be the platform that's meant to take
+[00:07:57.600] ages to get results right now everything
+[00:07:59.680] else is true about YouTube being this
+[00:08:01.120] compounding platform and this is why I'm
+[00:08:02.840] really excited for the future because we
+[00:08:04.640] are still so early in that you know
+[00:08:06.880] growth curve right if you look at the
+[00:08:09.240] growth curve of most YouTube channels
+[00:08:10.880] and any successful YouTube channel it's
+[00:08:12.480] exponential and well it really like you
+[00:08:15.160] know that if we plot the point of where
+[00:08:16.880] we are on the graph right now in the
+[00:08:18.640] future it'll look like it's tending
+[00:08:20.360] towards zero from where you know
+[00:08:22.520] compared to where we're going to be at
+[00:08:24.000] and so it's like it's just crazy to
+[00:08:25.880] think that that's the result it's
+[00:08:27.280] driving now so early on from zero all
+[00:08:29.520] organic and I think you'd attest this
+[00:08:31.480] but like it wasn't like we had any
+[00:08:33.320] external audience elsewhere there was no
+[00:08:35.520] paid ads run to it like it wasn't like
+[00:08:37.680] there was heavy external traffic push
+[00:08:39.919] that played a part in it really was
+[00:08:42.159] YouTube being the driving force itself
+[00:08:44.600] of that results right the videos being
+[00:08:45.960] pushed organically because we were
+[00:08:47.440] making the right videos we were making
+[00:08:49.000] really good videos the best videos in
+[00:08:50.760] the niche hence why we were the fastest
+[00:08:52.720] growing channel in the niche and that's
+[00:08:54.240] why we were able to like see see the
+[00:08:55.680] results like that
+[00:08:56.680] >> For sure I definitely want to give a
+[00:08:58.720] kudos to you and your team I mean you
+[00:09:00.280] guys just know YouTube inside and out
+[00:09:02.320] upside down backwards and I think you
+[00:09:05.120] can have a good subject matter expert in
+[00:09:08.120] you know their vertical but if it's not
+[00:09:09.640] formatted if it's not edited properly if
+[00:09:12.280] the thumbnail's not there if the story's
+[00:09:13.839] not there if the idea isn't
+[00:09:17.040] in a position to actually go viral
+[00:09:19.240] they're going to be stuck like they're
+[00:09:21.160] going to try this thing and they're
+[00:09:22.440] going to say well you know I know what
+[00:09:24.320] I'm talking about I can do it but they
+[00:09:25.839] don't know how to catch the algorithm
+[00:09:27.320] they don't know thumbnail design you
+[00:09:29.360] know we talk about at length like
+[00:09:30.960] testing and testing and testing and like
+[00:09:32.720] iterating and figuring out what the
+[00:09:35.320] progression is not just what what video
+[00:09:37.360] is going to hit today, but what series
+[00:09:39.040] of videos is going to hit over time and
+[00:09:40.680] continue to build that upward momentum.
+[00:09:42.920] And so, I think you need to have both. I
+[00:09:45.240] think the
+[00:09:46.200] I think the flip side is
+[00:09:48.640] you might get to this in a little bit,
+[00:09:49.880] but
+[00:09:51.560] I would say the flip side is this is
+[00:09:53.120] what I've seen cuz a lot of I tell a lot
+[00:09:55.120] of my partners I'm just a big believer.
+[00:09:57.120] I've introed I can't tell I can tell you
+[00:09:59.120] how many people to you. But I truly
+[00:10:00.600] believe in this, but the problem is I
+[00:10:02.280] think if people aren't an industry
+[00:10:04.960] expert, they're not like really really
+[00:10:06.600] really good and they don't have
+[00:10:08.360] something that like people actually care
+[00:10:10.280] about and they don't have maybe like a
+[00:10:11.880] little bit of a stage presence on
+[00:10:13.920] camera, you can make them look as good
+[00:10:16.080] as possible, but they might not
+[00:10:17.440] necessarily, you know, go viral, which I
+[00:10:19.600] also love about your service, which is
+[00:10:21.400] you can also just provide the subject
+[00:10:22.880] matter expert for the clients that you
+[00:10:25.040] work with. So, you can solve that as
+[00:10:26.800] well, but I would say if you're not
+[00:10:29.160] necessarily a subject matter expert in
+[00:10:31.800] what you do, then I think it is going to
+[00:10:33.960] be hard to grow cuz then you're just
+[00:10:35.760] maybe like making up stuff or saying,
+[00:10:38.160] you know, spewing some like generic
+[00:10:40.000] cloud or open air slop, you know. Kudos
+[00:10:43.200] to you guys. You guys help package real
+[00:10:45.120] subject matter experts really well and
+[00:10:46.720] help them go viral.
+[00:10:47.560] >> Yeah, I think it's like and that's what
+[00:10:48.880] I was going to say is like it's it's
+[00:10:50.240] definitely both sides.
+[00:10:52.240] Like and you know, this is the common
+[00:10:53.960] case across all of our most successful
+[00:10:56.120] clients where a lot of them were even
+[00:10:57.680] trying YouTube before and these guys are
+[00:10:59.920] the top experts in their niche. You
+[00:11:01.839] know, they're like their YouTube
+[00:11:03.160] presence does not match the level of
+[00:11:05.400] credibility that they have and where
+[00:11:06.600] they should be ultimately, right?
+[00:11:08.160] Whether it's it doesn't reflect the
+[00:11:09.480] brand they have elsewhere or if they're
+[00:11:11.040] not big on any other platforms, it just
+[00:11:12.600] doesn't reflect the actual expert that
+[00:11:14.440] they are and you know, that the level of
+[00:11:16.320] thought leadership and you know, mind
+[00:11:17.800] share they should have in a niche. But
+[00:11:19.360] we can't make somebody who's not
+[00:11:21.520] actually you can't like it's putting
+[00:11:23.400] lipstick on a pig is the the the common
+[00:11:25.839] saying, right? It's like you know, if
+[00:11:27.000] you're not actually a really good expert
+[00:11:29.040] at what you do, I think there's still
+[00:11:31.000] scenarios where you can stand out and
+[00:11:32.640] you can do well, but when you're
+[00:11:33.920] entering more competitive spaces, at the
+[00:11:36.080] end of the day the content is what the
+[00:11:38.000] viewer is getting and the value that we
+[00:11:40.400] add is all the YouTube stuff of edit
+[00:11:43.120] like there'll be videos that are the
+[00:11:44.200] most valuable videos that you'd ever
+[00:11:45.600] consume, but they just haven't seen the
+[00:11:47.000] light of day on YouTube because they
+[00:11:48.280] weren't packaged right or framed right
+[00:11:49.840] and they just didn't win that click on
+[00:11:51.760] the home feed, right? When there's 20
+[00:11:53.160] other videos and only one gets clicked
+[00:11:54.600] on, yours has to be the video that gets
+[00:11:56.160] clicked on and that's the work that we
+[00:11:57.880] do is making sure that our videos are
+[00:11:59.760] the most desirable in the niche to the
+[00:12:02.240] target viewers when YouTube is a
+[00:12:03.760] winner-take-all platform and that's how
+[00:12:05.200] we take majority market share, but if
+[00:12:06.600] the video doesn't deliver on, you know,
+[00:12:08.560] they what we're actually kind of
+[00:12:10.120] promising and and the claim that we're
+[00:12:11.520] making in the title and the thumbnail
+[00:12:12.800] and it or it delivers on it to a weak
+[00:12:14.520] level, then
+[00:12:15.840] the the video's not going to succeed
+[00:12:17.000] because the algorithm's going to have
+[00:12:18.320] every signal that viewers weren't
+[00:12:20.680] satisfied to the extent that they should
+[00:12:22.320] have been. It's going to be a bit
+[00:12:23.280] hesitant to actually pushing that video
+[00:12:24.760] further to more of the target viewers.
+[00:12:26.080] So, it's definitely important to have
+[00:12:27.800] both and what you said as well, well,
+[00:12:29.320] you know, the AI slop is entirely true
+[00:12:31.040] as well. It's a big shift we're seeing
+[00:12:32.360] right now and it's going to continue to
+[00:12:33.880] be a bigger shift in the future. If you
+[00:12:35.280] want to stand out on YouTube, you have
+[00:12:37.240] to be able to differentiate from what AI
+[00:12:39.839] could otherwise deliver you. Whether
+[00:12:41.640] whether a user is going to one of these
+[00:12:43.839] AI platforms to get content and value,
+[00:12:46.360] you need to be able to differentiate
+[00:12:47.760] from that, right? Cuz then why else
+[00:12:49.240] wouldn't they just go to one of these
+[00:12:50.680] LLMs to get their questions answered?
+[00:12:52.480] You have to be able to provide unique
+[00:12:54.000] insight, unique experience that can only
+[00:12:55.839] be obtained through you actually being
+[00:12:58.000] in the trenches of whatever you are
+[00:12:59.640] doing, but also you have to be able to
+[00:13:01.440] stand out from the other YouTube videos
+[00:13:02.680] that the people who are generating these
+[00:13:04.000] scripts with AI, which is only going to
+[00:13:05.440] continue to be more of the case and even
+[00:13:07.200] in the future with AI avatars, right?
+[00:13:08.960] Like you have to you have to prepare for
+[00:13:10.560] that scenario of, you know, when AI
+[00:13:12.839] avatars become undetectably that it just
+[00:13:15.000] seems like they're human, right? and
+[00:13:16.320] they're undetectably AI, how do you
+[00:13:18.000] stand out from that? It's it's actual
+[00:13:19.760] real experience, real stories, real, you
+[00:13:23.000] know, actual insights from being in the
+[00:13:24.920] market and being able to prove that as
+[00:13:27.000] well through social proof. Like that's
+[00:13:28.760] how you stand out. And so if you don't
+[00:13:30.400] have any of that, it's does become
+[00:13:32.680] harder for sure. And that's just a fact.
+[00:13:34.840] It's doesn't mean it's not possible. And
+[00:13:36.800] as you said, like, you know, we place
+[00:13:39.320] subject matter experts for brands. And
+[00:13:41.520] you know, if you're a brand with a big
+[00:13:43.280] budget but not necessarily with the
+[00:13:45.000] subject matter expertise, then you can
+[00:13:46.680] still succeed very well, just as well as
+[00:13:49.120] what a subject matter expert themselves
+[00:13:50.680] would because you have the budget to be
+[00:13:52.040] able to afford the subject matter
+[00:13:53.480] expertise talent. know, if you're like
+[00:13:55.760] somebody who's just starting their
+[00:13:57.320] business and you're not really a proven
+[00:13:59.280] expert what you do, you don't have the
+[00:14:00.520] track record yet, and therefore you also
+[00:14:02.560] don't have the real world experience in
+[00:14:04.400] your in your space to be able to provide
+[00:14:06.240] that deep insight, then it is going to
+[00:14:08.160] be harder. So, yes, it it absolutely
+[00:14:10.680] goes both ways. And you know, for
+[00:14:12.120] example, I think the videos that we've
+[00:14:13.880] done are a perfect example of that. Like
+[00:14:16.080] some of our most successful videos are
+[00:14:17.680] videos that simply couldn't have
+[00:14:18.720] actually been done if you weren't
+[00:14:21.600] really, really, really good at what you
+[00:14:23.000] do. Like top of the game of what you do.
+[00:14:25.040] Cuz you know, some of our videos
+[00:14:25.880] literally involve you documenting the
+[00:14:27.520] process of actually making money with
+[00:14:29.600] cold calling, right? Closing deals with
+[00:14:31.200] cold calling. And somebody who's not
+[00:14:32.360] going to cold calling can't do that,
+[00:14:33.760] right? But that's the edge, right? And
+[00:14:35.160] that's why we absolutely love working
+[00:14:36.520] with people like yourself and other
+[00:14:38.080] brands and subject matter experts that
+[00:14:39.680] are at that level in the game in their
+[00:14:41.560] given industry because it makes it so
+[00:14:43.960] much easier when we bring our source and
+[00:14:46.640] our YouTube expertise, strategy, and
+[00:14:48.800] what we know works on the platform
+[00:14:50.360] because we're running all these
+[00:14:51.440] different channels in different niches
+[00:14:52.720] and because of the system that we've
+[00:14:54.000] built. makes it that much easier to
+[00:14:55.800] become the top channel in the niche. And
+[00:14:57.040] that's exactly what we've done. And that
+[00:14:58.520] is all of that has played a massive part
+[00:15:00.280] into how we've been able to seen this
+[00:15:01.680] see this success so quickly cuz we were
+[00:15:03.600] literally able to get home runs out of
+[00:15:05.480] the gate and we were able to repeat that
+[00:15:07.280] consistently and we will continue to to
+[00:15:09.120] do that as well. We've got some really
+[00:15:10.360] good ideas in the pipeline that I'm sure
+[00:15:12.200] after this
+[00:15:13.360] interview releases, we might be back
+[00:15:15.560] here in another few months.
+[00:15:17.010] >> [laughter]
+[00:15:17.400] >> Not going to lie.
+[00:15:18.200] >> Whole different story. And to your
+[00:15:20.200] point, people want to see the real
+[00:15:22.200] stuff. That's what's actually hitting. I
+[00:15:23.840] mean, we've done we've tested quite a
+[00:15:25.120] few different videos, like styles,
+[00:15:26.960] infotainment, challenge videos. The
+[00:15:28.760] challenge videos by far crush. Because
+[00:15:31.560] everyone's kind of sick. I mean, this is
+[00:15:32.960] like sort of a meta conversation, so not
+[00:15:34.920] super relevant to the the case study.
+[00:15:36.520] But, this is some like some real
+[00:15:38.080] insights, which is people are really
+[00:15:39.440] tired of hearing or being told what to
+[00:15:41.360] do. And at least in our niche for like
+[00:15:43.080] B2B SaaS sales, software sales, you
+[00:15:45.640] know, SDR work in general, cold calling.
+[00:15:47.360] Everyone has the magic silver bullet
+[00:15:50.280] tells you to do this, but no one
+[00:15:51.520] actually shows what they should be
+[00:15:54.000] doing, right? It's like show, don't
+[00:15:55.400] tell. And to your point, like it can be
+[00:15:57.360] really tough. What people don't see is
+[00:15:59.000] like the last challenge video, I
+[00:16:00.160] actually failed it. And it's not going
+[00:16:01.360] to make it's not going to make YouTube.
+[00:16:02.720] It's not going to make great content.
+[00:16:03.840] But, I didn't prepare properly and like,
+[00:16:06.040] you know, I sometimes you have to have
+[00:16:07.880] things in order to make good content.
+[00:16:09.720] So, we got to re-film that one. I was
+[00:16:11.360] leaving for DC, so I only had like 2
+[00:16:13.320] days to film, but sometimes, you know,
+[00:16:15.080] it's not a guarantee that I'm just going
+[00:16:16.680] to close a deal right off the rip. You
+[00:16:18.640] know, sometimes it takes a little bit
+[00:16:20.080] to, you know, work up some steam. Okay,
+[00:16:21.920] one thing I wanted to ask you. We've
+[00:16:23.760] been getting inbound where people are
+[00:16:26.080] saying they're seeing us in AI. So,
+[00:16:29.400] there's like search engine optimization
+[00:16:31.160] and there's also, um, like AI search
+[00:16:34.520] optimization. And somehow, I don't know
+[00:16:37.000] if I don't think we're doing anything
+[00:16:38.440] specifically targeting AI, but I think
+[00:16:40.520] our content is being received by these
+[00:16:43.560] LLMs and linking it back when someone
+[00:16:46.240] says, "I need B2B lead gen services to
+[00:16:48.800] ChatGPT, who's the best?" It's literally
+[00:16:51.760] coming back Glen Coco. Glen Coco is
+[00:16:53.560] coming back as the number one B2B lead
+[00:16:56.040] gen provider in the space in these LLMs.
+[00:16:58.480] And guess what? Our demographic uses AI
+[00:17:00.640] very, very heavily. And so, I think
+[00:17:03.000] that's sort of a residual effect of, uh,
+[00:17:05.880] the content that we've done and just
+[00:17:07.439] like the internet impressions that we've
+[00:17:09.280] generated. I think it's some something
+[00:17:11.079] like 12 or 15 million impressions across
+[00:17:14.199] all our our YouTube videos, which is
+[00:17:15.839] just so insane.
+[00:17:16.720] >> Yeah. No, and that's definitely
+[00:17:18.880] definitely as a result of the YouTube
+[00:17:20.439] videos because we're all seeing this
+[00:17:21.600] across the board. Like what we're seeing
+[00:17:23.120] and this is like I mean there's actual
+[00:17:25.360] data on this. So if you you look look
+[00:17:27.720] for the data, YouTube videos are
+[00:17:29.160] actually right now the number one cited
+[00:17:31.560] asset slash source in a lot of these
+[00:17:34.080] LLMs like Google AI overviews, YouTube
+[00:17:36.320] videos are the top ones being cited.
+[00:17:37.880] Gemini, Perplexity, ChatGPT. And the
+[00:17:40.760] logic behind it is obviously that we're
+[00:17:42.720] seeing this shift in the way search
+[00:17:44.440] behavior is for users and it's that
+[00:17:46.640] users are more skeptical of clicking on
+[00:17:48.720] website and blog articles now because of
+[00:17:50.880] the skepticism around AI generated
+[00:17:52.600] content. So what is getting clicked on
+[00:17:55.800] more when they're searching these things
+[00:17:57.680] is YouTube videos and also adjacent to
+[00:18:00.000] that Reddit threads because it's the
+[00:18:02.200] only thing that they can really trust
+[00:18:03.720] right now. And as a result of that,
+[00:18:05.360] these sources of YouTube videos but also
+[00:18:07.360] Reddit and these actual trusted sources,
+[00:18:09.440] YouTube videos being the number one
+[00:18:10.840] version of that because it's video
+[00:18:11.960] content and right now it's one of the
+[00:18:13.840] only things that you can fully know if
+[00:18:16.600] it's AI or not cuz AI like YouTube
+[00:18:18.840] detects if it's AI generated and AI
+[00:18:20.520] advert advert aren't quite there yet and
+[00:18:23.160] people can just tell. And so because of
+[00:18:25.000] that, people are opting to click on
+[00:18:26.840] these more and so the user behavior of
+[00:18:29.080] search has shifted and therefore they're
+[00:18:30.800] being ranked higher because Google wants
+[00:18:32.880] to rank what is actually being clicked
+[00:18:35.040] on and trusted as the the thing that
+[00:18:36.920] when somebody searches XYZ thing,
+[00:18:38.720] YouTube videos are being the one clicked
+[00:18:39.800] on it's going to rank those higher. So
+[00:18:41.080] we're seeing YouTube videos rank higher
+[00:18:42.600] in Google search and search engines in
+[00:18:44.320] general traditional search but also
+[00:18:46.120] being cited in these AI overviews
+[00:18:47.920] because there's so much context within
+[00:18:49.520] it and again it's one of these most
+[00:18:50.800] trusted sources and then also these LLMs
+[00:18:52.800] as well for the same reason. Yeah, like
+[00:18:54.400] we're seeing videos that are getting,
+[00:18:57.560] you know, one of the videos we made for
+[00:18:58.960] all the client instantly got up like
+[00:19:00.560] over 100K views, this particular video
+[00:19:02.600] and 50K of those views was from Google
+[00:19:05.120] search and it was ranking for like a
+[00:19:06.640] very meta sort of search term of like
+[00:19:08.680] how to scrape data or leads. Like it was
+[00:19:11.400] literally like that was the search term
+[00:19:12.960] and like 50,000 of those views came from
+[00:19:15.480] Google search. Yeah, we're seeing a lot
+[00:19:17.240] of that right now. Like I think
+[00:19:18.760] companies are starting to catch on. If
+[00:19:20.640] companies haven't caught on to YouTube
+[00:19:22.000] for the reason of what we've spoke about
+[00:19:23.400] spoke about earlier just YouTube driving
+[00:19:25.360] the results themselves and actually
+[00:19:26.840] collecting people off YouTube because
+[00:19:28.120] everybody uses YouTube second biggest
+[00:19:29.480] search engine in the world blah blah
+[00:19:30.400] blah blah blah. If they haven't caught
+[00:19:31.400] on to that, they're starting to catch on
+[00:19:32.760] for the reason of traditional SEO is
+[00:19:34.680] dying. Everybody's using AI search now
+[00:19:36.920] and YouTube videos is one of the biggest
+[00:19:39.880] influences in whether you're showing up
+[00:19:42.160] as like the best XYZ thing for XYZ, you
+[00:19:45.760] know? And it's it's only going to
+[00:19:46.920] continue to be the case. And And the
+[00:19:48.000] thing is is like it's not about making
+[00:19:49.680] keyword intensive videos, right? A lot
+[00:19:51.480] of people think YouTube SEO SEO in
+[00:19:53.440] general relating to YouTube is about
+[00:19:55.000] having this title that's keyword
+[00:19:56.200] intensive and description tags. But
+[00:19:58.280] that's actually the complete opposite.
+[00:19:59.560] And this is obviously coming from me who
+[00:20:01.120] I ranked at the top of the the search
+[00:20:02.280] term Alex Hormozi cuz I reverse
+[00:20:03.880] engineered how YouTube search worked and
+[00:20:05.920] figured out a gray hat method to rank at
+[00:20:07.320] the top of any search term. But then
+[00:20:08.320] also ranked at the top of Conan Creation
+[00:20:09.640] lead generation Facebook ads we run for.
+[00:20:12.040] And so it's all down to viewer
+[00:20:13.120] satisfaction. So like these videos where
+[00:20:14.960] it's like speed running cold calls from
+[00:20:16.680] Zealous to Fierce Sale. That's not an
+[00:20:18.080] SEO optimized or what people would think
+[00:20:19.800] is an SEO optimized title. But it's
+[00:20:21.440] because viewer satisfaction is so high
+[00:20:23.920] that the Google knows the viewer of that
+[00:20:26.360] video is relating to cold calling lead
+[00:20:28.280] gen. And also, you know, it it it it
+[00:20:29.920] metadata wise it clearly is relating to
+[00:20:31.840] cold calling and and and sales and lead
+[00:20:33.720] gen and all these things. So it's able
+[00:20:35.000] to look at like this is one of the most
+[00:20:36.480] highest like the highest satisfactory
+[00:20:38.760] pieces of content that exists around
+[00:20:41.040] this topic. So we can trust that viewers
+[00:20:43.200] are resonating with this and they're
+[00:20:44.520] also looking at engagement signals like
+[00:20:46.240] the how many positive comments and
+[00:20:47.640] what's the sentiment of these comments
+[00:20:48.840] what's these comments saying or to be
+[00:20:50.160] able to understand, you know, is this a
+[00:20:51.720] piece of content we can trust in terms
+[00:20:53.240] of ranking on YouTube SEO Google SEO but
+[00:20:55.560] also AI SEO through these LLMs. And
+[00:20:57.640] that's only going to continue to be more
+[00:20:58.800] of a case. If you're noticing that now
+[00:21:00.240] like as we stack more of these videos
+[00:21:01.640] on, that's going to
+[00:21:03.320] have a profound impact additional impact
+[00:21:05.240] to what YouTube's driving directly
+[00:21:06.920] through YouTube itself. So, yeah, that
+[00:21:08.920] that's that's really good insight to be
+[00:21:10.320] honest. That's that's good to hear that
+[00:21:12.440] that's actually showing up in in these
+[00:21:14.280] LLMs.
+[00:21:14.880] >> Yeah, I mean, we got approached by
+[00:21:17.280] SEO like AI SEO agency and I'm just
+[00:21:20.280] thinking to myself. I'm like, we're
+[00:21:21.360] we're already ranking really high in
+[00:21:23.560] chat and Claude. So, uh
+[00:21:26.520] we're double dipping here.
+[00:21:27.480] >> There you go. Yeah, so I mean, that's so
+[00:21:30.160] we're essentially running an AI SEO
+[00:21:31.880] agency too, I guess. You know, the the
+[00:21:33.680] YouTube videos are clearly playing a
+[00:21:34.840] massive part. So, that that's really
+[00:21:36.360] cool to know. So, yeah, I'm really
+[00:21:37.560] excited to see where where it heads.
+[00:21:39.320] Obviously, we are still very early in
+[00:21:42.240] and you know, I would probably not that
+[00:21:43.480] many more videos posted than since when
+[00:21:45.680] we had the last interview, but just more
+[00:21:47.160] time has elapsed now and because these
+[00:21:48.720] YouTube videos are evergreen, they've
+[00:21:50.520] just continued to have a compounding
+[00:21:52.320] effect in terms of what they've brought.
+[00:21:53.960] Yeah, that's only going to continue to
+[00:21:56.320] get even crazier from here now that
+[00:21:57.920] we're actually, you know, back up and
+[00:21:59.400] running and we've got some really good
+[00:22:02.000] videos in the hopper that will will soon
+[00:22:03.720] be published once we're we're reproduce
+[00:22:05.440] them. So, are you excited? So, um
+[00:22:07.120] >> I'll say I'll mention one thing. At
+[00:22:08.600] least for us, you know, we're we're a
+[00:22:10.160] VC-backed startup. We raised $5 billion.
+[00:22:12.400] We have shareholders that are demanding
+[00:22:15.080] accelerated growth. I think even in this
+[00:22:17.280] space, AI is just changing so many
+[00:22:19.600] things so fast. If we're going to have
+[00:22:22.400] any semblance of success, it it has to
+[00:22:24.640] be in the next 3 to 5 years. We can't
+[00:22:26.880] kind of we're we're not a lifestyle
+[00:22:28.320] business. We can't kind of just float
+[00:22:29.720] around at the you know, 5, 10, 15
+[00:22:31.720] million-dollar range. Like we need to
+[00:22:33.200] grow aggressively in the next 3 to 5
+[00:22:35.240] years. And it starts with today. It
+[00:22:37.120] starts with what we're doing today. And
+[00:22:38.720] so, this was our kind of in a lot of
+[00:22:41.920] ways almost our golden ticket. You know,
+[00:22:43.800] we'll see how it pans out and I'm very
+[00:22:45.360] optimistic because of our early
+[00:22:46.760] successes. But, we have really have no
+[00:22:50.080] choice but to grow exponentially in the
+[00:22:52.440] next 3 to 5 years and I think this is
+[00:22:54.120] going to play a really really big part
+[00:22:55.600] in that.
+[00:22:55.960] >> Mhm. 100%. Yeah, I'm very excited and
+[00:22:58.040] the the the feedback from viewers as
+[00:22:59.680] well, the audience that's being built,
+[00:23:01.520] like it's all very, very, very positive
+[00:23:03.840] signal. I see, you know, a really,
+[00:23:05.760] really, really strong brand being built
+[00:23:08.040] in the space, you know, like an actual
+[00:23:09.640] real brand, not just a source of lead
+[00:23:12.600] generation or an acquisition channel. I
+[00:23:14.200] see like, you know, this actually being
+[00:23:15.800] a really strong brand just because of
+[00:23:16.880] the audience that we're building, which
+[00:23:18.240] will pay dividends to. So, yeah, very
+[00:23:19.840] excited. Um, you know, I I I think we
+[00:23:22.360] can we can pretty much wrap up. I mean,
+[00:23:23.920] I suppose like one sort of summarizing
+[00:23:25.920] question it would be like, what sort of
+[00:23:27.640] impact would you say YouTubers has had
+[00:23:30.080] overall um in terms of, you know, when
+[00:23:31.920] we we take the whole picture of where
+[00:23:33.480] when we started and then also to where
+[00:23:35.520] we are today. What what sort of impact
+[00:23:36.920] has it had so far?
+[00:23:37.840] >> Well, if I lost everything and the
+[00:23:40.080] business, you know, went down the drain
+[00:23:42.080] and I lost all my assets, I'm working
+[00:23:44.080] with you.
+[00:23:45.200] I'm going to be knocking on your door.
+[00:23:47.261] >> [laughter]
+[00:23:48.320] >> Sick. Lovely.
+[00:23:49.320] >> Yeah, you know your stuff, man. You know
+[00:23:50.720] your stuff. It's made a massive impact
+[00:23:52.600] in in in our business and your team's
+[00:23:55.120] been phenomenal to work with. Very
+[00:23:57.000] professional, very on top of it, very
+[00:23:58.840] timely, and um yeah, I would say it's a
+[00:24:03.120] complete mindset shift for me uh
+[00:24:05.480] especially as, you know, a former sales
+[00:24:06.960] guy. I've knocked doors, I've cold
+[00:24:08.680] called, I've I've done the Zoom calls
+[00:24:10.720] mostly one-to-one, and, you know, us as
+[00:24:13.880] there's always the sales versus
+[00:24:15.320] marketing kind of uh camps, you know,
+[00:24:18.560] like you know, sales says, "Ah,
+[00:24:19.800] marketing, you know, they don't have any
+[00:24:21.040] guts. They can't uh you know, they can't
+[00:24:23.760] pick up the phone. They can't face
+[00:24:24.880] rejection. They can't make it happen."
+[00:24:26.640] And then marketing says, "Oh, those
+[00:24:27.880] sales guys, you know, they're so
+[00:24:29.160] inefficient and, you know, all they know
+[00:24:30.920] how to do is do one-to-one. Like I can
+[00:24:32.880] make such a greater impact." And coming
+[00:24:35.000] from sales into marketing, I would
+[00:24:37.200] consider this marketing. It's just been
+[00:24:39.040] a huge unlock. This one-to-many, you
+[00:24:41.000] know, paradigm shift or just dynamic
+[00:24:42.760] where you can impact If you're a good
+[00:24:44.520] sales person, you believe that you're
+[00:24:46.480] making impact in this world, and you
+[00:24:48.040] believe that the work that you're doing
+[00:24:49.440] today is changing lives. And marketing
+[00:24:52.520] is an amplification of that spirit. And
+[00:24:55.680] so, the impact that we're able to have,
+[00:24:58.040] the customers that we're able to
+[00:24:59.240] service, the work opportunities that
+[00:25:01.080] we're able to provide for, you know, the
+[00:25:03.400] people on our platform, the reps on our
+[00:25:05.040] platform, is amplified because we can
+[00:25:07.120] touch so many more lives through the
+[00:25:08.640] content, through the, you know, adding
+[00:25:10.080] value on YouTube. So, that's what I
+[00:25:12.360] would say has been a a huge unlock for
+[00:25:14.520] us and uh how YouTube has impacted um
+[00:25:17.640] our business.
+[00:25:18.320] >> Yeah, perfect. And I think that, you
+[00:25:19.920] know, it's cuz it's the long-form
+[00:25:21.280] content, right? It's one of the It's
+[00:25:23.080] like the closest thing that you can
+[00:25:25.000] really get to a one-on-one sales
+[00:25:27.120] conversation with somebody at scale. You
+[00:25:29.920] know, it it's YouTube because it's the
+[00:25:32.080] video content, right? Somebody can spend
+[00:25:34.080] hours with you before you even have that
+[00:25:36.280] one-to-one sales conversation with you
+[00:25:38.240] or, you know, in a lot of different
+[00:25:39.320] businesses and offers, there's not even
+[00:25:41.160] that need for a sales conversation
+[00:25:42.920] anymore because they're able to just get
+[00:25:44.880] all of that trust, education,
+[00:25:46.560] information, or whatever they need to be
+[00:25:48.160] able to make that buying decision prior,
+[00:25:50.120] you know? And I even know this through
+[00:25:51.480] my own sales process, you know, we we
+[00:25:53.240] absolutely bombard people with video
+[00:25:55.240] content, uh long-form video content
+[00:25:57.120] before the call, and we run a lot of
+[00:25:58.960] paid ads, and people come on from paid
+[00:26:00.720] ads, which is typically ice cold, people
+[00:26:02.760] who you have to sell, and they come on
+[00:26:04.080] like ready to buy. They're like fans
+[00:26:06.160] because they they went through so much.
+[00:26:08.440] And they're even complimenting me on the
+[00:26:09.840] video content and how good it was at
+[00:26:11.600] helping sell them. Like, this is the
+[00:26:13.400] sort of responses that we're getting
+[00:26:15.000] through through paid ads. So, we're
+[00:26:16.000] doing it ourselves, we're using
+[00:26:17.440] long-form content as an asset ourselves,
+[00:26:18.920] and it's it's working so well. And
+[00:26:20.680] that's just the the impact that it's
+[00:26:22.000] having across all sales and marketing
+[00:26:23.880] efforts aside from actually, you know,
+[00:26:25.800] generating that new business from
+[00:26:27.480] YouTube itself. So, yeah, um very
+[00:26:29.520] excited to see where this goes. Um
+[00:26:31.680] there's nothing else that I have to say
+[00:26:33.200] on my side, so I'm good to wrap up here,
+[00:26:35.160] but uh
+[00:26:36.400] yeah.
+[00:26:36.800] >> Cool. Appreciate it, man. Awesome stuff.
+[00:26:38.520] >> Cool. Appreciate you. Lovely stuff. All
+[00:26:40.560] right.

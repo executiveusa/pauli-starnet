@@ -158,7 +158,9 @@
     "security:secrets": "node scripts/scan-history-secrets.mjs",
     "eval:skills": "node scripts/eval/skills.mjs",
     "test:pauli-icm": "node test/pauli-icm-walk.test.js && node test/pauli-icm-architect.test.js",
-    "watch:pauli-icm": "node scripts/pauli-icm/run-live-watch.js"
+    "watch:pauli-icm": "node scripts/pauli-icm/run-live-watch.js",
+    "test:youtube-icm": "node test/youtube-icm-walk.test.js",
+    "status:youtube-icm": "node scripts/youtube-icm/status.js"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"

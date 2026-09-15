@@ -24,3 +24,8 @@ Proactive rule: agents on a creative task pull the nodes tagged for their workfl
 - Verbatim vs interpretation separation preserved in every citation (graph evidence_rule).
 - ASR name artifacts are documented in the README (C Dance = Seedance, Higsfield = Higgsfield). Never propagate mangled names into client-facing copy.
 - No spend without owner approval: paid SaaS recipes (Higgsfield, Minimax, OpenArt) map to our fal/RunPod lane before use.
+
+## YouTube System Agent
+- Route business/client YouTube, faceless-channel, methodology-maintenance, and operator-training work through `video/youtube-system-agent/CLAUDE.md`.
+- One agent selects one ICM workflow. Shared methodology and 20/20 transcript evidence live once under `_shared/`.
+- `npm run test:youtube-icm` proves routing, contracts, gates and corpus completeness; it never publishes.

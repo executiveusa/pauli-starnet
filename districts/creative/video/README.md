@@ -34,3 +34,6 @@ Overlap mapped in node `watcher-visual-patterns`. Visual-only adds (not in trans
 - `METRICSMULE-LEARNINGS.md` - the high-level extraction (what the channel teaches, what we fold in)
 - `VIDEO-LANE.md` - lane spec and ownership (PROPOSED, awaiting Bambu's approval)
 - Mirror copy for quick fetch: https://video-exports.thepaulieffect.com/knowledge/metricsmule/
+
+## YouTube System Agent - active ICM surface
+Start at `youtube-system-agent/CLAUDE.md`. Four isolated workflows route one agent: methodology maintenance, business/client channel, faceless channel, and brand/team training. The Jake Trinder corpus is complete at 20/20 timestamped transcripts. `npm run test:youtube-icm` runs the cold walk/completeness proof; `npm run status:youtube-icm` derives stage state from files. Account, spend, representation and publication remain owner-gated.

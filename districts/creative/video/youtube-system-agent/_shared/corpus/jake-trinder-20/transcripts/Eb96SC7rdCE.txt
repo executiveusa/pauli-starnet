@@ -1,0 +1,897 @@
+# I blew up a failing business YouTube channel to prove it's not luck
+# https://www.youtube.com/watch?v=Eb96SC7rdCE
+[00:00:00.000] So this is one of our clients that we
+[00:00:00.920] just started with less than 28 days ago
+[00:00:02.960] and they went from averaging over 1,000
+[00:00:04.800] views per day to over 10,000 views per
+[00:00:06.680] day to now over 100,000 views per day in
+[00:00:08.680] less than 28 days. These are long-form
+[00:00:10.440] YouTube views, not YouTube Shorts views,
+[00:00:13.280] and so I'm going to break down exactly
+[00:00:14.960] how we did this because the niche that
+[00:00:16.880] this client is in is nothing super
+[00:00:18.800] exciting or super in demand right now.
+[00:00:20.640] It's not AI, it's nothing like that.
+[00:00:22.920] He's a doctor and he talks about how to
+[00:00:25.080] lose visceral fat. And he was struggling
+[00:00:27.360] with YouTube for a long time. We can
+[00:00:29.520] look at his channel actually if we go to
+[00:00:31.080] it and we can see the sort of state of
+[00:00:33.280] his channel before we stepped in. He was
+[00:00:35.160] getting 6,000 views cuz he's got an
+[00:00:36.960] audience elsewhere and he's built up
+[00:00:38.400] this over a long period of time, you
+[00:00:39.720] know, he's been doing YouTube for years,
+[00:00:41.920] but it was just stagnant. He wasn't
+[00:00:44.080] seeing any growth and any change in his
+[00:00:46.800] results.
+[00:00:47.960] And so his team came to me and was like,
+[00:00:49.960] "Look,
+[00:00:50.960] we've seen your case studies.
+[00:00:52.640] I know this is a completely new niche
+[00:00:53.960] for you. I don't know if you think this
+[00:00:55.360] niche is going to work, etc., etc., the
+[00:00:57.480] usual. Is my niche going to work for
+[00:00:59.360] YouTube? Am I doomed?" All of this stuff
+[00:01:02.000] that every single time somebody comes to
+[00:01:03.600] a strategy call with me and is like,
+[00:01:05.920] "Look, can you help with this? I don't
+[00:01:07.240] know if YouTube works for my niche,
+[00:01:08.480] blah, blah, blah." Every single time,
+[00:01:10.240] yes, it works for your niche. YouTube
+[00:01:11.560] works for everybody. Everybody's on
+[00:01:12.840] YouTube. It's just a matter of making
+[00:01:14.880] the right videos to get in front of them
+[00:01:16.520] and get them to click and then get them
+[00:01:17.760] satisfied so the YouTube algorithm then
+[00:01:19.040] pushes it to more of those types of
+[00:01:20.880] people because the YouTube algorithm
+[00:01:22.280] knows exactly who your target viewers
+[00:01:23.640] are because it's owned by Google and
+[00:01:25.200] Google has more data on anyone than you
+[00:01:27.880] can even fathom, right? Nobody has more
+[00:01:29.520] data on you than Google. So it knows who
+[00:01:31.800] your target viewer is and if it
+[00:01:33.680] resonates with your target viewers, it
+[00:01:35.360] will find them. So once I'm just going
+[00:01:37.080] to chuck my phone over there so there's
+[00:01:38.560] no distractions. Let's get into exactly
+[00:01:40.720] how we did this and break this down. So
+[00:01:42.760] we've done this with only a few videos.
+[00:01:45.480] This is the first video that we made.
+[00:01:47.080] Wasn't a home run, but then the next
+[00:01:48.320] video that we made over 100,000 views.
+[00:01:49.760] We did not do this video. I would I did
+[00:01:51.600] not know this video was going up
+[00:01:52.520] transparently. I would have not
+[00:01:53.400] recommended doing this.
+[00:01:54.800] AI-generated thumbnail, clearly terrible
+[00:01:56.360] video. Don't know why this was posted,
+[00:01:58.360] but hey-ho. Next video, 25,000 views,
+[00:02:01.080] nothing to scream home about, you know,
+[00:02:03.120] nothing too crazy. Still though, massive
+[00:02:05.120] massive jump from what he was currently
+[00:02:06.200] getting, averaging about 5,000 views per
+[00:02:07.560] video. 15,000 views on the next one, and
+[00:02:10.000] then this one here, which literally was
+[00:02:11.840] posted
+[00:02:13.320] yesterday or like yeah, like just over 2
+[00:02:15.640] days now. It's already over 200,000
+[00:02:17.080] views. You can see the real-time view
+[00:02:18.640] chart there as well. It's tailed off a
+[00:02:20.200] bit right now, but we'll see because I
+[00:02:22.000] think it's going to continue its way up,
+[00:02:23.840] and who knows, it might even be in every
+[00:02:25.160] video.
+[00:02:26.920] So, how has this been such a stark
+[00:02:28.560] difference? How have we Like this is not
+[00:02:30.480] luck, clearly, right? We've clearly
+[00:02:31.800] stepped in and applied a system, the
+[00:02:33.520] same system that we've applied to our
+[00:02:35.760] clients like Glenn Coco, who went from
+[00:02:37.520] zero to 1 mil cash collected from Well,
+[00:02:39.720] what Sorry, sorry, zero to 1 mil top
+[00:02:41.520] line revenue to clarify, not cash
+[00:02:43.040] collected. Whatever you want to call it.
+[00:02:44.680] What zero to 1 mil top line revenue in 6
+[00:02:46.480] months from 12 videos, these 12 videos
+[00:02:48.440] that are on your screen right now.
+[00:02:51.040] The you know, when the channel looked
+[00:02:52.360] like this beforehand. 1K views per
+[00:02:54.200] video, but all that was coming from
+[00:02:55.120] external traffic. Obviously, YouTube's
+[00:02:56.280] not going to push this to 1K people with
+[00:02:57.560] these terrible titles and thumbnails.
+[00:02:58.959] First video we made, bang, 284,000
+[00:03:00.920] views, over $100,000 in cash collected
+[00:03:02.519] in the first 30 days from this video,
+[00:03:03.760] one of which was a 45K deal from
+[00:03:05.080] American Express partners, some massive
+[00:03:06.360] companies. Next videos back-to-back
+[00:03:07.920] after that, over 100,000 views as well.
+[00:03:09.480] These ones got less views cuz they're
+[00:03:10.400] more bottom funnel, like if you read the
+[00:03:11.600] titles, you'll see why they got less
+[00:03:12.680] views. And then this one, over 200K
+[00:03:14.120] views, this one's just got over 100K
+[00:03:15.280] views. Now, full transparency, they have
+[00:03:17.320] paused with us because they are a
+[00:03:19.560] software company that is in its very
+[00:03:21.120] early stage, and they have to prove that
+[00:03:22.720] they had low burn rate. So, they had to
+[00:03:24.239] kind of cut us as an expense
+[00:03:25.280] temporarily. are literally starting with
+[00:03:26.880] them as of right now. I can pull up a
+[00:03:28.920] screenshot of proof of that if you're
+[00:03:30.480] really skeptical about that.
+[00:03:32.160] Point being, very successful. We've done
+[00:03:33.800] this for many, many other channels like
+[00:03:35.519] Instantly AI is another one, added a
+[00:03:37.239] million dollars in annual recurring
+[00:03:38.160] revenue on YouTube. Um
+[00:03:40.880] Sorry, my mind's just absolutely went
+[00:03:41.959] blank. Sam O'Leary, who's the top
+[00:03:43.160] channel in the Facebook ads niche, added
+[00:03:44.640] over 400K per month directly from
+[00:03:46.080] YouTube, 300K a month of its agency
+[00:03:48.120] revenue added directly from YouTube
+[00:03:49.519] through tracking links via his funnel.
+[00:03:51.000] The other one is 100K a month from
+[00:03:52.360] School, which he launched to the school
+[00:03:53.480] community 2 months ago to his YouTube
+[00:03:54.680] audience and in 60 days it's already at
+[00:03:56.320] well over 100K monthly recurring revenue
+[00:03:57.800] and that's only going to continue up.
+[00:03:59.080] We'll check back in in a month and I'm
+[00:04:00.320] sure it'll be far over 100K a month at
+[00:04:02.160] least out of YouTube at least.
+[00:04:03.760] Not luck, right? Clearly a system. The
+[00:04:05.480] pattern is too consistent there. So, how
+[00:04:06.720] do we do this? Let's actually get into
+[00:04:08.320] the source. So, if we go back now
+[00:04:10.760] to Dr. Sean O'Mara's channel, I'm just
+[00:04:12.360] going to break down every choice he
+[00:04:13.400] made. So,
+[00:04:15.320] let's go to the strategy and break this
+[00:04:16.440] down one by one. Don't take pep-
+[00:04:17.799] peptides to lose weight, do this
+[00:04:19.200] instead. So, peptides is something that
+[00:04:21.799] I saw because of how much research we
+[00:04:23.200] do. We have an internal research team
+[00:04:24.400] that does hundreds of hours of research
+[00:04:25.440] a week. We've got our own internal AI
+[00:04:26.680] tool that let's just say does what these
+[00:04:28.520] tools like TubeBuddy, VidIQ one of 10,
+[00:04:30.360] all these public YouTube tools can't and
+[00:04:32.440] there's a reason why they can't because
+[00:04:33.600] they're public YouTube tools.
+[00:04:35.200] If you want access to that, then you
+[00:04:36.440] have to be a client of ours
+[00:04:37.280] unfortunately and I can't reveal too
+[00:04:38.760] much about that, but this allows us to
+[00:04:40.640] have complete visibility over what's
+[00:04:42.080] working on YouTube and why these things
+[00:04:43.760] are working. And one of the things that
+[00:04:44.840] we saw that was working topic-wise was
+[00:04:47.040] the topic of peptides. Everybody and
+[00:04:49.520] their grandma or whoever was making a
+[00:04:50.560] video on peptides that was a semi-decent
+[00:04:52.000] videos video at the time was working
+[00:04:53.760] very well. And so, because Dr. Sean
+[00:04:56.640] O'Mara talks about losing visceral fat
+[00:04:58.320] and a lot of people who are thinking
+[00:04:59.880] about leveraging peptides and using them
+[00:05:02.080] to like it's to lose fat, like
+[00:05:03.880] retatrutide, Ozempic, you know, well
+[00:05:06.240] Ozempic's not really in the same
+[00:05:07.640] classification, but it's all within this
+[00:05:09.600] realm. That's something that is present
+[00:05:11.320] of mind of the viewers of this niche.
+[00:05:13.160] It's present in their mind. They are
+[00:05:14.680] actively looking for it or if they're
+[00:05:15.880] not looking for it, when a video lands
+[00:05:17.520] on their feed around it, it captures
+[00:05:19.560] their attention. Now, most people though
+[00:05:22.360] were all making videos around in favor
+[00:05:24.919] of peptides. Use retatrutide, use Ozem-
+[00:05:27.000] well, not Ozempic, like but use
+[00:05:28.480] retatrutide, like all this new like
+[00:05:29.720] peptides peptides peptides. Everybody
+[00:05:31.400] was seeing that rush towards peptides.
+[00:05:33.280] So, what we did is we took the anti
+[00:05:34.760] angle to
+[00:05:36.280] like install install fear into the
+[00:05:38.640] target viewer of woah woah woah, hang
+[00:05:40.080] on, I was just thinking of taking
+[00:05:40.919] peptides, everybody's saying take
+[00:05:41.720] peptides, why are you saying don't take
+[00:05:43.080] peptides to do to lose weight, do this
+[00:05:44.800] instead. Now, this format of and this is
+[00:05:47.520] our internal dashboard that we um
+[00:05:49.880] we kind of just like put ideas and store
+[00:05:51.160] ideas for clients. Nothing genius. Um
+[00:05:53.280] you know, I know competitors like to
+[00:05:54.840] pocket watch my stuff. There's nothing
+[00:05:56.080] here to copy for you in this part. It's
+[00:05:58.000] just a Kanban view. Copy it if you want.
+[00:06:00.880] It's not going to get you clients
+[00:06:01.960] results. Uh they'll still come to us in
+[00:06:03.680] the end because we get better results
+[00:06:05.200] than you anyway. Back to it. Um
+[00:06:07.520] references If you go to the reference
+[00:06:08.640] here, let's see what the reference I've
+[00:06:09.400] attached is. Yeah, so like this format
+[00:06:10.960] of like don't do this, do this instead
+[00:06:12.720] is just works really really well across
+[00:06:13.960] YouTube. It's something that's very
+[00:06:15.000] proven across the entirety of YouTube.
+[00:06:16.720] If you literally search don't
+[00:06:19.480] don't
+[00:06:22.280] I don't know what this is going to come
+[00:06:23.080] up with to be honest.
+[00:06:24.880] Okay, it didn't come up with what I
+[00:06:25.760] thought, so it's a very poor example,
+[00:06:27.880] but there's lots of videos that use this
+[00:06:29.919] format of don't do this, do do do this
+[00:06:31.200] instead. Very proven format across
+[00:06:32.600] YouTube, right? You probably seen it.
+[00:06:34.440] So, we took that proven format, applied
+[00:06:36.400] it to a niche where it really made sense
+[00:06:37.680] uh in a topic where it really made sense
+[00:06:39.320] to leverage it, which was peptides
+[00:06:40.800] because all this attention was flowing
+[00:06:41.840] towards peptides. Nobody was taking the
+[00:06:43.320] anti angle, so we took the anti angle,
+[00:06:44.760] right? And then of course we drafted the
+[00:06:47.200] script for the video and the outline we
+[00:06:48.680] provided the the exact things that Dr.
+[00:06:51.720] Shawn needed to do in order for that to
+[00:06:53.720] give that video the best likelihood of
+[00:06:54.800] success. Now, I'm going to be completely
+[00:06:56.800] honest and this is what happens
+[00:06:57.919] sometimes.
+[00:06:59.040] He didn't follow the script, so the hook
+[00:07:00.680] wasn't optimal, the structure wasn't the
+[00:07:02.680] best, and so the video wasn't as good as
+[00:07:05.760] it could have been. And this is part of
+[00:07:07.280] the reason and I think a significant
+[00:07:09.320] part of the reason as to why this video
+[00:07:10.520] didn't succeed the way that we imagined
+[00:07:11.880] it. And look, that's just reality. These
+[00:07:15.080] you know, like the the channels that
+[00:07:16.320] we're running for business owners and
+[00:07:17.800] you as a business owner, you're not a
+[00:07:18.919] YouTube expert. There's a teething
+[00:07:20.280] period to starting YouTube or doing or
+[00:07:21.919] starting to do YouTube the right way,
+[00:07:23.640] where the first videos you might not do
+[00:07:24.880] it right. But even still, even though he
+[00:07:27.240] didn't do it right and he was still in
+[00:07:28.640] his old ways of doing YouTube videos
+[00:07:29.800] that weren't optimal and you we just had
+[00:07:31.560] a situation with that video where that
+[00:07:32.880] where that was the case.
+[00:07:34.919] He still had that video perform much
+[00:07:36.880] better than his typical videos
+[00:07:38.040] instantaneously. Bearing in mind as well
+[00:07:40.160] that the last video that he posted was 3
+[00:07:41.320] months ago as well. So, straight away,
+[00:07:42.960] first video back on the channel, beat
+[00:07:44.160] his previous videos after the channel's
+[00:07:45.560] been dormant for over 3 months. Not a
+[00:07:47.240] bad start.
+[00:07:48.440] Now, the next video is where things get
+[00:07:49.400] pretty exciting cuz this got over
+[00:07:50.240] 100,000 views. Doctor explains the only
+[00:07:53.000] way to lose visceral belly fat. How do
+[00:07:55.440] we come up with this idea? Right? When I
+[00:07:58.200] say we, I mean I, because I work
+[00:07:59.800] one-on-one with all of my clients. I'm
+[00:08:01.320] not a shitty YouTube agency who
+[00:08:02.920] delegates you to a junior who doesn't
+[00:08:04.440] know what the [ __ ] they're doing. And
+[00:08:05.480] this is why 80% of our clients come from
+[00:08:07.600] other YouTube agencies that have no clue
+[00:08:09.080] what they're doing. Little YouTube
+[00:08:10.240] agency hippies again. Dig number two.
+[00:08:12.560] Anyways, let's get back to the video.
+[00:08:14.240] So, that is not the video.
+[00:08:15.960] Where is it? Doctor ranks
+[00:08:18.320] Doctor explains the only way to lose
+[00:08:20.120] visceral belly fat. Right. So, the topic
+[00:08:22.080] reference, we know there was demand
+[00:08:23.840] around visceral belly fat. It was
+[00:08:25.240] already proven and validated. This was
+[00:08:26.320] just one of the videos that did it. This
+[00:08:27.320] was how to destroy visceral belly fat
+[00:08:29.000] 3.9 million views. So, we knew that
+[00:08:30.240] there was already validated demand
+[00:08:31.360] around the topic of visceral belly fat,
+[00:08:33.039] which was pretty important because
+[00:08:33.880] that's really his niche.
+[00:08:35.800] So, after knowing that, we knew that we
+[00:08:37.080] could make a video with visceral belly
+[00:08:38.640] fat specified in the title and not go
+[00:08:40.320] broader at just losing fat because then
+[00:08:42.599] that would be too broad and we would
+[00:08:44.120] have a lower conversion rate on our
+[00:08:45.280] videos because the the viewers wouldn't
+[00:08:46.600] be as high intent. Viewers who are
+[00:08:47.960] actually looking to lose visceral fat
+[00:08:49.880] are much more high intent cuz then it's
+[00:08:50.960] a health it's a health thing. It's not
+[00:08:52.720] like a looking good thing. Sure, some of
+[00:08:54.720] the people will be interested in that,
+[00:08:55.920] but if you specifically resonate with
+[00:08:57.280] visceral fat, it's because like you're
+[00:08:58.360] conscious you're health conscious and if
+[00:09:00.280] you are health conscious, then that's
+[00:09:01.440] really valuable to you. Um
+[00:09:03.400] So, you pay a lot of money for it. And
+[00:09:04.880] by the way,
+[00:09:06.040] just to be clear cuz I didn't mention
+[00:09:07.760] any business outcomes. I probably popped
+[00:09:08.880] up the screenshots in retro active cuz I
+[00:09:10.400] need to like after editing this cuz I
+[00:09:12.000] needed to hook you in. But, yeah, we
+[00:09:13.920] broke their email system and everything
+[00:09:15.400] because of all the leads that are coming
+[00:09:16.480] through from this. I'll probably do a
+[00:09:17.839] case study interview with them soon, so
+[00:09:19.400] I will link that in the description when
+[00:09:20.960] that's done so you can actually see
+[00:09:22.520] their business back end results of this,
+[00:09:23.880] too. But, it's pretty abundantly clear
+[00:09:25.880] what that would You can imagine what
+[00:09:27.120] that would look like as a result of the
+[00:09:28.200] growth they've seen. Um
+[00:09:30.240] Format reference. So, where we got this
+[00:09:31.839] format from? The only way to do this,
+[00:09:33.920] right? The only way to become fluent in
+[00:09:35.440] English. Sparks curiosity. What? There's
+[00:09:36.839] not just one way to become fluent in
+[00:09:38.160] English? What could this If there is one
+[00:09:40.320] only way, which I know there isn't, and
+[00:09:41.880] I don't know why he's saying that,
+[00:09:42.800] curiosity.
+[00:09:44.440] Like, what is the like
+[00:09:46.480] what is that way? What is the only way
+[00:09:47.800] if there is that one only way?
+[00:09:49.440] It's like it's a race to get like
+[00:09:50.760] there's literally this was just done in
+[00:09:51.840] the most random niches. What's this one
+[00:09:52.920] here? Um let's talk
+[00:09:54.920] >> stress. And cause
+[00:09:56.320] >> The only way to end stress and cause
+[00:09:57.440] also this is actually in more than
+[00:09:58.320] adjacent niches well. So like we knew
+[00:10:00.040] that it resonated with in like the type
+[00:10:02.480] of viewer that would be watching his
+[00:10:03.880] videos as well because again this is
+[00:10:04.880] health conscious it's all health
+[00:10:05.920] conscious content. So the viewers of
+[00:10:07.200] this channel have similar behaviors and
+[00:10:09.240] might even be that also the same viewers
+[00:10:11.680] of
+[00:10:12.840] Doctor Shawn's channel. Right? So that's
+[00:10:14.240] where we got the format from. What what
+[00:10:15.520] you're seeing the pattern here is is
+[00:10:16.440] like this is something that was proven
+[00:10:18.200] in another niche. We already knew the
+[00:10:19.440] title worked and it actually made sense
+[00:10:21.480] why it worked and it also made sense why
+[00:10:23.320] it would translate over to our audience
+[00:10:25.600] as well. Right? And what like why why it
+[00:10:27.280] would translate and work with our
+[00:10:28.400] audience as well. What a lot of people
+[00:10:29.840] do is they'll blindly take formats that
+[00:10:31.240] have worked in another niche and blindly
+[00:10:32.800] apply it to their niche being like cool
+[00:10:34.560] magic. This worked in another niche. I
+[00:10:36.560] can just yank and twist it to my niche.
+[00:10:38.120] Doesn't always work because one
+[00:10:40.400] sometimes the format itself wasn't what
+[00:10:42.240] made the video succeed and you're taking
+[00:10:43.760] the wrong thing that made it succeed or
+[00:10:45.280] you're not taking the other things that
+[00:10:46.480] also made it succeed that were important
+[00:10:48.320] to also carry over. So for example some
+[00:10:50.120] of you might copy the format title like
+[00:10:52.440] the only way to but that video might
+[00:10:54.040] have a specific video structure that was
+[00:10:55.560] very important and pivotal in it
+[00:10:57.160] succeeding if you studied all the videos
+[00:10:59.160] that are leveraging it. And if you
+[00:11:00.280] didn't carry that over then that could
+[00:11:02.800] stop your video from succeeding if it
+[00:11:04.000] played a significant role in succeeding.
+[00:11:05.600] That's number one. But number two people
+[00:11:07.600] will take something that worked with a
+[00:11:09.120] certain type of viewer right a certain
+[00:11:10.600] format that worked with a certain type
+[00:11:11.600] of viewer not considering their viewer
+[00:11:13.440] psychology and the demographics and
+[00:11:15.000] psychographics of that viewer and then
+[00:11:16.760] take it across to their niche with
+[00:11:17.839] completely demographics and
+[00:11:18.880] psychographics and just viewer behavior
+[00:11:21.080] and it doesn't work and they wonder why
+[00:11:23.200] because it was proven in other niches
+[00:11:24.280] and like oh my god these YouTube gurus
+[00:11:25.839] that told me to copy stuff from other
+[00:11:26.760] niches it didn't work. That is why.
+[00:11:29.080] There you go. Boom. All right. So that's
+[00:11:31.560] how we got the idea for that one and
+[00:11:33.760] then again we reverse engineered the
+[00:11:34.920] structure. We knew what worked. We in
+[00:11:37.280] the hook we did proof promise plan
+[00:11:39.120] persona. Proof establishing credibility
+[00:11:41.480] made it clear why I mean if I mean if we
+[00:11:42.880] can even watch the video. I don't know
+[00:11:45.160] if this is going to um
+[00:11:48.560] Sorry.
+[00:11:49.600] Where is this channel on? I don't know
+[00:11:50.840] if this is going to be terrible audio.
+[00:11:52.480] So, about like if it is apologies but
+[00:11:54.160] I'm going to play the intro.
+[00:11:54.920] >> I ran a 7-year study for the National
+[00:11:56.880] Science Foundation.
+[00:11:58.560] There are a thousand ways people try to
+[00:12:00.880] lose belly fat. Counting calories,
+[00:12:03.040] stepping on
+[00:12:03.720] >> Resonating with the market. There are a
+[00:12:04.760] thousand ways that people try to lose
+[00:12:06.120] belly fat.
+[00:12:07.200] So true, Dr. Shawn. And then he's naming
+[00:12:09.440] the ones that these guys are already
+[00:12:10.800] doing. They're like, wait, what? Like
+[00:12:11.760] he's clearly saying this in a negative
+[00:12:12.920] tone and I'm doing this. What's What's
+[00:12:14.680] the problem here?
+[00:12:15.800] >> scale every morning, hours of cardio,
+[00:12:18.480] cholesterol medication. None of them
+[00:12:20.960] work and I can prove it.
+[00:12:22.320] >> None of them work. None of them work.
+[00:12:23.720] Bold statement. And I can prove it
+[00:12:25.200] because they're skeptical of like, what
+[00:12:26.560] do you mean none of them work? Counting
+[00:12:27.640] calories works. And I can prove it and
+[00:12:28.840] then boom, social proof. So, that was
+[00:12:31.040] confirming the click, right? And then
+[00:12:33.360] alluding to the fact that that none of
+[00:12:34.720] those
+[00:12:35.839] ways work, these calories. So, there
+[00:12:37.200] actually might only be one one way and
+[00:12:39.120] the proof to back it up.
+[00:12:40.240] >> and a researcher. I ran a 7-year study
+[00:12:42.839] for the National Science Foundation
+[00:12:44.520] scanning over 6,000 Americans. And what
+[00:12:47.360] I found is that there is exactly
+[00:12:49.600] >> Scanning over 6,000 Americans. Like,
+[00:12:51.160] think think about the social proof we
+[00:12:52.240] just dropped on them there. Like, they
+[00:12:53.400] can't they cannot argue with that. Like,
+[00:12:55.440] and this is why it's this is why we love
+[00:12:56.960] working with the top experts in the
+[00:12:59.040] industry because like when we have this
+[00:13:00.440] and we implement a good YouTube
+[00:13:01.240] strategy, it's a wrap, you know? And so,
+[00:13:03.240] if you're a top expert in your industry
+[00:13:04.520] and you want to build a top YouTube
+[00:13:05.680] channel in your niche, just message me
+[00:13:07.640] wherever you're seeing this through, go
+[00:13:09.000] through the funnel, book a call. Yeah,
+[00:13:11.400] DM me, whatever.
+[00:13:12.680] >> one best way to eliminate the most
+[00:13:16.080] >> There's one best way.
+[00:13:17.160] >> dangerous fat.
+[00:13:18.560] >> the most dangerous fat. All right, I'm
+[00:13:20.839] hooked. If I wasn't hooked already, like
+[00:13:22.960] I may as well watch this video and learn
+[00:13:24.320] how to lose the most dangerous fat that
+[00:13:25.520] could kill me.
+[00:13:26.600] >> body. And it has nothing to do with any
+[00:13:29.240] of those things. So, in this video
+[00:13:31.440] >> And then we're doing our little tactical
+[00:13:32.800] editing thing where it's like, in this
+[00:13:33.880] video and this is where we lay out the
+[00:13:35.000] plan, right? So, there's only one way,
+[00:13:37.120] that's what we're going to give them.
+[00:13:38.960] >> show you why every conventional approach
+[00:13:41.760] is pointed at
+[00:13:42.880] >> to show you why every conventional
+[00:13:43.840] approach is basically jargon. And like
+[00:13:46.080] we're basically running them through
+[00:13:47.800] >> that actually addresses the root cause
+[00:13:50.560] because MRIs Before I show you
+[00:13:53.880] >> Boom, boom, boom, boom. So, basically
+[00:13:54.840] we're
+[00:13:55.000] >> setting the
+[00:13:56.160] the stakes up for the video of what
+[00:13:57.200] they're actually going to get to where
+[00:13:58.400] increasing the value proposition of the
+[00:13:59.720] video and giving clarity behind what
+[00:14:01.160] they're actually going to get out of the
+[00:14:01.880] video so they can understand, "Okay, I
+[00:14:03.800] can now have a clear I have a clearer
+[00:14:05.240] plan in place for this video of how he's
+[00:14:07.160] going to get me from this current form
+[00:14:09.000] of knowledge that I'm in to knowing
+[00:14:10.120] about this best way, right?" So, proof,
+[00:14:12.240] we gave that. The promise, we gave that.
+[00:14:14.400] The plan, we gave that cuz we gave
+[00:14:15.600] further context behind how we're going
+[00:14:16.920] to fulfill on the promise. And persona
+[00:14:18.840] was obviously just implied indirectly
+[00:14:20.320] through the language that we were using
+[00:14:21.440] like basically saying things like, you
+[00:14:23.040] know, that there's a thousand different
+[00:14:23.880] ways to lose fat, count your calories or
+[00:14:25.000] blah, blah, blah. And we're like, "Shit,
+[00:14:25.760] like this is me. I'm counting calories."
+[00:14:26.920] Or like the other ways that you
+[00:14:27.760] mentioned as well. You mentioned the
+[00:14:28.520] most common ways
+[00:14:29.880] and basically said they were all
+[00:14:31.000] useless. So,
+[00:14:32.480] yeah, that's a little bit of source on
+[00:14:33.760] the the video execution side. Obviously,
+[00:14:35.160] we made sure the setup was dialed in.
+[00:14:36.320] People say equipment doesn't matter, you
+[00:14:37.440] can start off with a budget setup. You
+[00:14:38.600] absolutely can and you don't need that
+[00:14:39.920] stuff to see results. We've made Loom
+[00:14:41.160] videos. I made videos like this one here
+[00:14:42.800] where I'm in my bedroom, which is not a
+[00:14:44.440] set at all. You wouldn't think that
+[00:14:46.000] we're running a multi seven-figure
+[00:14:47.000] YouTube agency and running the top
+[00:14:49.040] channels in the space from my
+[00:14:50.200] background, but I am I'm spitting
+[00:14:51.839] absolute source right now. So, you
+[00:14:53.280] probably should be pretty convinced that
+[00:14:54.440] I know what I'm talking about when
+[00:14:55.360] building um you know,
+[00:14:57.280] 100k plus a month YouTube channels like
+[00:14:59.040] we've done for many of our clients and
+[00:15:00.080] building the top channels in in the
+[00:15:01.040] niche, right? But, it definitely would
+[00:15:02.720] help if I was in a high-rise studio with
+[00:15:04.600] a really high-quality camera, which I
+[00:15:06.240] usually record my ads and other content
+[00:15:08.360] with. I wish I was there right now
+[00:15:09.520] because this video would probably get
+[00:15:10.480] more views, but I just want to provide
+[00:15:12.000] value to you guys. So,
+[00:15:14.120] that's how we came up with that concept.
+[00:15:16.160] And it's a similar story for all these.
+[00:15:17.160] I'm going to kind of work walk through
+[00:15:18.160] these a bit quicker. Um so, if we go
+[00:15:19.800] back back his channel
+[00:15:21.800] and kind of see where we're at. I'll
+[00:15:23.480] rattle through these couple ones cuz
+[00:15:25.120] these ones didn't perform as well, but
+[00:15:26.320] still important to understand. Doctor
+[00:15:27.920] ranks everywhere to lose visceral fat.
+[00:15:29.280] So, I don't even need to go to So, like
+[00:15:30.520] the way we came up with this one is just
+[00:15:31.640] simply the TLS format. So, like the TLS
+[00:15:33.200] format is a format that's proven across
+[00:15:35.080] YouTube jobs TLS, like literally every
+[00:15:37.160] single like niche. Entertainment niches,
+[00:15:39.720] educational niches, you know, you see a
+[00:15:40.880] lot of entertainment ones here. But then
+[00:15:42.560] if I go to TLS Jeff Nippard for example,
+[00:15:46.000] he has done it in the weight like um
+[00:15:49.280] muscle building niche, whatever you
+[00:15:50.600] would call this niche, fitness niche,
+[00:15:51.800] gym niche. And he's done it for It's
+[00:15:53.760] actually one of his best performing
+[00:15:54.720] series. He's done it for like every
+[00:15:55.600] exercise, as you can see. Right? It's a
+[00:15:57.040] very proven format. It's been done for
+[00:15:58.480] everything, right? Tools, like software
+[00:16:00.800] tools, anything that's category of
+[00:16:02.520] things related where you are ranking
+[00:16:04.160] things around a certain category.
+[00:16:06.000] So, yeah, very proven format. Hadn't
+[00:16:08.520] been done for
+[00:16:10.920] I wish I'd stop leaving this There we
+[00:16:12.280] go. Hadn't been done for ways to lose
+[00:16:14.320] visceral fat, okay?
+[00:16:16.240] So, we simply did it for ways to lose
+[00:16:17.720] visceral fat. And in the thumbnail, we
+[00:16:19.200] selectively chose the most trending one
+[00:16:21.320] right now, which is injections. And also
+[00:16:23.320] this
+[00:16:24.240] um obviously is very like polarizing and
+[00:16:25.839] grabs people's attention like what the
+[00:16:26.720] [ __ ] an injection on the thumbnail? Like
+[00:16:27.839] it's like instantly like grabs people's
+[00:16:29.080] attention. It's a pattern interrupt,
+[00:16:30.520] right? And ultimately YouTube's going to
+[00:16:31.640] take hold platform where we're trying to
+[00:16:32.640] stand out on a feed against 20 plus
+[00:16:34.000] other thumbnails and titles. And if we
+[00:16:36.120] don't stand out, our video doesn't get
+[00:16:37.320] clicked on, we lose the attention. If we
+[00:16:38.680] do get clicked on more of the times than
+[00:16:40.080] not over the competition, then we
+[00:16:41.440] ultimately float towards the top of the
+[00:16:43.240] niche because we're capturing attention
+[00:16:44.680] more effectively on the front end at the
+[00:16:46.200] top of the funnel. And then if we're
+[00:16:47.320] actually delivering on that once they
+[00:16:48.400] click the video and meeting their
+[00:16:49.320] expectation not clickbaiting them, it's
+[00:16:50.960] very easy for the YouTube algorithm to
+[00:16:52.240] then recommend our video faster and
+[00:16:54.080] further than our competitions because
+[00:16:56.080] we're giving YouTube a larger data
+[00:16:57.440] sample size of like target viewers that
+[00:17:00.640] have clicked on our videos and data on
+[00:17:02.640] how well they've resonated with that
+[00:17:03.720] video for then YouTube to work with that
+[00:17:05.439] and understand to what extent should we
+[00:17:06.680] push this to more of this audience.
+[00:17:08.280] Whereas if you don't capture the
+[00:17:09.079] attention in the first place, YouTube
+[00:17:10.319] has too small of a sample size to
+[00:17:11.680] actually, you know, compared to a
+[00:17:12.880] competi- like compared to one of your
+[00:17:14.000] competitors' videos that has better
+[00:17:14.839] packaging, has too small of a sample
+[00:17:16.360] size to, you know, justify risking
+[00:17:18.439] pushing your video over there as even if
+[00:17:20.360] your video might actually be better than
+[00:17:21.400] theirs because it's too risky from a
+[00:17:22.760] sample size standpoint. It's not enough
+[00:17:23.920] significant data, right? So, that's why
+[00:17:26.959] thumbnails are so important as a little
+[00:17:28.120] side tangent and that's why we're
+[00:17:30.040] putting this level of thought into them.
+[00:17:31.280] Obviously, for the rest of it, we
+[00:17:32.160] followed the S2F formula, which is just
+[00:17:33.840] the proven format. I'm not going to go
+[00:17:35.200] into the execution of this video. I can
+[00:17:36.360] do further breakdowns on each of these
+[00:17:37.640] videos that could be very valuable. If
+[00:17:39.160] you want that, you can let me know, but
+[00:17:40.800] just doing a high-level one. Now, this
+[00:17:41.920] one here, "Doctor Explains Peptide Stack
+[00:17:43.520] Used for Fat Loss." I think this video
+[00:17:44.560] is also wasn't executed very optimally.
+[00:17:46.800] Kind of looked like he was reading a
+[00:17:47.600] script too much. There was other things
+[00:17:48.800] wrong with it, but again, still did
+[00:17:50.120] quite well. The reason why we did this
+[00:17:51.240] video is because we saw "Doctor Explains
+[00:17:54.440] Peptide Stack for
+[00:17:57.960] muscle growth." Yeah, that was it,
+[00:17:59.000] right? Which is very adjacent, right?
+[00:18:00.560] Very similar desire. Peptide stack
+[00:18:02.320] explains
+[00:18:03.680] used for muscle growth. Honestly, I'm
+[00:18:05.440] pretty pissed because I think this
+[00:18:07.000] video, if it was done right, could have
+[00:18:08.680] done very similarly, like it could have
+[00:18:10.360] done well very similarly.
+[00:18:12.080] Uh you know, we would have at least
+[00:18:13.240] expected hundreds of thousands of views
+[00:18:14.240] from that one as well. But, it is what
+[00:18:16.040] it is. Um but, this one here, I can't
+[00:18:17.880] complain, the most recent one, "How to
+[00:18:19.400] Lose Visceral Fat
+[00:18:20.840] So Fast It Feels Like Cheating." Now,
+[00:18:23.440] again, same story with this idea. There
+[00:18:25.000] was nothing more genius about how we did
+[00:18:27.200] the ideation for this one. Just somebody
+[00:18:28.880] has hit and resonate more than than
+[00:18:31.040] others, right? But, this "Feels Like
+[00:18:32.760] Cheating" angle, it made sense why it
+[00:18:34.080] worked and it also made sense why it
+[00:18:35.920] worked across
+[00:18:37.240] how all these other niches where it's
+[00:18:38.560] been done. "How to So Fast It Feels Like
+[00:18:41.560] Cheating." All right, "Also It Feels
+[00:18:42.800] Illegal" is an alternative. "How to
+[00:18:44.160] Study So Fast It Feels Like Cheating."
+[00:18:45.800] Uh that's like one of the biggest ones
+[00:18:47.360] that we've seen it done in. Um
+[00:18:52.440] Okay, apparently we're just seeing a
+[00:18:53.320] load of the different study ones. "How
+[00:18:54.400] to Learn So Fast It Feel Almost Feels
+[00:18:55.960] Unfair."
+[00:18:57.880] Um
+[00:18:59.760] "How to Learn Any Skill So Fast It Feels
+[00:19:01.480] Illegal." So, there's a lot around
+[00:19:02.480] learning, but oh, there you go. There's
+[00:19:04.360] um Doctor Shawn's. But, there's also Oh,
+[00:19:06.360] it's because we literally searched "How
+[00:19:07.440] to Study So Fast." Silly me, yeah.
+[00:19:09.520] "How to Level Up So Fast It Feels Like
+[00:19:10.960] Cheating."
+[00:19:12.600] "How to Learn Web Dev So Fast It Feels
+[00:19:13.880] Like Cheating." It's a a lot there's
+[00:19:15.160] still a lot around shooting. Also other
+[00:19:16.840] variations like how to make everyday so
+[00:19:18.480] fun that you don't have time to scroll
+[00:19:19.880] where they've like completely deviated
+[00:19:20.880] the title but in a way that does really
+[00:19:22.200] closely resonate with the target market
+[00:19:23.680] and that does work as well. So a lot of
+[00:19:25.360] level up as well but what we've also
+[00:19:26.600] seen is like
+[00:19:27.920] I think
+[00:19:31.720] Alex and Mozie did this one. Yeah, it
+[00:19:33.600] feels illegal, right? So there's that
+[00:19:35.360] one. So that that and what we might
+[00:19:36.760] actually do it if this video continues
+[00:19:39.040] to tail off we are like AB testing the
+[00:19:42.040] title with
+[00:19:43.480] this one, the original how to so fast it
+[00:19:44.840] feels like cheating, so fast it feels
+[00:19:45.920] illegal and also how to lose visceral
+[00:19:47.480] fat so fast it looks like you're on
+[00:19:49.520] Ozempic or something along those lines,
+[00:19:51.240] right? Cuz then it's like timely and
+[00:19:52.400] like it resonates closely where we've
+[00:19:53.920] kind of adapted the back of the title
+[00:19:55.160] quite significantly but it's in a way
+[00:19:56.560] that hits close to the target market,
+[00:19:58.240] right? Um
+[00:20:00.400] so yeah, that is really the breakdown
+[00:20:02.840] and then in terms of the thumbnails
+[00:20:04.560] where we're currently running an AB test
+[00:20:05.720] on this which has clearly been
+[00:20:07.440] already um
+[00:20:08.800] conclusive data has been found on it.
+[00:20:11.080] So we were testing I'll zoom in a little
+[00:20:12.760] bit on this.
+[00:20:15.560] So yeah, we were testing this one here
+[00:20:17.920] from fat to thin with Dr. Shawn,
+[00:20:19.440] visceral fat. So specifying visceral
+[00:20:21.280] fat, right? So we tested ones where we
+[00:20:23.160] specified visceral fat in the thumbnail
+[00:20:24.800] which would niche it down and make it
+[00:20:25.680] more targeted and therefore potentially
+[00:20:27.280] get a high click through it from the
+[00:20:28.080] target market but it'd be more targeted.
+[00:20:30.920] Lose visceral fat
+[00:20:32.440] no Dr. Shawn in the thumbnail but a
+[00:20:35.120] appealing picture of abs which would be
+[00:20:37.440] the target market's visual desire,
+[00:20:39.720] visual representation of the desire that
+[00:20:40.960] the target market has associated with
+[00:20:42.280] what the video is about.
+[00:20:43.680] And then the last one is the one that's
+[00:20:45.000] been done which I thought would work
+[00:20:46.160] really well because the red really
+[00:20:47.360] stands out like white text on red
+[00:20:49.120] massively stands out, really high
+[00:20:50.520] quality picture of Dr. Shawn. We make
+[00:20:52.000] sure that Dr. Shawn is in his like
+[00:20:53.680] doctor outfit as well because it's just
+[00:20:55.080] like subconscious credibility. Like
+[00:20:57.840] everybody inherently understands when
+[00:20:59.120] they see that it's like oh, this is
+[00:21:00.280] somebody who's actually like a real
+[00:21:01.120] doctor, right? Um same with if you wear
+[00:21:03.280] like a lab coat and you're a scientist
+[00:21:04.720] or you know, a construction hat like
+[00:21:06.400] it's these associations, right? Or
+[00:21:08.320] Richard Mille or Rolex then you're
+[00:21:10.280] clearly balling or you're pretending to
+[00:21:11.840] be.
+[00:21:12.880] But anyways, how to lose visual assets
+[00:21:14.040] so fast it feels like cheating is the
+[00:21:15.400] title. This is the thumbnail. Yeah,
+[00:21:17.600] working very, very well. So, yeah, that
+[00:21:19.800] is the breakdown so far. Early case
+[00:21:21.440] study. Is it going to let me zoom out,
+[00:21:22.600] please? There we go.
+[00:21:23.840] Very early case study, I but I wanted to
+[00:21:25.200] document it because literally within
+[00:21:26.840] less than 28 days from 1,000 views per
+[00:21:28.840] day or like just over 1,000 views per
+[00:21:30.440] day to over 100,000 views per day in
+[00:21:32.920] less than 28 days. To be precise, this
+[00:21:35.200] was the 28th of March.
+[00:21:37.760] It's just like 20 days.
+[00:21:40.520] Like 23 days or something. Um and yeah,
+[00:21:43.320] we will see where this continues to go.
+[00:21:44.680] He's broke past 100,000 subscribers.
+[00:21:47.040] Amazing for him.
+[00:21:48.840] You know, it his channel's really picked
+[00:21:50.360] up. Obviously it's only 7,200
+[00:21:51.520] subscribers in the last 28 days cuz it's
+[00:21:53.240] literally the first 20 20-odd days of
+[00:21:55.080] working together.
+[00:21:56.480] But yeah, we can see the increase there
+[00:21:58.400] is kind of crazy. And he's also making a
+[00:21:59.600] little bit of nice AdSense revenue as
+[00:22:00.920] well. You know, that's this is only
+[00:22:03.120] going to compound massively. It's only
+[00:22:04.760] the first 20-odd days. But the reason
+[00:22:06.040] why I wanted to make this video is to
+[00:22:07.960] really illustrate it does not have to
+[00:22:09.480] take long to see results on YouTube. I
+[00:22:11.520] want to set your expectation is that it
+[00:22:13.160] will take long. You should be in the
+[00:22:14.600] game you like if you're going to commit
+[00:22:15.440] to YouTube, you should be in that game
+[00:22:17.120] forever. You should be committing to
+[00:22:18.520] YouTube full stop. I am going to do
+[00:22:20.160] YouTube for my business now. Right? Cuz
+[00:22:21.640] I know the value of it. I know it can
+[00:22:23.280] work. Right? Everybody's on YouTube. I
+[00:22:25.400] just need to give it the time and crack
+[00:22:26.680] it and I need to hire the right team to
+[00:22:28.360] help me do that because otherwise I
+[00:22:30.040] could be on this for years and actually
+[00:22:31.920] genuinely just never see results. Right?
+[00:22:33.280] So, if you this is all hypothetically if
+[00:22:34.440] you've got the right system in place. If
+[00:22:35.800] you work with us, we're going to make
+[00:22:36.720] sure you have the right system in place.
+[00:22:37.960] We've done this across over 50 different
+[00:22:39.400] channels that we're running right now.
+[00:22:40.680] Many of which are the top channels in
+[00:22:41.720] any niches like Sam O'Leary who's the
+[00:22:43.200] top channel in the Facebook ads niche. I
+[00:22:44.560] don't know if he's over $400,000 per
+[00:22:45.640] month directly from YouTube to date. He
+[00:22:47.320] was previously working with another
+[00:22:48.320] YouTube agency that didn't get him any
+[00:22:49.640] results. He used to get like 30 views
+[00:22:51.120] per video.
+[00:22:52.320] Like it was ridiculous. Osh, same story.
+[00:22:54.280] He was with another YouTube agency as
+[00:22:55.600] well. A big YouTube agency in the space
+[00:22:57.200] that if you're look shopping around for
+[00:22:58.520] a YouTube agency, you probably know know
+[00:23:00.120] probably speaking to. So, be careful.
+[00:23:01.720] Speak to me about it on quality, you can
+[00:23:03.320] call with me, cuz there's a lot of
+[00:23:04.600] YouTube agencies that, you know, they're
+[00:23:06.680] they're a convenience option for
+[00:23:08.160] starting YouTube and they have their
+[00:23:09.360] value for actually, you know, running a
+[00:23:11.680] running your YouTube channel, making
+[00:23:12.800] videos, but if you want results, that's
+[00:23:14.560] a whole different story, right? A lot of
+[00:23:16.200] these YouTube agencies aren't YouTube
+[00:23:17.600] experts, we're actual YouTube experts
+[00:23:19.680] and it's a system that is built by
+[00:23:22.040] YouTube experts with a severe advantage
+[00:23:24.800] of economies of scale, because we run 50
+[00:23:26.880] plus channels, all these channels invest
+[00:23:28.200] thousands of dollars a month, at least,
+[00:23:30.200] and we pull all those resources together
+[00:23:31.880] to build a best-in-class YouTube system
+[00:23:33.200] that money literally can't buy, because
+[00:23:34.720] even if you had the budget for it, you
+[00:23:35.680] wouldn't be able to build it, cuz you're
+[00:23:36.360] not a YouTube expert. And that's why
+[00:23:37.720] these enterprise companies also suck at
+[00:23:39.200] YouTube and they come to us instead,
+[00:23:40.600] right? Instantly AI, play.com,
+[00:23:43.480] Glen Coco,
+[00:23:44.760] um Sam O'Learo, like millions of dollars
+[00:23:46.920] per year making from YouTube.
+[00:23:49.200] Uh we're in the fastest growing channels
+[00:23:50.160] in the AI niche as well. I'm going to be
+[00:23:51.720] doing a case study breakdown on one of
+[00:23:52.840] those as well. We took them from
+[00:23:54.400] took them around 5,000 subscribers to
+[00:23:55.640] 50k subscribers in like 90 days, um with
+[00:23:58.240] videos that have gotten many, many
+[00:23:59.440] videos that have gotten hundreds of
+[00:24:00.320] thousands of views. We've done that for
+[00:24:01.200] two channels actually, in the AI niche,
+[00:24:02.800] both in the AI niche. Um
+[00:24:04.800] anyways, this is this for this video. If
+[00:24:06.840] there's any questions, let me know and
+[00:24:08.920] uh feel free to book a call if you would
+[00:24:10.760] like me to do the same for your
+[00:24:11.840] business. Great.

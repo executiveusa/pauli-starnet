@@ -1,0 +1,1266 @@
+# Use This Algorithm, It’ll Blow Up Your YouTube Channel
+# https://www.youtube.com/watch?v=LOgDwuUsmzw
+[00:00:00.080] Do you ever wish that growing your
+[00:00:01.280] YouTube channel was as easy as following
+[00:00:02.800] a set of [music] simple step-by-step
+[00:00:04.640] instructions? Well, it actually is
+[00:00:06.160] because that's exactly what I've been
+[00:00:07.680] doing to grow all these YouTube channels
+[00:00:09.599] here. And it's so easy to follow, even a
+[00:00:12.320] monkey could do it. If you don't know
+[00:00:13.519] who I am, my name is Jake Trinder. I run
+[00:00:14.960] over about 80 YouTube channels for
+[00:00:16.160] different brands and businesses right
+[00:00:17.199] now. Like Glenoko's channel, which I
+[00:00:18.800] built from 0 to $1 million, collected in
+[00:00:20.640] the first 6 months of doing YouTube from
+[00:00:22.240] only 12 videos. Sam Polaris, who I built
+[00:00:24.240] from zero to over $400,000 per month.
+[00:00:26.560] Instantly AIS who I built from pretty
+[00:00:28.240] much zero to over a million dollars
+[00:00:29.679] annual recurring revenue added to their
+[00:00:31.439] business. So on and so forth. We run
+[00:00:32.960] some of the fastest growing channels in
+[00:00:34.160] many different niches like AI, sales,
+[00:00:36.160] lead generation, etc. And I use this
+[00:00:38.480] step-by-step algorithm as the foundation
+[00:00:40.320] of growing all of them because it tells
+[00:00:42.079] me exactly what the best videos to make
+[00:00:44.000] in my niche are exactly how to make
+[00:00:46.399] them. And then all I need to do is
+[00:00:47.920] simply make them or guide my clients on
+[00:00:49.840] making them. In this video, I'm going to
+[00:00:50.879] explain what this algorithm is, how to
+[00:00:52.719] use it to grow your YouTube channel, and
+[00:00:54.480] then how to automate the entire process
+[00:00:56.320] with AI. So, first, let me define what
+[00:00:58.000] an algorithm actually is so that we're
+[00:00:59.520] all clear on that. An algorithm is
+[00:01:01.280] simply a set of step-by-step
+[00:01:03.039] instructions in order to complete a
+[00:01:05.119] given task or achieve a certain result.
+[00:01:07.200] Now, if we keep that definition in mind,
+[00:01:08.799] the goal of the algorithm that I'm about
+[00:01:10.560] to show you is to find the best video
+[00:01:12.560] ideas to make in your niche and then
+[00:01:14.240] exactly how to make them at every single
+[00:01:16.560] stage from the title and thumbnail to
+[00:01:18.560] how the video should be structured to
+[00:01:20.400] even how the video should be edited and
+[00:01:22.159] how you should present your video,
+[00:01:23.759] everything. And with that knowledge and
+[00:01:25.439] with that information, it becomes pretty
+[00:01:27.920] unreasonable that you don't win in your
+[00:01:30.400] niche because you're simply going to be
+[00:01:31.840] making the best decisions on what videos
+[00:01:33.600] to make and exactly how to make them at
+[00:01:35.520] every single stage. The way I discovered
+[00:01:37.119] this algorithm was actually in high
+[00:01:38.960] school at around the age of 16 or 17
+[00:01:41.600] years old. In computer science, we
+[00:01:43.200] learned all about how computers worked
+[00:01:44.960] and functioned. And naturally, a part of
+[00:01:47.040] that was algorithms. And one of the
+[00:01:48.960] algorithms that really interested me was
+[00:01:50.799] one that would allow you to explore the
+[00:01:52.799] entirety of a data set. Basically, this
+[00:01:54.640] is the same type of algorithm that's
+[00:01:56.079] used for web crawlers in order to scrape
+[00:01:58.399] the internet. And so, I didn't think
+[00:01:59.680] much of it at the time. I thought it was
+[00:02:00.960] another useless thing that school
+[00:02:02.479] teaches you, which there's a lot of
+[00:02:03.600] useless stuff in there. But turns out I
+[00:02:05.600] would later find out that this algorithm
+[00:02:07.520] would be extremely useful when growing
+[00:02:10.160] YouTube channels. And so as I started to
+[00:02:12.160] take on these different client channels
+[00:02:13.760] in these different niches, I realized
+[00:02:15.360] that this algorithm was so powerful, I
+[00:02:17.360] tried applying it to YouTube. And once I
+[00:02:19.440] applied it, it completely changed the
+[00:02:21.200] way that I grew my YouTube channel. And
+[00:02:22.720] that's what I'm going to be going over
+[00:02:23.680] in this video. Now, what actually is
+[00:02:25.760] this algorithm? Well, it's called a
+[00:02:27.760] depth first search. Let me explain how
+[00:02:30.560] this algorithm actually works. And I'm
+[00:02:32.080] going to draw a diagram for this. I'm
+[00:02:33.680] not going to use my Apple Pencil because
+[00:02:35.120] turns out it doesn't work with my iPad.
+[00:02:36.800] So get rid of that. So in computer
+[00:02:38.560] science there's something called binary
+[00:02:39.920] trees which basically look something
+[00:02:43.040] like this here. And what this visually
+[00:02:46.000] represents is a data set. So for example
+[00:02:48.239] with web crawling it would be a series
+[00:02:50.319] of websites and the information within
+[00:02:52.239] that. Now the goal of this algorithm is
+[00:02:53.840] to explore the entirety of a data set
+[00:02:55.920] and make sure nothing is missed. Now,
+[00:02:57.840] I'm visualizing this in a very
+[00:02:59.360] simplistic way, but the reality of this
+[00:03:01.680] is is a given data set would have tons
+[00:03:04.319] and tons of these. There would be all
+[00:03:05.920] these ones firing off here, and there's
+[00:03:07.760] just infinite amount of lines that are
+[00:03:09.760] coming off this with their different
+[00:03:11.040] nodes that need to be explored. Like you
+[00:03:12.720] can't even fathom the amount of data
+[00:03:13.840] points that need to be explored in this
+[00:03:15.200] data set. And so, we need an algorithmic
+[00:03:17.440] way to explore this otherwise data
+[00:03:19.599] points will be missed. And so, that is
+[00:03:21.120] where a depth first search comes in. And
+[00:03:22.959] I'm going to explain how it explores
+[00:03:24.879] this data set right now. So, first we
+[00:03:26.640] start with the root node. Super simple.
+[00:03:28.080] And then what we do is we go to the next
+[00:03:30.400] node. We typically default to the left
+[00:03:32.080] when we're visualizing it as a binary
+[00:03:33.840] tree, but it's not so relevant when
+[00:03:35.280] applied to YouTube. But for this
+[00:03:36.319] example, I'm going to show you it this
+[00:03:37.440] way. And then again, we default to the
+[00:03:39.280] left node. We explore even further. And
+[00:03:41.680] then here, we explode this node. Now,
+[00:03:43.760] what we've realized here is we're making
+[00:03:45.360] a consideration. Is there anything else
+[00:03:47.519] left to explore? That is the
+[00:03:49.280] consideration we're making at every
+[00:03:50.560] single stage. Is there another node to
+[00:03:52.239] explore? Now, in this case, there is
+[00:03:54.480] not. So what we're going to do is we're
+[00:03:56.080] going to retrace one step. And so here
+[00:03:59.200] we now make that consideration again. Is
+[00:04:01.519] there anything left to explore? Well,
+[00:04:04.000] no. If we look forward, there are no
+[00:04:05.760] more nodes to explore. So we're going to
+[00:04:07.519] go back again. And now here we're going
+[00:04:09.439] to make that same assessment. Is there
+[00:04:11.200] anything more to explore? Well, actually
+[00:04:12.799] there is. There's another path to go
+[00:04:14.400] down. And so we're going to go here to
+[00:04:16.239] this node. Is there anything more to
+[00:04:18.239] explore? Yes, this node. It's to the
+[00:04:20.880] right instead of there's there's not one
+[00:04:22.400] up here. But we're going to explore it
+[00:04:24.160] because there's none to the left. Is
+[00:04:25.520] there anything left to explore? No. We
+[00:04:27.440] go back and then we follow this process.
+[00:04:29.919] We've gone all the way back to the root
+[00:04:31.440] node now. And now we start down the
+[00:04:33.680] right path there. Is there anything to
+[00:04:35.840] explore? Yes. Is there anything to
+[00:04:37.759] explore? Yeah. Back here. Nothing to
+[00:04:39.600] explore. Is there anything to explore
+[00:04:41.280] here? And now we have explored the
+[00:04:43.520] entirety of the data set. Now, how on
+[00:04:45.840] earth does this apply to YouTube? And
+[00:04:47.360] why is this even important? Let me
+[00:04:49.040] explain and let me show you. So, the
+[00:04:50.800] most important piece of the YouTube
+[00:04:52.320] puzzle to grow your channel, it's not
+[00:04:54.080] the editing. It's not actually even the
+[00:04:56.240] content, though. It's very important
+[00:04:57.280] that you're providing a lot of value to
+[00:04:58.639] your viewers. A lot of people say it's
+[00:04:59.919] the idea, and they're right partially
+[00:05:02.160] because the video idea is the part that
+[00:05:04.080] influences the most on how much
+[00:05:06.240] attention you grab of your target market
+[00:05:08.080] on the home feed of YouTube over all of
+[00:05:10.080] the other videos you're competing
+[00:05:11.360] against. When somebody goes to their
+[00:05:13.120] YouTube feed, there's 20 plus other
+[00:05:14.720] videos to click on, and you have to be
+[00:05:16.880] the one that grabs their attention. And
+[00:05:18.560] then at that point when you grab their
+[00:05:19.919] attention, how well does your video
+[00:05:21.680] effectively influence them to clicking
+[00:05:24.240] and how much does it actually interest
+[00:05:25.759] them versus the other videos on the
+[00:05:27.759] feed. So that's why the idea in
+[00:05:29.520] principle is the most important, but
+[00:05:31.280] actually how do you come up with a good
+[00:05:32.800] video idea? How are you meant to know
+[00:05:35.600] before you make the video, what is the
+[00:05:38.080] video idea, the title and the thumbnail
+[00:05:40.320] that's ultimately going to lead to that
+[00:05:42.000] outcome of people clicking on your video
+[00:05:44.320] over every other video on the feed. And
+[00:05:46.000] then actually when you get that video
+[00:05:48.000] clicked on, how do you make sure you
+[00:05:49.680] structure that video correctly to
+[00:05:51.520] satisfy the viewer so that the YouTube
+[00:05:53.120] algorithm pushes your video to as many
+[00:05:55.280] people as possible and your video is
+[00:05:56.720] ultimately as successful as possible?
+[00:05:58.160] How do you actually hook people in after
+[00:05:59.680] they've clicked to make sure they
+[00:06:01.039] continue watching the video? Because if
+[00:06:02.400] you lose everyone at the start, even
+[00:06:03.600] after they've clicked, nobody's going to
+[00:06:04.800] receive that value from you and
+[00:06:06.240] YouTube's not going to have the data to
+[00:06:07.520] work with to be able to understand, oh,
+[00:06:08.880] this video was really liked by this
+[00:06:10.800] target audience. Let's push it to more
+[00:06:12.240] of these people. And so if we think
+[00:06:13.280] about that problem, you're not able to
+[00:06:14.880] solve that without actually knowing what
+[00:06:17.120] makes a good YouTube video at every
+[00:06:18.400] single piece of the process. And how do
+[00:06:20.319] you begin to understand that? Well, you
+[00:06:22.240] can't understand that by watching
+[00:06:23.440] YouTube growth videos. They might give
+[00:06:24.720] you some tactics, but really what you
+[00:06:26.800] need is fundamental visibility over
+[00:06:28.880] what's working on the platform right now
+[00:06:30.479] in order to know what's going to work
+[00:06:32.400] for you. How do you know what a good
+[00:06:33.600] video idea is if you haven't seen enough
+[00:06:35.520] good video ideas in reality? How do you
+[00:06:37.840] know what a good thumbnail style is and
+[00:06:39.199] a good thumbnail concept if you don't
+[00:06:40.639] know what thumbnail styles are working
+[00:06:41.919] right now in your market, in different
+[00:06:43.520] markets, and across YouTube as a whole?
+[00:06:45.120] And that applies downstream to every
+[00:06:46.639] other piece of the YouTube process, too.
+[00:06:48.000] And so, really, to its core, YouTube is
+[00:06:49.600] an information game. The more
+[00:06:50.800] information you have on what's working
+[00:06:52.720] across the platform, and the more you
+[00:06:54.319] can retain that information and actively
+[00:06:56.400] recall that information in a given
+[00:06:58.240] instance allows for better decision-m.
+[00:07:00.160] If you can do that at its most extreme
+[00:07:02.240] form, where you can see over the
+[00:07:03.599] entirety of YouTube and you could
+[00:07:05.280] hypothetically, unrealistically recall
+[00:07:07.599] all the information of what's working
+[00:07:09.039] across the entire platform and what's
+[00:07:10.560] not working, you would simply make the
+[00:07:12.160] best decision, the most databacked,
+[00:07:14.639] proven, highest likelihood to succeed,
+[00:07:17.599] lowest risk decision possible. And if
+[00:07:19.840] you're doing that consistently, you are
+[00:07:22.319] going to beat your competitors in your
+[00:07:24.080] niche every single time. And because
+[00:07:25.759] YouTube is a winner take all platform,
+[00:07:27.520] it's extremely important to beat your
+[00:07:29.759] competitors more times than not in order
+[00:07:32.000] for your channel to become the most
+[00:07:33.759] dominant channel in your niche, which I
+[00:07:35.680] think is the goal with growing any
+[00:07:37.280] YouTube channel. And so how do we get
+[00:07:38.639] that information? Well, it's through
+[00:07:40.319] research. Simply YouTube research. And
+[00:07:42.560] when I spoke about the depth first
+[00:07:44.080] search algorithm applied in the context
+[00:07:46.160] of that is how web crawlers are built.
+[00:07:48.319] Think about that. Web crawling is no
+[00:07:50.240] different to YouTube research. How do we
+[00:07:52.800] research the web in the most efficient
+[00:07:55.120] algorithmic way? We would use a web
+[00:07:56.960] crawler. So why don't we just apply that
+[00:07:58.400] to YouTube and crawl the entirety of
+[00:08:01.520] YouTube to gather this information in a
+[00:08:03.919] systematic way so that we know
+[00:08:05.440] everything that works. We know
+[00:08:06.720] everything that doesn't work. We don't
+[00:08:08.319] miss anything so that we don't make
+[00:08:10.160] incorrect decisions based on incomplete
+[00:08:12.319] data and we ultimately make the best
+[00:08:14.400] decisions, make the best videos and win.
+[00:08:17.120] And that is how the depth first search
+[00:08:19.120] algorithm applies to YouTube. We use it
+[00:08:21.520] for research to explore the entirety of
+[00:08:23.919] a niche and then we multiply that across
+[00:08:26.400] as many niches as we possibly can do.
+[00:08:28.720] That's how we gather the information and
+[00:08:30.479] therefore that's how we make the best
+[00:08:31.840] decisions on what videos to make, what
+[00:08:33.200] thumbnails to use, what hook to use,
+[00:08:35.120] what structure to use, every single part
+[00:08:37.360] of the YouTube process. It's all a data
+[00:08:39.440] game. It's all an information game. And
+[00:08:40.800] just to show you the impact of doing
+[00:08:42.640] YouTube research properly, this is a
+[00:08:44.560] channel we took from 0 to $1 million
+[00:08:46.720] collected from YouTube in the first 6
+[00:08:48.320] months from the first 12 videos. And
+[00:08:50.959] they had no presence elsewhere on social
+[00:08:53.360] media, no brand, no paid ads, no
+[00:08:55.279] external traffic, no nothing.
+[00:08:56.720] >> We have just about a million dollars of
+[00:09:00.000] total GMV attributed to YouTube.
+[00:09:02.640] >> Dumb.
+[00:09:03.279] >> That's about a 10x ROI off of gross
+[00:09:05.519] margin what we put into the program over
+[00:09:07.360] the last 6 months. The beauty of YouTube
+[00:09:09.360] is we made the videos 6 months ago,
+[00:09:12.000] they're still paying us.
+[00:09:13.040] >> They also went from 0 to 10,000
+[00:09:14.480] subscribers in the first 60 days. Their
+[00:09:16.080] first video also got over 280,000 views
+[00:09:18.480] from the jump and closed over $100,000
+[00:09:20.720] in new deals in the first 30 days of it
+[00:09:22.560] going live. The two videos back to back
+[00:09:24.480] after that first video also got over
+[00:09:26.640] 100,000 views. Definition of a
+[00:09:28.480] successful YouTube channel, not just in
+[00:09:30.240] terms of growth, but in terms of
+[00:09:31.440] monetization for the business in the
+[00:09:33.360] back end. Now, let me show you how
+[00:09:34.800] YouTube Research drove the results of
+[00:09:37.200] this channel and the channel growth in
+[00:09:39.120] practice. And just to also show you a
+[00:09:40.640] couple of the videos so you know how
+[00:09:41.920] well they're doing longterm. We post
+[00:09:43.279] this video 300 days ago and it's still
+[00:09:46.080] getting over a,000 views every single
+[00:09:48.160] day. If I go to another video as well,
+[00:09:50.640] like this one here, 290,000 views. This
+[00:09:54.080] was the first video that generated over
+[00:09:55.839] $100,000 in the first 30 days. And then
+[00:09:57.760] we have this video which we doubled down
+[00:09:59.200] on the previous one which I'm going to
+[00:10:00.640] make a separate video on is like the
+[00:10:01.920] strategy of once something works, how do
+[00:10:04.160] you exponentially grow the channel
+[00:10:05.600] faster. So stay tuned for that. But this
+[00:10:07.279] video here was a double down and this
+[00:10:08.800] video is also getting like 500 views a
+[00:10:11.440] day after 200 days of it being posted.
+[00:10:13.360] It's crazy. So let me go to the channel.
+[00:10:14.880] This was the channel beforehand and as
+[00:10:16.480] you can see not a good YouTube channel.
+[00:10:18.560] Terrible titles, terrible thumbnails and
+[00:10:20.000] as a result terrible results. All the
+[00:10:21.440] traffic you're seeing onto these videos
+[00:10:23.120] came from external traffic such as
+[00:10:24.720] website embeds etc. The first video we
+[00:10:26.800] made for them 290,000 views back to back
+[00:10:28.399] after that over 200,000 views. These
+[00:10:29.760] videos got less views because they were
+[00:10:30.800] more targeted bottomup funnel. They
+[00:10:32.160] served a purpose in converting people
+[00:10:33.600] rather than going mega viral. But then
+[00:10:35.120] 280,000 views again 145,000 views etc.
+[00:10:37.680] Those were the first 12 videos, these
+[00:10:38.959] ones here. And by that point they'd
+[00:10:40.560] already collected over a million
+[00:10:41.680] dollars. So how did we come up with the
+[00:10:42.800] idea to make this first video? Well, it
+[00:10:44.399] wasn't through a stroke of creative
+[00:10:46.160] genius. It was simply because in a
+[00:10:47.839] completely different niche, the drop
+[00:10:49.120] shipping niche of all niches, we saw
+[00:10:50.560] this video speedrunning an entire
+[00:10:52.320] Shopify store bracket size everything.
+[00:10:53.839] 239,000 views on a channel which at the
+[00:10:55.680] time had around 5,000 subscribers, but
+[00:10:57.279] now has grown massively as a result of
+[00:10:58.800] videos like this that they've made. We
+[00:11:00.480] only saw this video because we were
+[00:11:02.399] doing the YouTube research. There is no
+[00:11:04.399] other possible way that I would have
+[00:11:06.320] came across this YouTube video if I
+[00:11:08.480] wasn't actually spending the time to
+[00:11:10.399] apply the depth first search algorithm.
+[00:11:12.240] And specifically, I applied it in the
+[00:11:14.079] drop shipping niche, which was how I
+[00:11:16.000] came across this channel and this
+[00:11:17.519] outlier. And the thing is, a lot of
+[00:11:19.279] these videos that you're going to find
+[00:11:20.720] through applying this algorithm, you
+[00:11:22.399] wouldn't find if you were to just use a
+[00:11:24.000] tool like one of 10, view stats, Vid IQ,
+[00:11:26.399] etc. Plus, everybody has access to those
+[00:11:28.560] tools. So, you've got zero competitive
+[00:11:30.560] advantage if you use those tools. These
+[00:11:32.079] tools are cheap, in some cases, even
+[00:11:33.680] free. So, you need to go above and
+[00:11:34.959] beyond to do what your competitors
+[00:11:36.560] aren't doing in order to win this winner
+[00:11:38.560] take all platform of YouTube. So after
+[00:11:40.079] we discovered this video idea, we then
+[00:11:42.320] did further depth first search research
+[00:11:44.240] in other niches and found that this was
+[00:11:46.240] also something working in other niches.
+[00:11:48.240] Even the gaming niche this was working
+[00:11:49.760] in. That's the extent to which we take
+[00:11:51.279] research. We're doing like hundreds of
+[00:11:52.640] hours of YouTube research a week. We've
+[00:11:54.399] got like a full research team in house
+[00:11:55.920] because we have the economies of scale
+[00:11:57.120] in our favor to where we're spending
+[00:11:58.000] over $200,000 a month on our YouTube
+[00:11:59.600] system. So we have a YouTube system that
+[00:12:01.600] nobody else can even afford. Which means
+[00:12:03.600] because we're doing so much YouTube
+[00:12:04.959] research and we have a system that
+[00:12:06.639] nobody else can even build in any of the
+[00:12:08.560] niches that we step into, we win because
+[00:12:10.560] we have more information, we have more
+[00:12:12.000] data, and we also have a better system
+[00:12:13.440] to actually execute as well. By the way,
+[00:12:14.880] if you are like a business owner, a
+[00:12:16.560] brand that wants to grow your YouTube
+[00:12:18.079] channel, click the link in the
+[00:12:19.120] description. We run YouTube channels for
+[00:12:20.720] businesses. And also, we have an inner
+[00:12:22.320] circle as well if that's something
+[00:12:23.600] that's more appealing to you rather than
+[00:12:25.120] actually getting us to run the channel
+[00:12:26.240] for you. We can coach your business
+[00:12:27.920] in-house on how to grow your YouTube
+[00:12:29.279] channel. Even if you're a YouTube
+[00:12:30.560] agency, a YouTube strategist, a video
+[00:12:32.480] editor, a thumbnail designer, somebody
+[00:12:33.920] in the YouTube economy that's looking to
+[00:12:35.360] get your clients better results or just
+[00:12:36.880] make a career out of YouTube where
+[00:12:38.240] you're making six to even seven figures,
+[00:12:40.000] like I'm making over $300,000 a month
+[00:12:41.760] from my YouTube business because of the
+[00:12:43.120] results we're getting for our clients.
+[00:12:44.399] The inner circle is also for you as
+[00:12:46.079] well, not just businesses and brands.
+[00:12:47.360] So, you can check that out if that is
+[00:12:48.560] something that interests you. But
+[00:12:49.839] getting back to this, that is how we
+[00:12:50.959] came up with this video idea. And then,
+[00:12:52.399] of course, there was the execution. We
+[00:12:53.839] had to make sure Micah, the person on
+[00:12:55.920] camera you can see there, executed the
+[00:12:57.440] video correctly. The structure was
+[00:12:58.800] correct. The way he recorded it was
+[00:13:00.399] correct. The way it was edited was the
+[00:13:01.920] right style, which is a very raw editing
+[00:13:03.760] style. In fact, you can even see the
+[00:13:05.279] thumbnail is a very raw thumbnail. But
+[00:13:07.200] it was because that thumbnail that I
+[00:13:08.959] just showed of that video in the drop
+[00:13:10.160] shipping niche was also raw. So, you can
+[00:13:12.079] see there how we're finding what's
+[00:13:13.519] working. And had we had not done the
+[00:13:14.959] research, we wouldn't have came up with
+[00:13:16.160] the idea. And we also wouldn't have
+[00:13:17.519] packaged the video correctly. So on and
+[00:13:18.800] so forth. Now, let me show you two more
+[00:13:20.000] examples just to really drive the point
+[00:13:21.440] home. I made 500,000 calls and learn
+[00:13:23.120] this. How do we come up with that idea?
+[00:13:24.639] Well, again, we saw a video in the
+[00:13:26.560] YouTube niche, which is I made 300
+[00:13:28.000] YouTube videos and learn this for Ed
+[00:13:29.200] Lawrence that got 480,000 views, one of
+[00:13:31.040] his most successful videos on this
+[00:13:32.320] channel. We then took it to a completely
+[00:13:34.160] different niche with I sent 10 million
+[00:13:35.680] cold emails and learn this for Clay.com,
+[00:13:38.000] an enterprise billion dollar company,
+[00:13:40.000] 176,000 views. And after that, we took
+[00:13:42.240] it to Glen Co's channel, which got
+[00:13:45.040] 139,000 views, and it's still getting
+[00:13:46.800] views today. We did this video for
+[00:13:48.560] instantly. watched me start and sell a
+[00:13:50.160] service in 10 hours which got 440,000
+[00:13:52.240] views and it made them over six figures.
+[00:13:53.839] This video single-handedly similar to
+[00:13:55.279] like the speedrunning videos and
+[00:13:56.240] Smugglen Coco's other videos as well and
+[00:13:58.079] some of Instantly's other videos too.
+[00:13:59.600] And you can also see other people have
+[00:14:00.800] copied it like Nick Save who's one of
+[00:14:02.240] the biggest channels in the AI niche. He
+[00:14:03.760] got this video idea from Instantly's
+[00:14:05.279] video and this is one of his best
+[00:14:06.399] performing videos and I'm sure this
+[00:14:07.600] generated a lot of deal flow for him
+[00:14:09.040] too. You can see me actually in the
+[00:14:10.320] video here as well. So you know that I
+[00:14:12.160] actually made this video. I was part of
+[00:14:13.519] the orchestration and creative direction
+[00:14:15.760] of this video where we set up this whole
+[00:14:17.360] challenge and people called this the
+[00:14:19.040] best ad of all time. You can see here
+[00:14:20.800] the best advertisement I've ever seen.
+[00:14:22.320] We'll definitely start using instantly
+[00:14:23.680] for my campaigns. Over 100 likes in the
+[00:14:25.440] comments. Wow. Did not realize I was
+[00:14:26.800] watching an ad and everybody saying this
+[00:14:28.959] as well. Clearly this was an ad for
+[00:14:30.079] instant itself, but I didn't realize
+[00:14:31.360] that's what it was going to be until the
+[00:14:33.360] product cropped up. Well said hook, my
+[00:14:35.440] friend. And everybody saying this. How
+[00:14:37.519] rare is it that somebody compliments an
+[00:14:39.120] ad like this? Extremely rare. So, you
+[00:14:41.040] can understand why this video generated
+[00:14:42.399] so much revenue growth for instantly.
+[00:14:44.240] But it's funny because we actually got
+[00:14:45.440] this video idea again from YouTube
+[00:14:46.959] research where we saw in a completely
+[00:14:48.480] different niche, watch me make and sell
+[00:14:49.760] a digital product in 10 hours by this
+[00:14:51.519] channel. Dare 350,000 views. It wasn't
+[00:14:53.920] even that much of an outlier. It was a
+[00:14:55.600] pretty significant outlier. But I also
+[00:14:57.120] just looked at this video and it just
+[00:14:58.959] stood out to me as very interesting
+[00:15:00.399] because the packaging was authentic
+[00:15:02.160] rather than this clickbaity packaging.
+[00:15:03.839] The way she recorded the video and
+[00:15:05.120] executed was super interesting as well.
+[00:15:06.800] So, it made sense to me why it did well
+[00:15:08.880] and why it would do super well if we
+[00:15:10.480] took it to another niche like installed.
+[00:15:12.320] And instantly's video actually did
+[00:15:13.600] better than Dez's the original, but we
+[00:15:15.600] got the video idea from her. De was the
+[00:15:17.360] only one who had done this format before
+[00:15:19.120] we did it with instantly. But since
+[00:15:20.560] we've done it with instantly, this has
+[00:15:21.920] been done across many different niches.
+[00:15:23.839] You can find this. I'm sure we can pop
+[00:15:25.120] up some screenshots of all these
+[00:15:26.320] different niches it's been done in. It's
+[00:15:27.519] crazy. And now this watch me format is
+[00:15:29.839] one that's used across YouTube so much.
+[00:15:32.320] Like we did this for our client, for
+[00:15:34.320] example. watch me build a $1 million
+[00:15:36.160] landing page, 130,000 views. People have
+[00:15:38.880] done, watch me build an AI app, which
+[00:15:41.760] got over 140,000 views here. But the
+[00:15:43.920] point I'm illustrating here is back to
+[00:15:45.760] back to back, the first three videos
+[00:15:47.600] that all got over 100,000 views on a
+[00:15:49.440] channel which previously was pretty much
+[00:15:50.880] at zero, dead in the water, all stemmed
+[00:15:53.440] from research. Hopefully that makes it
+[00:15:56.160] crystal clear what the value of YouTube
+[00:15:58.480] research is and why it is the most
+[00:16:00.560] important part in growing your YouTube
+[00:16:02.079] channel. Now, let me show you how to
+[00:16:04.480] actually apply the dead first search
+[00:16:05.920] algorithm to YouTube. Very simple. Let
+[00:16:08.480] me get to it. The first step of this is
+[00:16:10.240] defining your niche. Now, you might
+[00:16:11.759] already have your niche defined because
+[00:16:13.360] you have a predetermined niche through
+[00:16:15.040] having a certain target market to sell
+[00:16:16.880] your products and services to and
+[00:16:18.480] therefore you know the target market
+[00:16:19.680] you're going after and you know the
+[00:16:21.279] niche of which you're going to be making
+[00:16:22.480] videos in and topics of which you're
+[00:16:23.920] going to be making videos around. If you
+[00:16:25.360] don't already have a niche, you need to
+[00:16:26.959] define that. What do you want to build
+[00:16:28.320] your channel around? Is there a certain
+[00:16:30.000] goal with your channel? and therefore
+[00:16:31.759] does that indicate what your niche would
+[00:16:33.360] be? You can always go back and forth
+[00:16:34.720] with AI if you're unsure on what your
+[00:16:36.240] niche is. But if you're a business
+[00:16:37.519] owner, an educator, an expert, a brand,
+[00:16:39.600] you probably already have your niche
+[00:16:40.639] predetermined. Just make sure you're
+[00:16:42.320] clear on how you would define your
+[00:16:44.240] niche. Once you have that, what you want
+[00:16:46.639] to do is you want to come up with a list
+[00:16:48.880] of adjacent niches. Now, let me define
+[00:16:51.519] adjacent niches. These aren't just
+[00:16:53.199] niches that are similar to yours. These
+[00:16:55.120] are niches where the viewer of those
+[00:16:57.360] niches has similar demographics,
+[00:16:59.199] psychoraphics, and viewer behaviors of
+[00:17:01.839] the viewers in your niche. The reason
+[00:17:03.519] for this is because once we find what's
+[00:17:05.679] working in these niches and we see the
+[00:17:07.520] patterns of what's working, we can
+[00:17:09.360] assume that those would also work for
+[00:17:11.919] your viewers. And so what happens here
+[00:17:13.679] is when we research your niche, we can
+[00:17:15.600] see what's missing from your niche
+[00:17:17.520] that's being leveraged across all of
+[00:17:19.520] these other different niches that's
+[00:17:20.959] working extremely well evidently by
+[00:17:23.280] data. These videos have performed
+[00:17:24.880] outstandingly well. And when we look at
+[00:17:26.559] these patterns, we can understand why
+[00:17:28.559] they've worked so well. They stand out.
+[00:17:30.559] And that allows us to stand out in your
+[00:17:32.799] niche in a way we know is effective and
+[00:17:35.200] good because it's proven elsewhere, but
+[00:17:37.600] hasn't been done in your niche. That's
+[00:17:39.039] the thought process behind why we want
+[00:17:40.559] to explore these adjacent niches. Now,
+[00:17:42.559] the way that you come up with these
+[00:17:43.919] adjacent niches is very easy. Go to an
+[00:17:46.160] AI like Claude. That's what I use. You
+[00:17:48.320] can also use chatb. You can use Gemini.
+[00:17:50.480] And you can use an extension like
+[00:17:52.240] Whisper Flow to speak to it. Or you can
+[00:17:54.160] just type what you want to say. And
+[00:17:55.600] you're going to say something like, "Hey
+[00:17:56.960] Claude, I am in the YouTube growth niche
+[00:17:59.520] on YouTube. I want to grow my channel."
+[00:18:01.360] And what I need to do is come up with a
+[00:18:03.200] list of adjacent niches where the
+[00:18:05.120] viewers of those niches have similar
+[00:18:07.200] demographic, psychoraphics, viewing
+[00:18:09.039] behaviors, intention behind the view to
+[00:18:11.520] what my viewers have for my niche. The
+[00:18:13.280] goal of this is to understand what's
+[00:18:14.880] working in these niches that I can
+[00:18:16.240] assume would also work for my niche as
+[00:18:18.720] well because the viewers behave the same
+[00:18:20.799] way. They have the same intention, the
+[00:18:22.320] same thought process behind why they're
+[00:18:23.919] consuming content in that niche and also
+[00:18:26.160] what they resonate with would similarly
+[00:18:27.840] transfer. Build a list of 10. And what
+[00:18:29.600] I'm going to do is I'm going to let this
+[00:18:30.640] play out and I'm going to let Claude
+[00:18:32.160] just tell me what to do. That is the
+[00:18:34.160] beauty of using AI in the modern age.
+[00:18:36.400] Okay, so the AI is finished. It says
+[00:18:38.080] tier one, same viewer, same core
+[00:18:40.000] intention. So I think what AI has done
+[00:18:41.520] is used the context of it already knows
+[00:18:43.360] my target market because I'm a business
+[00:18:44.640] owner and I'm trying to track
+[00:18:45.600] businesses. So some of these will be a
+[00:18:47.039] little bit inaccurate. For example, they
+[00:18:48.080] said number one agency building. It's
+[00:18:49.600] not that we can't take stuff from this
+[00:18:50.720] niche. We absolutely can because these
+[00:18:52.559] viewers are self-improvement orientated
+[00:18:54.720] who are trying to build and they're
+[00:18:56.640] trying to scale their business, right?
+[00:18:58.640] So scaling their YouTube channel,
+[00:18:59.760] scaling their business. So it definitely
+[00:19:01.200] is looking at what's working in those
+[00:19:02.480] niches, but also other platform personal
+[00:19:04.400] brand growth X, LinkedIn, Instagram,
+[00:19:06.559] right? business entrepreneurship
+[00:19:07.840] frameworks homozy archetype operator
+[00:19:09.760] identity status plus income aspiration
+[00:19:11.919] framework hungry here's the exact system
+[00:19:13.840] packaging du make money online as well
+[00:19:16.480] same escape the 9 to5 like people who
+[00:19:18.960] are wanting to escape the 9 to5 and
+[00:19:20.240] money aspect but also everybody wants to
+[00:19:21.600] build a YouTube channel it's that same
+[00:19:22.880] sort of desire and it's coming up with
+[00:19:24.240] more here as well I can go back and
+[00:19:25.600] forth with this these work fine you want
+[00:19:27.360] to spend more time going back and forth
+[00:19:28.799] and getting a refined exhausted list to
+[00:19:31.200] which you don't really have any more
+[00:19:32.799] adjacent niches that are relevant in
+[00:19:34.799] your list to explore and you have
+[00:19:36.799] everything that you want to explore. You
+[00:19:38.880] would probably expect to have quite a
+[00:19:40.160] long list at the end of it. You're not
+[00:19:41.600] going to explore all of them straight
+[00:19:42.720] away because it takes time, but your
+[00:19:44.240] ultimate goal is to explore all of them
+[00:19:46.240] in an ideal hypothetical. Once we have
+[00:19:48.480] this list, we're going to have the list
+[00:19:50.240] ordered in order of relevance of which
+[00:19:51.919] it would make sense to explore. Then we
+[00:19:53.840] are going to start with the first niche.
+[00:19:55.360] Okay. So, what I want to do now is I
+[00:19:56.400] want to start with the one of personal
+[00:19:57.600] brand growth. So, these different
+[00:19:58.799] platforms so on and so forth and any
+[00:20:00.480] other outlier cases as well. And what I
+[00:20:02.480] want to do is I want to create a list of
+[00:20:05.440] core seed keywords and search terms in
+[00:20:08.480] order for me to effectively explore the
+[00:20:10.960] entirety of this niche. Come up with 10
+[00:20:12.880] to 20 search terms for me. So now what
+[00:20:14.559] I've asked it to do is to return to me a
+[00:20:16.960] list of core seed keywords relevant to
+[00:20:19.840] that specific niche. And what those are
+[00:20:21.360] going to be are things like LinkedIn
+[00:20:22.799] growth, Instagram growth, how to grow on
+[00:20:24.480] LinkedIn, how to monetize Instagram, all
+[00:20:27.520] these different areas where we're going
+[00:20:29.200] to find different videos as a result of
+[00:20:31.600] searching these individual search terms.
+[00:20:33.679] And that is ultimately going to be what
+[00:20:35.120] allows us to cover all bases of the
+[00:20:37.039] niche as we explore these search terms.
+[00:20:38.960] Okay, so this is done now and it's
+[00:20:40.080] looking good. Personal brand, how to
+[00:20:41.440] build a personal brand, grow your
+[00:20:42.640] personal brand, but then platform
+[00:20:44.080] specific, how to grow on Twitter,
+[00:20:45.600] LinkedIn growth strategy, how to grow on
+[00:20:47.039] Instagram, so on and so forth. And we
+[00:20:48.400] would actually get more of this like we
+[00:20:49.760] would literally dive into each platform
+[00:20:52.720] in more detail. I just asked it for 10
+[00:20:55.120] to 20 but in its ideal form you would go
+[00:20:58.320] so deep. The whole point of this is that
+[00:21:00.000] for each niche you have enough core seed
+[00:21:02.559] keywords and search terms to be
+[00:21:04.400] confident that you are going to capture
+[00:21:06.080] the entirety of the data set. So like
+[00:21:08.159] Instagram growth is a niche in of itself
+[00:21:10.159] in reality and so is LinkedIn growth
+[00:21:12.559] etc. But for the purpose of this
+[00:21:13.919] example, I'm just going to pretend this
+[00:21:15.360] is in the entire personal brand niche,
+[00:21:17.520] which it is part of, but these are
+[00:21:19.039] actually separate niches that you would
+[00:21:20.400] fully explore if it were relevant to
+[00:21:22.400] your niche. So now we move on to the
+[00:21:23.919] next step, which is actually starting
+[00:21:25.600] the YouTube research process. We now
+[00:21:27.280] have a list of core seed keywords and
+[00:21:29.120] search terms which you also should have
+[00:21:31.200] ordered in order of relevance from the
+[00:21:33.760] ones being the most relevant and the
+[00:21:35.600] most in demand ones that you would
+[00:21:37.760] expect most people to be searching for
+[00:21:39.600] and that therefore will return the best
+[00:21:41.840] results. Right? You want to start with
+[00:21:43.120] the best ones to make as much progress
+[00:21:45.280] as fast as possible. And I'm going to
+[00:21:47.280] start with personal brand. And so what I
+[00:21:49.520] simply do is I go to YouTube and I
+[00:21:51.200] search personal brand. Immediately I am
+[00:21:54.480] returned with a bunch of videos, some of
+[00:21:56.960] which have performed outstandingly well
+[00:21:59.200] and some of which haven't. Now what do I
+[00:22:01.280] do from here? So if you think about
+[00:22:02.480] what's happened so far, the root node is
+[00:22:04.720] the niche itself that you're exploring.
+[00:22:06.640] The first node that we're exploring is
+[00:22:08.400] the first search term in that list. And
+[00:22:10.960] now we're moving on to the next stage,
+[00:22:13.120] the next node further forward, which is
+[00:22:15.760] the search results. And what I'm looking
+[00:22:17.679] for here is videos that have performed
+[00:22:19.919] outstandingly well, that have done
+[00:22:21.679] really well in the niche, and where the
+[00:22:23.440] channels look like they're crushing it
+[00:22:25.360] as a result of their videos performing
+[00:22:27.679] well. Now, the reason why I'm looking
+[00:22:28.960] for this is because videos that have
+[00:22:30.320] performed outstandingly well have
+[00:22:31.919] clearly done something right and struck
+[00:22:33.520] a nerve with the audience in that niche.
+[00:22:36.159] Struck a nerve so hard that it's
+[00:22:37.520] performed better than the typical video
+[00:22:38.960] in that niche by a statistically
+[00:22:40.960] significant level. Statistical
+[00:22:42.960] significance being defined as not only
+[00:22:45.440] has it performed well, but when compared
+[00:22:48.080] to the other videos that have performed
+[00:22:49.360] well on their channel that they
+[00:22:50.640] typically commonly or frequently get,
+[00:22:52.880] it's performed even better than those.
+[00:22:54.880] It is of statistical significance. And
+[00:22:57.440] so what I'm seeing here straight away is
+[00:23:00.159] a video that has performed five times
+[00:23:01.840] better than the average video on this
+[00:23:03.200] channel. What I am using to get this
+[00:23:04.720] number is the one of 10 Chrome
+[00:23:06.159] extension. You can just get the free
+[00:23:07.919] Chrome extension. You don't need to buy
+[00:23:09.280] the paid tool or anything like that.
+[00:23:10.960] like just go get it from the Chrome web
+[00:23:13.120] store and it tells you the multiplier
+[00:23:15.039] score of the video. But I can also see
+[00:23:16.799] without that that the video got 120,000
+[00:23:19.120] views and if I went to the channel I'd
+[00:23:20.720] be able to get the subscriber count. I
+[00:23:22.000] can see this channel's got 190,000
+[00:23:23.600] subscribers though using the Vid IQ
+[00:23:25.200] extension makes it easy for me to see
+[00:23:26.640] without going to the channel. I know
+[00:23:28.080] this channel and I know this video has
+[00:23:29.760] performed outstandingly well. You always
+[00:23:31.120] want to calculate the actual outlier
+[00:23:32.799] score roughly in your head. Just looking
+[00:23:34.320] at the channel and seeing how many views
+[00:23:35.520] it has cuz sometimes these multipliers
+[00:23:37.360] from these tools like one of 10, view
+[00:23:38.960] stats, etc. it can be a bit inaccurate.
+[00:23:40.640] And so what I do from here is since this
+[00:23:42.480] video has performed outstandingly well
+[00:23:44.080] and it's also an interesting video to
+[00:23:45.840] me, I think there's something here. I'm
+[00:23:47.360] going to leave this tab open, but I'm
+[00:23:48.720] going to open a new tab to the actual
+[00:23:51.280] channel. Now, why am I doing this? Well,
+[00:23:52.880] if that channel has performed a video
+[00:23:54.720] that has performed outstandingly well,
+[00:23:56.080] and I look at the video and I'm like,
+[00:23:57.440] this guy knows what he's doing from a
+[00:23:58.720] YouTube standpoint, chances are he also
+[00:24:00.320] has other videos that are doing the
+[00:24:02.159] exact same because he clearly
+[00:24:03.600] understands the YouTube game. And so
+[00:24:04.880] it's worth my time to actually look
+[00:24:06.720] through this channel and see what other
+[00:24:08.000] videos he's done which have performed
+[00:24:09.760] outstandingly well to a statistically
+[00:24:11.520] significant level. And actually a lot of
+[00:24:13.440] them might have performed even better.
+[00:24:15.279] So these videos average, but this one
+[00:24:17.440] here 640,000 views. That's crazy. So
+[00:24:20.480] what I'm going to do is I'm going to
+[00:24:21.600] open that video up and I'm going to just
+[00:24:23.679] double check that the engagement looks
+[00:24:25.120] good. So 100 comments. So and if I look
+[00:24:27.039] at the view graph, okay, it looks like
+[00:24:28.559] external traffic has been pushed to this
+[00:24:30.240] video. This is a key insight. So, when
+[00:24:32.159] looking at these outlier videos, make
+[00:24:34.000] sure you check the comments and check
+[00:24:35.440] the view graph. And if anything looks a
+[00:24:37.120] little bit suspicious in terms of low
+[00:24:38.480] engagement in the comments for how many
+[00:24:39.760] views it has or a very dodgy view graph,
+[00:24:42.960] just keep that in mind. And I'm not
+[00:24:44.400] saying this video hasn't been pushed
+[00:24:45.679] organically, like it's just something
+[00:24:47.039] that I'm considering. Maybe there's been
+[00:24:48.880] external traffic push this video or
+[00:24:50.480] maybe it's just started to really pop
+[00:24:51.840] off and the engagement is lower because
+[00:24:53.600] I would say 100 comments for 600,000
+[00:24:55.520] views is on the lower side, but it's
+[00:24:57.200] also not an alarming amount if that
+[00:24:59.200] makes sense. So, I'm still considering
+[00:25:00.400] it, but I'm not going to take it as a
+[00:25:01.760] massive single data point, and I'm not
+[00:25:03.120] going to go ahead and make a whole video
+[00:25:04.320] on it without any of the data to back
+[00:25:05.919] that something was done right with this
+[00:25:07.919] video. Also, another thing, you can go
+[00:25:09.760] even deeper. Like, in practice, if
+[00:25:11.600] you're doing the depth first search in
+[00:25:12.880] full, you'll also begin to get
+[00:25:14.880] recommended videos that are similar in
+[00:25:16.799] the suggested videos part, and you can
+[00:25:18.559] actually go ahead and explore those
+[00:25:19.840] because you can find even more channels
+[00:25:21.919] that you wouldn't have otherwise found
+[00:25:23.520] by searching the search terms through
+[00:25:25.360] this. Like this guy, Sky Tan, for
+[00:25:26.880] example, I actually know this guy. He's
+[00:25:28.640] obviously in the content space as well.
+[00:25:29.919] That's another channel that I would
+[00:25:30.880] explore because this video 6.2x
+[00:25:32.720] performed better than average. Maybe
+[00:25:34.000] there's something on his channel that's
+[00:25:35.440] worth looking at. But for the purpose of
+[00:25:36.799] this, I'm going to go as far as the
+[00:25:38.320] channel stage. I'm not going to go
+[00:25:39.440] deeper than that. And so what I'm going
+[00:25:40.400] to do is I'm going to continue to look.
+[00:25:41.679] And what I would be doing as I'm finding
+[00:25:42.960] these outliers is I would be actually
+[00:25:44.480] keeping them in a database. I'm going to
+[00:25:45.840] leave a link in the description to a
+[00:25:47.120] research database template as well as
+[00:25:49.039] any prompts and other things that I'm
+[00:25:51.039] using in this video so you can have
+[00:25:52.240] access to it all. It's completely free.
+[00:25:53.760] I would be filling out that database as
+[00:25:56.000] I'm going through and finding these
+[00:25:57.760] outliers. I would be putting the name of
+[00:25:59.919] the video. I would be linking the video.
+[00:26:02.000] If you're using Google Sheets, then you
+[00:26:03.520] can just link it and it creates a chip
+[00:26:05.440] and it tells you the title with that.
+[00:26:06.960] So, I keep that in one column. I have
+[00:26:08.880] the number of views. I have the outlier
+[00:26:10.880] score and I have the niche. And I also
+[00:26:13.360] have a couple of other things you'll see
+[00:26:14.480] on the template when I'm filling this
+[00:26:16.000] stuff out. And so, I would go through
+[00:26:17.360] and I would also add more stuff. So,
+[00:26:18.960] this one here, how to build a marketing
+[00:26:20.080] team in 2026, 3.7 million views. I'm
+[00:26:22.159] always going to check the engagement
+[00:26:23.200] again though. So, what I can see here,
+[00:26:24.799] 45 comments. This video has definitely
+[00:26:26.080] had external traffic pushed to it.
+[00:26:27.279] Again, the view graph's looking quite
+[00:26:28.480] similar there. So, makes me more
+[00:26:29.679] skeptical of the other video, too. And
+[00:26:31.520] we can continue looking here. Let's see.
+[00:26:33.840] Let's see. Okay, this one here. How to
+[00:26:35.440] start a brand social media from scratch
+[00:26:37.440] in 2026. I'd look at that one. See if
+[00:26:39.120] that's worth noting down. The art of
+[00:26:40.799] modern streetear. This looks like an
+[00:26:42.320] interesting one. And so, I'm going
+[00:26:43.600] through and I'm adding all of these.
+[00:26:44.880] Let's have a look at this one. This one
+[00:26:46.159] here looks like proper engagement.
+[00:26:47.520] Again, a similar view graph, which is
+[00:26:48.960] interesting. But regardless, I'd be
+[00:26:50.320] going through this. I'll be identifying
+[00:26:52.000] the outliers and also having that extra
+[00:26:54.640] layer of security of checking the
+[00:26:57.039] comments, the engagement signals, the
+[00:26:58.799] view graph, using extensions like one of
+[00:27:00.799] 10 or view stats or Vid IQ and
+[00:27:03.120] determining if it really was an outlier
+[00:27:04.799] that genuinely got pushed by the
+[00:27:06.320] algorithm to an outstanding level.
+[00:27:07.919] That's why I'm checking the comments and
+[00:27:09.039] view graph cuz if it's got a ton of
+[00:27:10.159] views, but it didn't come from the
+[00:27:11.039] YouTube algorithm, then it didn't
+[00:27:12.960] actually naturally resonate with that
+[00:27:14.960] target market necessarily more than any
+[00:27:17.039] of the other videos. There is a lot here
+[00:27:18.480] that I know for sure has been done
+[00:27:21.200] organically cuz I know this channel. For
+[00:27:23.039] example, this one here I know was a
+[00:27:25.520] video that naturally caught well in the
+[00:27:27.600] algorithm. And that said, so let's say
+[00:27:29.039] I've hypothetically explored all of this
+[00:27:30.559] channel. There's no more outliers that I
+[00:27:32.159] really want to take note of. I'm going
+[00:27:33.279] to simply close the tab. Close this tab
+[00:27:35.039] as well. And I end up back on the
+[00:27:36.720] original search term. So if we think
+[00:27:38.000] about it, what I've done is I've done
+[00:27:39.679] that depth first search where I've
+[00:27:41.440] explored all of these different data
+[00:27:43.360] points within the data set. Kept on
+[00:27:44.880] going, kept on going. Is there anything
+[00:27:46.320] left to explore? No, retrace one step
+[00:27:49.200] and repeat the process all over again. I
+[00:27:51.440] go to the next video and would you look
+[00:27:52.960] at that? Another video that has
+[00:27:54.320] performed outstandingly well for a
+[00:27:55.679] completely new channel which we haven't
+[00:27:57.039] explored yet. And I repeat the entire
+[00:27:59.120] process here. Matt Gray is somebody
+[00:28:00.480] who's crushing it on YouTube. So, I know
+[00:28:01.840] there's going to be a lot to look at
+[00:28:03.360] here and take inspiration from. I built
+[00:28:04.880] a complete business operating system
+[00:28:06.159] using Claude Code. This was an outlier
+[00:28:07.679] for him and I can look at that and I can
+[00:28:09.440] already understand why this video has
+[00:28:10.720] performed outstandingly well. It's still
+[00:28:12.320] quite a niche video, business operating
+[00:28:14.080] system, but he's captured a large
+[00:28:15.840] percentage of that audience, which is a
+[00:28:17.600] very sophisticated, high-value audience
+[00:28:19.679] using Claude Code as the topic because
+[00:28:22.159] Claude Code is a trending AI model that
+[00:28:24.799] is getting a lot of attention in
+[00:28:26.559] countless different niches right now.
+[00:28:28.080] And so that makes sense why this video
+[00:28:30.080] has performed very well. And I'm sure
+[00:28:31.679] there's a lot of other ones as well in
+[00:28:33.679] here as well, like this one. If I wanted
+[00:28:35.200] to build a personal brand in 2026, I'd
+[00:28:36.960] do this. And I'm in a shortcut to
+[00:28:39.120] showing you what the future of you doing
+[00:28:41.600] this process looks like and how ideas
+[00:28:43.840] start to form from this. So this video
+[00:28:45.520] here, for example, if I wanted to build
+[00:28:46.960] a personal brand in 2026, I'd do this.
+[00:28:48.960] As you start to research and do the
+[00:28:50.480] depth first search for these different
+[00:28:51.840] niches, you start to form patterns and
+[00:28:54.159] notice patterns between the niches and
+[00:28:57.279] between the different channels. So for
+[00:28:58.880] example, if I hypothetically skipped
+[00:29:01.360] forward to researching the YouTube
+[00:29:03.440] growth niche, a video that I would find
+[00:29:05.360] is if I started a YouTube channel in
+[00:29:07.919] this year, I'd do this. So for example,
+[00:29:10.159] this is a very common format. If I
+[00:29:11.600] started a YouTube from scratch in 2026,
+[00:29:14.000] I do this and it's been done there. It's
+[00:29:16.320] been done there. Ali Abdal was the
+[00:29:17.679] original that did it in this specific
+[00:29:18.880] niche, 4.5 million views. And so you can
+[00:29:20.799] start to see the pattern between all of
+[00:29:22.240] those. It's been done multiple times in
+[00:29:23.679] this niche. It's one of the most
+[00:29:24.720] successful formats in this niche, but
+[00:29:26.000] it's also been done in other niches. So
+[00:29:27.520] you can sort of envision what the future
+[00:29:28.960] looks like as you go through this depth
+[00:29:30.880] first search process. Now I'm not going
+[00:29:32.320] to lie, this is a time-consuming
+[00:29:33.760] process, but it's the most valuable way
+[00:29:35.440] that you can spend your time if you're
+[00:29:37.039] serious about growing your YouTube
+[00:29:38.159] channel. This is by far the highest
+[00:29:39.360] leverage activity and task that you can
+[00:29:40.880] be doing as part of growing your YouTube
+[00:29:42.399] channel. So you've also got other
+[00:29:43.200] things. How to manage your time like a
+[00:29:44.399] CEO. Maybe this topic of managing time
+[00:29:46.320] like a CEO is very interesting. How to
+[00:29:48.080] make millions from content without going
+[00:29:49.360] viral. And I can tell you these are all
+[00:29:50.960] things that are working across other
+[00:29:52.559] niches or in different forms. And so you
+[00:29:54.559] build up this database of all these
+[00:29:56.399] outlier videos in these adjacent niches.
+[00:29:59.039] And then you'll start to form patterns
+[00:30:00.720] between them. I'm not going to look at
+[00:30:01.919] this video. 22,000 views. Didn't do too
+[00:30:04.320] well. Oh, this one here, 1.1 million
+[00:30:06.559] views. Again, going to his channel,
+[00:30:08.240] looking through his. Okay, these videos
+[00:30:09.520] are kind of performing average. This one
+[00:30:10.720] did pretty well. 200,000 views. That
+[00:30:12.480] could be something. So that's two
+[00:30:14.159] personal brand courses that he's done
+[00:30:16.080] that have performed outstandingly well.
+[00:30:17.440] Maybe this course format works well when
+[00:30:19.600] relating to personal branding or in
+[00:30:21.600] niches related to personal branding like
+[00:30:24.000] YouTube growth, like LinkedIn growth,
+[00:30:26.159] like Instagram growth. Hm. I wonder if I
+[00:30:29.520] did this video in the Instagram growth
+[00:30:31.760] niche or in the YouTube growth niche and
+[00:30:33.440] I made it 6 hours long. You see what I
+[00:30:35.440] mean, right? And I know for a fact this
+[00:30:37.840] video would do extremely well in the
+[00:30:39.279] YouTube growth niche. So now I've got
+[00:30:40.640] this idea of like, okay, full courses
+[00:30:42.080] are working really well with this type
+[00:30:43.360] of viewer with similar viewing
+[00:30:44.559] behaviors. This would also work in my
+[00:30:46.080] niche. Nobody's done it before and I
+[00:30:48.320] know nobody's done it before to the
+[00:30:49.600] level of detail and value that somebody
+[00:30:51.279] like Caleb has for personal branding.
+[00:30:52.720] Nobody's done that for YouTube. And I
+[00:30:53.919] know I'm somebody who's actually capable
+[00:30:55.200] of doing that. Once you found these
+[00:30:56.480] video ideas and you've got some video
+[00:30:57.679] ideas for yourself that you think would
+[00:30:58.960] perform outstandingly well through all
+[00:31:00.320] the data that you found, make sure you
+[00:31:01.919] can actually make the content to a level
+[00:31:03.600] where it fulfills on the expectation the
+[00:31:05.200] viewer has. Because for example, if I
+[00:31:07.120] did this video of how to build a YouTube
+[00:31:09.679] channel full course, 6 hours, but I
+[00:31:12.480] didn't do it to the level of
+[00:31:13.679] sophistication and the level of detail
+[00:31:15.520] and value that Caleb did, which 100%
+[00:31:17.840] played a massive part in this video's
+[00:31:19.200] success. It's not just the title by any
+[00:31:20.799] means, right? And I'm sure the thumbnail
+[00:31:22.480] style also played a part in this, but I
+[00:31:25.120] think a big part of it is going to be
+[00:31:26.640] the course itself. It's one of those
+[00:31:28.000] formats where the content's also going
+[00:31:29.600] to very much carry the video's
+[00:31:31.120] performance. And so if I just make a
+[00:31:32.559] 6-hour fluffy course, it's not going to
+[00:31:34.399] necessarily work very well, is it? So
+[00:31:36.080] that's super important, too. It's just
+[00:31:37.200] as a little nugget there for you. So
+[00:31:38.799] anyways, I would continue to repeat this
+[00:31:41.440] process again, going as far as I can
+[00:31:43.519] possibly go until there's nothing left
+[00:31:45.440] to explore, retracing one step, and I
+[00:31:48.159] would continue to go through this search
+[00:31:49.519] term until the same thing applied. And
+[00:31:51.440] eventually, I would probably start to
+[00:31:53.440] get some results that would be less
+[00:31:55.679] relevant. And I'm starting to get
+[00:31:57.120] recommended stuff that's kind of outside
+[00:31:58.640] of things. But I wouldn't move off of
+[00:32:00.320] this search term until there's actually
+[00:32:01.919] nothing left to explore because all I
+[00:32:03.519] care about is finding the data and
+[00:32:04.640] finding the information, you know, and
+[00:32:06.080] so looks like there's a lot here. You
+[00:32:08.000] could go through this one search term of
+[00:32:09.600] personal branding and find an absolute
+[00:32:11.760] gold mine of ideas, but eventually you
+[00:32:14.480] would run out and you would then move on
+[00:32:16.960] to the next search term. And you repeat
+[00:32:19.360] that process all over again for that
+[00:32:21.919] search term, for those channels,
+[00:32:23.519] retracing steps recursively. And then
+[00:32:26.080] you move on to the next one and the next
+[00:32:27.360] one and the next one until you've done
+[00:32:29.039] the entire list. And that is how you
+[00:32:32.000] fully explore a YouTube niche using the
+[00:32:34.159] depth first search algorithm to ensure
+[00:32:36.399] that you find all of the data, all of
+[00:32:38.480] the information in order to make the
+[00:32:40.240] best decisions. And then you do that
+[00:32:42.240] across all of these different niches and
+[00:32:44.399] you suddenly have YouTube omniscience
+[00:32:46.480] where you literally know everything
+[00:32:48.240] about what's working on the platform.
+[00:32:49.600] And that is basically the crux of how
+[00:32:51.919] you execute the depth first search
+[00:32:53.440] algorithm. That's how you apply the
+[00:32:54.559] depth first search algorithm to
+[00:32:55.760] effectively do YouTube research. Explore
+[00:32:57.600] the entirety of a data set, a niche,
+[00:32:59.840] multiply that across multiple niches,
+[00:33:01.360] and gain YouTube obiscience to where you
+[00:33:03.039] have all the information and data in
+[00:33:04.480] order to make the best decisions, better
+[00:33:05.840] decisions than any other channel and
+[00:33:07.840] competitor in your niche. And in turn,
+[00:33:09.519] grow the biggest channel and take
+[00:33:10.799] majority market share, but obviously in
+[00:33:13.279] practice this is a lot of work. Now,
+[00:33:15.519] what I will say is it's worth the work.
+[00:33:17.840] It's worth the time invested. It's the
+[00:33:19.440] most valuable way that you can spend
+[00:33:20.720] your time. Now, obviously, when I talk
+[00:33:22.399] about exploring the entirety of YouTube
+[00:33:24.080] and gaining YouTube omniscience, that's
+[00:33:25.600] an unrealistic ideal hypothetical. But
+[00:33:28.320] the point is, the more visibility you
+[00:33:30.159] gain, the more equipped you're going to
+[00:33:31.760] be to be able to effectively grow your
+[00:33:33.840] channel. The more tools you're going to
+[00:33:34.960] have in your arsenal. Tools being title
+[00:33:37.039] formats that are working, thumbnail
+[00:33:38.159] styles that are working, etc., etc. But
+[00:33:40.159] I am going to show you how to automate
+[00:33:41.840] this process with AI. Because I know you
+[00:33:44.240] are probably thinking, I love the idea
+[00:33:46.000] of this, but I cannot be bothered to do
+[00:33:48.080] it. you should do it, but I'm still
+[00:33:49.679] going to show you how to do with AI for
+[00:33:51.039] educational purposes only and so that
+[00:33:53.200] you can scale your research even further
+[00:33:54.880] because if you're doing research and AI
+[00:33:56.399] is doing research at the same time and
+[00:33:57.760] you've got an AI research worker working
+[00:33:59.519] with you, that's beneficial and that's
+[00:34:00.799] in your best interest. So, let me drop
+[00:34:02.320] some source. So, I'm going to leave the
+[00:34:03.919] prompt for this in the description. I'll
+[00:34:05.840] have everything organized in one link
+[00:34:07.200] for you, like the link to the research
+[00:34:08.399] database, prompt, so on and so forth,
+[00:34:10.159] just so it's super easy for you. And
+[00:34:11.520] this is what it's capable of producing
+[00:34:12.879] where it's finding all of these outliers
+[00:34:14.879] across many, many, many, many, many
+[00:34:16.560] different niches. And it's also able to
+[00:34:18.720] actually recognize the patterns between
+[00:34:20.399] them. And this is where we come up with
+[00:34:21.679] these title formats and these thumbnail
+[00:34:23.040] styles. So for example, this first one
+[00:34:24.480] here, every explained in x minutes. Look
+[00:34:26.879] at this video. Every paradox explained
+[00:34:28.399] in 8 minutes. Every martial art type
+[00:34:30.480] explained in 12 minutes. Every single
+[00:34:32.320] Fallout vault explained in 51 minutes.
+[00:34:34.639] And you can see also the thumbnail
+[00:34:36.720] styles and the similarities between them
+[00:34:38.879] as well. Right? This format here, give
+[00:34:40.800] me X minutes and I'll give you XYZ. Give
+[00:34:42.960] me 10 minutes and I'll delete your fat.
+[00:34:44.639] Give me 9 minutes, I'll give you 10
+[00:34:46.079] years. Give me 10 minutes and I'll show
+[00:34:47.679] you how to not something something. So,
+[00:34:49.359] there's no distinct thumbnail style for
+[00:34:50.879] this one, but there's clearly a very
+[00:34:52.159] distinct title format, right? This is
+[00:34:53.760] just a glimpse of what you're actually
+[00:34:54.879] able to do with AI. We have our own
+[00:34:56.560] internal AI system on the back end,
+[00:34:59.040] which like if you think this is crazy,
+[00:35:00.880] the stuff that we're using for our
+[00:35:02.000] clients is on a whole other level. And
+[00:35:04.079] obviously, I can't give you that system
+[00:35:05.280] for free. That's exclusive for our
+[00:35:06.480] clients or inner circle members. So, if
+[00:35:08.400] you do want access to that, then you can
+[00:35:09.839] click the link in the description and
+[00:35:11.040] you can book a call for us to run the
+[00:35:12.560] YouTube channel for you and get access
+[00:35:13.839] to this system. or you can join the
+[00:35:15.280] inner circle in which I'll be giving you
+[00:35:16.880] this and teaching you this. But for the
+[00:35:18.400] sake of this video, I'm still going to
+[00:35:19.520] give you a ton of value and I'm going to
+[00:35:20.960] give you a simple prompt that you can
+[00:35:22.560] give to Claude and it's just going to do
+[00:35:24.320] the research for you in your browser.
+[00:35:26.079] It's super cool. Watch this. Okay, so
+[00:35:27.520] all I'm going to do is go into this
+[00:35:28.640] chart, but you can do this in a
+[00:35:29.760] completely fresh chat and paste this
+[00:35:31.040] prompt. Use the YouTube research skill,
+[00:35:32.720] which is also going to be included in
+[00:35:34.320] that freebie that you can get along with
+[00:35:36.720] the other stuff. And for the sake of
+[00:35:38.560] this, it's only going to do five strong
+[00:35:40.079] channels and three pages deep just so
+[00:35:41.760] it's not going to go on for absolutely
+[00:35:43.520] ages. And when you run this prompt, it's
+[00:35:45.359] literally going to do the entire process
+[00:35:46.560] that I just walked you through for you.
+[00:35:48.400] It's going to generate the list of core
+[00:35:49.839] seed keywords for that niche. It's going
+[00:35:51.760] to start with the first one. It's going
+[00:35:53.359] to find the first video that's above a
+[00:35:54.960] certain view threshold. And that's an
+[00:35:56.320] outstanding performer. It's going to
+[00:35:57.599] open up the channel in a new tab. It's
+[00:35:59.280] going to find all the outliers from that
+[00:36:01.280] channel and scrape the data using the
+[00:36:03.440] JSON and JavaScript that's rendered on
+[00:36:05.520] that page. It's then going to once fully
+[00:36:07.440] explored that channel, backtrack one
+[00:36:09.440] step recursively to the search term and
+[00:36:12.240] repeat the process. and then it'll
+[00:36:13.680] actually put it in a Google sheet for
+[00:36:15.040] you where it organizes all of the data
+[00:36:17.520] itself. You can see it working away here
+[00:36:19.599] as well and doing it alive. Right?
+[00:36:22.400] Again, for this example, I'm not doing
+[00:36:24.079] the full depth first search with this.
+[00:36:26.560] I'm just doing a small demo, but in
+[00:36:28.960] practice, you would go really deep with
+[00:36:30.720] this. YouTube research by far the most
+[00:36:32.480] important part of the entire YouTube
+[00:36:33.839] process. Now you know how to do it
+[00:36:35.680] algorithmically using the dev first
+[00:36:37.520] search algorithm to get the best video
+[00:36:39.200] ideas to make the best decisions
+[00:36:40.800] downstream at every single level of
+[00:36:42.320] making YouTube video and how to use AI
+[00:36:44.720] to actually automate this process. That
+[00:36:46.400] said, YouTube research is only one piece
+[00:36:48.480] of the process. So if you click on this
+[00:36:50.240] video here, I will give you a bunch of
+[00:36:52.720] value in all the other pieces of the
+[00:36:54.720] process. You'll know how to come up with
+[00:36:56.160] video ideas, how to hire an editor, a
+[00:36:58.400] bunch of other stuff. There's a massive
+[00:36:59.839] training there which goes through so
+[00:37:01.440] much source. Like I give away everything
+[00:37:02.880] I don't hold back. Click that video
+[00:37:04.320] there. I'll see you in the next
