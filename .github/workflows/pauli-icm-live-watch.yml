@@ -1,0 +1,48 @@
+# Credential-free, read-only Pauli ICM watch. This observes only the allowlisted public
+# Terabithia health endpoint and confirms that two protected routes still reject an
+# unauthenticated request. It never receives a bearer token and never mutates source state.
+name: pauli-icm-live-watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pauli-icm-live-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Capture and evaluate the read-only watch slice
+        run: node scripts/pauli-icm/run-live-watch.js "$RUNNER_TEMP/pauli-icm-live"
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/pauli-icm-live/SUMMARY.md" ]; then
+            cat "$RUNNER_TEMP/pauli-icm-live/SUMMARY.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Pauli ICM watch did not produce a summary; inspect the failed capture step." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload immutable run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pauli-icm-live-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pauli-icm-live
+          if-no-files-found: warn
+          retention-days: 30
