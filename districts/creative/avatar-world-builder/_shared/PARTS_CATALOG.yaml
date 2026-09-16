@@ -1,0 +1,28 @@
+version: 1
+purpose: Stable slot IDs for agent and human scene assembly.
+parts:
+  shell: { id: part.01.shell, required: true, contract: application frame and responsive layout }
+  backdrop: { id: part.02.backdrop, required: true, contract: environment image, HDRI, or 3D world }
+  lighting: { id: part.03.lighting, required: true, contract: ambient/key/fill lighting recipe }
+  camera: { id: part.04.camera, required: true, contract: camera transform and controls }
+  avatar_root: { id: part.05.avatar-root, required: true, contract: root transform and scale }
+  rig: { id: part.06.rig, required: true, contract: none|rigged|vrm-humanoid }
+  headwear: { id: part.07.headwear, required: false, contract: attach point or baked }
+  face: { id: part.08.face, required: true, contract: morph/eyes or baked }
+  torso: { id: part.09.torso, required: false, contract: attach point or baked }
+  outerwear: { id: part.10.outerwear, required: false, contract: attach point or baked }
+  legs_footwear: { id: part.11.legs-footwear, required: false, contract: attach point or baked }
+  hand_props: { id: part.12.hand-props, required: false, contract: named hand socket or baked }
+  free_props: { id: part.13.free-props, required: false, contract: world transform }
+  materials: { id: part.14.materials, required: true, contract: PBR material definitions }
+  textures: { id: part.15.textures, required: true, contract: texture set and compression }
+  motion: { id: part.16.motion, required: true, contract: state machine or none }
+  companion: { id: part.17.companion, required: false, contract: independent model and behavior }
+  effects: { id: part.18.effects, required: false, contract: particles/postprocess }
+  audio: { id: part.19.audio, required: false, contract: mute-safe sound cues }
+  navigation: { id: part.20.navigation, required: true, contract: interaction map }
+  identity: { id: part.21.identity, required: true, contract: nameplate and client copy }
+  access: { id: part.22.access, required: false, contract: gated links/permissions }
+  language: { id: part.23.language, required: true, contract: locale and copy }
+  budgets: { id: part.24.budgets, required: true, contract: polygon/texture/performance limits }
+  license: { id: part.25.license, required: true, contract: complete license ledger }
