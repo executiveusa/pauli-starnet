@@ -1,0 +1,14 @@
+scene:
+  id: client-world-v1
+  locale: en
+  slots:
+    backdrop: { candidates: [], selected: null }
+    avatar_root: { candidates: [], selected: null, rig: none }
+    identity: { display_name: null, selected: null }
+  license_ledger: []
+  decisions: []
+  acceptance:
+    desktop: pending
+    mobile: pending
+    reduced_motion: pending
+    no_webgl_fallback: pending
