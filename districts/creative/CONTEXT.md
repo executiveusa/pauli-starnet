@@ -18,6 +18,7 @@ Proactive rule: agents on a creative task pull the nodes tagged for their workfl
 - UGC pipeline + gauntlet (realism doctrine is the scoring axis)
 - Avatar/sprite work (Yappyverse character reference packs = consistency inputs)
 - Faceless-channel plan (owner says it is next)
+- Avatar World Builder: `avatar-world-builder/README.md` is the canonical composable-avatar workflow, parts catalog, source catalog, and release contract.
 
 ## Boundaries
 
