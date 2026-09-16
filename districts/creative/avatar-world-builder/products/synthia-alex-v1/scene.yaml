@@ -1,0 +1,17 @@
+scene:
+  id: synthia-alex-v1
+  status: observed-baseline
+  identity: { display_name: Alex, subtitle: Agente · Kupuri Media }
+  world: enchanted-forest
+  avatar:
+    type: static-baked-glb
+    rig: none
+    motion: root-level presentation only
+  composition:
+    includes: [wizard-avatar, hat, staff, social-navigation, gold-nameplate, ambient-audio-control]
+  known_constraints:
+    - source avatar contains no skeleton or animation clips
+    - new wearable slots require a rigged compatible avatar or a separate composition strategy
+  release_proof:
+    visual_check: required
+    license_ledger: required
