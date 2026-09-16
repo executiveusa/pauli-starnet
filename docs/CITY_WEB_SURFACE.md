@@ -103,3 +103,17 @@ record, and `GET /v1/city/status` exposes `activeTasks` (last 20: id, status,
 task, context, started/completed, receipt id) so activity dispatched from any
 device is visible to every viewer. Tests: `test/city-web.test.js`,
 `test/gateway-activetasks.test.js`.
+
+## Commerce activation (2026-09-16)
+
+The Commerce District keeps the existing five-agent roster and now records a concrete
+assignment in `frontend/city/ecom-roster.json`. MERCI and LEDGER own Printify draft and
+unit-economics work, HERALD owns Etsy draft packages, BEACON owns market research, and
+CONDUIT owns connector read-backs. Their source contracts live in
+`docs/commerce-agents/` and share the Printify-to-Etsy handoff contract.
+
+The public activity panel includes **Commerce pulse**, a filtered view of the same
+sanitized gateway activity used by the city world, ticker, and receipts. It shows only
+gateway-evidenced commerce-category work or work bound to MERCI, BEACON, HERALD,
+LEDGER, or CONDUIT. A roster assignment is not presented as live work. With no current
+evidence the panel says the district is idle.

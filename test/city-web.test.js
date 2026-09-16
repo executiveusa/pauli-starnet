@@ -41,7 +41,12 @@ for (const a of roster.agents) {
   A.ok(b && b.slots.indexOf(a.role) >= 0, a.agentId + ' role is a canonical slot of its building');
   A.ok(specIds.has(a.specialtyId), a.agentId + ' specialty exists in shared catalog');
   A.ok(/approval/i.test(a.system), a.agentId + ' system prompt keeps approval gate');
+  A.ok(typeof a.assignment === 'string' && a.assignment.length > 0, a.agentId + ' has a concrete commerce assignment');
+  A.ok(typeof a.contract === 'string' && a.contract.startsWith('docs/commerce-agents/'), a.agentId + ' links to its source contract');
 }
+A.eq(roster.activation.state, 'assigned', 'commerce roster records assignment, not invented live activity');
+A.ok(/No publishing, spend, orders/.test(roster.activation.scope), 'activation scope carries the owner gates');
+for (const rel of Object.values(roster.activation.contracts)) A.ok(fs.existsSync(path.join(__dirname, '..', rel)), rel + ' exists');
 
 // --- status classification honesty ---
 A.eq(CityCore.classifyStatus(null).mode, 'offline', 'no payload is offline, never live');
@@ -79,9 +84,11 @@ A.eq(CityCore.classifyStatus({ health: { status: 'online' }, citizens: [] }).mod
   const html = fs.readFileSync(__dirname + '/../frontend/city/index.html', 'utf8');
   A.ok(html.includes('id="gw-feed"') && html.includes('Gateway activity'), 'index.html carries the all-viewers gateway feed section');
   A.ok(html.includes('id="lastact"'), 'index.html carries the last-activity line');
+  A.ok(html.includes('id="commerce-feed"') && html.includes('Commerce pulse'), 'index.html carries the commerce evidence view');
   const js = fs.readFileSync(__dirname + '/../frontend/city/city.js', 'utf8');
   A.ok(/renderFeed\(\); renderLastAct\(\)/.test(js.replace(/\s+/g, ' ')) || (js.includes('renderFeed()') && js.includes('renderLastAct()')), 'poll renders feed + last-activity');
   A.ok(js.includes('CityCore.activityFeed'), 'feed rows come from the pure tested helper');
+  A.ok(js.includes('renderCommerce()') && js.includes('No evidenced Commerce District activity'), 'commerce view stays gateway-derived and honest when idle');
 }
 
 // walkPath: the visible route between two evidenced positions - endpoints exact,

@@ -35,14 +35,14 @@
     if (!state.gatewayUrl) { setMode('offline', 'Not connected — no live state.'); return; }
     try {
       const r = await fetch(state.gatewayUrl + '/v1/city/status', { cache: 'no-store' });
-      if (r.status === 404 && state.gatewayUrl === DEFAULT_GW) { setMode('offline', 'Not connected — no live state.'); return; }
+      if (r.status === 404 && state.gatewayUrl === DEFAULT_GW) { setMode('offline', 'Not connected — no live state.'); renderFeed(); renderCommerce(); renderLastAct(); renderChrome(); return; }
       if (r.status === 502 || r.status === 503) { setMode('degraded', 'City backend starting or unreachable.'); return; }
       if (!r.ok) { setMode('degraded', 'Gateway error ' + r.status); return; }
       const payload = await r.json();
       const c = CityCore.classifyStatus(payload);
       state.status = c;
       setMode(c.mode, c.label + (c.generatedAgoMin != null ? (c.generatedAgoMin < 1 ? ' · just now' : ' · ' + c.generatedAgoMin + ' min ago') : ''));
-      renderFeed(); renderLastAct(); renderChrome();
+      renderFeed(); renderCommerce(); renderLastAct(); renderChrome();
       for (const fn of subs) { try { fn(c); } catch (_) {} }
       if (window.CityWorld && window.CityWorld.applyStatus) { try { window.CityWorld.applyStatus(c); } catch (_) {} }
     } catch (_) {
@@ -69,6 +69,36 @@
       if (t.receipted) meta.push('receipted');
       if (t.startedAgoMin != null) meta.push(t.startedAgoMin < 1 ? 'just now' : t.startedAgoMin + ' min ago');
       if (t.settledAgoMin != null) meta.push('settled ' + (t.settledAgoMin < 1 ? 'just now' : t.settledAgoMin + ' min ago'));
+      row.appendChild(el('div', 'meta', meta.join(' · ')));
+      list.appendChild(row);
+    }
+  }
+
+  function renderCommerce() {
+    // Commerce Pulse is a filtered view of the same gateway evidence as the main feed.
+    // No seeded assignment or local roster file is treated as proof of live activity.
+    const list = $('#commerce-feed'), status = $('#commerce-state');
+    if (!list) return;
+    list.textContent = '';
+    const commerceNames = new Set(['MERCI', 'BEACON', 'HERALD', 'LEDGER', 'CONDUIT']);
+    const items = CityCore.activityFeed(state.status, 20).filter(t =>
+      String(t.label || '').toLowerCase().startsWith('commerce') || commerceNames.has(String(t.agent || '').toUpperCase())
+    );
+    if (status) status.textContent = items.length ? items.length + ' evidenced' : 'idle';
+    if (!items.length) {
+      list.appendChild(el('div', 'note', 'No evidenced Commerce District activity in the current gateway window.'));
+      return;
+    }
+    for (const t of items.slice(0, 6)) {
+      const row = el('div', 'taskrow');
+      const head = el('div');
+      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : 'running'), t.status));
+      head.appendChild(document.createTextNode(' ' + (t.label || '').slice(0, 140)));
+      row.appendChild(head);
+      const meta = [];
+      if (t.agent) meta.push(t.agent);
+      if (t.receipted) meta.push('receipted');
+      if (t.startedAgoMin != null) meta.push(t.startedAgoMin < 1 ? 'just now' : t.startedAgoMin + ' min ago');
       row.appendChild(el('div', 'meta', meta.join(' · ')));
       list.appendChild(row);
     }
