@@ -1,0 +1,16 @@
+approval:
+  id: avatar-world-builder-global-v1
+  scope: avatar-world-builder
+  status: approved
+  approved_by: owner
+  approved_on: 2026-09-16
+  allows:
+    - compose_and_validate_approved_avatar_logic
+    - create_reviewable_change_sets
+    - run_non_destructive_quality_checks
+  still_requires:
+    - confirmed_asset_license_ledger
+    - explicit_paid_provider_authorization
+    - valid_credentials_for_external_mutation
+    - explicit_production_publish_authorization
+  rollback: revert_the_named_commit_or_disable_the_deployment
