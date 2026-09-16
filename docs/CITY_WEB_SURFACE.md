@@ -117,3 +117,7 @@ sanitized gateway activity used by the city world, ticker, and receipts. It show
 gateway-evidenced commerce-category work or work bound to MERCI, BEACON, HERALD,
 LEDGER, or CONDUIT. A roster assignment is not presented as live work. With no current
 evidence the panel says the district is idle.
+
+Scope correction: Sweet Psilocybe is a separately owned, parked lane and is excluded
+from The Pauli Effect Commerce District assignment. The existing Sweet Psilocybe
+Printify Pop-Up store is not an activation target.
