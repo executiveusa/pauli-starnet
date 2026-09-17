@@ -31,6 +31,7 @@
 //   GET  /v1/city/world                   → read-only live station geometry for the 2D city view
 //   POST /v1/heisenberg/tasks             → create Heisenberg mission, poll to settled state
 //   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
+//   POST /v1/commerce/evidence             → record start/settle evidence from a real commerce worker
 //   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
 //
 // Start:
@@ -541,6 +542,43 @@ async function handleRequest(req, res) {
 
       log('info', 'task dispatched', { taskId, reqId });
       return send(202, taskRecord);
+    }
+
+    // POST /v1/commerce/evidence — bridge work done by an authenticated external worker
+    // into the same task/receipt truth model as gateway-dispatched runs. This does NOT run a model
+    // or create activity on a timer. A worker records start before real work and settle afterwards.
+    if (method === 'POST' && (url === '/v1/commerce/evidence' || url === '/v1/commerce/evidence/')) {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const action = String(body.action || '').trim();
+      const allowedAgents = new Set(['ecom-merci', 'ecom-beacon', 'ecom-herald', 'ecom-ledger', 'ecom-conduit']);
+      const agentId = String(body.agentId || '').trim();
+      if (!allowedAgents.has(agentId)) return send(400, { error: 'UNKNOWN_COMMERCE_AGENT' });
+      if (action === 'start') {
+        const task = String(body.task || '').trim();
+        if (!task || task.length > 500) return send(400, { error: 'task is required and must be at most 500 characters' });
+        const taskId = crypto.randomUUID();
+        const rec = {
+          id: taskId, task_id: taskId, mission_id: taskId, status: 'running', task,
+          context: { source: 'commerce-worker', district: 'commerce', building: agentId === 'ecom-conduit' ? 'connector_exchange' : 'commerce_factory', agentId },
+          startedAt: new Date().toISOString(),
+          receipt: makeReceipt('commerce_work_started', { task_id: taskId, agent_id: agentId })
+        };
+        taskStore.set(taskId, rec);
+        return send(202, rec);
+      }
+      if (action === 'settle') {
+        const taskId = String(body.taskId || '').trim();
+        const prior = taskStore.get(taskId);
+        if (!prior || !prior.context || prior.context.source !== 'commerce-worker') return send(404, { error: 'COMMERCE_TASK_NOT_FOUND' });
+        if (prior.context.agentId !== agentId) return send(409, { error: 'AGENT_MISMATCH' });
+        const outcome = body.outcome === 'failed' ? 'failed' : 'completed';
+        const rec = { ...prior, status: outcome, completedAt: new Date().toISOString(), receipt: makeReceipt('commerce_work_settled', { task_id: taskId, agent_id: agentId, outcome }) };
+        taskStore.set(taskId, rec);
+        return send(200, rec);
+      }
+      return send(400, { error: 'action must be start or settle' });
     }
 
     // GET /v1/heisenberg/tasks/:id

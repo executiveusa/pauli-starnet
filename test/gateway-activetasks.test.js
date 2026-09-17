@@ -93,6 +93,22 @@ async function main() {
   A.ok(runBody, 'sidecar saw the run body');
   A.eq(runBody.placed, ['dish'], 'city runs carry the placed dish (web read capability)');
 
+  // External commerce workers can emit truthful start/settle receipts without paying for
+  // another gateway model run. Movement exists only between these two evidenced actions.
+  const evStartBody = JSON.stringify({ action: 'start', agentId: 'ecom-beacon', task: 'Research current Etsy digital offers' });
+  const evStart = JSON.parse((await req('POST', GW_PORT, '/v1/commerce/evidence', Object.assign({ 'content-type': 'application/json' }, auth), evStartBody)).body);
+  A.eq(evStart.status, 'running', 'commerce evidence starts as running');
+  A.eq(evStart.context.agentId, 'ecom-beacon', 'commerce evidence binds the named agent');
+  A.ok(evStart.receipt && evStart.receipt.receipt_id, 'start carries a gateway receipt');
+  const evRunning = JSON.parse((await req('GET', GW_PORT, '/v1/city/status', auth)).body).activeTasks.find(t => t.id === evStart.task_id);
+  A.eq(evRunning.status, 'running', 'started commerce work reaches city activity');
+  const evSettleBody = JSON.stringify({ action: 'settle', agentId: 'ecom-beacon', taskId: evStart.task_id, outcome: 'completed' });
+  const evSettle = JSON.parse((await req('POST', GW_PORT, '/v1/commerce/evidence', Object.assign({ 'content-type': 'application/json' }, auth), evSettleBody)).body);
+  A.eq(evSettle.status, 'completed', 'commerce evidence settles honestly');
+  A.ok(evSettle.receipt.receipt_id !== evStart.receipt.receipt_id, 'settle gets its own receipt');
+  const mismatch = await req('POST', GW_PORT, '/v1/commerce/evidence', Object.assign({ 'content-type': 'application/json' }, auth), JSON.stringify({ action:'settle', agentId:'ecom-merci', taskId:evStart.task_id }));
+  A.eq(mismatch.status, 409, 'another agent cannot settle the task');
+
   child.kill(); sidecar.close();
   A.report();
   process.exit(0);
