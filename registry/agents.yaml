@@ -1,0 +1,21 @@
+version: 1
+agents:
+  - id: hermes
+    repo: executiveusa/pauli-hermes-agent
+    role: orchestrator
+    tenant_scope: shared
+    direct_infrastructure_access: false
+    status: LIVE
+  - id: alex
+    role: owner-facing-avatar
+    tenant_scope: configurable
+    visual_source: executiveusa/Synthia-avatar
+    direct_infrastructure_access: false
+    status: PARTIAL
+  - id: fanni
+    repo: executiveusa/agent-fanni-kupuri-
+    role: social-and-signal-agent
+    tenant_scope: kupuri
+    direct_infrastructure_access: false
+    publish_policy: HUMAN_APPROVAL_REQUIRED
+    status: PARTIAL
