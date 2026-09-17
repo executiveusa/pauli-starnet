@@ -1,0 +1,14 @@
+version: 1
+tenants:
+  - id: kupuri
+    owner: human-approved
+    control_plane_repo: executiveusa/kupuri-agent-city
+    status: PARTIAL
+    isolation_required: true
+    private_second_brain_public_retrieval: false
+    first_vertical_slice: true
+  - id: shared-platform
+    owner: platform-owner
+    status: LIVE
+    isolation_required: true
+    purpose: reusable-starnet-and-hermes-capabilities

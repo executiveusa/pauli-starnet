@@ -1,0 +1,16 @@
+version: 1
+assets:
+  - id: alex-body-v1
+    type: 3d-avatar
+    source_repo: executiveusa/Synthia-avatar
+    source_path: public/models/wizard-transformed.glb
+    canonical: true
+    reuse_policy: reference-dont-copy
+    commercial_license_status: UNVERIFIED
+    provenance_status: UNVERIFIED
+    release_gate: license-and-provenance-required
+  - id: starnet-avatar-world-builder
+    type: composition-skill
+    source_repo: executiveusa/pauli-starnet
+    canonical: true
+    status: LIVE

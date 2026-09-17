@@ -1,0 +1,22 @@
+version: 1
+districts:
+  - id: casa-central
+    responsibility: owner-coordination-approvals-mission-state
+    tenant_scope: per-tenant
+    status: PLANNED
+  - id: creative
+    responsibility: brand-image-video-audio-avatar-world-building
+    tenant_scope: shared-capability-with-tenant-boundaries
+    status: LIVE
+  - id: factory
+    responsibility: software-build-review-release
+    tenant_scope: shared-capability-with-tenant-boundaries
+    status: PARTIAL
+  - id: social
+    responsibility: research-preparation-scheduling-governed-publishing
+    tenant_scope: per-tenant
+    status: PARTIAL
+  - id: commerce
+    responsibility: leads-revenue-operations-evidence-receipts
+    tenant_scope: per-tenant
+    status: LIVE

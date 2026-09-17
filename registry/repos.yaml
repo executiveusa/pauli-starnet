@@ -1,0 +1,170 @@
+version: 1
+verified_at: 2026-09-17
+policy:
+  classifications: [SELL, USE, MERGE, PARK, ARCHIVE]
+  statuses: [LIVE, PARTIAL, PLANNED, PARKED, ARCHIVE, UNVERIFIED]
+  rule: "No repository is canonical merely because it exists."
+repositories:
+  - id: pauli-starnet
+    repo: executiveusa/pauli-starnet
+    role: shared-platform
+    classification: USE
+    status: LIVE
+    default_branch: feat/harness-backend
+    verified_head: 4a7a69143175f10b62afaf80ec22361c768741a8
+  - id: pauli-hermes-agent
+    repo: executiveusa/pauli-hermes-agent
+    role: orchestrator
+    classification: USE
+    status: LIVE
+    default_branch: main
+    verified_head: 5d42b04e6988933539e5377b9b9b1a22a74d3b9e
+  - id: kupuri-agent-city
+    repo: executiveusa/kupuri-agent-city
+    role: tenant-control-plane-reference
+    classification: USE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-avatar
+    repo: executiveusa/Synthia-avatar
+    role: canonical-alex-visual-source
+    classification: USE
+    status: LIVE
+    default_branch: main
+    verified_head: ae4e9487147d0300f77ffd602b0676c7d10eae3d
+  - id: fanni
+    repo: executiveusa/agent-fanni-kupuri-
+    role: kupuri-social-agent
+    classification: USE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-media-cdmx
+    repo: executiveusa/kupuri-media-cdmx
+    role: kupuri-public-portfolio
+    classification: USE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+    security_gate: REQUIRED
+  - id: kupuri-media-main-site
+    repo: executiveusa/kupuri-media-main-site
+    role: duplicate-public-site-candidate
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: cc5d44b5df5873725713a60f593a2930ef586516
+  - id: kupuri-media-website
+    repo: executiveusa/kupuri-media-website
+    role: duplicate-public-site-candidate
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-studios
+    repo: executiveusa/Kupuri-studios
+    role: legacy-studio-surface
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-studios-landing
+    repo: executiveusa/kupuri-studios-landing
+    role: legacy-or-campaign-surface
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: ed14383507051e5efc7dcff7a0868bfc8a4bf63d
+  - id: kupuri-oma
+    repo: executiveusa/kupuri-oma
+    role: product-node
+    classification: PARK
+    status: UNVERIFIED
+    default_branch: main
+    verified_head: a6c3b952c7bff0355fcb112d2b9750b32977baa8
+  - id: kupuri-soltar
+    repo: executiveusa/kupuri-soltar
+    role: product-node
+    classification: PARK
+    status: UNVERIFIED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-recetario-vivo
+    repo: executiveusa/kupuri-recetario-vivo
+    role: product-node
+    classification: PARK
+    status: UNVERIFIED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-documentos-interactivos-ron
+    repo: executiveusa/kupuri-documentos-interactivos-ron
+    role: product-node
+    classification: PARK
+    status: UNVERIFIED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: kupuri-client-renta-audio
+    repo: executiveusa/kupuri-client-renta-de-audio-
+    role: product-node
+    classification: PARK
+    status: UNVERIFIED
+    default_branch: main
+    verified_head: f665420877701499a98c50a14321672908de9561
+  - id: kupuri-second-brain
+    repo: executiveusa/kupuri-metamorphsis-second-brain
+    role: private-knowledge-system
+    classification: USE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+    public_retrieval: false
+  - id: querencia-kupuri
+    repo: executiveusa/Querencia-Kupuri-media
+    role: representative-product-contract
+    classification: USE
+    status: PLANNED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-gateway
+    repo: executiveusa/synthia-gateway
+    role: gateway-candidate
+    classification: MERGE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-superdesign
+    repo: executiveusa/synthia-superdesign
+    role: creative-knowledge-candidate
+    classification: USE
+    status: PARTIAL
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-3-0
+    repo: executiveusa/Synthia-3.0
+    role: legacy-lineage
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-3-1
+    repo: executiveusa/SYNTHIA-3.1
+    role: legacy-lineage
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-4-1
+    repo: executiveusa/synthia-4.1
+    role: legacy-lineage
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED
+  - id: synthia-4-2
+    repo: executiveusa/Synthia-4.2
+    role: legacy-lineage
+    classification: PARK
+    status: PARKED
+    default_branch: main
+    verified_head: UNVERIFIED

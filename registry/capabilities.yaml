@@ -1,0 +1,38 @@
+version: 1
+policy:
+  default: DENY
+  privileged_actions_require_receipt: true
+capabilities:
+  - id: github.read
+    risk: low
+    approval: none
+  - id: github.write
+    risk: high
+    approval: human
+  - id: social.prepare
+    risk: low
+    approval: none
+  - id: social.publish
+    risk: high
+    approval: human
+  - id: deploy.preview
+    risk: medium
+    approval: mission-scope
+  - id: deploy.production
+    risk: high
+    approval: human
+  - id: data.read.private
+    risk: high
+    approval: tenant-grant
+  - id: data.write.private
+    risk: high
+    approval: human-or-explicit-standing-grant
+  - id: spend
+    risk: critical
+    approval: human
+  - id: avatar.compose
+    risk: low
+    approval: none
+  - id: creative.generate
+    risk: low
+    approval: mission-scope
