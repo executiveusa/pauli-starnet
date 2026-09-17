@@ -1,0 +1,37 @@
+version: 1
+policy:
+  lookup_order:
+    - internal-registry
+    - approved-open-source-catalog
+    - external-search
+  new_dependency_requires:
+    - license-check
+    - security-check
+    - human-visible-rationale
+components:
+  - id: hermes-orchestrator
+    type: agent-runtime
+    source: executiveusa/pauli-hermes-agent
+    license_status: VERIFY_FROM_SOURCE
+    approved_for_reuse: conditional
+  - id: starnet-runtime
+    type: agent-harness
+    source: executiveusa/pauli-starnet
+    license_status: MIT_CODE_ONLY_BRAND_EXCLUDED
+    approved_for_reuse: true
+  - id: alex-avatar-source
+    type: avatar-asset-source
+    source: executiveusa/Synthia-avatar
+    license_status: UNVERIFIED
+    approved_for_reuse: false
+  - id: fanni-agent
+    type: tenant-agent
+    source: executiveusa/agent-fanni-kupuri-
+    license_status: VERIFY_FROM_SOURCE
+    approved_for_reuse: tenant-scoped
+  - id: synthia-gateway-candidate
+    type: gateway
+    source: executiveusa/synthia-gateway
+    license_status: VERIFY_FROM_SOURCE
+    approved_for_reuse: false
+    disposition: evaluate-before-merge
