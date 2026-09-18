@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://starnet.local/contracts/kupuri-social-prepare-mission.schema.json",
+  "title": "Kupuri Social Prepare Mission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["missionId", "tenantId", "requestedBy", "orchestrator", "interface", "worker", "capability", "channel", "payload"],
+  "properties": {
+    "missionId": {"type": "string", "minLength": 1},
+    "tenantId": {"const": "kupuri"},
+    "requestedBy": {"const": "human"},
+    "orchestrator": {"const": "hermes"},
+    "interface": {"const": "alex"},
+    "worker": {"const": "fanni"},
+    "capability": {"const": "social.prepare"},
+    "channel": {"type": "string", "minLength": 1},
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content"],
+      "properties": {
+        "content": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
