@@ -186,6 +186,7 @@ test/finish-line-doctrine.test.js
 test/manual.test.js
 test/permissions.test.js
 test/kupuri-governance.test.js
+test/kupuri-mission-chain.test.js
 test/workshop-permissions.test.js
 test/master-bypass.test.js
 test/workshop-store.test.js
