@@ -101,3 +101,55 @@ If a future task touches routing, FirstMate, Heisenberg, Hermes orchestration, m
 3. preserve the OFF switch and host kill switch;
 4. preserve human authority boundaries;
 5. record any promotion from shadow/advisory mode to live routing here with evidence and rollback instructions.
+
+---
+
+## 2026-09-18 - Future JEV reference plan: `awesome-jev-by-typesafe`
+
+**Status:** PLAN REFERENCE ONLY. The owner's pause remains in force: do not build, enable, fund, or promote JEV until StarNet is actually working and the owner gives a new go-ahead.
+
+Reference repository:
+
+- <https://github.com/Anil-matcha/awesome-jev-by-typesafe>
+- Reviewed snapshot: [`614b1fa35c26815f77f9a9c0be4a21c4eb3ba9b4`](https://github.com/Anil-matcha/awesome-jev-by-typesafe/tree/614b1fa35c26815f77f9a9c0be4a21c4eb3ba9b4)
+
+### ELI5 fit
+
+StarNet already has the JEV socket and OFF switch. This repository is a cookbook, not another engine. Later, use it to choose small questions JEV can answer, decide when low confidence falls back to Hermes, Heisenberg, or a human, and measure whether those answers are actually useful before JEV controls any route.
+
+### What it adds
+
+- reusable typed-decision patterns for `Choice`, `Score`, and `Noul`
+- code-owned confidence gates, abstention, and fallback patterns
+- agent-harness examples for skill selection, tool routing, command risk, retrieval filtering, diff checks, and model cascades
+- an evaluation checklist covering labelled cases, raw probabilities, model versions, latency, false allows, false blocks, escalations, and route cost
+- Python and TypeScript starter examples plus a map of outside JEV tools and experiments to inspect selectively
+
+### What it duplicates
+
+The current StarNet JEV seam already asks about worker routing, next action, risk, human approval, and proof sufficiency. Do not add a second control plane, second gateway, or second UI switch. Reuse `window.StarNetJev.decide(state)`, `/api/jev-decision`, the existing OFF state, and `STARNET_JEV_DISABLED=1`.
+
+### What to ignore or treat as unproven
+
+- This is an independent community collection, not an official TypeSafe repository or endorsement.
+- Vendor-reported speed, efficiency, limits, prices, and data-handling claims are not StarNet results. Re-check official sources when the pilot restarts.
+- Community demos, benchmarks, thresholds, and example policies are leads, not production proof or defaults.
+- JEV confidence does not grant authorization. It cannot bypass FirstMate, existing approval rules, human review, or deterministic checks.
+- Do not vendor the whole repository or add every listed integration. Pull only the smallest pattern needed for a measured StarNet decision.
+
+### Future shadow-pilot sequence - only after the pause is lifted
+
+1. Confirm StarNet is stable and the owner explicitly unpauses JEV.
+2. Re-check the live TypeSafe model, API contract, limits, price, data terms, and gateway route.
+3. Start with one reversible decision: recommend a worker for a mission. JEV advises; existing StarNet routing stays authoritative.
+4. Log the input state, typed questions, full probability distributions, confidence, versioned model, latency, cost, JEV recommendation, actual route, and outcome.
+5. Build labelled replay cases from real StarNet missions, including ambiguous, out-of-domain, and low-confidence inputs.
+6. Compare JEV with the existing route on false allows, false blocks, unnecessary escalations, latency, cost, and mission outcome. Do not promote it on confidence alone.
+7. If worker routing passes an owner-approved gate, test the existing questions one at a time: skill suggestion, next-action suggestion, proof-sufficiency check, then risk/approval flags. Keep financial, credential, destructive, ownership, DNS, irreversible, and sovereignty-sensitive actions approval-gated.
+8. Record any promotion, evidence, thresholds, and rollback here. If results are weak, leave JEV OFF and keep the cookbook only as a reference.
+
+### Proven now vs not proven
+
+**Proven now:** StarNet's existing JEV code is additive and OFF by default; its focused test proved OFF makes zero upstream calls. The reviewed cookbook contains the patterns and examples listed above and labels itself independent. Its current public snapshot is MIT-licensed.
+
+**Not proven now:** no credit-backed live StarNet JEV test, routing accuracy, calibrated threshold, savings, production latency, or operational advantage has been established. The pause stays in force.
