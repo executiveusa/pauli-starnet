@@ -97,7 +97,7 @@ const { starnetManual } = require('./manual.js');   // truthful "how StarNet wor
 const FinishLine = require('./finish-line.js');
 const TaskProfile = require('./task-profile.js');       // slim least-privilege run profiles (web-research lane)     // immutable "crawl to the finish line" task doctrine at the final prompt seam
 const { makeHarnessSnapshot } = require('./harness-snapshot.js');   // bounded secret-free build/scheduler/connectors/diagnostics truth for station.inspect
-const { makeOpenRouterProvider } = require('./providers/openrouter.js');
+const { makeOpenRouterProvider } = require('./providers/openrouter.js');\nconst { makeJevClient } = require('./jev-client.js');   // optional Jev System-One decision plane; OFF means zero network calls
 const edgetts = require('./edgetts.js');   // V-EDGE: free keyless neural TTS floor (decoupled from the LLM provider)
 const localVoice = require('./local-voice.js');
 const { makeMediaService } = require('./media-service.js');
@@ -155,6 +155,11 @@ const { makePathTrust } = require('./pathtrust.js');            // NS-5: convers
 // Tool-result images (browser.screenshot / browser.vision -> real pixels in the prompt). ON by default; set
 // SKYNET_TOOL_IMAGES=0 for a text-only endpoint that rejects image content parts.
 const TOOL_IMAGES_ON = String(process.env.SKYNET_TOOL_IMAGES == null ? '' : process.env.SKYNET_TOOL_IMAGES).trim() !== '0';
+const jevClient = makeJevClient({
+  fetchImpl: (...args) => fetch(...args),
+  endpoint: process.env.STARNET_JEV_URL || 'https://pauli-starnet-city.netlify.app/api/jev-decision',
+  hardOff: String(process.env.STARNET_JEV_DISABLED || '').trim() === '1'
+});
 const { makeProjectBless, projectScopeLine, makeProjectInstructions } = require('./projectbless.js');      // NS-5c: ADD-a-project bless core (second doorway, same grant machinery) + project-scoped run context line + the project's own AGENTS.md/CLAUDE.md house rules
 const { makeFolderPick } = require('./folderpick.js');          // Projects rail "browse": native OS folder chooser (convenience only — bless stays the consent)
 const { makeTelegramAdapter } = require('./channels/telegram.js');
@@ -19265,6 +19270,25 @@ async function handleMemoryReset(req, res) {
   latestStudyRun.delete(agentId); lastStudyAt.delete(agentId); studyingNow.delete(agentId); studyDeclinedByAgent.delete(agentId);
   persistStudyState();
   return json(200, { ok: true, agent: agentId });
+}
+
+// POST /api/jev-decision { enabled, state } — optional Jev decision plane.
+// The frontend toggle is the ordinary control. When OFF the client returns locally and performs ZERO network I/O.
+// STARNET_JEV_DISABLED=1 is the emergency host-level kill switch. The upstream Netlify function owns gateway credentials.
+async function handleJevDecision(req, res) {
+  const json = (code, obj) => respondJson(res, code, obj);
+  let body;
+  try { body = JSON.parse(await readBody(req, 1 << 18, res)) || {}; }
+  catch (_) { if (!res.headersSent) json(400, { ok: false, error: 'bad json' }); return; }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json(400, { ok: false, error: 'bad body' });
+  if (body.state == null) return json(400, { ok: false, error: 'state required' });
+  try {
+    const result = await jevClient.decide({ enabled: body.enabled === true, state: body.state });
+    const code = result && result.ok === false && !result.bypassed ? (result.status || 502) : 200;
+    return json(code, result);
+  } catch (e) {
+    return json(502, { ok: false, error: 'jev_proxy_failed', message: e && e.message ? String(e.message) : 'unknown error' });
+  }
 }
 
 // GET /api/memory/records?agent=<id> — the FULL §5.2 records for the Memory Core panel (the /api/notebook
