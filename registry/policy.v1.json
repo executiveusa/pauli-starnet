@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "default": "DENY",
+  "tenants": {
+    "kupuri": {
+      "status": "PARTIAL",
+      "owner_ref": "kupuri-human-owner",
+      "isolation_required": true,
+      "agents": {
+        "hermes": ["mission.route", "github.read"],
+        "alex": ["mission.request", "avatar.compose"],
+        "fanni": ["social.prepare"]
+      }
+    },
+    "shared-platform": {
+      "status": "LIVE",
+      "owner_ref": "platform-owner",
+      "isolation_required": true,
+      "agents": {
+        "hermes": ["mission.route", "github.read", "deploy.preview"]
+      }
+    }
+  },
+  "agents": {
+    "hermes": {"tenant_scope":"shared","direct_infrastructure_access":false},
+    "alex": {"tenant_scope":"configurable","direct_infrastructure_access":false},
+    "fanni": {"tenant_scope":"kupuri","direct_infrastructure_access":false}
+  },
+  "capabilities": {
+    "mission.route": {"risk":"low","approval":"none","infrastructure":false},
+    "mission.request": {"risk":"low","approval":"none","infrastructure":false},
+    "github.read": {"risk":"low","approval":"none","infrastructure":true},
+    "social.prepare": {"risk":"low","approval":"none","infrastructure":true},
+    "social.publish": {"risk":"high","approval":"human","infrastructure":true},
+    "deploy.preview": {"risk":"medium","approval":"mission-scope","infrastructure":true},
+    "deploy.production": {"risk":"high","approval":"human","infrastructure":true},
+    "github.write": {"risk":"high","approval":"human","infrastructure":true},
+    "spend": {"risk":"critical","approval":"human","infrastructure":true},
+    "avatar.compose": {"risk":"low","approval":"none","infrastructure":false}
+  },
+  "hard_denies": [
+    {"actor":"alex","when":"infrastructure","reason":"owner-facing avatars cannot directly exercise infrastructure capabilities"},
+    {"actor":"fanni","capability":"social.publish","reason":"publishing is not granted in the first Kupuri vertical slice"},
+    {"capability":"deploy.production","reason":"production deployment is outside the first Kupuri vertical slice"},
+    {"capability":"github.write","reason":"destructive/write GitHub authority is outside the first Kupuri vertical slice"},
+    {"capability":"spend","reason":"spend is outside the first Kupuri vertical slice"}
+  ]
+}
