@@ -1,0 +1,44 @@
+# Owner: Hermes, Command District.
+# State: OFF by default. Run manually with workflow_dispatch.
+# Activation: uncomment the schedule block only after Bambú explicitly flips daily automation ON.
+# Staged cadence: 00:17 America/Mexico_City daily = 06:17 UTC (Mexico City has no DST).
+# Scope: staging/sandbox only. No secrets, providers, public network calls, deploys, or production services.
+name: Daily StarNet staging eval
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '17 6 * * *'
+
+permissions:
+  contents: read
+
+env:
+  STARNET_EVAL_TARGET: staging-sandbox
+
+jobs:
+  daily-staging-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run credential-free staging evals
+        run: node scripts/eval/daily-staging.mjs
+      - name: Add report to the Actions summary
+        if: always()
+        run: cat qa/eval-receipts/daily-staging-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload daily report and machine receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starnet-daily-eval-${{ github.run_number }}
+          path: |
+            qa/eval-receipts/daily-staging-summary.md
+            qa/eval-receipts/last-gate-receipt.json
+          if-no-files-found: warn
+          retention-days: 30
