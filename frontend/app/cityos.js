@@ -118,7 +118,7 @@ const CityOS = (() => {
     },
     cuties_penthouse: {
       label: "CUTIES PENTHOUSE", kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
-      slots: ['mila', 'fanni'], caps: ['files', 'web', 'memory'], decor: ['bigscreen'],
+      slots: ['mila', 'fanni', 'darya', 'cc004_reserved', 'cc005_reserved'], caps: ['files', 'web', 'memory'], decor: ['bigscreen'],
       dressing: ['arc_floorlight', 'lavalamp', 'cablerun']
     },
     paulis_penthouse: {
