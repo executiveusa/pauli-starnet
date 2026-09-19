@@ -116,6 +116,11 @@ const CityOS = (() => {
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
       dressing: ['cablerun', 'arc_floorlight', 'ticker', 'hazardpad']
     },
+    cuties_penthouse: {
+      label: "CUTIES PENTHOUSE", kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
+      slots: ['mila', 'fanni'], caps: ['files', 'web', 'memory'], decor: ['bigscreen'],
+      dressing: ['arc_floorlight', 'lavalamp', 'cablerun']
+    },
     paulis_penthouse: {
       label: 'THE PENTHOUSE', kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel',
       slots: ['pauli', 'archivist'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['bigscreen'],
@@ -136,6 +141,7 @@ const CityOS = (() => {
   const DEFAULT_SPEC = Object.freeze({
     schema: 'paulis.place.city', version: 2, name: "PAULI'S PLACE",
     districts: [
+      { id: 'crypto-cuties', label: 'CUTIES DISTRICT', buildings: [{ template: 'cuties_penthouse' }] },
       { id: 'pauli', label: "PAULI'S PENTHOUSE", buildings: [{ template: 'paulis_penthouse' }, { template: 'paulis_place' }, { template: 'hall_of_canon' }] },
       { id: 'command', label: 'COMMAND DISTRICT', buildings: [{ template: 'executive_hq' }] },
       { id: 'production', label: 'PRODUCTION DISTRICT', buildings: [{ template: 'software_factory' }, { template: 'pi_foundry' }] },
