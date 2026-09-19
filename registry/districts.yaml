@@ -20,3 +20,7 @@ districts:
     responsibility: leads-revenue-operations-evidence-receipts
     tenant_scope: per-tenant
     status: LIVE
+  - id: crypto-cuties
+    responsibility: synthetic-creator-operations-ugc-production
+    tenant_scope: per-tenant
+    status: PLANNED
