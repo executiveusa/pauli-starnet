@@ -153,3 +153,41 @@ The current StarNet JEV seam already asks about worker routing, next action, ris
 **Proven now:** StarNet's existing JEV code is additive and OFF by default; its focused test proved OFF makes zero upstream calls. The reviewed cookbook contains the patterns and examples listed above and labels itself independent. Its current public snapshot is MIT-licensed.
 
 **Not proven now:** no credit-backed live StarNet JEV test, routing accuracy, calibrated threshold, savings, production latency, or operational advantage has been established. The pause stays in force.
+
+---
+
+## 2026-09-19 - JEV shadow mode ACTIVATED (free floor, recommend-only)
+
+**Status change:** the 2026-09-18 pause is LIFTED by explicit owner go-ahead.
+Owner evidence: WhatsApp from the owner, received 2026-09-19 2:53 PM CST,
+verbatim: "Connect jev and let's test it. We have alot of jev pending logic
+already. Connect it and run a free tier test".
+
+What was connected: `sidecar/jev-shadow-openrouter.js` - a shadow decision
+plane answering the SAME typed-question contract as
+`netlify/functions/jev-decision.mts` (agent / next_action / risk /
+requires_human_approval / proof_satisfied), but backed by free-tier
+OpenRouter models so the pilot spends $0. Groq was the preferred free lane
+per the model-routing rule, but every Groq key on file failed provider
+read-back (403) at activation time; OpenRouter free models were verified
+live instead.
+
+Shadow contract in force:
+- recommend-only: JEV answers typed questions; existing StarNet routing
+  stays authoritative; nothing routes on JEV output;
+- kill switches armed: STARNET_JEV_DISABLED=1 env (503) and the
+  x-starnet-jev-enabled: 1 header gate (409 without it); the UI toggle and
+  OFF-by-default behavior are unchanged;
+- every decision logged as a receipt (input state, answers, confidence,
+  model, latency, token usage, cost_usd=0) to
+  registry/jev-shadow-ledger.jsonl on the host;
+- no TypeSafe/Netlify AI Gateway credits were added or used; the live
+  Netlify URL still 404s (function never deployed there).
+
+First free-tier test (2026-09-19, six real mission states from the day's
+actual work): receipts in the ledger; results reported to the owner.
+
+Rollback: `systemctl stop pauli-jev-shadow` (host) and/or set
+STARNET_JEV_DISABLED=1; the socket returns to OFF-by-default with zero
+upstream calls, as proven by test/jev-control.test.js.
+
