@@ -23,8 +23,11 @@ const API_KEY = process.env.OPENROUTER_API_KEY || '';
 const MODELS = (process.env.JEV_SHADOW_MODELS
   || 'deepseek/deepseek-v4-flash-0731:free,z-ai/glm-5.2:free,google/gemma-4-31b-it:free'
 ).split(',').map(s => s.trim()).filter(Boolean);
+const GATEWAY_TOKEN_FILE = process.env.JEV_GATEWAY_TOKEN_FILE || '/root/.vercel-token';
+const GATEWAY_URL = process.env.JEV_GATEWAY_URL || 'https://ai-gateway.vercel.sh/v1/evaluate';
+const GATEWAY_MODEL = process.env.JEV_GATEWAY_MODEL || 'typesafe-ai/jev';
 const HARD_OFF = String(process.env.STARNET_JEV_DISABLED || '').trim() === '1';
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 
 const QUESTION_SPEC = `You are the JEV shadow decision plane for StarNet, a fleet of coding/ops agents.
 Given a mission state, answer FIVE typed questions. Reply with STRICT JSON only, no prose:
@@ -75,6 +78,86 @@ function validAnswers(a) {
     && risks.includes(a.risk && a.risk.score)
     && yn(a.requires_human_approval)
     && yn(a.proof_satisfied);
+}
+
+const GATEWAY_QUESTIONS = {
+  agent: { type: 'choice', criteria: {
+    hermes: 'orchestration, planning, delegation, synthesis',
+    heisenberg: 'city-level coordination across workers and systems',
+    frontend: 'UI, UX, browser, visual work',
+    infra: 'hosting, deploy, networking, DNS, servers',
+    research: 'gathering, comparison, verification' } },
+  next_action: { type: 'choice', criteria: {
+    inspect: 'read state before changing anything',
+    modify: 'bounded reversible change',
+    test: 'verification without production authority',
+    deploy_preview: 'non-production preview deploy',
+    request_approval: 'ask the human owner first',
+    stop: 'do not continue' } },
+  risk: { type: 'choice', criteria: {
+    low: 'read-only or reversible, negligible blast radius',
+    medium: 'bounded write with clear rollback',
+    high: 'production, credentials, data, infrastructure',
+    critical: 'destructive, irreversible, financial, ownership, security' } },
+  requires_human_approval: { type: 'boolean',
+    instructions: 'Does this need human owner approval? true: production merge/deploy, destructive, credentials, DNS, money, ownership, irreversible. false: read-only, shadow evaluation, tests, bounded non-production work.' },
+  proof_satisfied: { type: 'boolean',
+    instructions: 'Does the supplied state contain enough evidence to claim the requested outcome is verified?' },
+};
+
+function gatewayToken() {
+  try { return fs.readFileSync(GATEWAY_TOKEN_FILE, 'utf8').trim(); } catch { return null; }
+}
+
+function gatewayAnswersToContract(ans) {
+  if (!ans || typeof ans !== 'object') return null;
+  const pick = (v) => v && (v.choice !== undefined ? v.choice : v.value);
+  const bool = (v) => v && (v.probability !== undefined ? (v.probability >= 0.5 ? 'yes' : 'no') : (v.answer !== undefined ? v.answer : null));
+  const conf = (v) => (v && typeof v.probability === 'number') ? Math.max(v.probability, 1 - v.probability) : null;
+  const out = {
+    agent: { choice: pick(ans.agent) },
+    next_action: { choice: pick(ans.next_action) },
+    risk: { score: pick(ans.risk) },
+    requires_human_approval: { answer: bool(ans.requires_human_approval) },
+    proof_satisfied: { answer: bool(ans.proof_satisfied) },
+    confidence: Math.max(conf(ans.agent) || 0, conf(ans.risk) || 0, conf(ans.requires_human_approval) || 0, conf(ans.proof_satisfied) || 0) || undefined,
+  };
+  return validAnswers(out) ? out : null;
+}
+
+async function callGateway(state) {
+  const token = gatewayToken();
+  if (!token) return { ok: false, error: { provider: 'typesafe-gateway', error: 'no_gateway_token' } };
+  const started = Date.now();
+  try {
+    const resp = await fetch(GATEWAY_URL, {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: GATEWAY_MODEL,
+        state: JSON.stringify(state).slice(0, 6000),
+        questions: GATEWAY_QUESTIONS,
+      }),
+    });
+    const text = await resp.text();
+    let parsed = null;
+    try { parsed = text ? JSON.parse(text) : null; } catch {}
+    if (!resp.ok) return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
+    const answers = gatewayAnswersToContract(parsed && parsed.answers);
+    if (!answers) return { ok: false, error: { provider: 'typesafe-gateway', status: 200, error: 'shape_invalid', content: clip(text, 300) } };
+    return { ok: true, provider: 'typesafe-gateway', model: GATEWAY_MODEL, answers, usage: parsed.usage || undefined, latencyMs: Date.now() - started };
+  } catch (e) {
+    return { ok: false, error: { provider: 'typesafe-gateway', error: e && e.message } };
+  }
+}
+
+async function callDecision(state) {
+  // Primary: real TypeSafe Jev via Vercel AI Gateway. Fallback: OpenRouter free lane.
+  const gw = await callGateway(state);
+  if (gw.ok) return gw;
+  const or = await callModel(state);
+  if (or.ok) { or.gatewayError = gw.error; return or; }
+  return { ok: false, error: { gateway: gw.error, openrouter: or.error } };
 }
 
 async function callModel(state) {
@@ -168,18 +251,19 @@ const server = http.createServer(async (req, res) => {
     const state = parsed && parsed.state;
     if (state == null) return json(res, 400, { ok: false, error: 'state_required' });
     const requestId = crypto.randomUUID();
-    const result = await callModel(state);
+    const result = await callDecision(state);
     ledgerWrite({
       ts: new Date().toISOString(),
       requestId,
       version: VERSION,
       shadow: true,
       state: JSON.stringify(state).slice(0, 2000),
+      provider: result.ok ? (result.provider || "openrouter-free") : undefined,
       model: result.ok ? result.model : undefined,
       answers: result.ok ? result.answers : undefined,
       usage: result.ok ? result.usage : undefined,
       latencyMs: result.ok ? result.latencyMs : undefined,
-      costUsd: 0,
+      costUsd: result.ok && result.provider === 'typesafe-gateway' && result.usage && result.usage.inputTokens ? result.usage.inputTokens * 0.042 / 1e6 : 0,
       error: result.ok ? undefined : result.error,
     });
     if (!result.ok) {
@@ -188,6 +272,7 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, {
       ok: true,
       shadow: true,
+      provider: result.provider || 'openrouter-free',
       model: result.model,
       answers: result.answers,
       usage: result.usage,

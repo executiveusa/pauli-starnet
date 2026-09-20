@@ -4,7 +4,7 @@ One-sentence law: **JEV decides, it does not write.** Hermes plans in prose, JEV
 
 ## What this district owns
 - The JEV socket: `netlify/functions/jev-decision.mts` (TypeSafe typed-question seam) and `sidecar/jev-client.js`.
-- The shadow decision plane: `sidecar/jev-shadow-openrouter.js`, live on the VPS (127.0.0.1:8794, systemd `pauli-jev-shadow.service`), recommend-only, kill switches armed (`STARNET_JEV_DISABLED=1`, missing `x-starnet-jev-enabled` header -> 409). Receipts: `registry/jev-shadow-ledger.jsonl`.
+- The shadow decision plane: `sidecar/jev-shadow-openrouter.js`, live on the VPS (127.0.0.1:8794, systemd `pauli-jev-shadow.service`), recommend-only, kill switches armed (`STARNET_JEV_DISABLED=1`, missing `x-starnet-jev-enabled` header -> 409). Receipts: `registry/jev-shadow-ledger.jsonl`. Provider ladder: REAL TypeSafe Jev via Vercel AI Gateway (`typesafe-ai/jev`, /v1/evaluate, gateway token referenced by file path only, never in chat) primary; OpenRouter free-tier models fallback. Observed: ~400ms/decision, ~$0.000027/decision, calibrated confidence on every answer.
 - The allowance-governor skill: `sidecar/skills/library/allowance-governor.md` (token-window economy for metered agents).
 - The docs: `docs/JEV/` (COST-MODEL, LEARNINGS).
 - The researcher bench: `districts/jev/research/` - standing job is cooking JEV applications (see research/seeds.md).

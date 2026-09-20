@@ -15,6 +15,7 @@ citizens:
     ledger: registry/jev-shadow-ledger.jsonl
     role: shadow-decision-plane
     mode: recommend-only
+    providers: [typesafe-gateway (real Jev, primary), openrouter-free (fallback)]
     status: LIVE
   - id: allowance-governor
     kind: skill
