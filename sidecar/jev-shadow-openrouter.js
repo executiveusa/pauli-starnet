@@ -164,6 +164,50 @@ async function callGateway(state) {
   }
 }
 
+function validCustomQuestions(q) {
+  if (!q || typeof q !== 'object' || Array.isArray(q)) return false;
+  const keys = Object.keys(q);
+  if (!keys.length || keys.length > 8) return false;
+  for (const k of keys) {
+    if (!/^[a-z0-9_]{1,32}$/.test(k)) return false;
+    const v = q[k];
+    if (!v || typeof v !== 'object') return false;
+    if (v.type === 'boolean' && typeof v.instructions === 'string' && v.instructions.length > 0) continue;
+    if (v.type === 'choice' && v.criteria && typeof v.criteria === 'object' && !Array.isArray(v.criteria)
+        && Object.keys(v.criteria).length >= 2 && Object.keys(v.criteria).length <= 8) continue;
+    return false;
+  }
+  return true;
+}
+
+async function callGatewayCustom(state, questions) {
+  const token = gatewayToken();
+  if (!token) return { ok: false, error: { provider: 'typesafe-gateway', error: 'no_gateway_token' } };
+  const started = Date.now();
+  try {
+    const resp = await fetch(GATEWAY_URL, {
+      signal: AbortSignal.timeout(10000),
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: GATEWAY_MODEL, state: JSON.stringify(state).slice(0, 6000), questions }),
+    });
+    const text = await resp.text();
+    let parsed = null;
+    try { parsed = text ? JSON.parse(text) : null; } catch {}
+    if (!resp.ok) {
+      if ((resp.status === 429 || resp.status >= 500) && !callGatewayCustom._retried) {
+        callGatewayCustom._retried = true;
+        await new Promise(r => setTimeout(r, 3000));
+        return callGatewayCustom(state, questions).finally(() => { callGatewayCustom._retried = false; });
+      }
+      return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
+    }
+    return { ok: true, provider: 'typesafe-gateway', model: GATEWAY_MODEL, rawAnswers: (parsed && parsed.answers) || {}, usage: parsed.usage || undefined, latencyMs: Date.now() - started };
+  } catch (e) {
+    return { ok: false, error: { provider: 'typesafe-gateway', error: e && e.message } };
+  }
+}
+
 async function callDecision(state) {
   // Primary: real TypeSafe Jev via Vercel AI Gateway. Fallback: OpenRouter free lane.
   const gw = await callGateway(state);
@@ -264,8 +308,10 @@ const server = http.createServer(async (req, res) => {
     try { parsed = JSON.parse(body); } catch {}
     const state = parsed && parsed.state;
     if (state == null) return json(res, 400, { ok: false, error: 'state_required' });
+    const customQ = parsed.questions !== undefined ? parsed.questions : null;
+    if (customQ !== null && !validCustomQuestions(customQ)) return json(res, 400, { ok: false, error: 'questions_invalid' });
     const requestId = crypto.randomUUID();
-    const result = await callDecision(state);
+    const result = customQ ? await callGatewayCustom(state, customQ) : await callDecision(state);
     ledgerWrite({
       ts: new Date().toISOString(),
       requestId,
@@ -274,7 +320,8 @@ const server = http.createServer(async (req, res) => {
       state: JSON.stringify(state).slice(0, 2000),
       provider: result.ok ? (result.provider || "openrouter-free") : undefined,
       model: result.ok ? result.model : undefined,
-      answers: result.ok ? result.answers : undefined,
+      answers: result.ok ? (result.answers || result.rawAnswers) : undefined,
+      customQuestions: customQ ? Object.keys(customQ) : undefined,
       usage: result.ok ? result.usage : undefined,
       probabilities: result.ok ? result.probabilities : undefined,
       upstreamFallback: result.ok && result.gatewayError ? result.gatewayError : undefined,
@@ -290,7 +337,7 @@ const server = http.createServer(async (req, res) => {
       shadow: true,
       provider: result.provider || 'openrouter-free',
       model: result.model,
-      answers: result.answers,
+      answers: result.answers || result.rawAnswers,
       usage: result.usage,
       requestId,
     });
