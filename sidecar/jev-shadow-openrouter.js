@@ -143,6 +143,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && u.pathname === '/healthz') {
     return json(res, 200, { ok: true, version: VERSION, models: MODELS, hardOff: HARD_OFF });
   }
+  if (req.method === 'GET' && u.pathname === '/status') {
+    let ledgerCount = 0;
+    try { ledgerCount = fs.readFileSync(LEDGER, 'utf8').trim().split(/\n/).filter(Boolean).length; } catch {}
+    return json(res, 200, { ok: true, district: 'jev', citizen: 'jev-shadow', mode: 'recommend-only', version: VERSION, models: MODELS, hardOff: HARD_OFF, keyConfigured: Boolean(API_KEY), ledgerEntries: ledgerCount, uptimeSec: Math.round(process.uptime()) });
+  }
   if (req.method !== 'POST' || u.pathname !== '/api/jev-decision') {
     return json(res, 404, { ok: false, error: 'not_found' });
   }

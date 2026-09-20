@@ -24,3 +24,7 @@ districts:
     responsibility: synthetic-creator-operations-ugc-production
     tenant_scope: per-tenant
     status: PLANNED
+  - id: jev
+    responsibility: typed-decision-layer-socket-shadow-research
+    tenant_scope: shared-capability-with-tenant-boundaries
+    status: LIVE

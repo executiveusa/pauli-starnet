@@ -1,0 +1,30 @@
+version: 1
+district: jev
+citizens:
+  - id: jev-socket
+    kind: code
+    path: netlify/functions/jev-decision.mts
+    role: typed-question-seam
+    status: LIVE
+  - id: jev-shadow
+    kind: service
+    path: sidecar/jev-shadow-openrouter.js
+    unit: pauli-jev-shadow.service
+    endpoint: http://127.0.0.1:8794
+    routes: ["/healthz", "/api/jev-decision", "/status"]
+    ledger: registry/jev-shadow-ledger.jsonl
+    role: shadow-decision-plane
+    mode: recommend-only
+    status: LIVE
+  - id: allowance-governor
+    kind: skill
+    path: sidecar/skills/library/allowance-governor.md
+    role: token-window-economy
+    status: LIVE
+  - id: jev-researcher
+    kind: agent
+    path: districts/jev/research/
+    cadence: daily
+    floor: free-tier-only
+    role: application-research
+    status: LIVE
