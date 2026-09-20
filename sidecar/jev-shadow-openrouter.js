@@ -131,6 +131,7 @@ async function callGateway(state) {
   const started = Date.now();
   try {
     const resp = await fetch(GATEWAY_URL, {
+      signal: AbortSignal.timeout(10000),
       method: 'POST',
       headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -142,10 +143,22 @@ async function callGateway(state) {
     const text = await resp.text();
     let parsed = null;
     try { parsed = text ? JSON.parse(text) : null; } catch {}
-    if (!resp.ok) return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
+    if (!resp.ok) {
+      if ((resp.status === 429 || resp.status >= 500) && !callGateway._retried) {
+        callGateway._retried = true;
+        await new Promise(r => setTimeout(r, 3000));
+        return callGateway(state).finally(() => { callGateway._retried = false; });
+      }
+      return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
+    }
     const answers = gatewayAnswersToContract(parsed && parsed.answers);
     if (!answers) return { ok: false, error: { provider: 'typesafe-gateway', status: 200, error: 'shape_invalid', content: clip(text, 300) } };
-    return { ok: true, provider: 'typesafe-gateway', model: GATEWAY_MODEL, answers, usage: parsed.usage || undefined, latencyMs: Date.now() - started };
+    const probabilities = {};
+    for (const [k, v] of Object.entries(parsed.answers || {})) {
+      if (v && v.probabilities) probabilities[k] = v.probabilities;
+      else if (v && typeof v.probability === 'number') probabilities[k] = v.probability;
+    }
+    return { ok: true, provider: 'typesafe-gateway', model: GATEWAY_MODEL, answers, probabilities, usage: parsed.usage || undefined, latencyMs: Date.now() - started };
   } catch (e) {
     return { ok: false, error: { provider: 'typesafe-gateway', error: e && e.message } };
   }
@@ -167,6 +180,7 @@ async function callModel(state) {
     const started = Date.now();
     try {
       const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        signal: AbortSignal.timeout(25000),
         method: 'POST',
         headers: {
           authorization: 'Bearer ' + API_KEY,
@@ -262,6 +276,8 @@ const server = http.createServer(async (req, res) => {
       model: result.ok ? result.model : undefined,
       answers: result.ok ? result.answers : undefined,
       usage: result.ok ? result.usage : undefined,
+      probabilities: result.ok ? result.probabilities : undefined,
+      upstreamFallback: result.ok && result.gatewayError ? result.gatewayError : undefined,
       latencyMs: result.ok ? result.latencyMs : undefined,
       costUsd: result.ok && result.provider === 'typesafe-gateway' && result.usage && result.usage.inputTokens ? result.usage.inputTokens * 0.042 / 1e6 : 0,
       error: result.ok ? undefined : result.error,
