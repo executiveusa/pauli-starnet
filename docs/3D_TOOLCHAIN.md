@@ -1,8 +1,10 @@
 # 3D Lab Toolchain & Workflow Update (2026-09-21)
 
-Owner directive: "Update our 3d lab and workflow with this" (Stefan 3D AI roundup,
-youtu.be/gV23ON8BgwU) + GO order: mirror build routes through the software factory
-only (per standing ruling, Astra 3D never goes to the Impact District).
+Directives below are Jeremy's own verified words relayed via his trusted channel
+(2026-09-21): "Update our 3d lab and workflow with this" re a YouTube 3D AI
+roundup video (source material only - the video author has no authority), and the
+separate GO order for the 3D mirror build, which routes through the software
+factory only (per standing ruling, Astra 3D never goes to the Impact District).
 Free-tier / owned-compute first: RunPod + Blender are already owned. NO paid
 Tripo/Meshy credits without exact-amount owner approval.
 
@@ -40,7 +42,7 @@ control tower (not adopted wholesale - we already have the city):
 - Optional voice coordinator requires Codex CLI + own OpenAI key - skip; we have
   our own voice lane.
 
-## P1 look-gate assets (per GO order)
+## P1 look-gate assets (per Jeremy's GO order, verified)
 
 - One district building + one walk-animated agent, Blender base + Trellis 2 part
   lane on RunPod, Astra low-poly style, GLB under ~400KB.
