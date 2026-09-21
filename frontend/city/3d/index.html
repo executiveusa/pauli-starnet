@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarNet City - 3D Mirror</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; background: #10171a; color: #d7e5ec; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 14px; background: #162124; border-bottom: 1px solid #24363b; }
+  header h1 { font-size: 15px; margin: 0 12px 0 0; letter-spacing: .04em; }
+  header .meta { color: #8fb0b8; font-size: 12px; margin-right: auto; }
+  button { font: inherit; background: #1e2f34; color: #d7e5ec; border: 1px solid #33505a; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  button[aria-pressed="true"] { background: #2b4d56; border-color: #ffd166; }
+  button:hover { border-color: #5b8794; }
+  a.back { color: #ffd166; text-decoration: none; }
+  #stage { height: calc(100vh - 110px); min-height: 420px; }
+  #status { padding: 6px 14px; font-size: 12px; color: #8fb0b8; background: #10171a; border-top: 1px solid #24363b; display: flex; gap: 18px; }
+  #status b { color: #d7e5ec; font-weight: 600; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "/assets/three/three.module.js", "three/addons/": "/assets/three/jsm/" } }
+</script>
+</head>
+<body>
+<header>
+  <h1>STARNET CITY // 3D MIRROR</h1>
+  <span class="meta" id="world-meta">loading...</span>
+  <button data-world="pauli" aria-pressed="true">Pauli</button>
+  <button data-world="polly" aria-pressed="false">Polly</button>
+  <button data-world="officina" aria-pressed="false" id="btn-officina" title="Owner mode only">Officina</button>
+  <button id="btn-tier" aria-pressed="false" title="low / standard detail">Detail: low</button>
+  <button data-cmd="left">&#10226;</button>
+  <button data-cmd="right">&#10227;</button>
+  <button data-cmd="in">+</button>
+  <button data-cmd="out">-</button>
+  <button data-cmd="reset">Reset cam</button>
+  <a class="back" href="/city/">2D city &rarr;</a>
+</header>
+<div id="stage"></div>
+<div id="status">
+  <span>scene: <b id="st-scene">boot</b></span>
+  <span>agents: <b id="st-agents">0</b></span>
+  <span>motion: <b id="st-motion">none</b></span>
+  <span>source: <b id="st-source">disconnected</b></span>
+</div>
+<script type="module">
+import { createWorld3D, WORLDS } from "./world3d.js";
+import { startAgentBridge } from "./agent-bridge.js";
+
+const stage = document.getElementById("stage");
+const stScene = document.getElementById("st-scene");
+const stAgents = document.getElementById("st-agents");
+const stMotion = document.getElementById("st-motion");
+const stSource = document.getElementById("st-source");
+const worldMeta = document.getElementById("world-meta");
+
+let currentWorld = "pauli";
+let tier = "low";
+const ownerMode = new URLSearchParams(location.search).get("owner") === "1";
+
+const api = createWorld3D(stage, {
+  tier,
+  ownerMode,
+  explore: true,
+  onReady(world, t) {
+    stScene.textContent = "ready";
+    const m = WORLDS[world];
+    worldMeta.textContent = `${m.title} - ${m.eyebrow} - ${m.description}`;
+  },
+  onError(msg) { stScene.textContent = "error"; worldMeta.textContent = msg; },
+});
+if (!api) { worldMeta.textContent = "3D unavailable on this browser. Use the 2D city."; }
+else {
+  api.loadWorld(currentWorld, tier);
+  document.querySelectorAll("button[data-world]").forEach(b => b.addEventListener("click", () => {
+    currentWorld = b.dataset.world;
+    document.querySelectorAll("button[data-world]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    stScene.textContent = "loading";
+    api.loadWorld(currentWorld, tier);
+  }));
+  document.getElementById("btn-tier").addEventListener("click", e => {
+    tier = tier === "low" ? "standard" : "low";
+    e.currentTarget.textContent = `Detail: ${tier}`;
+    e.currentTarget.setAttribute("aria-pressed", String(tier === "standard"));
+    stScene.textContent = "loading";
+    api.loadWorld(currentWorld, tier);
+  });
+  document.querySelectorAll("button[data-cmd]").forEach(b => b.addEventListener("click", () => api.command(b.dataset.cmd)));
+  window.addEventListener("starnet-scene-telemetry", e => {
+    if (e.detail.name === "scene.usable") stScene.textContent = "ready";
+  });
+  // Live agent bridge: mirrors 2D city agent state into the 3D scene.
+  startAgentBridge({
+    onAgents(list) { api.setAgents(list); stAgents.textContent = String(list.length); },
+    onState(source, motion) { stSource.textContent = source; stMotion.textContent = motion; },
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+{
+  "version": 2,
+  "classification": "generic-fictional-public-geometry",
+  "origin": "Original procedural architecture authored for this task; no real-site likeness claimed",
+  "motion": "none",
+  "assets": [
+    {
+      "world": "pauli",
+      "tier": "low",
+      "url": "/worlds/pauli/low.glb",
+      "bytes": 244876,
+      "sha256": "ac4813a56ad26887556a536d1cc3bf367e989f6ff7e4001c1ee4e41e5d19f675",
+      "triangles": 9324,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -18,
+          -0.42500001192092896,
+          -13
+        ],
+        "max": [
+          18,
+          11.350000381469727,
+          20.5
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "pauli-architecture-limestone",
+        "pauli-architecture-graphite",
+        "pauli-architecture-recessed-glass",
+        "pauli-architecture-brushed-brass",
+        "pauli-architecture-garden",
+        "pauli-architecture-timber",
+        "pauli-architecture-chalk"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    },
+    {
+      "world": "pauli",
+      "tier": "standard",
+      "url": "/worlds/pauli/standard.glb",
+      "bytes": 476320,
+      "sha256": "4718b867678e3c5509e93645e3fc4eb73f2d85a9352013a8042462b48fe807e6",
+      "triangles": 18992,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -18,
+          -0.42500001192092896,
+          -13
+        ],
+        "max": [
+          18,
+          11.350000381469727,
+          20.5
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "pauli-architecture-limestone",
+        "pauli-architecture-graphite",
+        "pauli-architecture-recessed-glass",
+        "pauli-architecture-brushed-brass",
+        "pauli-architecture-garden",
+        "pauli-architecture-timber",
+        "pauli-architecture-chalk"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    },
+    {
+      "world": "polly",
+      "tier": "low",
+      "url": "/worlds/polly/low.glb",
+      "bytes": 272512,
+      "sha256": "1027c3cf31ed4b40b087c925fedcde095f349a7aa414b0da238bb37b4bdf3d38",
+      "triangles": 5636,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -15,
+          -0.3499999940395355,
+          -11.5
+        ],
+        "max": [
+          15,
+          12.6899995803833,
+          11.5
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "polly-architecture-limestone",
+        "polly-architecture-graphite",
+        "polly-architecture-recessed-glass",
+        "polly-architecture-brushed-brass",
+        "polly-architecture-garden",
+        "polly-architecture-timber",
+        "polly-architecture-chalk"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    },
+    {
+      "world": "polly",
+      "tier": "standard",
+      "url": "/worlds/polly/standard.glb",
+      "bytes": 535532,
+      "sha256": "9e394daa3f0da8be8b61770150f631efb902dfca149fdf75795b63e01adf988f",
+      "triangles": 11608,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -15,
+          -0.3499999940395355,
+          -11.5
+        ],
+        "max": [
+          15,
+          12.6899995803833,
+          11.5
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "polly-architecture-limestone",
+        "polly-architecture-graphite",
+        "polly-architecture-recessed-glass",
+        "polly-architecture-brushed-brass",
+        "polly-architecture-garden",
+        "polly-architecture-timber",
+        "polly-architecture-chalk"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    },
+    {
+      "world": "officina",
+      "tier": "low",
+      "url": "/worlds/officina/low.glb",
+      "bytes": 84844,
+      "sha256": "36454fbd48f2d48715eb22352c88b366a6ad321137b61b0d8de9b2e1bb6dc915",
+      "triangles": 3112,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -10,
+          -0.32499998807907104,
+          -8
+        ],
+        "max": [
+          10,
+          5.409999847412109,
+          8
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "officina-architecture-limestone",
+        "officina-architecture-graphite",
+        "officina-architecture-brushed-brass",
+        "officina-architecture-garden",
+        "officina-architecture-timber",
+        "officina-architecture-chalk",
+        "officina-architecture-woven-upholstery"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    },
+    {
+      "world": "officina",
+      "tier": "standard",
+      "url": "/worlds/officina/standard.glb",
+      "bytes": 139496,
+      "sha256": "b0d99db3996838e3d4ac214c47f826844a0067d5207e5aa4f2ccdb9c34a45aa7",
+      "triangles": 5816,
+      "drawPrimitives": 7,
+      "materials": 7,
+      "textures": 0,
+      "bounds": {
+        "min": [
+          -10,
+          -0.32499998807907104,
+          -8
+        ],
+        "max": [
+          10,
+          5.409999847412109,
+          8
+        ]
+      },
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "nodes": [
+        "officina-architecture-limestone",
+        "officina-architecture-graphite",
+        "officina-architecture-brushed-brass",
+        "officina-architecture-garden",
+        "officina-architecture-timber",
+        "officina-architecture-chalk",
+        "officina-architecture-woven-upholstery"
+      ],
+      "source": "generatedasset / original procedural geometry",
+      "attribution": "Original fictional architecture; no third-party model input",
+      "license": "Original task output; no third-party license restrictions asserted",
+      "operationalBindings": []
+    }
+  ],
+  "optionalProps": [
+    {
+      "url": "/worlds/officina/sheen-chair.glb",
+      "bytes": 628188,
+      "sha256": "5d8141292c37cd60b3bc79d95742424bde1c048174052145f3b6208e28587e2d",
+      "triangles": 17969,
+      "drawPrimitives": 4,
+      "materials": 6,
+      "license": "CC0-1.0",
+      "attribution": "Sheen Chair, 2020 Wayfair LLC / Eric Chadwick. Fictional product.",
+      "source": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/c6a6bd13ab2b3c685c7903d03561b8a9392f38b8/Models/SheenChair/glTF-Binary/SheenChair.glb",
+      "licenseEvidence": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/c6a6bd13ab2b3c685c7903d03561b8a9392f38b8/Models/SheenChair/README.md",
+      "changes": "Scout-supplied mobile derivative: mesh simplification, embedded 256px textures, default mango variant, missing-UV AO reference removed. File copied unchanged from visual-assets/SheenChair/mobile.glb.",
+      "loadPolicy": "Only authenticated Officina AND user-selected standard detail",
+      "classification": "generic-fictional-public-prop",
+      "estimatedRGBA8TextureBytesWithMips": 2271912
+    }
+  ],
+  "contactTextures": [
+    {
+      "world": "pauli",
+      "url": "/worlds/pauli/contact.png",
+      "bytes": 5180,
+      "sha256": "4314472c4f6ecc0b659411a3ad5f21f0ffafb322f961a3010f11fe2c41fe4964",
+      "dimensions": [
+        256,
+        256
+      ],
+      "source": "Original locally authored analytic footprint shadows; bake-contact.py, Pillow Gaussian blur; no external input",
+      "motion": "none",
+      "estimatedRGBA8BytesWithMips": 349524
+    },
+    {
+      "world": "polly",
+      "url": "/worlds/polly/contact.png",
+      "bytes": 4306,
+      "sha256": "652a4dc9cd060b2ae7bc80b3a8ec710e366f46efe0d477149aeb30ca79f00a11",
+      "dimensions": [
+        256,
+        256
+      ],
+      "source": "Original locally authored analytic footprint shadows; bake-contact.py, Pillow Gaussian blur; no external input",
+      "motion": "none",
+      "estimatedRGBA8BytesWithMips": 349524
+    },
+    {
+      "world": "officina",
+      "url": "/worlds/officina/contact.png",
+      "bytes": 4690,
+      "sha256": "12bb29c19d7aa3d37d8d0cf99b076775103ba19389811a855d566f6e39994e2d",
+      "dimensions": [
+        256,
+        256
+      ],
+      "source": "Original locally authored analytic footprint shadows; bake-contact.py, Pillow Gaussian blur; no external input",
+      "motion": "none",
+      "estimatedRGBA8BytesWithMips": 349524
+    }
+  ],
+  "finishRevision": "2026 visual repair: aligned closed barrel, articulated furniture, tier-specific detail and baked floor contact shading"
+}
