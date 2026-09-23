@@ -31,6 +31,42 @@ For each round:
 - Patch only the smallest slice needed to address those defects.
 - Re-run existing tests and the direct comparison.
 
+## Brand independence gate
+
+For unrelated product/brand design work, the Gauntlet must also enforce
+`creative/BRAND-WORLD-STANDARD.md`.
+
+The benchmark and the portfolio serve different purposes:
+
+- **benchmark critic:** asks whether the challenger reaches the required quality/behavior bar;
+- **portfolio-collision critic:** asks whether the challenger has inherited another project's
+  surface identity.
+
+The collision critic must compare the candidate against relevant existing portfolio work,
+preferably using equivalent screenshots/viewports and initially ignoring logo, copy, and
+palette where practical.
+
+Verdict = **HOLD** if changing only copy, logo, color, or imagery would make the candidate
+substantially interchangeable with another unrelated project.
+
+Inspect at least:
+
+- typography behavior;
+- hero/composition structure;
+- spacing/density rhythm;
+- card/panel language;
+- image treatment;
+- motion/interaction language;
+- recurring decorative devices;
+- project-specific cultural/material cues.
+
+A quality benchmark is not a visual template. COLLINS, Apple, Awwwards, Impeccable,
+Steve Krug, MaxFusion, TryItNow, and similar references provide quality mechanisms or
+project-specific comparison points; their surface identity does not become a house style.
+
+When the collision verdict is HOLD, return to the Brand World Contract and change the
+colliding decisions before another Gauntlet round.
+
 ## MaxFusion rule
 
 When MaxFusion is the benchmark for Buffer Blaster, compare observable product behavior and outcomes rather than copying proprietary design, copy, or implementation. Relevant dimensions include:
@@ -62,6 +98,7 @@ Return:
 - benchmark locked
 - challenger evidence
 - critic verdict
+- portfolio-collision verdict for unrelated brand work
 - top three defects
 - smallest next slice
 - proof run
