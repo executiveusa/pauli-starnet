@@ -43,3 +43,16 @@ test('Nick template renderer is offline, five configs retain Nick components but
   }
   fs.rmSync(tmp,{recursive:true,force:true});
 });
+test('manager outbox only stores held, private, source-labelled envelopes',()=>{
+  const fs=require('node:fs');const os=require('node:os');const path=require('node:path');
+  const {queueDraft}=require('../districts/crypto-cuties/nicks-stack/manager-outbox');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cuties-held-'));
+  assert.throws(()=>queueDraft(dir,'cc001','upwork','draft pitch',''),/provenance/);
+  const item=queueDraft(dir,'cc001','upwork','draft pitch','owner brief 2026-09-26');
+  assert.equal(item.state,'HELD');
+  const saved=JSON.parse(fs.readFileSync(item.localPath,'utf8'));
+  assert.equal(saved.envelope.manager,'Hermes');
+  assert.equal(saved.envelope.externalEffects,'held');
+  assert.equal(fs.statSync(item.localPath).mode & 0o777,0o600);
+  fs.rmSync(dir,{recursive:true,force:true});
+});
