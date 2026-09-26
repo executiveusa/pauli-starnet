@@ -1,8 +1,9 @@
 # Command Bridge — one front door, clear lanes, simple failover
 
 **Status:** proposal + audit, 2026-09-26. Read by: owner, Hermes, Instinct, any coding agent.
-**Scope:** StarNet (`pauli-starnet`), Command Center (`pauli-command-center`), Hermes
-(`pauli-hermes-agent`), Instinct voice bridge (`instinct-voice-agent`), Pi (`pauli-pi-agent`).
+**Scope:** StarNet (`pauli-starnet`), Command Center (`pauli-command-center`), Terabithia
+(`terabithia`), Hermes (`pauli-hermes-agent`), Instinct voice bridge (`instinct-voice-agent`),
+Pi (`pauli-pi-agent`).
 
 This file supersedes the *naming* in [HEISENBERG_FIRSTMATE_ARCHITECTURE.md](HEISENBERG_FIRSTMATE_ARCHITECTURE.md):
 the first mate is **Hermes**. Everything else in that document (StarNet stays the runtime, consent
@@ -26,12 +27,15 @@ stays native, evidence before claims) still holds.
                 ┌──────▼──────┐   heartbeat watch: Instinct silent > 5 min
                 │   HERMES    │◄── → Hermes answers WhatsApp itself (same board,
                 │ first mate  │      same intents, same receipts)
-                └──┬───────┬──┘
-     dispatch      │       │   dispatch (business lanes only)
-         ┌─────────▼─┐   ┌─▼─────────────┐
-         │  STARNET  │   │  other crews  │  (factory, commerce, creative…)
-         │  runtime  │   │  via adapters │
-         └───────────┘   └───────────────┘
+                └──────┬──────┘
+                ┌──────▼──────────┐  the ONE gateway: auth, policy (GREEN/YELLOW/RED),
+                │   TERABITHIA    │  audit log, approvals, all server credentials
+                │  control plane  │
+                └──┬─────┬─────┬──┘
+         ┌─────────▼┐ ┌──▼───┐ ┌▼──────────────────────┐
+         │ STARNET  │ │ Orca │ │ Coolify, Docker, TARS/│
+         │ runtime  │ │ code │ │ BARS, Jarvis, GitHub  │
+         └──────────┘ └──────┘ └───────────────────────┘
 
      ┌───────────────────────────────────┐
      │  PI — personal lane (sealed)      │  health, life, money. Talks ONLY to you
@@ -49,9 +53,12 @@ Three rules make this simple:
    receipts, parked items, open decisions. Instinct reads it, Command Center reads it, the
    phone voice reads it. Right now the board is a local file on one VPS (`board.json`), and that's the
    coupling to delete.
-3. **One approval path.** Decisions go `Command Center → Hermes → StarNet native consent`
-   (`/api/consent/answer`). Until that seam is wired, every surface says *"approve in StarNet"*.
-   None of them claims it recorded a decision (see bug G2).
+3. **One gateway, one approval path.** Terabithia is already the narrow waist (Command Center's own
+   `docs/CONTROL_TOWER.md` says so). Every privileged action goes through it, and approvals live in
+   Terabithia's `ApprovalEngine`. StarNet should become **one more Terabithia adapter** (like
+   Orca and Coolify), not sit behind its own public gateway. That deletes both duplicate StarNet
+   gateways (§4). Until approvals are owner-bound (bug T1), every surface says *"approve in StarNet"*
+   and none claims it recorded a decision (see bug G2).
 
 ## 2. Who does what (lanes)
 
@@ -59,6 +66,7 @@ Three rules make this simple:
 |---|---|---|---|
 | **Instinct** | Your voice and WhatsApp front. Hears you, reads the board, sends intents, speaks answers. Default channel. | `/v1/intents`, `/v1/board`, its browser "hands" in read-only mode | Direct StarNet, Pi, money, publishing |
 | **Hermes** | First mate (firstmate model): turns intent into missions, dispatches crews, supervises, escalates only real decisions, keeps the board. **Standby for Instinct.** | StarNet gateway, crew adapters, board, receipts | Pi lane, secrets in chat, anything irreversible without your word |
+| **Terabithia** | Control plane: the only thing holding infrastructure credentials. Policy tiers, audit, approvals, adapters. | Coolify, Docker, GitHub, Orca, Hermes, (next) StarNet | Deciding *what* to do; that's Hermes' job |
 | **StarNet** | Runtime. Agents, capabilities, consent, spend, Night Shift. | Its own workspace | Public internet (loopback only, behind one gateway) |
 | **Pi** | Personal agent: health, life, finances. **Sealed lane.** | Its own store + read-only personal connectors you grant (calendar, bank read, health export) | Fleet, business repos, Hermes, StarNet, WhatsApp fleet channel |
 | **Command Center** | Your screen. Shows board, city, approvals; sends intents. | Hermes intents/board, Pi realm (separate token) | Shells, secrets, infrastructure |
@@ -138,9 +146,21 @@ Bugs specific to the Hermes copy:
 | H3 | S2 | `POST /v1/heisenberg/tasks` blocks up to 90 s (`:215`). The Command Center's poll loop never runs, and serverless requests hang. |
 | H4 | S2 | "Heisenberg" is a single chat completion with no crew dispatch. The first-mate claim isn't backed. |
 
-**Decision to make:** keep **one** gateway. The recommendation is the Hermes-mounted one (Hermes is
-the first mate and already fronts `api.thepaulieffect.com`), rebuilt on the Node version's logic
-(async 202 + poll, truthful failed status, tools on the wire). Then delete the other.
+**Decision to make:** keep **zero** of them as public gateways. Terabithia is already the
+gateway. Move the Node version's logic (async 202 + poll, truthful failed status, tools on the
+wire) into a `bridge/adapters/starnet` client inside Terabithia, then delete both. The Command
+Center's `starnet-control-plane.ts` then goes through `control-plane.ts` like everything else.
+
+### Terabithia — `terabithia` (control plane)
+
+| # | Sev | Bug |
+|---|---|---|
+| T1 | **S1** | **Approvals aren't owner-bound.** `POST /api/v1/approvals/{id}/execute` only needs the same `TERABITHIA_API_KEY` the agents (Custom GPT, Hermes, Command Center) already hold (`bridge/server/app.ts:1147`). The agent that *requested* a RED action can approve it itself. Execute needs an owner-only credential: an owner session from the Command Center, or a separate `OWNER_APPROVAL_KEY`. |
+| T2 | **S1** | **Fake execution.** For any RED operation other than container stop or deploy promote, execute returns `ok:true, "Operation … executed."` and does nothing (the `else` branch after `app.ts:1170`). It should return 501 for unknown operations. |
+| T3 | S2 | Approvals are an in-memory `Map` (`bridge/approvals/engine.ts`). A restart drops every pending approval, and the Command Center shows none. They should persist to `/data/` like coding sessions. |
+| T4 | S2 | The bearer check is `token === apiKey` (`app.ts:74`), which isn't constant-time. Use hash + `timingSafeEqual`, the same fix as G1. |
+| T5 | S2 | One key does everything. The same `TERABITHIA_API_KEY` is used by the Custom GPT, the Command Center, and (via fallback) the StarNet client (C3). Give each caller its own key and scope. |
+| T6 | S3 | The README is still the Lovable template ("Welcome to your Lovable Project!"). Point it at `icm/ARCHITECTURE.md`. |
 
 ### Command Center — `pauli-command-center`
 
@@ -168,7 +188,7 @@ the first mate and already fronts `api.thepaulieffect.com`), rebuilt on the Node
 
 ## 5. Delete list (simpler = better)
 
-1. One gateway, not two (§4).
+1. One gateway: Terabithia. The StarNet Node gateway and the Hermes `starnet_gateway.py` both go (§4).
 2. One intent endpoint (`/v1/intents`), not three task clients (Terabithia/Hermes, StarNet/Heisenberg, Pi).
 3. One board served over HTTP, not a file on one box.
 4. One name per agent: Hermes (first mate), Instinct (voice/WhatsApp), Pi (personal). Retire Heisenberg.
@@ -201,8 +221,9 @@ the first mate and already fronts `api.thepaulieffect.com`), rebuilt on the Node
 ## 8. Order of work
 
 1. **Today:** confirm `COSMOS_OPEN_ACCESS` is unset in Coolify (C1). Deploy the gateway fixes in this PR (G1–G4).
+   Fix Terabithia T1 + T2 (owner-bound approvals, no fake execution). These are small and high-impact.
 2. Fix the Instinct Dockerfile + duplicate tool (I1, I2). It's a two-line change.
-3. Pick one gateway, and move `/v1/board` + `/v1/intents` into it.
+3. Add a StarNet adapter to Terabithia, delete both StarNet gateways, and put `/v1/board` + `/v1/intents` on Hermes behind Terabithia.
 4. Heartbeat + Hermes WhatsApp takeover watcher.
 5. Pi charter rewrite + token separation.
 6. Delete list.
