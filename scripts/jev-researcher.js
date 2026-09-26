@@ -8,7 +8,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const ENV_PATH = "/root/pauli-starnet/.env.jev-shadow";
-const MODELS = ["z-ai/glm-5.2:free", "google/gemma-4-31b-it:free", "qwen/qwen3.8-27b:free"];
+const MODELS = ["qwen/qwen3.8-27b:free", "nvidia/nemotron-3-super-120b-a12b:free", "google/gemma-4-31b-it:free"];
 const LEDGER = "/root/pauli-starnet/registry/jev-research-ledger.jsonl";
 
 function apiKey() {
