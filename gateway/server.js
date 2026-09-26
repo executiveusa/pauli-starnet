@@ -58,6 +58,19 @@ const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60', 10);
 const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
+// The commit this process runs, so a status read can be checked against the branch head.
+// STARNET_REVISION (set at deploy) wins; else the checkout's HEAD; else 'unknown', never a guess.
+const REVISION = (() => {
+  const sha = v => (typeof v === 'string' && /^[0-9a-f]{7,40}$/i.test(v.trim()) ? v.trim().toLowerCase() : null);
+  const fromEnv = sha(process.env.STARNET_REVISION || process.env.GIT_COMMIT || process.env.VERCEL_GIT_COMMIT_SHA || '');
+  if (fromEnv) return fromEnv;
+  try {
+    const out = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'],
+      { cwd: __dirname, timeout: 3000, stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    return sha(out) || 'unknown';
+  } catch { return 'unknown'; }
+})();
+
 if (!GATEWAY_TOKEN) {
   process.stderr.write('[GATEWAY][FATAL] GATEWAY_BEARER_TOKEN is not set. Gateway cannot start without an inbound auth token.\n');
   process.exit(1);
@@ -333,6 +346,7 @@ async function getCityStatus() {
       city: { name: "Pauli's Place", status: 'unreachable' },
       districts: [], citizens: [], missions: [], approvals: [], experiments: [], activeTasks: [],
       revenue: null, costs: null,
+      revision: REVISION,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
   }
@@ -408,6 +422,7 @@ async function getCityStatus() {
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
     costs: null,     // unknown until STARNET provides verified telemetry
+    revision: REVISION,
     health: {
       status: 'online',
       starnet: { ok: true, port: STARNET_PORT }
@@ -490,6 +505,7 @@ async function handleRequest(req, res) {
         ok: true,
         gateway: 'pauli-gateway',
         version: '1.0.0',
+        revision: REVISION,
         starnet: { ok: starnetOk, host: `${STARNET_HOST}:${STARNET_PORT}` },
         generatedAt: new Date().toISOString()
       });
