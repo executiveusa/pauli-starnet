@@ -160,7 +160,9 @@ function runToCompletion(agentId, message, context) {
     const taskId = crypto.randomUUID();
     const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
     const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-    const resolvedKey = (context && context.key) || process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
+    // Provider keys come from the gateway's own environment only; a caller-supplied context.key
+    // would let any bearer holder route spend through an arbitrary account.
+    const resolvedKey = process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
     const bodyObj = {
       agentId: agentId || 'agent',
       text: message,
@@ -168,7 +170,7 @@ function runToCompletion(agentId, message, context) {
       provider: resolvedProvider,
       model: resolvedModel,
       key: resolvedKey,
-      context: context || {},
+      context: Object.fromEntries(Object.entries(context || {}).filter(([k]) => k !== 'key')),
       taskId,
       // TASK runs advertise the placed-object tools on the wire (isTask gates toolDefs in handleRun).
       // Without this flag the loop got tools:[] - the model saw capabilities in its prompt but had no
@@ -362,7 +364,8 @@ async function getCityStatus() {
     id: a.agentId || a.id || 'agent',
     name: a.name || a.agentId || 'Agent',
     role: a.role || 'agent',
-    status: 'online',
+    // A roster row proves the agent exists, not that it is running. No heartbeat here -> unknown.
+    status: 'unknown',
     district: a.district || 'city'
   }));
 
@@ -388,7 +391,7 @@ async function getCityStatus() {
       name: 'City Center',
       status: 'active',
       agents: citizens.length,
-      active: citizens.filter(c => c.status === 'online').length
+      active: null
     }],
     citizens,
     missions: sidecarData.missions || [],
@@ -410,6 +413,17 @@ async function getCityStatus() {
       starnet: { ok: true, port: STARNET_PORT }
     }
   };
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+// Hash both sides first so timingSafeEqual always sees equal-length buffers. The old padEnd(64)
+// compare threw ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH on any bearer longer than 64 chars, and the
+// unhandled rejection exited the process: one unauthenticated request took the gateway down.
+function tokenMatches(token) {
+  if (!token) return false;
+  const a = crypto.createHash('sha256').update(token).digest();
+  const b = crypto.createHash('sha256').update(GATEWAY_TOKEN).digest();
+  return crypto.timingSafeEqual(a, b);
 }
 
 // ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
@@ -460,7 +474,7 @@ async function handleRequest(req, res) {
   // Authentication
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  if (!token || !crypto.timingSafeEqual(Buffer.from(token.padEnd(64)), Buffer.from(GATEWAY_TOKEN.padEnd(64)))) {
+  if (!tokenMatches(token)) {
     log('warn', 'auth failed', { reqId, ip });
     return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
   }
@@ -603,29 +617,24 @@ async function handleRequest(req, res) {
         return send(400, { error: 'decision must be approve or reject' });
       }
 
-      // Forward to STARNET workspace — mark pending item as decided
+      // Audit id for the refusal log line below.
       const receipt = makeReceipt('approval_decision', {
         approval_id: approvalId,
         decision,
         decided_by: 'gateway-owner'
       });
 
-      // Try to forward to sidecar if it has an approval endpoint
-      try {
-        const r = await sidecarRequest('POST', `/api/approve`, { id: approvalId, decision });
-        log('info', 'approval forwarded', { approvalId, decision, receipt: receipt.receipt_id });
-        return send(200, { ok: true, id: approvalId, decision, receipt, result: r.data });
-      } catch (e) {
-        // Sidecar may not have this endpoint — record locally and return receipt
-        log('warn', 'sidecar approve endpoint missing, recording locally', { approvalId, error: e.message });
-        return send(200, {
-          ok: true,
-          id: approvalId,
-          decision,
-          receipt,
-          note: 'Decision recorded at gateway. Sidecar approval sync pending when available.'
-        });
-      }
+      // The sidecar has no /api/approve route; native consent (/api/consent/answer) stays the
+      // authority. This used to answer 200 ok:true "recorded at gateway" while recording nothing,
+      // so the Command Center showed approvals that never happened. Fail closed instead.
+      log('warn', 'approval decision refused: no headless approval seam', { approvalId, decision, receipt: receipt.receipt_id });
+      return send(501, {
+        ok: false,
+        id: approvalId,
+        decision,
+        error: 'APPROVAL_SEAM_NOT_WIRED',
+        message: 'Remote approval decisions are not enabled. Approve in STARNET directly; nothing was recorded.'
+      });
     }
 
     // 404

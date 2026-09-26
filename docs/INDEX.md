@@ -15,6 +15,9 @@ A map of the ~95 files in `docs/`. They fall into four buckets: **living referen
 The docs closest to "how the thing is shaped." Still dated in spirit, but these describe
 durable structure rather than a one-time task.
 
+- **COMMAND_BRIDGE.md** — how the owner controls everything from one place: Instinct (voice/WhatsApp)
+  → Hermes (first mate) → StarNet, the sealed Pi personal lane, Instinct→Hermes failover, and the
+  cross-repo bug audit (2026-09-26).
 - **BRAIN.md** — 5-minute orientation for any session opening the repo; the fastest on-ramp to
   StarNet's core concept (local-first AI-agent harness rendered as a pixel-art station).
 - **HARNESS_ARCHITECTURE.md** — engineering reference for the sidecar/backend: the target
