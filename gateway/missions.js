@@ -25,6 +25,7 @@ function validate(envelope) {
   if (typeof envelope.user_intent !== 'string' || !envelope.user_intent.trim() || envelope.user_intent.length > 8000) return 'user_intent is required (<= 8000 chars)';
   if (envelope.target !== 'starnet') return 'target must be starnet';
   if (envelope.route !== 'city') return 'route must be city';
+  if (envelope.permissions !== undefined && !Array.isArray(envelope.permissions)) return 'permissions must be an array of strings';
   return null;
 }
 
