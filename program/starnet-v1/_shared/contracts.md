@@ -33,10 +33,12 @@ The existing `ResultEnvelope`, filled like this:
 
 - `agent_id: "starnet"`, `status: "done" | "failed" | "needs_human"`
 - `summary`: Heisenberg's merged answer (plain words, ≤ 120 words for voice)
-- `artifacts`: one `EvidenceRef` per crew task (`type: "trace"`, `ref: "starnet://task/<id>"`), one per
-  source URL (`type: "document"`), and one for the deployed commit (`type: "external_state"`,
-  `ref: "git:<revision>"`)
-- **new** `crew: [{ agent_id, specialty, task_id, status }]`. Empty means solo work, and it must be reported that way.
+- `artifacts` (filled once the mission is `done` or `failed`; empty while `working`): one `EvidenceRef` per
+  crew run (`type: "trace"`, `ref: "starnet://run/<run_id>"`) and one for the deployed commit
+  (`type: "external_state"`, `ref: "git:<revision>"`). Source URLs (`type: "document"`) are not collected
+  yet; that is a later phase, not a promise of this one.
+- `evidence`: the same refs plus the foreman's own run
+- **new** `crew: [{ agent_id, run_id, status }]`. Empty means solo work, and it must be reported that way (`solo: true`).
 
 ## 4. Sealed receipt (Terabithia store, mirrored by StarNet)
 

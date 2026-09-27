@@ -176,6 +176,8 @@
       if (!crewGrant) return false;
       if (surface !== 'autonomous') return false;
       if (!tool || tool.name !== CREW_TOOL || tool.capability !== 'orchestrator') return false;
+      // Background workers outlive the tool call, so the mission would seal before its crew finishes. Blocking only.
+      if (call && call.args && call.args.background) return false;
       try { return crewGrant(call, tool) === true; } catch (_) { return false; }
     }
 

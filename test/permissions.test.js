@@ -224,6 +224,7 @@ const hardline = (call) => (call && call.args && /(^|\/)(\.env|permissions\.allo
     A.ok(!crewOn(call('shell.exec'), SHELL).allow, 'the crew grant never unlocks shell');
     A.ok(!crewOn(call('team.dispatch'), FAKE).allow, 'a tool merely NAMED team.dispatch from a connector gets nothing');
     A.ok(!crewOn({ name: 'fs.write', args: { path: 'x.md' } }, WRITE).allow, 'the crew grant never unlocks writes');
+    A.ok(!crewOn({ name: 'team.dispatch', args: { background: true } }, DISPATCH).allow, 'the crew grant never allows a background dispatch the mission cannot wait for');
     const crewInteractive = makeConsentBroker({ surface: 'interactive', crewGrant: () => true, prompt: () => 'deny' });
     const d = crewInteractive(call('team.dispatch'), DISPATCH);
     A.ok(d && typeof d.then === 'function', 'on a watched run the human is still asked');
