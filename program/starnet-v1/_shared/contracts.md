@@ -33,10 +33,12 @@ The existing `ResultEnvelope`, filled like this:
 
 - `agent_id: "starnet"`, `status: "done" | "failed" | "needs_human"`
 - `summary`: Heisenberg's merged answer (plain words, ≤ 120 words for voice)
-- `artifacts`: one `EvidenceRef` per crew task (`type: "trace"`, `ref: "starnet://task/<id>"`), one per
-  source URL (`type: "document"`), and one for the deployed commit (`type: "external_state"`,
-  `ref: "git:<revision>"`)
-- **new** `crew: [{ agent_id, specialty, task_id, status }]`. Empty means solo work, and it must be reported that way.
+- `artifacts` (filled once the mission is `done` or `failed`; empty while `working`): one `EvidenceRef` per
+  crew run (`type: "trace"`, `ref: "starnet://run/<run_id>"`) and one for the deployed commit
+  (`type: "external_state"`, `ref: "git:<revision>"`). Source URLs (`type: "document"`) are not collected
+  yet; that is a later phase, not a promise of this one.
+- `evidence`: the same refs plus the foreman's own run
+- **new** `crew: [{ agent_id, run_id, status }]`. Empty means solo work, and it must be reported that way (`solo: true`).
 
 ## 4. Sealed receipt (Terabithia store, mirrored by StarNet)
 
@@ -58,7 +60,12 @@ The existing `ResultEnvelope`, filled like this:
 ```
 
 Canonical JSON = keys sorted, no whitespace, UTF-8. `signature` (Ed25519) is added in Phase 4.
-Verification recomputes every `hash` and checks every `prev_hash` link.
+Verification recomputes every `hash`, checks every `prev_hash` link, and checks the head anchor
+(`<chain>.head`: count + last hash, rewritten on every seal), so cutting receipts off the end fails too.
+Someone who can rewrite both files on the box is caught only by an off-box copy of the head (Phase 6 mirror).
+
+One receipt per **outcome**: `done`, `failed` and `cancelled` are each sealed once. A failed mission the
+captain resumes and that then ends again gets a second receipt; the chain keeps both. The board shows the latest.
 
 ## 5. Board (Terabithia → Instinct and Command Center)
 

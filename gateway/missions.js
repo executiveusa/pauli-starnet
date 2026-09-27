@@ -31,8 +31,12 @@ function validate(envelope) {
 
 function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOString(), revision = 'unknown' }) {
   fs.mkdirSync(stateDir, { recursive: true, mode: 0o700 });
-  const fileOf = id => path.join(stateDir, id.replace(/[^A-Za-z0-9_.-]/g, '_') + '.json');
-  const load = id => { try { return JSON.parse(fs.readFileSync(fileOf(id), 'utf8')); } catch { return null; } };
+  // ':' is the only allowed id character that is unsafe in a filename; '~' is never in an id, so the map is one-to-one.
+  const fileOf = id => path.join(stateDir, id.replace(/:/g, '~') + '.json');
+  const load = id => {
+    let rec; try { rec = JSON.parse(fs.readFileSync(fileOf(id), 'utf8')); } catch { return null; }
+    return rec && rec.mission_id === id ? rec : null;
+  };
   const save = rec => {
     const file = fileOf(rec.mission_id);
     const tmp = file + '.tmp-' + process.pid;
@@ -43,9 +47,13 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
 
   function envelopeFor(envelope, fields) {
     const crew = fields.crew || [];
-    const evidence = crew.map(c => ({ type: 'trace', ref: 'starnet://run/' + c.run_id, summary: c.agent_id + ' ' + c.status }));
+    const crewRefs = crew.map(c => ({ type: 'trace', ref: 'starnet://run/' + c.run_id, summary: c.agent_id + ' ' + c.status }));
+    const revisionRef = { type: 'external_state', ref: 'git:' + revision, summary: 'StarNet gateway revision' };
+    const evidence = crewRefs.slice();
     if (fields.run_id) evidence.unshift({ type: 'trace', ref: 'starnet://run/' + fields.run_id, summary: 'foreman run' });
-    evidence.push({ type: 'external_state', ref: 'git:' + revision, summary: 'StarNet gateway revision' });
+    evidence.push(revisionRef);
+    // contracts.md §3: one artifact per crew run plus the deployed commit, and only once the mission has finished.
+    const artifacts = ['done', 'failed'].includes(fields.status) ? crewRefs.concat([revisionRef]) : [];
     return {
       mission_id: envelope.mission_id,
       request_id: envelope.request_id || null,
@@ -53,7 +61,7 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
       agent_id: 'starnet',
       status: fields.status,
       summary: fields.summary || '',
-      artifacts: [],
+      artifacts,
       evidence,
       failures: fields.failures || [],
       human_blocker: fields.human_blocker || null,
