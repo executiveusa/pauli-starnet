@@ -1,7 +1,7 @@
 ---
 status: blocked
 built_by: instinct
-blocker: crew re-run pending (first crew attempt timed out at 120s dispatch cap; STARNET_DISPATCH_TIMEOUT_MS now 1200000, re-fire on feat/harness-backend >= 36061b786 with clean tierOf #47)
+blocker: human steps pending - captain's city-view movement check and captain's own spoken voice test (simulated voice run is labeled SIMULATED and never counts as his)
 verified_by:
   _rule: verified_by must NEVER equal built_by; the builder does not verify its own work. Auditor verifies Instinct-built parts (terabithia#32, #34, #35, pauli-starnet#47, this proof run). Auditor or Bambu verifies builder work (stages 02-05, #41, #43, terabithia#24, #27). Bambu referees disagreements.
   section_1_mission: ""
@@ -72,6 +72,9 @@ No invoke, no agent run. Personal-lane intents park at the policy layer with a h
 
 Golden path re-verified in the same run: research intent POST stamped permissions=["research"], foreman run completed status=done, receipt rcpt_a3f8b75c-0ab0-4960-8238-727399b5a88e, real sourced fact returned (EIA Texas solar capacity). The policy layer parks publish-class and personal-lane work while research flows.
 
+Gateway empty-permissions probe (post-#47, LIVE production gateway HEAD f0520dac, 2026-09-27 08:23 UTC):
+POST /v1/missions with permissions: [] => status needs_human, human_blocker "Captain approval needed", runtime.run_id null (nothing ran), evidence ref git:f0520dac. The empty-permissions envelope PARKS at the production gateway - the tierOf fail-closed behavior verified live, not just at code level. Full raw headers+body: probe3 artifact delivered to the auditor with this packet.
+
 ## 5. What it took to get here (honest ledger)
 
 Five live attempts, four real bugs fixed en route (all via PR + codex cycle):
@@ -81,3 +84,50 @@ Five live attempts, four real bugs fixed en route (all via PR + codex cycle):
 - OpenRouter free pool: legacy :free slugs (deepseek-v3.1, llama-3.3-70b, gemma-3) now 404 "unavailable for free"; current catalog has 17 :free models; several 429 under shared-pool load; nemotron-3-super-120b-a12b:free answered and ran the mission.
 
 Raw run artifacts on the old box: /tmp/golden-mission.json (intent POST response), /tmp/golden-final.json (gateway final envelope), /tmp/neg-publish.json + /tmp/neg-publish-final.json (negative test 2).
+
+## 6. Crew mission (stage 04) - two runs, told straight
+
+### Run A: db1f579a-5fab-44aa-b3e6-cf660c9377a6 (2026-09-27 08:20 UTC, gateway f0520dac)
+
+What this run honestly proves (narrow claim, per independent audit): **a real foreman dispatched two native crew members and returned an answer, with one failed leg correctly marked in crew[]**. It does NOT prove two-crew success:
+
+- solo: false; crew = [scout bf9d90ef-e03c-4a5f-b63f-9a5c9ca1c8d5 status **failed** (cancelled after 14 turns), analyst 380ccd2f-62b6-4197-b0d3-445522ad04f5 status done (14 turns)]
+- The synthesized brief draws on the analyst's fetches; no usable scout finding is attributed in the brief.
+- receipt rcpt_864d7efa-2409-45ed-8aa8-26ac32fd1fa4; fresh-chain verify {"ok":true,"count":1} at the time.
+- **Audit gap called out**: the parent envelope's `failures: []` stayed empty even though a worker leg failed - the gateway ResultEnvelope does not surface worker failures. Logged as code nit N1 (ride-along PR).
+
+### Run B (re-fire): c6d0eacd-d71e-4932-bd5c-9504649756e8 (2026-09-27 09:51 UTC, gateway f0520dac)
+
+Fired after the dispatch outage repair (see section 7). Brief tightened per audit guidance (each worker capped at 3 searches + 2 fetches, then write and stop):
+
+- solo: false; crew = [scout b02d493b-9d28-4717-8f22-b23d9b91ff10 status **done** (6 turns, ~67s), analyst ad73ba40-00e5-4030-bb48-edaab1d34328 status **done** (8 turns, ~116s)]; foreman run 803cea2f-e9f2-4b88-872d-0ae33e0616ba reason done.
+- receipt rcpt_4dcb91c6-ef83-4203-a929-4023152bcf40 (tier GREEN); board GET shows both mission and receipt; fresh-chain verify {"ok":true,"count":8}, exit 0.
+- Independent audit signed stage 04 at code/HTTP level on this run (two-crew success + merged result). Remaining before full sign-off: the captain's human city-view movement check (his step).
+
+Raw artifacts for both runs: terabithia mission GET, gateway mission GET, crew run excerpts (start/end/turns/reason per worker + foreman), receipt objects, board GETs - delivered to the auditor as files alongside this packet.
+
+## 7. Dispatch outage (09:46-09:52 CST) - disclosed, root-caused, fixed
+
+Between Run A and Run B all starnet dispatches failed ("STARNET 403", then a misleading "connect a GROQ API key"). Root cause: TWO competing sidecar units existed - the real `pauli-starnet.service` (EnvironmentFile=/etc/pauli-starnet.env) and a stale duplicate `pauli-starnet-sidecar.service` (stale token, no env file). An ops restart at 09:46 let the stale duplicate take :8787. Fix: duplicate stopped+disabled (unit file preserved), two zombie sidecars from Sep 22 killed, real unit restarted and verified owning 127.0.0.1:8787. Proof: direct sidecar /api/run (run 734a3e3c-4c43-4090-a692-b7bc0a78f8d2) completed done/2 turns/$0 on the nemotron free lane. The 6 failed receipts in the current chain (rcpt_2028bb59..rcpt_aab02459) are this window's debug missions - kept in the chain, honestly sealed as failed.
+
+## 8. Voice front door (SIMULATED captain - labeled; the captain's own spoken run remains the gold acceptance check)
+
+Deployment: prod 2.25.241.209, /opt/instinct-voice-agent at 84c7b7e (contains PR #2; 127.0.0.1 host-pin re-applied after FF deploy, backup kept). Bridge env (names only): TERABITHIA_URL=http://127.0.0.1:13050 (SSH forward to old box :3050 via terabithia-tunnel.service, dedicated restricted ed25519 key), INSTINCT_TERABITHIA_TOKEN (= TERABITHIA_API_KEY; no scoped-token support exists in terabithia - minting one is a PR, flagged), LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET. A vault GROQ_API_KEY was tried and REMOVED (invalid, 401).
+
+Simulated pipeline proof (run13, room pauli-web-1d559fe0): agent heard an espeak-generated captain mission via LiveKit inference STT (deepgram; the only supported inference STT provider), inference LLM openai/gpt-oss-120b answered keyless, the agent CALLED dispatch_mission (3 attempts), and SPOKE the outcome transcript (which was the then-active 403 outage). Method note: LiveKit cloud dispatch to the self-hosted worker proved flaky, so the evidence runs attach the worker directly via iva_connect_8083.py connect --room with a scripted captain participant replaying the wav.
+
+Golden simulated runs (2026-09-27 10:06-10:24 UTC):
+
+- run14 (room pauli-web-178006df): pipeline worked end to end and FAILED HONESTLY - STT misheard the espeak audio ("three point brief" became "$3.3k batch of Texas solar leads"), terabithia routed the heard buy-class content to the unwired hermes lane and sealed a failed receipt ("Agent invocation failed: fetch failed"). Kept as negative evidence that routing follows the heard content.
+- run15 (room pauli-web-9a58d541, clearer wav): agent heard the research mission via deepgram STT, passed its confirmation gate, and CALLED dispatch_mission. Terabithia mission fe6089db-81a0-4282-ab72-3b72260c4f8c (permissions [research]) ran on Heisenberg and completed DONE with receipt rcpt_ac8ab4f6-ee75-4b1b-9bc1-b93103e57ea6 (real sourced brief: Texas Comptroller $21B total solar investment context, lead-pricing ranges). Board GET shows BOTH the mission and the receipt. Spoken agent lines captured verbatim: "Hey, Instinct here. I'm listening." and "Got it - mission's already rolling. I'll ping you as soon as the brief comes back."
+- Process/revision binding: iva_connect_8083.py pid 753602, /opt/instinct-voice-agent at 84c7b7e (contains PR #2), terabithia-tunnel.service active (127.0.0.1:13050 to old box :3050, restricted dedicated key). Bridge env names only: TERABITHIA_URL, INSTINCT_TERABITHIA_TOKEN, LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET.
+- Limitation, stated plainly: the scripted captain's listen window ended before the free-lane mission finished, so the agent's FINAL receipt-citing spoken answer was not captured. The receipt, board row, mission record, and dispatch tool-call are the hard evidence; the captain's own spoken run remains the gold acceptance check (his step).
+
+### Code nits logged for the ride-along PR
+- N1: gateway ResultEnvelope `failures: []` masks worker-leg failures (should surface worker failures).
+- N2: human_blocker copy for blank permissions should say "no permissions declared".
+- N3 (minor): verify:receipts CLI prints JSON without the process exit code on stdout; exit code stated in this packet's text.
+
+### Packet files (this directory)
+- verify-receipts-20260927.txt - fresh-chain verify stdout ({"file":"data/receipts.jsonl","ok":true,"count":8}; exit 0).
+- receipts-chain-20260927.jsonl - all 8 receipt objects of the current chain, unredacted (ids + hashes only, no secrets), so the full chain recomputes end to end.
