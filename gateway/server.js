@@ -41,6 +41,7 @@
 'use strict';
 
 const { getCityWorld } = require('./city-world');
+const { makeMissionDesk } = require('./missions');
 const http = require('http');
 const crypto = require('crypto');
 
@@ -57,6 +58,19 @@ const RATE_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60', 10);
 const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+
+// The commit this process runs, so a status read can be checked against the branch head.
+// STARNET_REVISION (set at deploy) wins; else the checkout's HEAD; else 'unknown', never a guess.
+const REVISION = (() => {
+  const sha = v => (typeof v === 'string' && /^[0-9a-f]{7,40}$/i.test(v.trim()) ? v.trim().toLowerCase() : null);
+  const fromEnv = sha(process.env.STARNET_REVISION || process.env.GIT_COMMIT || process.env.VERCEL_GIT_COMMIT_SHA || '');
+  if (fromEnv) return fromEnv;
+  try {
+    const out = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'],
+      { cwd: __dirname, timeout: 3000, stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    return sha(out) || 'unknown';
+  } catch { return 'unknown'; }
+})();
 
 if (!GATEWAY_TOKEN) {
   process.stderr.write('[GATEWAY][FATAL] GATEWAY_BEARER_TOKEN is not set. Gateway cannot start without an inbound auth token.\n');
@@ -113,7 +127,7 @@ function readBody(req) {
 }
 
 // ─── STARNET SIDECAR REQUEST ──────────────────────────────────────────────────
-function sidecarRequest(method, path, body) {
+function sidecarRequest(method, path, body, timeoutMs = 30000) {
   return new Promise((resolve, reject) => {
     const bodyBuf = body ? Buffer.from(JSON.stringify(body), 'utf8') : null;
     const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
@@ -129,7 +143,7 @@ function sidecarRequest(method, path, body) {
       path,
       method,
       headers,
-      timeout: 30000
+      timeout: timeoutMs
     }, res => {
       const chunks = [];
       res.on('data', c => chunks.push(c));
@@ -333,6 +347,7 @@ async function getCityStatus() {
       city: { name: "Pauli's Place", status: 'unreachable' },
       districts: [], citizens: [], missions: [], approvals: [], experiments: [], activeTasks: [],
       revenue: null, costs: null,
+      revision: REVISION,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
   }
@@ -408,6 +423,7 @@ async function getCityStatus() {
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
     costs: null,     // unknown until STARNET provides verified telemetry
+    revision: REVISION,
     health: {
       status: 'online',
       starnet: { ok: true, port: STARNET_PORT }
@@ -425,6 +441,19 @@ function tokenMatches(token) {
   const b = crypto.createHash('sha256').update(GATEWAY_TOKEN).digest();
   return crypto.timingSafeEqual(a, b);
 }
+
+// ─── MISSION DESK (Terabithia city missions → the sidecar foreman) ────────────
+// One durable file per mission; a restart marks in-flight missions failed instead of leaving them working.
+const FOREMAN_TIMEOUT_MS = parseInt(process.env.STARNET_FOREMAN_TIMEOUT_MS || '900000', 10);
+const missionDesk = makeMissionDesk({
+  stateDir: process.env.STARNET_MISSION_DIR || require('path').join(__dirname, 'data', 'missions'),
+  revision: REVISION,
+  runForeman: body => sidecarRequest('POST', '/api/missions/run', body, FOREMAN_TIMEOUT_MS)
+    .then(r => r.data)
+    .catch(e => { if (e && e.body && e.body.status) return e.body; throw e; })
+});
+const recoveredMissions = missionDesk.recoverOnBoot();
+if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
 
 // ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
 // Stores running/completed tasks by ID for GET /v1/heisenberg/tasks/:id
@@ -490,6 +519,7 @@ async function handleRequest(req, res) {
         ok: true,
         gateway: 'pauli-gateway',
         version: '1.0.0',
+        revision: REVISION,
         starnet: { ok: starnetOk, host: `${STARNET_HOST}:${STARNET_PORT}` },
         generatedAt: new Date().toISOString()
       });
@@ -505,6 +535,23 @@ async function handleRequest(req, res) {
     if (method === 'GET' && url === '/v1/city/world') {
       const world = getCityWorld();
       return send(world.ok === false ? 503 : 200, world);
+    }
+
+    // POST /v1/missions — a Terabithia MissionEnvelope for the city (program/starnet-v1/_shared/contracts.md §2)
+    if (method === 'POST' && url === '/v1/missions') {
+      const bodyText = await readBody(req);
+      let envelope;
+      try { envelope = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = missionDesk.accept(envelope);
+      if (out.done) out.done.catch(e => log('error', 'mission settle failed', { error: e.message }));
+      return send(out.code, out.body);
+    }
+
+    // GET /v1/missions/:id — the mission's current ResultEnvelope
+    const missionMatch = method === 'GET' && url.match(/^\/v1\/missions\/([A-Za-z0-9_.:-]{1,100})$/);
+    if (missionMatch) {
+      const result = missionDesk.get(missionMatch[1]);
+      return result ? send(200, result) : send(404, { error: 'MISSION_NOT_FOUND' });
     }
 
     // POST /v1/heisenberg/tasks

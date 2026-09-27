@@ -1,5 +1,7 @@
 # PRD: Make StarNet true, then make it work
 
+> **Superseded 2026-09-27** by [`program/starnet-v1/_shared/PRD.md`](../program/starnet-v1/_shared/PRD.md). The findings below are folded into it; the MACS rows are corrected there (MACS is a separate tenant, not a StarNet district). Kept as the audit record.
+
 **Date:** 2026-09-26 · **Owner:** Bambú (Jeremy) · **Consequence level:** HIGH (public claims, client districts, credentials)
 **Input:** the independent truth ledger of 2026-09-26 (05:45 CST), re-checked against the repositories, the live status endpoint and CI on the same day.
 

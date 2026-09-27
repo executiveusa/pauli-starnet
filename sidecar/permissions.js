@@ -97,6 +97,11 @@
     // PREFIX (not a fixed name) is what lets one grant cover every server the Commander has connected, while
     // still refusing every non-connector capability. Overridable for tests.
     const CONNECTOR_CAP_RE = opts.connectorCapRe || /^mcp:/;
+    // UNATTENDED CREW GRANT: a foreman mission may delegate to its crew with nobody watching. Host-injected per
+    // run (the mission route only), never stored, never from prompt/model/tool text. Unlocks EXACTLY team.dispatch:
+    // not team.summon (creating agents stays a Commander decision), not team.spawn, not any other execute tool.
+    const crewGrant = typeof opts.crewGrant === 'function' ? opts.crewGrant : null;
+    const CREW_TOOL = 'team.dispatch';
     // the jail-scoped capabilities the workshop grant may unlock a WRITE for (never execute, never a non-jail tool).
     // The plan calls these "cabinet | notebook"; in the live tool registry the FILE capability is `cabinet`
     // (sidecar/tools/builtin/fs.js — fs.write/append/edit/patch, realpath-jailed to workspaces/<agentId>/) and the
@@ -167,6 +172,13 @@
       try { return connectorGrant(call, tool) === true; } catch (_) { return false; }
     }
 
+    function crewAutonomy(call, tool) {
+      if (!crewGrant) return false;
+      if (surface !== 'autonomous') return false;
+      if (!tool || tool.name !== CREW_TOOL || tool.capability !== 'orchestrator') return false;
+      try { return crewGrant(call, tool) === true; } catch (_) { return false; }
+    }
+
     function sessionSet(create) {
       let s = grantsSession.get(sessionKey);
       if (!s && create) { s = new Set(); grantsSession.set(sessionKey, s); }
@@ -193,6 +205,7 @@
       // dead code. Still below the hardline floor (tier 1), so protected paths remain unwritable.
       if (terminalAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'per-routine unattended terminal grant' };
       if (connectorAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'per-routine unattended connector grant' };
+      if (crewAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'foreman mission crew grant' };
       // 2.5 EXEC LOCKOUT — an UNATTENDED run may NEVER execute a command off a cached/pre-blessed grant: only a
       // live human (interactive surface), or the explicit per-routine grant in tier 2.4, can approve shell. This
       // keeps "no autonomous shell" un-pre-blessable — a permanent `always` grant a human gave once does NOT
