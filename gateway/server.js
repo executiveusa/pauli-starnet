@@ -515,8 +515,8 @@ async function handleRequest(req, res) {
     }
     return send(200, {
       name: 'Pauli StarNet Gateway',
-      description: 'Front door to the Pauli city: accepts missions for Heisenberg and the crew, returns receipted results. Service/infra operated by Bambu fleet; back-end collaboration via A2A.',
-      url: `http://127.0.0.1:${GATEWAY_PORT}/`,
+      description: 'Front door to the Pauli city: accepts missions for Heisenberg and the crew, returns receipted results. Interface today is the REST mission API described in skills (POST /v1/missions, GET /v1/missions/:id); the A2A JSON-RPC transport is the back-end work this handshake invites. Service/infra operated by Bambu fleet.',
+      url: (process.env.A2A_PUBLIC_URL || `http://127.0.0.1:${GATEWAY_PORT}/`).replace(/\/$/, '') + '/',
       provider: { organization: 'executiveusa', url: 'https://github.com/executiveusa/pauli-starnet' },
       version: REVISION || '1.0.0',
       protocolVersion: '0.3.0',
