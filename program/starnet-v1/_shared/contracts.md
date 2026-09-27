@@ -60,7 +60,12 @@ The existing `ResultEnvelope`, filled like this:
 ```
 
 Canonical JSON = keys sorted, no whitespace, UTF-8. `signature` (Ed25519) is added in Phase 4.
-Verification recomputes every `hash` and checks every `prev_hash` link.
+Verification recomputes every `hash`, checks every `prev_hash` link, and checks the head anchor
+(`<chain>.head`: count + last hash, rewritten on every seal), so cutting receipts off the end fails too.
+Someone who can rewrite both files on the box is caught only by an off-box copy of the head (Phase 6 mirror).
+
+One receipt per **outcome**: `done`, `failed` and `cancelled` are each sealed once. A failed mission the
+captain resumes and that then ends again gets a second receipt; the chain keeps both. The board shows the latest.
 
 ## 5. Board (Terabithia → Instinct and Command Center)
 
