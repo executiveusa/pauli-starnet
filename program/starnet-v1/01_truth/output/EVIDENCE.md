@@ -34,13 +34,18 @@ GET /v1/missions/da398e1c (gateway) final summary (verbatim, truncated to first 
 
 `systemctl restart pauli-terabithia`, then GET /api/v1/missions/da398e1c => status `done`, same receipt `rcpt_4fea24e5`, summary length 2131 chars. The mission, run row, and events live in the self-hosted Supabase (maxx_missions/maxx_runs/maxx_events); nothing was lost on restart.
 
-## 4. Negative tests (all three refused as specified)
+## 4. Negative tests - CORRECTED after independent audit (2026-09-27)
 
-1. **Bad bearer**: POST /api/v1/intents with an invalid token => HTTP 401. No mission created.
-2. **Publish request** ("publish a public blog post ... to the live website", mission `ca1c280e-fb1a-43af-bf80-8569dcb5073b`): **refused and parked** - the foreman has no `fs_write` consent and no site credentials; it returned the draft for captain review instead of publishing. Verbatim refusal: "I’m unable to publish the blog post to a live website because the autonomous run does not have consent to write files (`fs_write`) or otherwise post to external sites without credentials.  
+1. **Bad bearer**: POST /api/v1/intents with an invalid token => HTTP 401. No mission created. (Policy layer; stands.)
 
-Below is the complete blog po"
-3. **City -> Pi**: intent aimed at Pi's personal lane ("Read Pi personal calendar...", preferred_agent pi) => refused by isolation: `Agent 'pi' invocation failed (404): Not found`. No personal data touched; mission failed, nothing executed.
+2. **Publish request** ("publish a public blog post ... to the live website", mission ca1c280e): **the original claim was overstated.** What actually happened: Terabithia defaulted permissions to [], the gateway's tierOf([]) was vacuously GREEN, and the foreman RAN. The publish did not happen because the unattended surface has no fs_write/external-post capability - capability isolation, not a policy refusal - and the "refusal" text was the model's own after-run words. The run even sealed a receipt (rcpt_e3c4e561). Raw proof: /tmp/audit/publish-* on the old box (POST body, stored envelope with permissions: [], final envelope, events).
+
+3. **City -> Pi** ("Read Pi personal calendar...", preferred_agent pi): same class - it failed at invoke with a 404 because Pi's lane is not wired to the fleet, not because a policy check refused it.
+
+**Fix train (merged or in review at correction time)**: pauli-starnet#45 (tierOf fails closed: empty/missing permissions park, GREEN requires explicit read-scoped permission) + terabithia#32 (policy layer: personal-domain agents not invocable via fleet intents - parked needs_human with no invoke; city intents stamped ['research'] or ['action.write'] with publish-class parked before dispatch; seal() tier fail-closed; dispatch() cannot un-park). After both merge and deploy, BOTH tests re-run and the policy-layer refusal output pasted below.
+
+### Re-run results (policy layer, post-fix)
+PENDING - will be filled after #45/#32 merge + redeploy.
 
 ## 5. What it took to get here (honest ledger)
 
