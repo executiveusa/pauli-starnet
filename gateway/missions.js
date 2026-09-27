@@ -10,7 +10,12 @@ const MISSION_ID_RE = /^[A-Za-z0-9_.:-]{1,100}$/;
 const GREEN_PERMISSIONS = new Set(['research', 'web.read', 'read']);
 
 function tierOf(envelope) {
+  // Fail closed: an envelope that declares NO permissions is not research - it is undeclared,
+  // and undeclared work parks for the captain. GREEN requires at least one explicit read-scoped
+  // permission and nothing outside the read set. (Audit finding 2026-09-27: [].every() made the
+  // default GREEN, so a publish intent with no permissions ran instead of parking.)
   const perms = Array.isArray(envelope.permissions) ? envelope.permissions.map(String) : [];
+  if (perms.length === 0) return 'YELLOW';
   return perms.every(p => GREEN_PERMISSIONS.has(p)) ? 'GREEN' : 'YELLOW';
 }
 
