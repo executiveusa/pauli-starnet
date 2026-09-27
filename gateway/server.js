@@ -47,6 +47,9 @@ const crypto = require('crypto');
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const GATEWAY_TOKEN = process.env.GATEWAY_BEARER_TOKEN || '';
+// A2A (Agent2Agent, a2aproject spec v0.3): our public handshake surface. Separate bearer from the
+// Command Center token, generated server-side, chmod 600. Fail-closed: unset = the A2A routes 404.
+const A2A_TOKEN = process.env.A2A_BEARER_TOKEN; // no default: unset stays fail-closed (404 on card paths)
 const STARNET_PORT = parseInt(process.env.STARNET_PORT || '8787', 10);
 const STARNET_HOST = '127.0.0.1';
 const STARNET_TOKEN = process.env.STARNET_SIDECAR_TOKEN || process.env.STARNET_API_TOKEN || '';
@@ -498,6 +501,36 @@ async function handleRequest(req, res) {
   if (!checkRate(ip)) {
     log('warn', 'rate limit exceeded', { ip });
     return send(429, { error: 'RATE_LIMIT_EXCEEDED', retryAfter: Math.ceil(RATE_WINDOW / 1000) });
+  }
+
+  // A2A handshake surface (a2aproject Agent2Agent, spec v0.3): the Agent Card at the well-known path.
+  // Authenticated with the A2A bearer, NOT the Command Center token; fail-closed when unconfigured.
+  if (url === '/.well-known/agent-card.json' || url === '/.well-known/agent.json') {
+    if (!A2A_TOKEN) return send(404, { error: 'NOT_FOUND' });
+    const a2aHeader = req.headers['authorization'] || '';
+    const a2aToken = a2aHeader.startsWith('Bearer ') ? a2aHeader.slice(7).trim() : '';
+    if (!a2aToken || a2aToken.length < 16 || a2aToken !== A2A_TOKEN) {
+      log('warn', 'a2a auth failed', { reqId, ip });
+      return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
+    }
+    return send(200, {
+      name: 'Pauli StarNet Gateway',
+      description: 'Front door to the Pauli city: accepts missions for Heisenberg and the crew, returns receipted results. Interface today is the REST mission API described in skills (POST /v1/missions, GET /v1/missions/:id); the A2A JSON-RPC transport is the back-end work this handshake invites. Service/infra operated by Bambu fleet.',
+      url: (process.env.A2A_PUBLIC_URL || `http://127.0.0.1:${GATEWAY_PORT}/`).replace(/\/$/, '') + '/',
+      provider: { organization: 'executiveusa', url: 'https://github.com/executiveusa/pauli-starnet' },
+      version: REVISION || '1.0.0',
+      protocolVersion: '0.3.0',
+      capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+      defaultInputModes: ['application/json'],
+      defaultOutputModes: ['application/json'],
+      securitySchemes: { bearer: { type: 'http', scheme: 'bearer' } },
+      security: [{ bearer: [] }],
+      skills: [
+        { id: 'city-mission', name: 'City mission dispatch', description: 'POST /v1/missions: run a city mission with the crew and return a receipted ResultEnvelope.', tags: ['missions', 'receipts', 'city'] },
+        { id: 'mission-status', name: 'Mission status', description: 'GET /v1/missions/:id: read the current ResultEnvelope for a mission.', tags: ['status', 'receipts'] },
+        { id: 'city-status', name: 'City status', description: 'GET /v1/city/status: honest live status of the city and its agents.', tags: ['status', 'city'] }
+      ]
+    });
   }
 
   // Authentication
