@@ -43,12 +43,21 @@ function req(method, port, p, headers, body) {
   A.eq(final.crew.length, 2, 'the crew rides the result');
   A.ok(final.evidence.some(e => e.ref === 'starnet://run/run-a') && final.evidence.some(e => e.ref === 'git:abc1234'), 'evidence names each crew run and the deployed revision');
   A.eq(desk.get('m-1').status, 'done', 'the settled result is persisted');
+  A.ok(first.body.artifacts.length === 0, 'a working mission carries no artifacts yet');
+  A.eq(final.artifacts.map(a => a.ref).join(' '), 'starnet://run/run-a starnet://run/run-b git:abc1234', 'artifacts name each crew run and the deployed revision (contracts.md §3)');
   const again = desk.accept(env());
   A.ok(again.code === 200 && again.body.status === 'done' && runs === 1, 'a retried mission id never runs twice');
 
+  // ids that differ only by ':' vs '_' are two missions, never one file
+  await desk.accept(env({ mission_id: 'a:b' })).done;
+  const other = desk.accept(env({ mission_id: 'a_b' }));
+  await other.done;
+  A.ok(other.code === 202 && runs === 3, 'mission a_b is not mistaken for mission a:b');
+  A.ok(desk.get('a:b').mission_id === 'a:b' && desk.get('a_b').mission_id === 'a_b', 'each id reads back its own record');
+
   const parked = desk.accept(env({ mission_id: 'm-2', permissions: ['social.publish'] }));
   A.ok(parked.body.status === 'needs_human' && parked.body.human_blocker && parked.body.human_blocker.resume_token === 'm-2', 'a non-GREEN mission is parked for the captain');
-  A.eq(runs, 1, 'and never reaches the foreman');
+  A.eq(runs, 3, 'and never reaches the foreman');
 
   const failing = makeMissionDesk({ stateDir: dir, runForeman: async () => ({ status: 'failed', reason: 'no model configured for the foreman' }) });
   const f = await failing.accept(env({ mission_id: 'm-3' })).done;
