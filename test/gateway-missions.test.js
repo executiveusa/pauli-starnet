@@ -11,7 +11,7 @@ const http = require('http');
 const { spawn } = require('child_process');
 const { makeMissionDesk, tierOf, validate } = require('../gateway/missions.js');
 
-const env = (over) => Object.assign({ mission_id: 'm-1', request_id: 'r-1', trace_id: 't-1', target: 'starnet', route: 'city', user_intent: 'brief me', permissions: [] }, over);
+const env = (over) => Object.assign({ mission_id: 'm-1', request_id: 'r-1', trace_id: 't-1', target: 'starnet', route: 'city', user_intent: 'brief me', permissions: ['research'] }, over);
 
 function req(method, port, p, headers, body) {
   return new Promise((resolve, reject) => {
@@ -25,7 +25,9 @@ function req(method, port, p, headers, body) {
 
 (async () => {
   // ---- unit: rules ----
-  A.eq(tierOf(env()), 'GREEN', 'no permissions is GREEN research');
+  A.eq(tierOf(env()), 'GREEN', 'declared research permission is GREEN');
+  A.eq(tierOf(env({ permissions: [] })), 'YELLOW', 'fail closed: no declared permissions parks, never runs');
+  A.eq(tierOf(env({ permissions: undefined })), 'YELLOW', 'fail closed: missing permissions field parks too');
   A.eq(tierOf(env({ permissions: ['research', 'web.read'] })), 'GREEN', 'read-only research permissions stay GREEN');
   A.eq(tierOf(env({ permissions: ['research', 'social.publish'] })), 'YELLOW', 'anything beyond read-only research is not GREEN');
   A.ok(validate(env({ route: 'personal' })), 'a personal-route envelope is refused');
