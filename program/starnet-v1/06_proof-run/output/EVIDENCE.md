@@ -3,6 +3,7 @@ status: blocked
 built_by: instinct
 blocker: crew re-run pending (first crew attempt timed out at 120s dispatch cap; STARNET_DISPATCH_TIMEOUT_MS now 1200000, re-fire on feat/harness-backend >= 36061b786 with clean tierOf #47)
 verified_by:
+  _rule: verified_by must NEVER equal built_by; the builder does not verify its own work. Auditor verifies Instinct-built parts (terabithia#32, #34, #35, pauli-starnet#47, this proof run). Auditor or Bambu verifies builder work (stages 02-05, #41, #43, terabithia#24, #27). Bambu referees disagreements.
   section_1_mission: ""
   section_2_front_door: ""
   section_3_negative_tests: ""
