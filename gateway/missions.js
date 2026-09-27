@@ -14,7 +14,7 @@ function tierOf(envelope) {
   // and undeclared work parks for the captain. GREEN requires at least one explicit read-scoped
   // permission and nothing outside the read set. (Audit finding 2026-09-27: [].every() made the
   // default GREEN, so a publish intent with no permissions ran instead of parking.)
-  const perms = Array.isArray(envelope.permissions) ? envelope.permissions.map(String) : [];
+  const perms = Array.isArray(envelope.permissions) && envelope.permissions.every((p) => typeof p === 'string') ? envelope.permissions : []; // non-string entries are undeclared: fail closed, never String-coerce (codex P1)
   if (perms.length === 0) return 'YELLOW';
   return perms.every(p => GREEN_PERMISSIONS.has(p)) ? 'GREEN' : 'YELLOW';
 }
@@ -25,7 +25,7 @@ function validate(envelope) {
   if (typeof envelope.user_intent !== 'string' || !envelope.user_intent.trim() || envelope.user_intent.length > 8000) return 'user_intent is required (<= 8000 chars)';
   if (envelope.target !== 'starnet') return 'target must be starnet';
   if (envelope.route !== 'city') return 'route must be city';
-  if (envelope.permissions !== undefined && !Array.isArray(envelope.permissions)) return 'permissions must be an array of strings';
+  if (envelope.permissions !== undefined && (!Array.isArray(envelope.permissions) || !envelope.permissions.every((p) => typeof p === 'string'))) return 'permissions must be an array of strings';
   return null;
 }
 
