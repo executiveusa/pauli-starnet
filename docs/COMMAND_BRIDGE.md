@@ -72,7 +72,7 @@ Three rules make this simple:
 | **Command Center** | Your screen. Shows board, city, approvals; sends intents. | Hermes intents/board, Pi realm (separate token) | Shells, secrets, infrastructure |
 | **Boss agent** | *Not found in any repo I can see.* Needs a definition (see §6). | — | — |
 
-**Retire the name "Heisenberg."** Today "Heisenberg" is only a system prompt on a single chat
+**Superseded 2026-09-27 (see `program/starnet-v1/_shared/PRD.md` §2): Heisenberg is kept and made real as StarNet's foreman.** Original text: **Retire the name "Heisenberg."** Today "Heisenberg" is only a system prompt on a single chat
 completion (Hermes `starnet_gateway.py`) or a single `/api/run` (StarNet `gateway/server.js`). It
 doesn't decompose or dispatch. Rename the route `/v1/heisenberg/tasks` → `/v1/intents`, and
 keep the old path as an alias for one release.
