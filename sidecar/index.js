@@ -14725,6 +14725,7 @@ async function runOnce(o) {
     // FOREMAN CREW GRANT: host-minted by handleMissionRun only (o.crew is never read from a request body or a
     // stored job). Lead-only, and revoked by taint so untrusted content read mid-run cannot fan out more workers.
     crewGrant: (call, tool) => o.crew === true && !!o.lead && !execution.taintedBy(),
+    missionRun: o.crew === true,
     surface: surface, prompt: prompt
   });
   // B1 (Cortex seam): thread runId onto capCtx so a tool's dispatch can stamp provenance (sourceRunId)

@@ -225,6 +225,14 @@ const hardline = (call) => (call && call.args && /(^|\/)(\.env|permissions\.allo
     A.ok(!crewOn(call('team.dispatch'), FAKE).allow, 'a tool merely NAMED team.dispatch from a connector gets nothing');
     A.ok(!crewOn({ name: 'fs.write', args: { path: 'x.md' } }, WRITE).allow, 'the crew grant never unlocks writes');
     A.ok(!crewOn({ name: 'team.dispatch', args: { background: true } }, DISPATCH).allow, 'the crew grant never allows a background dispatch the mission cannot wait for');
+    const bg = { name: 'team.dispatch', args: { background: true } };
+    for (const [label, extra] of [['per-agent/master Full Access', { bypass: true }], ['full power', { unrestrictedHost: true }]]) {
+      const mission = makeConsentBroker(Object.assign({ surface: 'autonomous', crewGrant: () => true, missionRun: true }, extra));
+      A.ok(!mission(bg, DISPATCH).allow, 'a mission run never allows a background dispatch, even under ' + label);
+      A.ok(mission(call('team.dispatch'), DISPATCH).allow, 'a blocking dispatch still works under ' + label);
+      const notMission = makeConsentBroker(Object.assign({ surface: 'autonomous' }, extra));
+      A.ok(notMission(bg, DISPATCH).allow, 'outside a mission, ' + label + ' still allows background dispatch');
+    }
     const crewInteractive = makeConsentBroker({ surface: 'interactive', crewGrant: () => true, prompt: () => 'deny' });
     const d = crewInteractive(call('team.dispatch'), DISPATCH);
     A.ok(d && typeof d.then === 'function', 'on a watched run the human is still asked');

@@ -102,6 +102,12 @@
     // not team.summon (creating agents stays a Commander decision), not team.spawn, not any other execute tool.
     const crewGrant = typeof opts.crewGrant === 'function' ? opts.crewGrant : null;
     const CREW_TOOL = 'team.dispatch';
+    // A MISSION RUN must wait for its crew: a background dispatch returns before the workers finish, so the mission
+    // would be reported done/solo while its crew still runs. This is a correctness rule of the mission route, not a
+    // grant, so it holds even under Full Access (checked first in consent()). Host-injected, like crewGrant.
+    const missionRun = opts.missionRun === true;
+    const backgroundCrewInMission = (call, tool) => missionRun && !!tool && tool.name === CREW_TOOL
+      && tool.capability === 'orchestrator' && !!(call && call.args && call.args.background);
     // the jail-scoped capabilities the workshop grant may unlock a WRITE for (never execute, never a non-jail tool).
     // The plan calls these "cabinet | notebook"; in the live tool registry the FILE capability is `cabinet`
     // (sidecar/tools/builtin/fs.js — fs.write/append/edit/patch, realpath-jailed to workspaces/<agentId>/) and the
@@ -194,6 +200,7 @@
 
     function consent(call, tool) {
       const scope = scopeOf(tool);
+      if (backgroundCrewInMission(call, tool)) return { allow: false, scope: scope, reason: 'a mission must wait for its crew: call team.dispatch without background' };
       // FULL POWER: the Commander's explicit host-wide authority outranks StarNet policy floors.
       // Input/schema validity, OS permissions and downstream service prerequisites still report normally.
       if (unrestrictedNow()) return { allow: true, scope: scope, reason: 'full-power' };
