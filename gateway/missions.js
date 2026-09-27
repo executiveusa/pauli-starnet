@@ -9,8 +9,15 @@ const MISSION_ID_RE = /^[A-Za-z0-9_.:-]{1,100}$/;
 // Night-1 GREEN = read-only research. Anything else is parked for the captain, never run.
 const GREEN_PERMISSIONS = new Set(['research', 'web.read', 'read']);
 
+function isValidPermissionsArray(arr) { return Array.isArray(arr) && arr.every((p) => typeof p === 'string'); }
+
 function tierOf(envelope) {
-  const perms = Array.isArray(envelope.permissions) ? envelope.permissions.map(String) : [];
+  // Fail closed: an envelope that declares NO permissions is not research - it is undeclared,
+  // and undeclared work parks for the captain. GREEN requires at least one explicit read-scoped
+  // permission and nothing outside the read set. (Audit finding 2026-09-27: [].every() made the
+  // default GREEN, so a publish intent with no permissions ran instead of parking.)
+  const perms = isValidPermissionsArray(envelope.permissions) ? envelope.permissions : []; // non-string entries are undeclared: fail closed, never String-coerce (codex P1)
+  if (perms.length === 0) return 'YELLOW';
   return perms.every(p => GREEN_PERMISSIONS.has(p)) ? 'GREEN' : 'YELLOW';
 }
 
@@ -20,6 +27,7 @@ function validate(envelope) {
   if (typeof envelope.user_intent !== 'string' || !envelope.user_intent.trim() || envelope.user_intent.length > 8000) return 'user_intent is required (<= 8000 chars)';
   if (envelope.target !== 'starnet') return 'target must be starnet';
   if (envelope.route !== 'city') return 'route must be city';
+  if (envelope.permissions !== undefined && !isValidPermissionsArray(envelope.permissions)) return 'permissions must be an array of strings';
   return null;
 }
 
