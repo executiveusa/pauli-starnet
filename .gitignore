@@ -197,3 +197,6 @@ dev/.shots-toast/
 .shellseam/
 
 .env.local
+
+# gateway mission desk state (runtime data, never committed)
+gateway/data/

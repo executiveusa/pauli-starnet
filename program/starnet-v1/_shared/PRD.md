@@ -123,12 +123,12 @@ Contracts for every hop are in `contracts.md`. Each step lists the file that cha
 3. **Gateway → sidecar.** New `POST /v1/missions` on the StarNet gateway: validates the envelope,
    persists the task to disk (fixes G7), and calls a new **loopback** sidecar route that starts a
    Heisenberg run. *(pauli-starnet: `gateway/server.js`)*
-4. **Heisenberg runs with a crew grant.** Add `crew` to `GRANTABLE_UNATTENDED`: it unlocks `team.dispatch`
-   only, never `team.summon`. It is minted **host-side** by the sidecar's mission route, only for GREEN
-   missions arriving with the gateway token, and never from prompt text. Crew runs keep the
-   least-privilege task profile unless the mission's `permissions` widen it inside policy.
-   *(pauli-starnet: `sidecar/inputpolicy.js`, `sidecar/index.js` mission route, roster: agent `agent`
-   named HEISENBERG, role orchestrator, specialty foreman)*
+4. **Heisenberg runs with a crew grant.** A new loopback sidecar route, `POST /api/missions/run`, runs the
+   foreman (roster agent `agent`, or `STARNET_FOREMAN_AGENT`) on the unattended surface with the host-only run
+   option `crew: true`. The consent broker then allows exactly `team.dispatch`, and never `team.summon`,
+   `team.spawn`, shell or writes (`sidecar/permissions.js` `crewAutonomy`). It is not a storable routine grant:
+   no API body or saved job can mint it. It is revoked by taint. Crew runs keep the lead's default-deny posture.
+   *(pauli-starnet: `sidecar/permissions.js`, `sidecar/index.js` `handleMissionRun`)*
 5. **The city shows real work.** Dispatched crew tasks appear in `activeTasks` with `context.agentId`, so
    the world moves only those bodies (`worldWorkSet`). No change is needed beyond #41.
 6. **Result + receipt.** Heisenberg's merged answer returns as a `ResultEnvelope` with `artifacts` (crew
@@ -146,8 +146,8 @@ public city function (read-only status and world) call it. The Hermes `starnet_g
 03 + 04 pass (decision D1).
 **R3 Real foreman.** A city mission is handled by Heisenberg with native `team.dispatch`. A mission that
 produces fewer than one crew task is reported as `done_solo` and never presented as crew work.
-**R4 Narrow crew grant.** `crew` = `team.dispatch` only. It is host-minted, GREEN only, and tested so that
-prompt text, model output and tool output can never mint it.
+**R4 Narrow crew grant.** `crew` = `team.dispatch` only. It is a host-only run option set by the mission route,
+GREEN only, never stored, and tested so that prompt text, model output and tool output can never mint it.
 **R5 Durable.** Gateway tasks and Terabithia missions survive a restart. Interrupted work is marked
 `failed: interrupted`, never left `working`.
 **R6 Sealed receipts.** Every mission ends with a receipt in a hash chain. Editing any past receipt breaks
