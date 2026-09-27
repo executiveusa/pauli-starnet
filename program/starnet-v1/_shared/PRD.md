@@ -193,9 +193,11 @@ Verified problems to fix in Phase 3:
   `website/app`). Fix: one source plus a build step.
 
 **Tenants:** Kupuri (Ivette) and MACS / Max Digital Media are separate tenants with their own repos, keys and
-data, and they cross only through Terabithia. MACS currently shares a server with the city preview
-(decision D3). Question D4: which Supabase project does Terabithia's `SUPABASE_URL` point at? If it is the
-MACS / Agent MAXX project, fleet missions are living in another tenant's database.
+data, and they cross only through Terabithia.
+- **MACS gets its own server** (D3, decided 2026-09-27). Until it moves, it shares a box with the city preview.
+- **Our data lives in our own self-hosted Supabase** (D4, decided 2026-09-27). It runs on the captain's server
+  and holds Terabithia's mission store (`SUPABASE_URL`) and a mirror of the receipt chain. It never uses the
+  MACS / Agent MAXX project or any other tenant's database. Each tenant that needs a database gets its own.
 
 ## 9. Phases after Night-1
 
@@ -206,6 +208,7 @@ MACS / Agent MAXX project, fleet missions are living in another tenant's databas
 | **P4 Signed bridge** | Ed25519 keys per city and agent; every envelope signed; approvals signed by a passkey on the captain's phone, bound to the envelope hash; treaties between cities | Unsigned, tampered, replayed and out-of-treaty messages are all refused, with tests; a stolen approval can't be reused for a different action |
 | **P5 Work leases** | Per-task lease with heartbeat and expiry, fencing number on reassignment, idempotency key on every consequential action. Reuse Hermes kanban heartbeats + StarNet `workspace-lease` | Kill a crew member mid-task and another resumes it; the stale holder's writes are rejected; no double charge in the test |
 | **P6 Receipts for clients** | Receipts signed and mirrored off-box; a client-facing proof page | Anyone can verify a receipt chain with a public key |
+| **P6b Own data + MACS move** | A self-hosted Supabase on the captain's server (own volume, backups, no public admin port). Terabithia's `SUPABASE_URL` points at it and its existing missions are migrated. MACS moves to its own server with its own keys, and nothing of ours remains on it | `SUPABASE_URL` resolves to our host; a restore from backup is tested; a scan of the MACS server finds no fleet data or keys; a scan of ours finds no MACS data |
 | **P7 Tenants + team cities** | Kupuri first (template), then MACS, then one StarNet per teammate from the template | Cross-tenant read/write denied in tests; a new teammate city boots from the template and passes the walk test |
 | **P8 Research play** | Three models from different families answer; a merger lists agreed / disputed / unsourced; the polish step can't add claims | A planted false fact in one answer shows up as disputed, not as fact |
 | **P9 Impact district live** | Impact shows real outcomes from receipts only | Every Impact number links to receipts |
@@ -217,12 +220,14 @@ Needed for Night-1:
 2. Set on the server: `STARNET_REVISION` (at deploy), `STARNET_URL` + `STARNET_TOKEN` in Terabithia (same token as the gateway's
    `GATEWAY_BEARER_TOKEN`), Instinct's `TERABITHIA_URL` + its bearer, and the earlier set (`OWNER_APPROVAL_KEY`, `PI_TOKEN`, `BARS_TOKEN`).
 3. The server agent deploys and pastes raw output into `06_proof-run/output/EVIDENCE.md`.
+4. For P6b: report which Supabase project Terabithia's `SUPABASE_URL` points at today (name and host only, no keys).
 
 Decisions:
 - **D1** Keep the StarNet Node gateway as the one edge and retire Hermes `starnet_gateway.py` after cutover. *(recommended)*
 - **D2** Crew grant = `team.dispatch` only, GREEN only. *(recommended)*
-- **D3** MACS gets its own server, or its own container / user / network on the shared box for now.
-- **D4** Which Supabase project backs Terabithia's mission store.
+- **D3 (decided 2026-09-27)** MACS gets its own server.
+- **D4 (decided 2026-09-27)** Self-host Supabase on our own server for our data. Terabithia's mission store
+  points there, never at a tenant's project.
 
 ## 11. Risks and honest limits
 
