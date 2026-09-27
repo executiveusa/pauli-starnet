@@ -49,7 +49,7 @@ const crypto = require('crypto');
 const GATEWAY_TOKEN = process.env.GATEWAY_BEARER_TOKEN || '';
 // A2A (Agent2Agent, a2aproject spec v0.3): our public handshake surface. Separate bearer from the
 // Command Center token, generated server-side, chmod 600. Fail-closed: unset = the A2A routes 404.
-const A2A_TOKEN = process.env.A2A_BEARER_TOKEN || '';
+const A2A_TOKEN = process.env.A2A_BEARER_TOKEN; // no default: unset stays fail-closed (404 on card paths)
 const STARNET_PORT = parseInt(process.env.STARNET_PORT || '8787', 10);
 const STARNET_HOST = '127.0.0.1';
 const STARNET_TOKEN = process.env.STARNET_SIDECAR_TOKEN || process.env.STARNET_API_TOKEN || '';
