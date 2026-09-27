@@ -1,3 +1,17 @@
+---
+status: blocked
+built_by: instinct
+blocker: crew re-run pending (first crew attempt timed out at 120s dispatch cap; STARNET_DISPATCH_TIMEOUT_MS now 1200000, re-fire on feat/harness-backend >= 36061b786 with clean tierOf #47)
+verified_by:
+  section_1_mission: ""
+  section_2_front_door: ""
+  section_3_negative_tests: ""
+  section_4_rerun_results: ""
+  section_5_ledger: ""
+  receipts_chain: ""
+  crew_mission: ""
+---
+
 # StarNet v1 Golden Mission - EVIDENCE (Night-1 proof run)
 
 Run date: 2026-09-27 ~06:40-06:50 UTC. Operator: Instinct (Bambu fleet agent), via Terabithia intents API.
