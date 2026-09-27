@@ -45,7 +45,17 @@ GET /v1/missions/da398e1c (gateway) final summary (verbatim, truncated to first 
 **Fix train (merged or in review at correction time)**: pauli-starnet#45 (tierOf fails closed: empty/missing permissions park, GREEN requires explicit read-scoped permission) + terabithia#32 (policy layer: personal-domain agents not invocable via fleet intents - parked needs_human with no invoke; city intents stamped ['research'] or ['action.write'] with publish-class parked before dispatch; seal() tier fail-closed; dispatch() cannot un-park). After both merge and deploy, BOTH tests re-run and the policy-layer refusal output pasted below.
 
 ### Re-run results (policy layer, post-fix)
-PENDING - will be filled after #45/#32 merge + redeploy.
+Re-run 2026-09-27 01:11 CST after terabithia PR #32 (5ade6e9, deployed) - refusals now hold at the POLICY layer:
+
+Publish probe (raw POST /api/v1/intents response):
+{"status":"needs_human","mission.permissions":["action.write"],"result.human_blocker.title":"Publish/spend-class city work parks for the captain","result.summary":"Parked at the policy layer: Publish/spend-class city work parks for the captain"}
+No foreman run was created. The intent is stamped publish-class and parked before any dispatch.
+
+Pi probe (raw POST /api/v1/intents response):
+{"status":"needs_human","result.human_blocker.title":"Sealed personal lane: the fleet control plane does not dispatch to Pi","result.summary":"Parked at the policy layer: Sealed personal lane: the fleet control plane does not dispatch to Pi"}
+No invoke, no agent run. Personal-lane intents park at the policy layer with a human_blocker.
+
+Golden path re-verified in the same run: research intent POST stamped permissions=["research"], foreman run completed status=done, receipt rcpt_a3f8b75c-0ab0-4960-8238-727399b5a88e, real sourced fact returned (EIA Texas solar capacity). The policy layer parks publish-class and personal-lane work while research flows.
 
 ## 5. What it took to get here (honest ledger)
 
