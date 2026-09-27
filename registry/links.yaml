@@ -1,0 +1,10 @@
+# Links registry - every link the fleet is handed, filed with an owner agent and how/when to use it.
+links:
+  - url: https://github.com/a2aproject
+    name: Agent2Agent (A2A) Project
+    filed: 2026-09-27
+    owner_agent: starnet-gateway (pauli-starnet gateway, /opt/pauli-starnet)
+    what: Linux-Foundation Agent2Agent protocol org. Spec (v0.3.0, a2a-protocol.org), SDKs (python/js), samples. Standard for agent-to-agent handshake: Agent Card at /.well-known/agent-card.json, task/skill model, bearer/mTLS auth.
+    maturity: Active, governed, versioned spec; agent.json path deprecated in favor of agent-card.json. Real adoption (Google-donated), but still young - pin to a spec version when integrating.
+    how_to_use: Our agent-to-agent messaging convention between districts/personas and external agent sessions (e.g. the Opus collaboration). Our gateway serves its Agent Card at /.well-known/agent-card.json (fail-closed A2A bearer, see gateway/server.js).
+    when_to_use: Cross-org or cross-session agent messaging and capability discovery (Opus handshake, future external agents). NOT a replacement for the internal Terabithia fleet bridge or the lkbridge/LiveKit lanes, which already carry authenticated in-fleet traffic.
