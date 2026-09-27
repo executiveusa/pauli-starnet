@@ -509,7 +509,7 @@ async function handleRequest(req, res) {
     if (!A2A_TOKEN) return send(404, { error: 'NOT_FOUND' });
     const a2aHeader = req.headers['authorization'] || '';
     const a2aToken = a2aHeader.startsWith('Bearer ') ? a2aHeader.slice(7).trim() : '';
-    if (a2aToken !== A2A_TOKEN) {
+    if (!a2aToken || a2aToken.length < 16 || a2aToken !== A2A_TOKEN) {
       log('warn', 'a2a auth failed', { reqId, ip });
       return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
     }
