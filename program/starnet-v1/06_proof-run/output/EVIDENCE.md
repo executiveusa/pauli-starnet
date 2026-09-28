@@ -133,3 +133,5 @@ Golden simulated runs (2026-09-27 10:06-10:24 UTC):
 - receipts-chain-20260927.jsonl - all 8 receipt objects of the current chain, unredacted (ids + hashes only, no secrets), so the full chain recomputes end to end.
 
 Raw auditor files added post-review (builder ask, 2026-09-27 10:21 CST): crew2-run-excerpts.json, crew2-board-get.json, crew2-terabithia-mission-get.json, crew2-gateway-mission-get.json, crew2-receipt-rcpt_4dcb91c6.json, crew2-verify-receipts.txt - the raw artifacts behind the crew two-clean-legs claim, so anyone can recompute without asking the auditor.
+
+Raw auditor files for crew Run A added (builder handoff 2026-09-28): crew1-run-excerpts.json, crew1-runs.jsonl, crew1-board-get.json, crew1-terabithia-mission-get.json, crew1-gateway-mission-get.json, crew1-receipt-rcpt_864d7efa.json, crew1-verify-receipts.txt - the raw artifacts behind the Run A claim (receipt rcpt_864d7efa), previously held only by the auditor.
