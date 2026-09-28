@@ -1,0 +1,16 @@
+{
+  "upstream": "https://github.com/nickvasilescu/nicks-stack",
+  "upstreamCommit": "90b9975c5391591e98565d20d33554a6b91f2f85",
+  "template": "Hermes gateway / SOUL.md / per-agent config / skills and Obsidian vault",
+  "manager": "Jeremy's existing Hermes, not five new manager gateways",
+  "model": {"provider": "openai-codex", "auth": "ChatGPT OAuth; verify on target host before activation", "claudeAlternative": "Anthropic OAuth; verify subscription route separately", "apiKeyFallback": false},
+  "externalEffects": "held",
+  "agents": [
+    {"id":"cc001","district":"cuties-cc001","rosterCandidate":"Mila","status":"held"},
+    {"id":"cc002","district":"cuties-cc002","rosterCandidate":"Darya","status":"held"},
+    {"id":"cc003","district":"cuties-cc003","rosterCandidate":"Fanni","status":"held"},
+    {"id":"cc004","district":"cuties-cc004","rosterCandidate":"Shenise","status":"held"},
+    {"id":"cc005","district":"cuties-cc005","rosterCandidate":null,"status":"held"}
+  ],
+  "lanes": ["upwork", "fiverr", "instagram", "tiktok-shop"]
+}
