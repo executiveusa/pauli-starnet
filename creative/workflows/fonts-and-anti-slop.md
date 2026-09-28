@@ -20,7 +20,7 @@ Every visual the gate ships runs this workflow. All sources below are free - hou
 
 ## 3. Component and asset libraries
 
-- Components: **21st.dev**, **reactbits.dev**, **canvasui.dev**.
+- Components: **21st.dev**, **reactbits.dev** (see [../design-references/reactbits-dev.md](../design-references/reactbits-dev.md)), **canvasui.dev**.
 - Icons: **Iconify** / **FlatIcon** packs. **SVG-first** for icons and illustrations, always.
 - Animated icons: **Lordicon** (Lottie).
 - Master directory when hunting anything else: **creatorstoolbox.com**.
