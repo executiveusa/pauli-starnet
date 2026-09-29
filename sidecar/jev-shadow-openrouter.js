@@ -21,13 +21,18 @@ const LEDGER = process.env.JEV_SHADOW_LEDGER
   || path.join(__dirname, '..', 'registry', 'jev-shadow-ledger.jsonl');
 const API_KEY = process.env.OPENROUTER_API_KEY || '';
 const MODELS = (process.env.JEV_SHADOW_MODELS
-  || 'deepseek/deepseek-v4-flash-0731:free,z-ai/glm-5.2:free,google/gemma-4-31b-it:free'
+  || 'stealth/space-bunny-alpha,deepseek/deepseek-v4-flash-0731:free,z-ai/glm-5.2:free,google/gemma-4-31b-it:free'
 ).split(',').map(s => s.trim()).filter(Boolean);
+// Per-model request extras. Space Bunny Alpha reasons at length by default;
+// low effort keeps typed decisions fast. Quality knob lives here, not in prompts.
+const MODEL_EXTRA = {
+  'stealth/space-bunny-alpha': { reasoning_effort: 'low' },
+};
 const GATEWAY_TOKEN_FILE = process.env.JEV_GATEWAY_TOKEN_FILE || '/root/.vercel-token';
 const GATEWAY_URL = process.env.JEV_GATEWAY_URL || 'https://ai-gateway.vercel.sh/v1/evaluate';
 const GATEWAY_MODEL = process.env.JEV_GATEWAY_MODEL || 'typesafe-ai/jev';
 const HARD_OFF = String(process.env.STARNET_JEV_DISABLED || '').trim() === '1';
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 
 const QUESTION_SPEC = `You are the JEV shadow decision plane for StarNet, a fleet of coding/ops agents.
 Given a mission state, answer FIVE typed questions. Reply with STRICT JSON only, no prose:
@@ -240,6 +245,7 @@ async function callModel(state) {
           temperature: 0,
           max_tokens: 400,
           response_format: { type: 'json_object' },
+          ...(MODEL_EXTRA[model] || {}),
         }),
       });
       const text = await resp.text();
@@ -279,6 +285,131 @@ async function callModel(state) {
   return { ok: false, error: lastErr };
 }
 
+
+// --- Named question packs (citizen templates) -------------------------------
+// Packs are named typed-question sets loaded from sidecar/jev-question-packs.json.
+// They let any district ask a JEV-shaped question (ad-gap analyzer, brand
+// quality-gate, inbox triage) without hardcoding the questions. Video pattern:
+// batch every question into ONE model call (rank wide, read narrow).
+const PACKS_FILE = process.env.JEV_QUESTION_PACKS_FILE
+  || path.join(__dirname, 'jev-question-packs.json');
+function loadPacks() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(PACKS_FILE, 'utf8'));
+    const out = {};
+    for (const [name, q] of Object.entries(raw || {})) {
+      if (/^[a-z0-9-]{1,40}$/.test(name) && validCustomQuestions(q)) out[name] = q;
+    }
+    return out;
+  } catch (e) {
+    console.warn('[jev-shadow] packs load failed:', e && e.message);
+    return {};
+  }
+}
+const QUESTION_PACKS = loadPacks();
+
+function customSpecFromQuestions(questions) {
+  const lines = [
+    'You are the JEV shadow decision plane. Given the state, answer every typed question below.',
+    'Reply with STRICT JSON only, no prose: one object keyed by question name.',
+    'Questions:',
+  ];
+  for (const [k, v] of Object.entries(questions)) {
+    if (v.type === 'boolean') {
+      lines.push('- "' + k + '": {"answer": "yes" or "no"} - ' + v.instructions);
+    } else {
+      const opts = Object.keys(v.criteria).map(c => '"' + c + '"').join(',');
+      const desc = Object.entries(v.criteria).map(([c, d]) => c + ': ' + d).join('; ');
+      lines.push('- "' + k + '": {"choice": one of [' + opts + ']} - ' + desc);
+    }
+  }
+  return lines.join('\n');
+}
+
+function validCustomAnswers(questions, a) {
+  if (!a || typeof a !== 'object') return false;
+  for (const [k, v] of Object.entries(questions)) {
+    const ans = a[k];
+    if (!ans || typeof ans !== 'object') return false;
+    if (v.type === 'boolean') {
+      if (ans.answer !== 'yes' && ans.answer !== 'no') return false;
+    } else if (!Object.prototype.hasOwnProperty.call(v.criteria, ans.choice)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Free-lane fallback for typed custom questions / packs (mirrors callModel).
+async function callModelCustom(state, questions) {
+  const spec = customSpecFromQuestions(questions);
+  const user = 'State:\n' + JSON.stringify(state).slice(0, 6000);
+  let lastErr = null;
+  for (const model of MODELS) {
+    const started = Date.now();
+    try {
+      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        signal: AbortSignal.timeout(25000),
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer ' + API_KEY,
+          'content-type': 'application/json',
+          accept: 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: spec },
+            { role: 'user', content: user },
+          ],
+          temperature: 0,
+          max_tokens: 400,
+          response_format: { type: 'json_object' },
+          ...(MODEL_EXTRA[model] || {}),
+        }),
+      });
+      const text = await resp.text();
+      let parsed = null;
+      try { parsed = text ? JSON.parse(text) : null; } catch {}
+      if (!resp.ok) {
+        lastErr = { model, status: resp.status, body: clip(text, 300) };
+        continue;
+      }
+      const content = parsed && parsed.choices && parsed.choices[0]
+        && parsed.choices[0].message && parsed.choices[0].message.content;
+      let answers = null;
+      try { answers = JSON.parse(content); } catch {
+        const m = typeof content === 'string' && content.match(/\{[\s\S]*\}/);
+        if (m) { try { answers = JSON.parse(m[0]); } catch {} }
+      }
+      if (!validCustomAnswers(questions, answers)) {
+        lastErr = { model, status: 200, error: 'shape_invalid', content: clip(content, 300) };
+        continue;
+      }
+      return {
+        ok: true,
+        model,
+        rawAnswers: answers,
+        usage: parsed.usage || undefined,
+        latencyMs: Date.now() - started,
+      };
+    } catch (e) {
+      lastErr = { model, error: e && e.message };
+    }
+  }
+  return { ok: false, error: lastErr };
+}
+
+// Custom questions: real Jev gateway first, free lane as fallback (same
+// reversible-shadow posture as callDecision).
+async function callDecisionCustom(state, questions) {
+  const gw = await callGatewayCustom(state, questions);
+  if (gw.ok) return gw;
+  const or = await callModelCustom(state, questions);
+  if (or.ok) { or.gatewayError = gw.error; return or; }
+  return { ok: false, error: { gateway: gw.error, openrouter: or.error } };
+}
+
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://localhost');
   if (req.method === 'GET' && u.pathname === '/healthz') {
@@ -287,7 +418,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && u.pathname === '/status') {
     let ledgerCount = 0;
     try { ledgerCount = fs.readFileSync(LEDGER, 'utf8').trim().split(/\n/).filter(Boolean).length; } catch {}
-    return json(res, 200, { ok: true, district: 'jev', citizen: 'jev-shadow', mode: 'recommend-only', version: VERSION, models: MODELS, hardOff: HARD_OFF, keyConfigured: Boolean(API_KEY), ledgerEntries: ledgerCount, uptimeSec: Math.round(process.uptime()) });
+    return json(res, 200, { ok: true, district: 'jev', citizen: 'jev-shadow', mode: 'recommend-only', version: VERSION, models: MODELS, hardOff: HARD_OFF, keyConfigured: Boolean(API_KEY), ledgerEntries: ledgerCount, packs: Object.keys(QUESTION_PACKS), uptimeSec: Math.round(process.uptime()) });
   }
   if (req.method !== 'POST' || u.pathname !== '/api/jev-decision') {
     return json(res, 404, { ok: false, error: 'not_found' });
@@ -308,10 +439,18 @@ const server = http.createServer(async (req, res) => {
     try { parsed = JSON.parse(body); } catch {}
     const state = parsed && parsed.state;
     if (state == null) return json(res, 400, { ok: false, error: 'state_required' });
-    const customQ = parsed.questions !== undefined ? parsed.questions : null;
+    let customQ = parsed.questions !== undefined ? parsed.questions : null;
+    let packName = null;
+    if (parsed.pack !== undefined) {
+      if (typeof parsed.pack !== 'string' || !QUESTION_PACKS[parsed.pack]) {
+        return json(res, 400, { ok: false, error: 'pack_unknown', packs: Object.keys(QUESTION_PACKS) });
+      }
+      packName = parsed.pack;
+      customQ = QUESTION_PACKS[packName];
+    }
     if (customQ !== null && !validCustomQuestions(customQ)) return json(res, 400, { ok: false, error: 'questions_invalid' });
     const requestId = crypto.randomUUID();
-    const result = customQ ? await callGatewayCustom(state, customQ) : await callDecision(state);
+    const result = customQ ? await callDecisionCustom(state, customQ) : await callDecision(state);
     ledgerWrite({
       ts: new Date().toISOString(),
       requestId,
@@ -322,6 +461,7 @@ const server = http.createServer(async (req, res) => {
       model: result.ok ? result.model : undefined,
       answers: result.ok ? (result.answers || result.rawAnswers) : undefined,
       customQuestions: customQ ? Object.keys(customQ) : undefined,
+      pack: packName || undefined,
       usage: result.ok ? result.usage : undefined,
       probabilities: result.ok ? result.probabilities : undefined,
       upstreamFallback: result.ok && result.gatewayError ? result.gatewayError : undefined,
