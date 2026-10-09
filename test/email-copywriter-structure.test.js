@@ -11,6 +11,9 @@ test('email specialist has one registry and a non-discoverable example', () => {
   assert.match(registry, /id: email-copywriter/);
   assert.match(registry, /mode: draft-and-review-only/);
   assert.equal(fs.existsSync(district), true);
+  const knowledge = registry.match(/^    knowledge: (.+)$/m);
+  assert.ok(knowledge);
+  assert.equal(fs.existsSync(path.join(root, "districts/creative", knowledge[1])), true);
 });
 test('catalog schema is uniform and retrieved captions exist', () => {
   const catalog = JSON.parse(fs.readFileSync(path.join(district, 'knowledge/catalog.json'), 'utf8'));

@@ -6,7 +6,7 @@ citizens:
     path: districts/creative/email-copywriter
     role: email-copywriting-specialist
     mode: draft-and-review-only
-    knowledge: knowledge/catalog.json
+    knowledge: email-copywriter/knowledge/catalog.json
     routes: [email-draft, subject-lines, opt-in, welcome-sequence, email-launch, email-audit]
     gates: [client-facts-verified, owner-review-before-release]
     status: LIVE
