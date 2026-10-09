@@ -708,3 +708,4 @@ test/pauli-foundry.test.js
 
 test/coolify-city-server.test.mjs
 test/red-gate-watchdog.test.js
+email-copywriter-structure.test.js
