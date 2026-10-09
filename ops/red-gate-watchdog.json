@@ -1,0 +1,13 @@
+{
+  "note": "Fleet repositories whose main-branch gates the red-gate watchdog checks daily. Omit branch to use the repository's default branch.",
+  "repositories": [
+    { "repo": "executiveusa/pauli-starnet", "branch": "feat/harness-backend" },
+    { "repo": "executiveusa/terabithia", "branch": "main" },
+    { "repo": "executiveusa/pauli-tars-demo-", "branch": "main" },
+    { "repo": "executiveusa/pauli-command-center", "branch": "main" },
+    { "repo": "executiveusa/pauli-hermes-agent", "branch": "main" },
+    { "repo": "executiveusa/pauli-pi-agent", "branch": "main" },
+    { "repo": "executiveusa/instinct-voice-agent", "branch": "main" },
+    { "repo": "executiveusa/vibe-engineering", "branch": "main" }
+  ]
+}

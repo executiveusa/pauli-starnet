@@ -97,6 +97,17 @@
     // PREFIX (not a fixed name) is what lets one grant cover every server the Commander has connected, while
     // still refusing every non-connector capability. Overridable for tests.
     const CONNECTOR_CAP_RE = opts.connectorCapRe || /^mcp:/;
+    // UNATTENDED CREW GRANT: a foreman mission may delegate to its crew with nobody watching. Host-injected per
+    // run (the mission route only), never stored, never from prompt/model/tool text. Unlocks EXACTLY team.dispatch:
+    // not team.summon (creating agents stays a Commander decision), not team.spawn, not any other execute tool.
+    const crewGrant = typeof opts.crewGrant === 'function' ? opts.crewGrant : null;
+    const CREW_TOOL = 'team.dispatch';
+    // A MISSION RUN must wait for its crew: a background dispatch returns before the workers finish, so the mission
+    // would be reported done/solo while its crew still runs. This is a correctness rule of the mission route, not a
+    // grant, so it holds even under Full Access (checked first in consent()). Host-injected, like crewGrant.
+    const missionRun = opts.missionRun === true;
+    const backgroundCrewInMission = (call, tool) => missionRun && !!tool && tool.name === CREW_TOOL
+      && tool.capability === 'orchestrator' && !!(call && call.args && call.args.background);
     // the jail-scoped capabilities the workshop grant may unlock a WRITE for (never execute, never a non-jail tool).
     // The plan calls these "cabinet | notebook"; in the live tool registry the FILE capability is `cabinet`
     // (sidecar/tools/builtin/fs.js — fs.write/append/edit/patch, realpath-jailed to workspaces/<agentId>/) and the
@@ -167,6 +178,15 @@
       try { return connectorGrant(call, tool) === true; } catch (_) { return false; }
     }
 
+    function crewAutonomy(call, tool) {
+      if (!crewGrant) return false;
+      if (surface !== 'autonomous') return false;
+      if (!tool || tool.name !== CREW_TOOL || tool.capability !== 'orchestrator') return false;
+      // Background workers outlive the tool call, so the mission would seal before its crew finishes. Blocking only.
+      if (call && call.args && call.args.background) return false;
+      try { return crewGrant(call, tool) === true; } catch (_) { return false; }
+    }
+
     function sessionSet(create) {
       let s = grantsSession.get(sessionKey);
       if (!s && create) { s = new Set(); grantsSession.set(sessionKey, s); }
@@ -180,6 +200,7 @@
 
     function consent(call, tool) {
       const scope = scopeOf(tool);
+      if (backgroundCrewInMission(call, tool)) return { allow: false, scope: scope, reason: 'a mission must wait for its crew: call team.dispatch without background' };
       // FULL POWER: the Commander's explicit host-wide authority outranks StarNet policy floors.
       // Input/schema validity, OS permissions and downstream service prerequisites still report normally.
       if (unrestrictedNow()) return { allow: true, scope: scope, reason: 'full-power' };
@@ -193,6 +214,7 @@
       // dead code. Still below the hardline floor (tier 1), so protected paths remain unwritable.
       if (terminalAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'per-routine unattended terminal grant' };
       if (connectorAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'per-routine unattended connector grant' };
+      if (crewAutonomy(call, tool)) return { allow: true, scope: scope, reason: 'foreman mission crew grant' };
       // 2.5 EXEC LOCKOUT — an UNATTENDED run may NEVER execute a command off a cached/pre-blessed grant: only a
       // live human (interactive surface), or the explicit per-routine grant in tier 2.4, can approve shell. This
       // keeps "no autonomous shell" un-pre-blessable — a permanent `always` grant a human gave once does NOT

@@ -61,7 +61,7 @@
     for (const t of items) {
       const row = el('div', 'taskrow');
       const head = el('div');
-      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : 'running'), t.status));
+      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : t.status === 'observed' ? 'idle' : 'running'), t.status === 'observed' ? 'repo activity' : t.status));
       head.appendChild(document.createTextNode(' ' + (t.label || '').slice(0, 140)));
       row.appendChild(head);
       const meta = [];
@@ -92,7 +92,7 @@
     for (const t of items.slice(0, 6)) {
       const row = el('div', 'taskrow');
       const head = el('div');
-      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : 'running'), t.status));
+      head.appendChild(el('span', 'pill ' + (t.status === 'completed' || t.status === 'accepted' ? 'completed' : t.status === 'failed' ? 'failed' : t.status === 'observed' ? 'idle' : 'running'), t.status === 'observed' ? 'repo activity' : t.status));
       head.appendChild(document.createTextNode(' ' + (t.label || '').slice(0, 140)));
       row.appendChild(head);
       const meta = [];

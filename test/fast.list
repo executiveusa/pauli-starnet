@@ -185,6 +185,8 @@ test/tauri.hardening.test.js
 test/finish-line-doctrine.test.js
 test/manual.test.js
 test/permissions.test.js
+test/kupuri-governance.test.js
+test/kupuri-mission-chain.test.js
 test/workshop-permissions.test.js
 test/master-bypass.test.js
 test/workshop-store.test.js
@@ -691,6 +693,9 @@ test/loop-verdict.test.js
 test/city-web.test.js
 test/gateway-cors.test.js
 test/gateway-activetasks.test.js
+test/program-status.test.js
+test/gateway-missions.test.js
+test/gateway-hardening.test.js
 test/supervisor.test.js
 test/pauli-memory.test.js
 test/pauli-council.test.js
@@ -702,3 +707,4 @@ test/pauli-memory-eval.test.js
 test/pauli-foundry.test.js
 
 test/coolify-city-server.test.mjs
+test/red-gate-watchdog.test.js

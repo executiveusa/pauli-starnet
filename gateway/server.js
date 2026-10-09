@@ -41,11 +41,15 @@
 'use strict';
 
 const { getCityWorld } = require('./city-world');
+const { makeMissionDesk } = require('./missions');
 const http = require('http');
 const crypto = require('crypto');
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const GATEWAY_TOKEN = process.env.GATEWAY_BEARER_TOKEN || '';
+// A2A (Agent2Agent, a2aproject spec v0.3): our public handshake surface. Separate bearer from the
+// Command Center token, generated server-side, chmod 600. Fail-closed: unset = the A2A routes 404.
+const A2A_TOKEN = process.env.A2A_BEARER_TOKEN; // no default: unset stays fail-closed (404 on card paths)
 const STARNET_PORT = parseInt(process.env.STARNET_PORT || '8787', 10);
 const STARNET_HOST = '127.0.0.1';
 const STARNET_TOKEN = process.env.STARNET_SIDECAR_TOKEN || process.env.STARNET_API_TOKEN || '';
@@ -57,6 +61,19 @@ const RATE_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60', 10);
 const MAX_BODY = parseInt(process.env.MAX_BODY_BYTES || '1048576', 10);
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+
+// The commit this process runs, so a status read can be checked against the branch head.
+// STARNET_REVISION (set at deploy) wins; else the checkout's HEAD; else 'unknown', never a guess.
+const REVISION = (() => {
+  const sha = v => (typeof v === 'string' && /^[0-9a-f]{7,40}$/i.test(v.trim()) ? v.trim().toLowerCase() : null);
+  const fromEnv = sha(process.env.STARNET_REVISION || process.env.GIT_COMMIT || process.env.VERCEL_GIT_COMMIT_SHA || '');
+  if (fromEnv) return fromEnv;
+  try {
+    const out = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'],
+      { cwd: __dirname, timeout: 3000, stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    return sha(out) || 'unknown';
+  } catch { return 'unknown'; }
+})();
 
 if (!GATEWAY_TOKEN) {
   process.stderr.write('[GATEWAY][FATAL] GATEWAY_BEARER_TOKEN is not set. Gateway cannot start without an inbound auth token.\n');
@@ -113,7 +130,7 @@ function readBody(req) {
 }
 
 // ─── STARNET SIDECAR REQUEST ──────────────────────────────────────────────────
-function sidecarRequest(method, path, body) {
+function sidecarRequest(method, path, body, timeoutMs = 30000) {
   return new Promise((resolve, reject) => {
     const bodyBuf = body ? Buffer.from(JSON.stringify(body), 'utf8') : null;
     const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
@@ -129,7 +146,7 @@ function sidecarRequest(method, path, body) {
       path,
       method,
       headers,
-      timeout: 30000
+      timeout: timeoutMs
     }, res => {
       const chunks = [];
       res.on('data', c => chunks.push(c));
@@ -160,7 +177,9 @@ function runToCompletion(agentId, message, context) {
     const taskId = crypto.randomUUID();
     const resolvedProvider = (context && context.provider) || process.env.STARNET_DEFAULT_PROVIDER || 'openrouter';
     const resolvedModel = (context && context.model) || process.env.STARNET_DEFAULT_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-    const resolvedKey = (context && context.key) || process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
+    // Provider keys come from the gateway's own environment only; a caller-supplied context.key
+    // would let any bearer holder route spend through an arbitrary account.
+    const resolvedKey = process.env.STARNET_PROVIDER_KEY || process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API || '';
     const bodyObj = {
       agentId: agentId || 'agent',
       text: message,
@@ -168,7 +187,7 @@ function runToCompletion(agentId, message, context) {
       provider: resolvedProvider,
       model: resolvedModel,
       key: resolvedKey,
-      context: context || {},
+      context: Object.fromEntries(Object.entries(context || {}).filter(([k]) => k !== 'key')),
       taskId,
       // TASK runs advertise the placed-object tools on the wire (isTask gates toolDefs in handleRun).
       // Without this flag the loop got tools:[] - the model saw capabilities in its prompt but had no
@@ -331,6 +350,7 @@ async function getCityStatus() {
       city: { name: "Pauli's Place", status: 'unreachable' },
       districts: [], citizens: [], missions: [], approvals: [], experiments: [], activeTasks: [],
       revenue: null, costs: null,
+      revision: REVISION,
       health: { status: 'unreachable', starnet: { ok: false } }
     };
   }
@@ -362,7 +382,8 @@ async function getCityStatus() {
     id: a.agentId || a.id || 'agent',
     name: a.name || a.agentId || 'Agent',
     role: a.role || 'agent',
-    status: 'online',
+    // A roster row proves the agent exists, not that it is running. No heartbeat here -> unknown.
+    status: 'unknown',
     district: a.district || 'city'
   }));
 
@@ -388,7 +409,7 @@ async function getCityStatus() {
       name: 'City Center',
       status: 'active',
       agents: citizens.length,
-      active: citizens.filter(c => c.status === 'online').length
+      active: null
     }],
     citizens,
     missions: sidecarData.missions || [],
@@ -405,12 +426,37 @@ async function getCityStatus() {
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
     costs: null,     // unknown until STARNET provides verified telemetry
+    revision: REVISION,
     health: {
       status: 'online',
       starnet: { ok: true, port: STARNET_PORT }
     }
   };
 }
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+// Hash both sides first so timingSafeEqual always sees equal-length buffers. The old padEnd(64)
+// compare threw ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH on any bearer longer than 64 chars, and the
+// unhandled rejection exited the process: one unauthenticated request took the gateway down.
+function tokenMatches(token) {
+  if (!token) return false;
+  const a = crypto.createHash('sha256').update(token).digest();
+  const b = crypto.createHash('sha256').update(GATEWAY_TOKEN).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+// ─── MISSION DESK (Terabithia city missions → the sidecar foreman) ────────────
+// One durable file per mission; a restart marks in-flight missions failed instead of leaving them working.
+const FOREMAN_TIMEOUT_MS = parseInt(process.env.STARNET_FOREMAN_TIMEOUT_MS || '900000', 10);
+const missionDesk = makeMissionDesk({
+  stateDir: process.env.STARNET_MISSION_DIR || require('path').join(__dirname, 'data', 'missions'),
+  revision: REVISION,
+  runForeman: body => sidecarRequest('POST', '/api/missions/run', body, FOREMAN_TIMEOUT_MS)
+    .then(r => r.data)
+    .catch(e => { if (e && e.body && e.body.status) return e.body; throw e; })
+});
+const recoveredMissions = missionDesk.recoverOnBoot();
+if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
 
 // ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
 // Stores running/completed tasks by ID for GET /v1/heisenberg/tasks/:id
@@ -457,10 +503,40 @@ async function handleRequest(req, res) {
     return send(429, { error: 'RATE_LIMIT_EXCEEDED', retryAfter: Math.ceil(RATE_WINDOW / 1000) });
   }
 
+  // A2A handshake surface (a2aproject Agent2Agent, spec v0.3): the Agent Card at the well-known path.
+  // Authenticated with the A2A bearer, NOT the Command Center token; fail-closed when unconfigured.
+  if (url === '/.well-known/agent-card.json' || url === '/.well-known/agent.json') {
+    if (!A2A_TOKEN) return send(404, { error: 'NOT_FOUND' });
+    const a2aHeader = req.headers['authorization'] || '';
+    const a2aToken = a2aHeader.startsWith('Bearer ') ? a2aHeader.slice(7).trim() : '';
+    if (!a2aToken || a2aToken.length < 16 || a2aToken !== A2A_TOKEN) {
+      log('warn', 'a2a auth failed', { reqId, ip });
+      return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
+    }
+    return send(200, {
+      name: 'Pauli StarNet Gateway',
+      description: 'Front door to the Pauli city: accepts missions for Heisenberg and the crew, returns receipted results. Interface today is the REST mission API described in skills (POST /v1/missions, GET /v1/missions/:id); the A2A JSON-RPC transport is the back-end work this handshake invites. Service/infra operated by Bambu fleet.',
+      url: (process.env.A2A_PUBLIC_URL || `http://127.0.0.1:${GATEWAY_PORT}/`).replace(/\/$/, '') + '/',
+      provider: { organization: 'executiveusa', url: 'https://github.com/executiveusa/pauli-starnet' },
+      version: REVISION || '1.0.0',
+      protocolVersion: '0.3.0',
+      capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+      defaultInputModes: ['application/json'],
+      defaultOutputModes: ['application/json'],
+      securitySchemes: { bearer: { type: 'http', scheme: 'bearer' } },
+      security: [{ bearer: [] }],
+      skills: [
+        { id: 'city-mission', name: 'City mission dispatch', description: 'POST /v1/missions: run a city mission with the crew and return a receipted ResultEnvelope.', tags: ['missions', 'receipts', 'city'] },
+        { id: 'mission-status', name: 'Mission status', description: 'GET /v1/missions/:id: read the current ResultEnvelope for a mission.', tags: ['status', 'receipts'] },
+        { id: 'city-status', name: 'City status', description: 'GET /v1/city/status: honest live status of the city and its agents.', tags: ['status', 'city'] }
+      ]
+    });
+  }
+
   // Authentication
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  if (!token || !crypto.timingSafeEqual(Buffer.from(token.padEnd(64)), Buffer.from(GATEWAY_TOKEN.padEnd(64)))) {
+  if (!tokenMatches(token)) {
     log('warn', 'auth failed', { reqId, ip });
     return send(401, { error: 'UNAUTHORIZED', hint: 'Bearer token required' });
   }
@@ -476,6 +552,7 @@ async function handleRequest(req, res) {
         ok: true,
         gateway: 'pauli-gateway',
         version: '1.0.0',
+        revision: REVISION,
         starnet: { ok: starnetOk, host: `${STARNET_HOST}:${STARNET_PORT}` },
         generatedAt: new Date().toISOString()
       });
@@ -491,6 +568,23 @@ async function handleRequest(req, res) {
     if (method === 'GET' && url === '/v1/city/world') {
       const world = getCityWorld();
       return send(world.ok === false ? 503 : 200, world);
+    }
+
+    // POST /v1/missions — a Terabithia MissionEnvelope for the city (program/starnet-v1/_shared/contracts.md §2)
+    if (method === 'POST' && url === '/v1/missions') {
+      const bodyText = await readBody(req);
+      let envelope;
+      try { envelope = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = missionDesk.accept(envelope);
+      if (out.done) out.done.catch(e => log('error', 'mission settle failed', { error: e.message }));
+      return send(out.code, out.body);
+    }
+
+    // GET /v1/missions/:id — the mission's current ResultEnvelope
+    const missionMatch = method === 'GET' && url.match(/^\/v1\/missions\/([A-Za-z0-9_.:-]{1,100})$/);
+    if (missionMatch) {
+      const result = missionDesk.get(missionMatch[1]);
+      return result ? send(200, result) : send(404, { error: 'MISSION_NOT_FOUND' });
     }
 
     // POST /v1/heisenberg/tasks
@@ -603,29 +697,24 @@ async function handleRequest(req, res) {
         return send(400, { error: 'decision must be approve or reject' });
       }
 
-      // Forward to STARNET workspace — mark pending item as decided
+      // Audit id for the refusal log line below.
       const receipt = makeReceipt('approval_decision', {
         approval_id: approvalId,
         decision,
         decided_by: 'gateway-owner'
       });
 
-      // Try to forward to sidecar if it has an approval endpoint
-      try {
-        const r = await sidecarRequest('POST', `/api/approve`, { id: approvalId, decision });
-        log('info', 'approval forwarded', { approvalId, decision, receipt: receipt.receipt_id });
-        return send(200, { ok: true, id: approvalId, decision, receipt, result: r.data });
-      } catch (e) {
-        // Sidecar may not have this endpoint — record locally and return receipt
-        log('warn', 'sidecar approve endpoint missing, recording locally', { approvalId, error: e.message });
-        return send(200, {
-          ok: true,
-          id: approvalId,
-          decision,
-          receipt,
-          note: 'Decision recorded at gateway. Sidecar approval sync pending when available.'
-        });
-      }
+      // The sidecar has no /api/approve route; native consent (/api/consent/answer) stays the
+      // authority. This used to answer 200 ok:true "recorded at gateway" while recording nothing,
+      // so the Command Center showed approvals that never happened. Fail closed instead.
+      log('warn', 'approval decision refused: no headless approval seam', { approvalId, decision, receipt: receipt.receipt_id });
+      return send(501, {
+        ok: false,
+        id: approvalId,
+        decision,
+        error: 'APPROVAL_SEAM_NOT_WIRED',
+        message: 'Remote approval decisions are not enabled. Approve in STARNET directly; nothing was recorded.'
+      });
     }
 
     // 404

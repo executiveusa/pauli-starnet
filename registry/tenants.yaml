@@ -7,6 +7,9 @@ tenants:
     isolation_required: true
     private_second_brain_public_retrieval: false
     first_vertical_slice: true
+    enforcement_policy: registry/policy.v1.json
+    owner_identity: human-owner-reference-only
+    public_owner_spelling: UNVERIFIED
   - id: shared-platform
     owner: platform-owner
     status: LIVE

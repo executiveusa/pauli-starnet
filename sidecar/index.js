@@ -97,7 +97,8 @@ const { starnetManual } = require('./manual.js');   // truthful "how StarNet wor
 const FinishLine = require('./finish-line.js');
 const TaskProfile = require('./task-profile.js');       // slim least-privilege run profiles (web-research lane)     // immutable "crawl to the finish line" task doctrine at the final prompt seam
 const { makeHarnessSnapshot } = require('./harness-snapshot.js');   // bounded secret-free build/scheduler/connectors/diagnostics truth for station.inspect
-const { makeOpenRouterProvider } = require('./providers/openrouter.js');\nconst { makeJevClient } = require('./jev-client.js');   // optional Jev System-One decision plane; OFF means zero network calls
+const { makeOpenRouterProvider } = require('./providers/openrouter.js');
+const { makeJevClient } = require('./jev-client.js');   // optional Jev System-One decision plane; OFF means zero network calls
 const edgetts = require('./edgetts.js');   // V-EDGE: free keyless neural TTS floor (decoupled from the LLM provider)
 const localVoice = require('./local-voice.js');
 const { makeMediaService } = require('./media-service.js');
@@ -8385,6 +8386,7 @@ const ROUTES = [
   { m: 'POST', exact: '/api/local-voice/warm', h: media.handleLocalVoiceWarm },
   { m: 'POST', exact: '/api/local-voice/transcribe', h: media.handleLocalVoiceTranscribe },
   { m: 'POST', exact: '/api/run', h: handleRun, errorPolicy: runFailPolicy },
+  { m: 'POST', exact: '/api/missions/run', h: handleMissionRun },
   { m: 'POST', exact: '/api/run-recoveries/resolve', h: handleRunRecoveryResolve },
   { m: 'POST', exact: '/api/run-recoveries/continue', h: handleRunRecoveryContinue },
   { m: 'POST', exact: '/api/tts', h: media.handleTts, errorPolicy: media.ttsFailOpenPolicy },
@@ -14720,6 +14722,10 @@ async function runOnce(o) {
     // UNATTENDED CONNECTOR GRANT: same host-side source as the authority gate, so an offered MCP tool can
     // never be refused by consent (the incoherent state the terminal lane hit before this was wired).
     connectorGrant: (call, tool) => !execution.taintedBy() && (ownerTrusted || unattendedGrants.indexOf('connectors') >= 0),
+    // FOREMAN CREW GRANT: host-minted by handleMissionRun only (o.crew is never read from a request body or a
+    // stored job). Lead-only, and revoked by taint so untrusted content read mid-run cannot fan out more workers.
+    crewGrant: (call, tool) => o.crew === true && !!o.lead && !execution.taintedBy(),
+    missionRun: o.crew === true,
     surface: surface, prompt: prompt
   });
   // B1 (Cortex seam): thread runId onto capCtx so a tool's dispatch can stamp provenance (sourceRunId)
@@ -18711,6 +18717,83 @@ function serveRunRecoveries(req, res) {
 
 // The local operator records what they verified; this never dispatches or replays a tool. Ownership, a current
 // snapshot token, complete call coverage, and explicit no-replay consent are required before the fsync'd record.
+/* FOREMAN MISSIONS (StarNet v1, program/starnet-v1/04_foreman). A city mission that Terabithia routed here runs as
+   the station's lead orchestrator (HEISENBERG) on the UNATTENDED surface. The only widening is the host-minted crew
+   grant (permissions.js crewAutonomy): team.dispatch, nothing else. Only GREEN missions run; anything else is refused
+   before a run starts and handed back as needs_human. The crew in the reply comes from real worker run events,
+   never from model text, so solo work can never be reported as crew work. */
+const FOREMAN_AGENT_ID = String(process.env.STARNET_FOREMAN_AGENT || 'agent').trim() || 'agent';
+const MISSION_ID_RE = /^[A-Za-z0-9_.:-]{1,100}$/;
+const MISSION_DOCTRINE = 'MISSION FROM THE CAPTAIN (via Terabithia). You are the FOREMAN of this station. '
+  + 'When the mission has more than one angle, split it across your crew with team.dispatch (address workers by the '
+  + 'agentId listed under YOUR TEAM) and merge what they return. You cannot create new agents on a mission. '
+  + 'Say which crew member produced each point. Never claim work that did not run; if the crew could not do it, say so.';
+async function handleMissionRun(req, res) {
+  const json = (code, obj) => respondJson(res, code, obj);
+  let body;
+  try { body = JSON.parse(await readBody(req, 1 << 16)) || {}; }
+  catch (_) { return json(400, { error: 'bad json' }); }
+  const missionId = String(body.mission_id || '');
+  const intent = typeof body.intent === 'string' ? body.intent.trim() : '';
+  if (!MISSION_ID_RE.test(missionId) || !intent || intent.length > 8000) {
+    return json(400, { error: 'mission_id and intent (<= 8000 chars) are required' });
+  }
+  if (body.tier !== 'GREEN') {
+    return json(409, { mission_id: missionId, status: 'needs_human', reason: 'only GREEN missions run unattended; this one needs the captain' });
+  }
+  const job = { agentId: FOREMAN_AGENT_ID };
+  const model = cronModelFor(job);
+  const provider = cronProviderFor(job);
+  const key = cronKeyFor(provider);
+  if (!model || !cronHasCredential(provider, key)) {
+    return json(409, { mission_id: missionId, status: 'failed', reason: !model ? 'no model configured for the foreman' : cronCredentialError(provider) });
+  }
+  const ac = new AbortController();
+  const runId = crypto.randomUUID();
+  runs.set(runId, ac);
+  runsMeta.set(runId, { agentId: FOREMAN_AGENT_ID, startedAt: Date.now(), source: 'mission' });
+  res.on('close', () => { if (!res.writableEnded) ac.abort(); runs.delete(runId); runsMeta.delete(runId); });
+  const crew = new Map();
+  const state = { buf: '', errMsg: null, reason: null, usd: 0 };
+  const emit = (name, payload) => {
+    const p = payload || {};
+    const workerRun = p.runId && p.runId !== runId && p.agentId && p.agentId !== FOREMAN_AGENT_ID;
+    if (workerRun && name === 'agent.run.start') crew.set(p.runId, { agent_id: String(p.agentId), run_id: String(p.runId), status: 'working' });
+    else if (workerRun && name === 'agent.run.end' && crew.has(p.runId)) crew.get(p.runId).status = p.reason === 'done' ? 'done' : 'failed';
+    else if (workerRun && name === 'agent.run.error' && crew.has(p.runId)) crew.get(p.runId).status = 'failed';
+    else if (!workerRun && name === 'agent.token') state.buf += (p.delta || '');
+    else if (!workerRun && name === 'agent.tool_call') state.buf = '';
+    else if (!workerRun && name === 'agent.run.error') state.errMsg = p.message || 'run error';
+    else if (!workerRun && name === 'agent.run.end') { state.reason = p.reason; if (typeof p.usd === 'number' && isFinite(p.usd)) state.usd = Math.max(state.usd, p.usd); }
+  };
+  try {
+    await runOnce({
+      key: key, model: model, provider: provider,
+      system: cronSystemFor(FOREMAN_AGENT_ID) + '\n\n' + MISSION_DOCTRINE + '\nMISSION ID: ' + missionId,
+      messages: [{ role: 'user', content: intent }],
+      agentId: FOREMAN_AGENT_ID, isTask: true, emit: emit, signal: ac.signal,
+      runId: runId, streamId: 'mission-' + runId, surface: 'autonomous', trigger: 'directive', taskSource: 'mission',
+      lead: true, crew: true
+    });
+  } catch (e) {
+    state.errMsg = state.errMsg || ('sidecar failure: ' + ((e && e.message) || e));
+  } finally {
+    runs.delete(runId); runsMeta.delete(runId);
+  }
+  const terminal = String(state.reason || '').trim();
+  if (!state.errMsg && terminal !== 'done') state.errMsg = 'run ended without completion: ' + (terminal || 'missing-terminal-event');
+  const crewRows = Array.from(crew.values());
+  if (res.writableEnded || res.destroyed) return;
+  return json(200, {
+    mission_id: missionId, run_id: runId, agent_id: FOREMAN_AGENT_ID,
+    status: state.errMsg ? 'failed' : 'done',
+    solo: crewRows.length === 0,
+    summary: state.errMsg ? null : String(state.buf || '').trim().slice(0, 4000),
+    reason: state.errMsg || null,
+    crew: crewRows, usd: state.usd
+  });
+}
+
 async function handleRunRecoveryResolve(req, res) {
   const json = (code, obj) => respondJson(res, code, obj);
   let body;

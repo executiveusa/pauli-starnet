@@ -23,7 +23,9 @@ const A = require('assert');
       { id: 'agent', name: 'HEISENBERG', role: 'orchestrator', status: 'online', district: 'command',
         provider: 'groq', model: 'openai/gpt-oss-120b', org: 'org-secret', quota: { tpd: 200000 },
         system: 'PRIVATE SYSTEM PROMPT ' + POISON, nested: { deep: { token: POISON } } },
-      { id: 'ecom-merci', name: 'MERCI', role: 'operator', status: 'online', district: 'commerce', prompt: POISON }
+      { id: 'ecom-merci', name: 'MERCI', role: 'operator', status: 'online', district: 'commerce', prompt: POISON },
+      { id: 'beacon', name: 'BEACON', role: 'operator', status: 'unknown', district: 'commerce' },
+      { id: 'ledger', name: 'LEDGER', role: 'operator', district: 'commerce' }
     ],
     missions: [{ id: 'm1', title: 'PRIVATE ' + POISON }],
     approvals: [{ id: 'a1', title: 'PRIVATE', cost: 500 }],
@@ -37,6 +39,7 @@ const A = require('assert');
       { id: 'internal-task-uuid-2', status: 'failed', task: 'hello', context: { agentId: 'ecom-merci' },
         error: POISON, startedAt: '2026-09-11T08:40:00.000Z', completedAt: '2026-09-11T08:45:00.000Z', receiptId: null }
     ],
+    revision: '8a4673c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6',
     health: { status: 'online', starnet: { ok: true, port: 4111, host: '10.0.0.5' } }
   };
   const ADVERSARIAL_WORLD = {
@@ -127,7 +130,9 @@ const A = require('assert');
   for (const k of ['approvals', 'missions', 'experiments', 'revenue', 'costs', 'districts', 'health', 'degraded', 'generatedAt', 'token', 'api_key', 'env'])
     ok(!(k in pub), 'status DTO omits ' + k);
   ok(pub.live === true && pub.city.name === "Pauli's Place", 'live signal + city name');
-  ok(pub.citizens.length === 2 && pub.citizens[0].name === 'HEISENBERG' && pub.citizens[0].hero === true, 'truthful roster names/roles, hero marked');
+  ok(pub.citizens.length === 4 && pub.citizens[0].name === 'HEISENBERG' && pub.citizens[0].hero === true, 'truthful roster names/roles, hero marked');
+  ok(pub.citizens[2].status === 'unknown' && pub.citizens[3].status === 'unknown', 'no heartbeat evidence reads unknown, never offline or online');
+  ok(pub.revision === '8a4673c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6', 'the deployed gateway commit is visible');
   ok(!pubStr.includes('ecom-merci'), 'internal agent ids never appear');
   ok(pub.citizens.every(c => !('id' in c)), 'citizens carry no internal id field');
   ok(pub.activity.every(t => t.agent !== 'agent' && t.agent !== 'ecom-merci'), 'activity binds public names only');
@@ -172,16 +177,22 @@ const A = require('assert');
     ok(!ppStr.includes('evil'), 'a repo name failing the allowlist is dropped whole');
     const gh = pp.activity.filter(t => String(t.detail || '').includes('kupuri-media-main-site'));
     ok(gh.length === 1, 'a push burst to one repo collapses to its newest event');
-    ok(gh[0].state === 'running' && gh[0].category === 'ops', 'a push inside the running window reads running/ops');
+    ok(gh[0].state === 'observed' && gh[0].source === 'github' && gh[0].category === 'repo', 'a repo event reads observed repo activity, never running');
     ok(gh[0].receipt === false, 'observed repo events are never dressed as gateway receipts');
     ok(gh[0].detail === 'push ×3 → kupuri-media-main-site', 'detail carries the inspectable public evidence (kind + repo)');
-    ok(gh[0].agent === 'HEISENBERG', 'a district with no seated citizen falls to the orchestrator-foreman');
+    ok(pp.activity.filter(t => t.source === 'github').every(t => t.agent === null), 'a repo event is never credited to a citizen');
     const pr = pp.activity.filter(t => String(t.detail || '').includes('pauli-starnet'));
-    ok(pr.length === 1 && pr[0].state === 'completed' && pr[0].detail.startsWith('pr merged'), 'an older PR event reads completed with its action');
+    ok(pr.length === 1 && pr[0].state === 'observed' && pr[0].detail.startsWith('pr merged'), 'an older PR event reads observed with its action');
     ok(pp.activity.every(t => !String(t.detail || '').includes('old-repo')), 'events outside the 6h window are dropped');
     ok(pp.activity.every(t => t.event.startsWith('ev_')), 'pulse rows carry opaque event ids only');
     ok(pp.activity.some(t => t.receipt === true), 'gateway-receipted activity survives the merge');
     githubEvents = null;
+  }
+  {
+    ADVERSARIAL_STATUS.revision = 'main; ' + POISON;
+    const rr = await (await gw(new Request('https://site.test' + PATH + '/v1/city/status'))).json();
+    ok(rr.revision === 'unknown' && !JSON.stringify(rr).includes(POISON), 'a revision that is not a commit SHA reads unknown');
+    ADVERSARIAL_STATUS.revision = '8a4673c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6';
   }
 
   // --- world DTO ---
