@@ -7,9 +7,34 @@ Usage:
 The config is the whole job: logo (svg markup OR beads json), wordmark,
 tagline, credits, colors, duration. See brand.config.example.json.
 """
-import json, os, shutil, subprocess, sys, tempfile
+import json, os, re, shutil, subprocess, sys, tempfile
+
+from brand_safety import BrandConfigError, embed_json, validate_brand
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+def build_html(cfg, config_dir):
+    """Validate the untrusted config and fill the template. Raises BrandConfigError."""
+    brand, fields = validate_brand(cfg, config_dir)
+    html = open(os.path.join(HERE, "template.html")).read()
+    wm = fields["wordmark"]
+    wm2 = fields["wordmark2"]
+    wm_html = wm + (' <span class="w2">' + wm2 + "</span>" if wm2 else "")
+    values = {
+        "__BG__": brand["bg"],
+        "__INK__": brand["ink"],
+        "__ACCENT2__": brand["accent2"],
+        "__ACCENT__": brand["accent"],
+        "__DISPLAY_FONT__": brand.get("display_font", '"Cormorant Garamond"'),
+        "__WORDMARK_HTML__": wm_html,
+        "__TAGLINE__": fields["tagline"],
+        "__CREDITS__": fields["credits"],
+        "__DURATION__": str(brand["duration"]),
+        "__BRAND_JSON__": embed_json(brand),
+    }
+    # One pass, so placeholder-looking text inside a value is never expanded again.
+    pattern = re.compile("|".join(re.escape(k) for k in sorted(values, key=len, reverse=True)))
+    return pattern.sub(lambda m: values[m.group(0)], html)
 
 def main():
     cfg_path = sys.argv[1]
@@ -19,29 +44,12 @@ def main():
         if a == "--out": out = args[i+1]
         if a == "--quality": quality = args[i+1]
     cfg = json.load(open(cfg_path))
-    out = out or (cfg["brand"].lower().replace(" ", "-") + "-intro.mp4")
-
-    logo = dict(cfg["logo"])
-    if logo.get("mode") == "beads" and "src" in logo:
-        beads = json.load(open(os.path.join(os.path.dirname(cfg_path), logo["src"])))
-        logo["beads"] = beads
-    brand = dict(cfg); brand["logo"] = logo
-
-    html = open(os.path.join(HERE, "template.html")).read()
-    wm = brand.get("wordmark", "")
-    wm2 = brand.get("wordmark2", "")
-    wm_html = wm + (' <span class="w2">' + wm2 + "</span>" if wm2 else "")
-    html = (html
-        .replace("__BG__", brand.get("bg", "#0a0a0a"))
-        .replace("__INK__", brand.get("ink", "#f4f4f5"))
-        .replace("__ACCENT2__", brand.get("accent2", brand.get("accent", "#c9a86a")))
-        .replace("__ACCENT__", brand.get("accent", "#c9a86a"))
-        .replace("__DISPLAY_FONT__", brand.get("display_font", '"Cormorant Garamond"'))
-        .replace("__WORDMARK_HTML__", wm_html)
-        .replace("__TAGLINE__", brand.get("tagline", ""))
-        .replace("__CREDITS__", brand.get("credits", ""))
-        .replace("__DURATION__", str(brand.get("duration", 12)))
-        .replace("__BRAND_JSON__", json.dumps(brand)))
+    out = out or (str(cfg.get("brand", "brand")).lower().replace(" ", "-") + "-intro.mp4")
+    try:
+        html = build_html(cfg, os.path.dirname(os.path.abspath(cfg_path)))
+    except BrandConfigError as exc:
+        # Fail closed: an unsafe config never reaches the renderer.
+        sys.exit(f"[refused] unsafe brand config: {exc}")
 
     work = tempfile.mkdtemp(prefix="hf-render-")
     try:
