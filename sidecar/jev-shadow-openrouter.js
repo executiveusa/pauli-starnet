@@ -14,6 +14,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { openRouterChat, gatewayPost } = require('./jev-http.js');
+
+// Test seams: callers inject fetch/sleep; production leaves both undefined.
+const httpDeps = { fetchImpl: undefined, sleep: undefined };
 
 const PORT = Number(process.env.JEV_SHADOW_PORT || 8794);
 const HOST = process.env.JEV_SHADOW_HOST || '127.0.0.1';
@@ -135,25 +139,17 @@ async function callGateway(state) {
   if (!token) return { ok: false, error: { provider: 'typesafe-gateway', error: 'no_gateway_token' } };
   const started = Date.now();
   try {
-    const resp = await fetch(GATEWAY_URL, {
-      signal: AbortSignal.timeout(10000),
-      method: 'POST',
-      headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
-      body: JSON.stringify({
+    const { resp, text, parsed } = await gatewayPost({
+      url: GATEWAY_URL,
+      token,
+      body: {
         model: GATEWAY_MODEL,
         state: JSON.stringify(state).slice(0, 6000),
         questions: GATEWAY_QUESTIONS,
-      }),
+      },
+      ...httpDeps,
     });
-    const text = await resp.text();
-    let parsed = null;
-    try { parsed = text ? JSON.parse(text) : null; } catch {}
     if (!resp.ok) {
-      if ((resp.status === 429 || resp.status >= 500) && !callGateway._retried) {
-        callGateway._retried = true;
-        await new Promise(r => setTimeout(r, 3000));
-        return callGateway(state).finally(() => { callGateway._retried = false; });
-      }
       return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
     }
     const answers = gatewayAnswersToContract(parsed && parsed.answers);
@@ -190,21 +186,13 @@ async function callGatewayCustom(state, questions) {
   if (!token) return { ok: false, error: { provider: 'typesafe-gateway', error: 'no_gateway_token' } };
   const started = Date.now();
   try {
-    const resp = await fetch(GATEWAY_URL, {
-      signal: AbortSignal.timeout(10000),
-      method: 'POST',
-      headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
-      body: JSON.stringify({ model: GATEWAY_MODEL, state: JSON.stringify(state).slice(0, 6000), questions }),
+    const { resp, text, parsed } = await gatewayPost({
+      url: GATEWAY_URL,
+      token,
+      body: { model: GATEWAY_MODEL, state: JSON.stringify(state).slice(0, 6000), questions },
+      ...httpDeps,
     });
-    const text = await resp.text();
-    let parsed = null;
-    try { parsed = text ? JSON.parse(text) : null; } catch {}
     if (!resp.ok) {
-      if ((resp.status === 429 || resp.status >= 500) && !callGatewayCustom._retried) {
-        callGatewayCustom._retried = true;
-        await new Promise(r => setTimeout(r, 3000));
-        return callGatewayCustom(state, questions).finally(() => { callGatewayCustom._retried = false; });
-      }
       return { ok: false, error: { provider: 'typesafe-gateway', status: resp.status, body: clip(text, 300) } };
     }
     return { ok: true, provider: 'typesafe-gateway', model: GATEWAY_MODEL, rawAnswers: (parsed && parsed.answers) || {}, usage: parsed.usage || undefined, latencyMs: Date.now() - started };
@@ -228,36 +216,11 @@ async function callModel(state) {
   for (const model of MODELS) {
     const started = Date.now();
     try {
-      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        signal: AbortSignal.timeout(25000),
-        method: 'POST',
-        headers: {
-          authorization: 'Bearer ' + API_KEY,
-          'content-type': 'application/json',
-          accept: 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: QUESTION_SPEC },
-            { role: 'user', content: user },
-          ],
-          temperature: 0,
-          max_tokens: 400,
-          response_format: { type: 'json_object' },
-          ...(MODEL_EXTRA[model] || {}),
-        }),
+      const { resp, text, parsed } = await openRouterChat({
+        apiKey: API_KEY, model, system: QUESTION_SPEC, user, extra: MODEL_EXTRA[model], ...httpDeps,
       });
-      const text = await resp.text();
-      let parsed = null;
-      try { parsed = text ? JSON.parse(text) : null; } catch {}
       if (!resp.ok) {
         lastErr = { model, status: resp.status, body: clip(text, 300) };
-        if (resp.status === 429 && !callModel._retried) {
-          callModel._retried = true;
-          await new Promise(r => setTimeout(r, 8000));
-          return callModel(state).finally(() => { callModel._retried = false; });
-        }
         continue;
       }
       const content = parsed && parsed.choices && parsed.choices[0]
@@ -291,6 +254,7 @@ async function callModel(state) {
 // They let any district ask a JEV-shaped question (ad-gap analyzer, brand
 // quality-gate, inbox triage) without hardcoding the questions. Video pattern:
 // batch every question into ONE model call (rank wide, read narrow).
+// Environment variables are operator-trusted. Never start with untrusted env; keep HOST loopback.
 const PACKS_FILE = process.env.JEV_QUESTION_PACKS_FILE
   || path.join(__dirname, 'jev-question-packs.json');
 function loadPacks() {
@@ -348,29 +312,9 @@ async function callModelCustom(state, questions) {
   for (const model of MODELS) {
     const started = Date.now();
     try {
-      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        signal: AbortSignal.timeout(25000),
-        method: 'POST',
-        headers: {
-          authorization: 'Bearer ' + API_KEY,
-          'content-type': 'application/json',
-          accept: 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: spec },
-            { role: 'user', content: user },
-          ],
-          temperature: 0,
-          max_tokens: 400,
-          response_format: { type: 'json_object' },
-          ...(MODEL_EXTRA[model] || {}),
-        }),
+      const { resp, text, parsed } = await openRouterChat({
+        apiKey: API_KEY, model, system: spec, user, extra: MODEL_EXTRA[model], ...httpDeps,
       });
-      const text = await resp.text();
-      let parsed = null;
-      try { parsed = text ? JSON.parse(text) : null; } catch {}
       if (!resp.ok) {
         lastErr = { model, status: resp.status, body: clip(text, 300) };
         continue;
@@ -484,6 +428,11 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, HOST, () => {
-  console.log('[jev-shadow] listening on http://' + HOST + ':' + PORT + ' models=' + MODELS.join(','));
-});
+// Start the server only when run as the service; tests require() this file for the call paths.
+if (require.main === module) {
+  server.listen(PORT, HOST, () => {
+    console.log('[jev-shadow] listening on http://' + HOST + ':' + PORT + ' models=' + MODELS.join(','));
+  });
+}
+
+module.exports = { callGateway, callGatewayCustom, callModel, callModelCustom, httpDeps };

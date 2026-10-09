@@ -708,3 +708,4 @@ test/pauli-foundry.test.js
 
 test/coolify-city-server.test.mjs
 test/red-gate-watchdog.test.js
+test/jev-http.test.js
