@@ -12,7 +12,12 @@
       #root { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
       #stage { position: relative; text-align: center; }
       #bloom { position: absolute; left: 50%; top: 38%; width: 900px; height: 900px; transform: translate(-50%,-50%); border-radius: 50%; opacity: 0;
-               background: radial-gradient(circle, __ACCENT__33 0%, transparent 60%); filter: blur(10px); pointer-events: none; }
+               filter: blur(10px); pointer-events: none; }
+      /* The glow is a 20% opacity layer under the animated #bloom opacity. The accent is used as-is,
+         so any validated color form (hex 3/6/8, named, rgb(), hsl()) works on every Chrome version;
+         appending an alpha suffix like "33" only ever worked for 6-digit hex. */
+      #bloom::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: 0.2;
+                       background: radial-gradient(circle, __ACCENT__ 0%, transparent 60%); }
       #mark { display: inline-block; position: relative; }
       #mark svg { display: block; overflow: visible; }
       #wordmark { margin-top: 48px; font-family: __DISPLAY_FONT__, serif; color: __INK__; font-size: 92px; font-weight: 400;

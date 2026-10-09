@@ -290,3 +290,85 @@ def test_main_never_reaches_subprocess_for_refused_config(tmp_path):
     path = write_cfg(tmp_path, cfg(logo={"mode": "svg", "markup": "<svg><script>1</script></svg>"}))
     with pytest.raises(SystemExit):
         main([path])
+
+
+# ---- accent alpha (bloom) ----------------------------------------------------------------
+# The bloom used to be `__ACCENT__33`, which only works for 6-digit hex: appended to a
+# 3-digit hex, a named color or rgb()/hsl() it produced invalid CSS and the bloom vanished.
+# The glow is now a separate 20% opacity layer (#bloom::before) that uses the accent as-is.
+
+ACCENT_FORMS = [
+    "#f80", "#ff8800", "#ff880080", "orange",
+    "rgb(255 136 0)", "rgb(255, 136, 0)", "rgba(255, 136, 0, 1)",
+    "hsl(32 100% 50%)", "hsl(+32, +100%, +50%)", "rgb(+255 +136 +0)",
+]
+# rgb each form resolves to and its own alpha, so the expected pixel is computed, not recorded
+ACCENT_EXPECTED = {
+    "#f80": ((255, 136, 0), 1.0), "#ff8800": ((255, 136, 0), 1.0), "#ff880080": ((255, 136, 0), 128 / 255),
+    "orange": ((255, 165, 0), 1.0),
+    "rgb(255 136 0)": ((255, 136, 0), 1.0), "rgb(255, 136, 0)": ((255, 136, 0), 1.0),
+    "rgba(255, 136, 0, 1)": ((255, 136, 0), 1.0),
+    "hsl(32 100% 50%)": ((255, 136, 0), 1.0), "hsl(+32, +100%, +50%)": ((255, 136, 0), 1.0),
+    "rgb(+255 +136 +0)": ((255, 136, 0), 1.0),
+}
+
+
+def bloom_layer_rule(html):
+    m = re.search(r"#bloom::before \{[^}]*\}", html)
+    assert m, "#bloom::before rule not found"
+    return m.group(0)
+
+
+@pytest.mark.parametrize("accent", ACCENT_FORMS)
+def test_bloom_layer_uses_the_accent_unmodified_at_20_percent_opacity(accent):
+    html = render(cfg(accent=accent))
+    rule = bloom_layer_rule(html)
+    assert f"radial-gradient(circle, {accent} 0%, transparent 60%)" in rule
+    assert "opacity: 0.2" in rule
+    assert f"{accent}33" not in html
+    assert "__ACCENT__" not in html
+    assert "color-mix" not in html  # no Chrome 111+ dependency
+
+
+def test_template_never_concatenates_alpha_onto_the_accent_placeholder():
+    with open(os.path.join(HERE, "template.html"), encoding="utf-8") as fh:
+        assert not re.search(r"__ACCENT2?__[0-9A-Fa-f]", fh.read())
+
+
+def _chrome():
+    import shutil
+    for name in ("google-chrome", "chromium", "chromium-browser", "chrome"):
+        found = shutil.which(name)
+        if found:
+            return found
+    return None
+
+
+@pytest.mark.skipif(_chrome() is None, reason="needs a headless Chrome binary")
+@pytest.mark.parametrize("accent", ACCENT_FORMS)
+def test_bloom_alpha_renders_real_pixels(tmp_path, accent):
+    """Screenshot the real #bloom::before rule over white: center pixel is the accent at 20% alpha."""
+    Image = pytest.importorskip("PIL.Image")
+    import subprocess
+    rule = bloom_layer_rule(render(cfg(accent=accent))).replace("#bloom::before", "#b::before")
+    page = tmp_path / "bloom.html"
+    page.write_text(
+        "<!doctype html><style>html,body{margin:0;background:#fff}"
+        f"#b{{position:relative;width:300px;height:300px}} {rule}</style><div id=b></div>"
+    )
+    shot = tmp_path / "bloom.png"
+    # Popen, not run(): the autouse guard above blocks subprocess.run so no test can start
+    # npx/hyperframes. This only launches a local headless Chrome on a file:// page.
+    proc = subprocess.Popen(
+        [_chrome(), "--headless", "--no-sandbox", "--disable-gpu", "--hide-scrollbars",
+         "--window-size=300,300", f"--screenshot={shot}", f"file://{page}"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    proc.communicate(timeout=60)
+    assert proc.returncode == 0 and shot.exists()
+    px = Image.open(shot).convert("RGB").getpixel((150, 150))
+    (r, g, b), own_alpha = ACCENT_EXPECTED[accent]
+    a = 0.2 * own_alpha
+    want = tuple(round(c * a + 255 * (1 - a)) for c in (r, g, b))
+    assert all(abs(x - y) <= 4 for x, y in zip(px, want)), f"{accent}: pixel {px}, expected ~{want}"
+    assert px != (255, 255, 255), "bloom did not render at all"
