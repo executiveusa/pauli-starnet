@@ -31,7 +31,10 @@ LOCAL_URL = re.compile(r"^url\(#[A-Za-z0-9_-]+\)$")
 COLOR = re.compile(
     r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]{3,20}|(rgb|rgba|hsl|hsla)\([0-9 ,.%/+\-]{1,40}\))$"
 )
-FONT = re.compile(r"^[\"']?[A-Za-z0-9][A-Za-z0-9 \-]{0,59}[\"']?$")
+# A font name is letters/digits/spaces/hyphens, bare or wrapped in ONE matching pair of quotes.
+# Quotes must match: `"Foo`, `Foo"` and `"Foo'` are rejected, not passed through into CSS.
+_FONT_NAME = r"[A-Za-z0-9][A-Za-z0-9 \-]{0,59}"
+FONT = re.compile(rf'^(?:"{_FONT_NAME}"|\'{_FONT_NAME}\'|{_FONT_NAME})$')
 TEXT_FIELDS = ("wordmark", "wordmark2", "tagline", "credits")
 
 

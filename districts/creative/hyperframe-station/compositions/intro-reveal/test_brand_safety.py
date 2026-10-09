@@ -110,6 +110,24 @@ def test_css_and_numeric_fields_fail_closed(field, value):
         render(cfg(**{field: value}))
 
 
+@pytest.mark.parametrize(
+    "font",
+    ['"Cormorant Garamond"', "'Cormorant Garamond'", "Cormorant Garamond", "Montserrat", '"Montserrat Alt One"', "Space-Grotesk Mono"],
+)
+def test_valid_quoted_and_unquoted_fonts_are_accepted_and_preserved(font):
+    out = render(cfg(display_font=font))
+    assert f"font-family: {font}, serif" in out
+
+
+@pytest.mark.parametrize(
+    "font",
+    ['"Cormorant Garamond', 'Cormorant Garamond"', "\"Cormorant Garamond'", "'Cormorant Garamond\"", "'Cormorant Garamond", '""', "", '"a"b"', "Foo;Bar"],
+)
+def test_mismatched_or_malformed_font_quotes_are_rejected(font):
+    with pytest.raises(BrandConfigError):
+        render(cfg(display_font=font))
+
+
 def test_beads_src_cannot_escape_config_dir():
     with pytest.raises(BrandConfigError):
         render(cfg(logo={"mode": "beads", "src": "../../../../../../etc/passwd", "srcW": 5, "srcH": 5}))
@@ -366,7 +384,8 @@ def test_bloom_alpha_renders_real_pixels(tmp_path, accent):
     )
     proc.communicate(timeout=60)
     assert proc.returncode == 0 and shot.exists()
-    px = Image.open(shot).convert("RGB").getpixel((150, 150))
+    with Image.open(shot) as img:
+        px = img.convert("RGB").getpixel((150, 150))
     (r, g, b), own_alpha = ACCENT_EXPECTED[accent]
     a = 0.2 * own_alpha
     want = tuple(round(c * a + 255 * (1 - a)) for c in (r, g, b))
