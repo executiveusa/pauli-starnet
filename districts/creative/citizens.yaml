@@ -12,3 +12,12 @@ citizens:
     copy-law: placeholder text only until owner/Ivette exact words
     gates: [visual-world-first, collins-protocol, pr-unmerged-owner-review]
     status: LIVE
+  - id: email-copywriter
+    kind: agent
+    path: districts/creative/email-copywriter
+    role: email-copywriting-specialist
+    mode: draft-and-review-only
+    knowledge: email-copywriter/knowledge/catalog.json
+    routes: [email-draft, subject-lines, opt-in, welcome-sequence, email-launch, email-audit]
+    gates: [client-facts-verified, owner-review-before-release]
+    status: LIVE
