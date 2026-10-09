@@ -42,3 +42,4 @@ different ICM, rename once he says so.
 - Raster logos: extract beads/paths to a checked-in intermediate (logo.beads.json)
   so renders are reproducible and inspectable.
 - Every render attaches proof frames to its report (visual verification standard).
+- Rendering needs network access unless cached or vendored: npm (hyperframes), jsdelivr (GSAP, pinned with SRI) and Google Fonts.
