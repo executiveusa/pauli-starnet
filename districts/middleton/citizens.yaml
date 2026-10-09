@@ -22,6 +22,7 @@ citizens:
   - id: nurture-drafter
     kind: job
     role: instant-lead-follow-up-flows
+    # Candidate project workflow, not a citizen ID; PLANNED jobs do not dispatch.
     first_candidate: dispatchhelper-spatchy-intake
     status: PLANNED
   - id: sales-coach-grader

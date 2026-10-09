@@ -27,3 +27,5 @@ See citizens.yaml.
 - Money gate: experiments propose; nothing spends or ships without the owner.
 - Free floor first: research/drafting on free-tier models; paid lanes surface to the owner first.
 - Separate branch until the owner says wire it: this district lives on `district/middleton-method`, unmerged.
+
+`first_candidate` is a planned project-workflow label, not a registry citizen ID. It does not activate or dispatch a job.

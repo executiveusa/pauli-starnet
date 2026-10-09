@@ -4,7 +4,7 @@ district: creative
 citizens:
   - id: email-copywriter
     kind: agent
-    path: districts/creative/email-copywriter/
+    path: districts/creative/email-copywriter
     role: email-copywriting-specialist
     mode: draft-and-review-only
     status: PROPOSED
