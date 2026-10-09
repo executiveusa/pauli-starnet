@@ -27,15 +27,62 @@ ALLOWED_ATTRIBUTES = {
     "clip-path", "fx", "fy",
 }
 LOCAL_URL = re.compile(r"^url\(#[A-Za-z0-9_-]+\)$")
+# Functional colors may carry signs (hsl(-10, 50%, 50%), rgb(+1 2 3)); no other punctuation.
 COLOR = re.compile(
-    r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]{3,20}|(rgb|rgba|hsl|hsla)\([0-9 ,.%/]{1,40}\))$"
+    r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]{3,20}|(rgb|rgba|hsl|hsla)\([0-9 ,.%/+\-]{1,40}\))$"
 )
 FONT = re.compile(r"^[\"']?[A-Za-z0-9][A-Za-z0-9 \-]{0,59}[\"']?$")
 TEXT_FIELDS = ("wordmark", "wordmark2", "tagline", "credits")
 
 
+MAX_CONFIG_BYTES = 1_000_000
+MAX_BEADS_BYTES = 10_000_000
+
+
 class BrandConfigError(ValueError):
     pass
+
+
+def read_json_file(path, max_bytes, label):
+    """Read a regular JSON file with a hard size cap *before* parsing.
+
+    Every filesystem or decode failure becomes BrandConfigError, so callers fail closed
+    with one exception type. The file is read through a context manager and at most
+    max_bytes + 1 bytes are ever pulled into memory.
+    """
+    try:
+        if not os.path.isfile(path):
+            raise BrandConfigError(f"{label}: not a regular file")
+        if os.path.getsize(path) > max_bytes:
+            raise BrandConfigError(f"{label}: larger than {max_bytes} bytes")
+        with open(path, "rb") as fh:
+            raw = fh.read(max_bytes + 1)
+        if len(raw) > max_bytes:
+            raise BrandConfigError(f"{label}: larger than {max_bytes} bytes")
+        return json.loads(raw.decode("utf-8"))
+    except BrandConfigError:
+        raise
+    except (OSError, UnicodeDecodeError, ValueError, RecursionError) as exc:
+        raise BrandConfigError(f"{label}: cannot read as JSON ({type(exc).__name__})")
+
+
+def load_config(path):
+    return read_json_file(path, MAX_CONFIG_BYTES, "config")
+
+
+def default_output_name(brand_name):
+    """Filesystem-safe default file name: a plain slug, never a path."""
+    slug = re.sub(r"[^a-z0-9]+", "-", str(brand_name).lower()).strip("-")[:64]
+    return (slug or "brand") + "-intro.mp4"
+
+
+def contained_path(directory, name):
+    """Join name under directory and refuse anything that resolves outside it."""
+    base = os.path.realpath(directory)
+    path = os.path.realpath(os.path.join(base, name))
+    if os.path.commonpath([base, path]) != base or os.path.dirname(path) != base:
+        raise BrandConfigError("output path must stay inside the output directory")
+    return path
 
 
 def escape_text(value):
@@ -173,8 +220,7 @@ def validate_brand(cfg, config_dir):
         path = os.path.realpath(os.path.join(base, src))
         if os.path.commonpath([base, path]) != base:
             raise BrandConfigError("logo.src: must stay inside the config directory")
-        with open(path) as fh:
-            beads = json.load(fh)
+        beads = read_json_file(path, MAX_BEADS_BYTES, "logo.src")
         if not isinstance(beads, list) or len(beads) > 50_000:
             raise BrandConfigError("beads: list of up to 50000 beads required")
         for bead in beads:
