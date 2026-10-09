@@ -128,6 +128,20 @@ def test_mismatched_or_malformed_font_quotes_are_rejected(font):
         render(cfg(display_font=font))
 
 
+@pytest.mark.parametrize("src", ["a\u0000b", "\u0000", "a\ud800b", "dir/\udfffx.json"])
+def test_beads_src_with_nul_or_lone_surrogate_is_a_clean_refusal(src):
+    """Used to escape as ValueError/UnicodeEncodeError from os.path.realpath."""
+    with pytest.raises(BrandConfigError, match="logo.src: invalid path"):
+        render(cfg(logo={"mode": "beads", "src": src, "srcW": 5, "srcH": 5}))
+
+
+def test_output_name_cannot_carry_nul_or_surrogates():
+    """contained_path only ever sees default_output_name's slug, which strips both, so it is not exposed."""
+    name = default_output_name("a\u0000b\ud800c")
+    assert name == "a-b-c-intro.mp4"
+    assert contained_path(os.getcwd(), name).endswith(name)
+
+
 def test_beads_src_cannot_escape_config_dir():
     with pytest.raises(BrandConfigError):
         render(cfg(logo={"mode": "beads", "src": "../../../../../../etc/passwd", "srcW": 5, "srcH": 5}))

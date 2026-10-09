@@ -219,9 +219,16 @@ def validate_brand(cfg, config_dir):
         src = logo.get("src")
         if not isinstance(src, str) or not src:
             raise BrandConfigError("logo.src: beads file required")
-        base = os.path.realpath(config_dir)
-        path = os.path.realpath(os.path.join(base, src))
-        if os.path.commonpath([base, path]) != base:
+        # NUL bytes and lone surrogates make the os.path calls raise ValueError /
+        # UnicodeEncodeError (a ValueError subclass); keep the everything-raises-
+        # BrandConfigError contract instead of leaking a traceback.
+        try:
+            base = os.path.realpath(config_dir)
+            path = os.path.realpath(os.path.join(base, src))
+            inside = os.path.commonpath([base, path]) == base
+        except (OSError, ValueError):
+            raise BrandConfigError("logo.src: invalid path") from None
+        if not inside:
             raise BrandConfigError("logo.src: must stay inside the config directory")
         beads = read_json_file(path, MAX_BEADS_BYTES, "logo.src")
         if not isinstance(beads, list) or len(beads) > 50_000:
