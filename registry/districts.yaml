@@ -28,3 +28,7 @@ districts:
     responsibility: typed-decision-layer-socket-shadow-research
     tenant_scope: shared-capability-with-tenant-boundaries
     status: LIVE
+  - id: middleton
+    responsibility: middleton-method-canon-scripts-gap-audit-experiment-loop
+    tenant_scope: shared-capability-with-tenant-boundaries
+    status: PLANNED
