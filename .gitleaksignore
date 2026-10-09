@@ -43,3 +43,17 @@ a5d72b7232f29e7c2d3ccf81a91d27217bc69559:test/openai-compat.e2e.test.js:generic-
 
 # Historical false positive: synthetic localhost-only mock token, never a real credential.
 453be7fa0025c955c0efbd0c608a298ed4fd404a:dev/seed-mock-reliability.js:generic-api-key:91
+
+# Reviewed: proof-output idempotency UUIDs and resume mission IDs, not credentials.
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:150
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:156
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:162
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:168
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:174
+bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-terabithia-mission-get.json:generic-api-key:22
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:108
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:114
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:120
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:126
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:132
+fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-terabithia-mission-get.json:generic-api-key:22
