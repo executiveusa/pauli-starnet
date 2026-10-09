@@ -1,14 +1,8 @@
-# Fingerprint-scoped allowlist entries (gitleaks v8).
-# dev/seed-mock-reliability.js:91 - mock OpenRouter key in a local-only dev seed script
-# (SKYNET_OPENROUTER_BASE points at a localhost mock; value is 26 chars, not a real
-# 73-char sk-or-v1- key). Introduced in 453be7fa. Verified false positive 2026-09-18.
-453be7fa0025c955c0efbd0c608a298ed4fd404a:dev/seed-mock-reliability.js:generic-api-key:91
-
-# Reviewed: synthetic regression fixtures (redaction, local mock servers, fake JWT signatures).
-# Public Edge trusted-client identifier is not an account credential.
-# Proof-output idempotency UUIDs and resume mission IDs are not credentials.
+# Exact reviewed fingerprints, union of current main and PR. New findings still fail.
+011e7c7d44dd0653d2464e1b9d9e9ec5c077eba8:test/saveversion.test.js:generic-api-key:633
 12b2b3745ffcd1a83a380ada4ad23c2fdea9eebd:test/codex-auth-state.test.js:generic-api-key:22
 12b2b3745ffcd1a83a380ada4ad23c2fdea9eebd:test/codex-status.e2e.test.js:jwt:45
+12b7726ab97f9c4595065ce27b7f8b250c203282:test/network-policy.test.js:private-key:25
 14e256ba326e6445756403f12f236b038fecdc9d:test/live-doctor.e2e.test.js:generic-api-key:36
 14e256ba326e6445756403f12f236b038fecdc9d:test/live-doctor.test.js:generic-api-key:32
 183a238dd36444e2d712b5585bdf0e00317ef529:qa/bugs/14d4f234-the-keys-tab-unattended-grant-is-enforced-only-a.md:generic-api-key:21
@@ -17,17 +11,25 @@
 27eafe28fa7dbc956da9e26712b151c6e84c352d:test/shell-bg.test.js:curl-auth-header:94
 2e2430780d039e99ec3d7d5be7bdfa808397f12b:test/lint-evidence-secrets.test.js:generic-api-key:27
 2ed9fedf08e1c5aab5c26f9b045c16ab7b3ecee9:test/servicekeys.test.js:generic-api-key:75
+453be7fa0025c955c0efbd0c608a298ed4fd404a:dev/seed-mock-reliability.js:generic-api-key:91
 4e889eafd40b32b2909f3edf5dcc10c90a36e429:test/oauth-status.e2e.test.js:jwt:42
+5e9e25666876a0a4bc17ab0e96597f567f1bab7a:skills/vendor/threejs-game-skills/skills/threejs-game-director/scripts/audit_reference_report.py:generic-api-key:137
 6a14a266a0b3f49a33e8243aa928918d7a460773:sidecar/edgetts.js:generic-api-key:21
+836a32b12dd281207af6fea6884cd4701048b5c1:test/saveversion.test.js:generic-api-key:617
+836a32b12dd281207af6fea6884cd4701048b5c1:test/saveversion.test.js:generic-api-key:674
 8c985cd2bdbd14c39d1472c1c8a7209ffe01eef2:test/diagnostics.test.js:jwt:23
+985b1e47714580ac1fd9d5f476e8a366537a9246:test/saveversion.test.js:generic-api-key:313
 9ce703b633d1ed2a97149828809a1882ca257bf4:test/agent-eval.test.js:generic-api-key:26
 a5d72b7232f29e7c2d3ccf81a91d27217bc69559:test/openai-compat.e2e.test.js:generic-api-key:23
+aef8b47ce014cc661dd95f18210ac3731edbc48f:test/consent-details.test.js:curl-auth-header:60
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:150
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:156
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:162
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:168
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:174
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-terabithia-mission-get.json:generic-api-key:22
+dd1d2468aa8fb6e78fca8f858890a5d2f0d9b0d6:test/saveversion.test.js:generic-api-key:250
+dd1d2468aa8fb6e78fca8f858890a5d2f0d9b0d6:test/saveversion.test.js:generic-api-key:251
 f79ee6308764f85221a805bff14b905a12f759dc:test/servicekeys.http.test.js:generic-api-key:50
 fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:108
 fe9e0f72f38b38b851f0bfc0391fa95d7bc22b79:program/starnet-v1/06_proof-run/output/crew1-board-get.json:generic-api-key:114
