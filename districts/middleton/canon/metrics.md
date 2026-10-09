@@ -1,4 +1,7 @@
-# Metrics (his pitch numbers - attribute loosely, verify before publishing as fact)
+# Metrics (JP Middleton's own pitch numbers - UNVERIFIED)
+
+Attribute these to JP Middleton ("JP Middleton claims"). Do not call them industry data and do not publish them as fact until each is verified against a primary source.
+
 
 - 62 of 100 calls to local businesses go unanswered
 - Average lead follow-up: 42 hours, usually once

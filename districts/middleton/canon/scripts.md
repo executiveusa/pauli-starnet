@@ -1,5 +1,7 @@
 # Verbatim scripts (cited per source video)
 
+These are quoted source scripts, not approved operating practice. The review ask and referral follow-up below tie a raffle to feedback or to a review. Operating canon (system.json, service 3) is: ask every customer for a review regardless of rating, and never tie any incentive to leaving a review. Do not send these two scripts as written.
+
 ## Review ask (raffle)
 "Hey, we would really value your feedback and if you give it to us, we will put your name into a raffle where you have a chance to win a membership for free for the year." [fBGbgabk1iE, YhgpaOENHik]
 

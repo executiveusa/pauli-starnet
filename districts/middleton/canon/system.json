@@ -49,10 +49,15 @@
     {
       "order": 3,
       "service": "Reviews + referrals engine",
-      "what": "Survey active customers 1-5; 4+ gets Google review ask; system auto-responds to the review; referral follow-up with guest passes + raffle multiplier",
-      "scripts": {
-        "feedback_ask": "Hey, we'd really value your feedback and if you give it to us, we'll put your name into a raffle where you have a chance to win a membership for free for the year.",
-        "referral_ask": "Thank you for the review. If you have any friends or family that would like to come in with you, we've got a couple 7-day passes. Anyone that comes from you gets your name into that raffle five more times."
+      "what": "Operating canon: ask EVERY customer for a Google review, independent of any rating or survey score. Run feedback as a separate 1-5 survey for all customers and route every rating through the same feedback process (low scores go to the owner for follow-up). The system auto-responds to reviews. Referral follow-up with guest passes is a separate ask.",
+      "operating_policy": "No incentive of any kind (raffle, reward, discount, pass) is ever offered for, or made conditional on, leaving a review or on a rating. Any raffle or referral reward must be a separate program that never requires or references a review. Rating-gated review requests and incentivized review requests are NOT approved practice (they violate Google review policy).",
+      "source_as_quoted": {
+        "status": "NOT APPROVED as operating practice. Kept only as the source quoted from JP Middleton's videos, so the canon still traces to what he said.",
+        "what": "Survey active customers 1-5; 4+ gets Google review ask; system auto-responds to the review; referral follow-up with guest passes + raffle multiplier",
+        "scripts": {
+          "feedback_ask": "Hey, we'd really value your feedback and if you give it to us, we'll put your name into a raffle where you have a chance to win a membership for free for the year.",
+          "referral_ask": "Thank you for the review. If you have any friends or family that would like to come in with you, we've got a couple 7-day passes. Anyone that comes from you gets your name into that raffle five more times."
+        }
       },
       "why": "98% check reviews before buying; 89% of local businesses never ask; reviews = organic Google ranking = free leads",
       "sources": [
@@ -186,7 +191,7 @@
     ]
   },
   "metrics_benchmarks": {
-    "note": "Numbers he quotes in pitches - reuse as sales ammo, attribute to 'industry data' loosely like he does",
+    "note": "Numbers JP Middleton quotes in his own pitches. UNVERIFIED: attribute them to him ('JP Middleton claims'), never to 'industry data', and do not publish as fact until each is checked against a primary source.",
     "items": {
       "calls_missed": "62 of 100 calls to local businesses unanswered",
       "followup_time": "42 hours average lead follow-up; most follow up once",

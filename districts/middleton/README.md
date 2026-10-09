@@ -23,6 +23,8 @@ See citizens.yaml.
 
 ## Boundaries
 - Canon is truth: anything the district produces cites canon or is flagged as an experiment result.
+- Reviews: request a Google review from every customer regardless of rating, and never tie a raffle, reward or discount to leaving a review. The quoted 4+ gate and raffle scripts in the canon are source material only, not approved practice.
+- Benchmarks: the metrics are JP Middleton's own unverified claims. Attribute them to him, never to "industry data".
 - No outbound contact: no SMS/email/DM to real leads without the owner approving the exact audience + wording. Drafts and audits are fine.
 - Money gate: experiments propose; nothing spends or ships without the owner.
 - Free floor first: research/drafting on free-tier models; paid lanes surface to the owner first.
