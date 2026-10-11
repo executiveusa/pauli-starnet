@@ -20,6 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Bound reviewer context for the free provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$HOME/.opencodereview"
+          printf '%s\n' '{"max_tokens":6000}' > "$HOME/.opencodereview/config.json"
       - name: Review pull request
         uses: executiveusa/open-code-review@2d685ab0d057aec8255f18cd0a5f5a14fbfd5195
         with:
@@ -37,3 +44,23 @@ jobs:
           upload_artifacts: "true"
           route_severity_below: low
           route_categories: style,documentation
+      - name: Require complete review coverage
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          import json, os
+          with open('/tmp/ocr-result.json') as f:
+              result = json.load(f)
+          manifest = result['manifest']
+          coverage = manifest['coverage']
+          assert manifest['terminal_state'] == 'complete', 'Review did not complete'
+          assert not coverage['failed'] and not coverage['waived'], 'Incomplete review coverage'
+          selected = {x['item_id'] for x in coverage['selected']}
+          covered = {x['item_id'] for x in coverage['completed'] + coverage['reused']}
+          assert selected and selected == covered, 'Selected items were not all covered'
+          assert manifest['input']['resolved_head'] == os.environ['EXPECTED_HEAD'], 'Wrong head reviewed'
+          print('Exact-head selected coverage complete')
+          PYTHON
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
