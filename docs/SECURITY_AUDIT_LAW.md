@@ -20,9 +20,9 @@ All six are required, in order:
 - **R1.** Only report what is exploitable. "Could theoretically" is not a finding.
 - **R2.** Severity = likelihood x impact. A missing second layer when the first blocks it is a hardening note, not a vulnerability.
 - **R3.** No self-audit. The auditor is never the builder, never the judge; the finder never validates.
-- **R4.** One run catches about half. Every release gets at least 2 runs; the second run targets gaps.
+- **R4.** Every release gets at least two complementary audit runs; the second run targets gaps identified by the first.
 - **R5.** Exact-SHA receipt. A mismatch is a HOLD; fail closed.
-- **R6.** Pass = zero confirmed CRITICAL or HIGH findings. MEDIUM and above must be FIXED or WAIVED, and a waiver needs the owner's words, not agent judgment.
+- **R6.** Pass requires zero unresolved confirmed CRITICAL or HIGH findings. CRITICAL and HIGH findings cannot be waived: they must be fixed and independently reverified before ship. Every confirmed MEDIUM finding must be fixed and independently reverified, or explicitly waived in the owner's own words for this release. Agents cannot issue waivers.
 - **R7.** Nothing auto-fixes. The audit reports; the owner approves changes. No attacks on production; sandbox only.
 - **R8.** Rejected findings stay in the record, with the reason.
 - **R9.** Placement: after the storm drill, before final code review and the Judge.
