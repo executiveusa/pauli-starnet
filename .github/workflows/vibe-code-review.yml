@@ -26,7 +26,23 @@ jobs:
           set -euo pipefail
           umask 077
           mkdir -p "$HOME/.opencodereview"
-          printf '%s\n' '{"max_tokens":6000}' > "$HOME/.opencodereview/config.json"
+          python3 - <<'CONFIG'
+          import json, os, pathlib
+          config = {
+              "max_tokens": 4500,
+              "llm": {
+                  "url": "https://api.groq.com/openai/v1/chat/completions",
+                  "model": "openai/gpt-oss-20b",
+                  "protocol": "openai",
+                  "auth_token_cmd": "printenv OCR_LLM_TOKEN",
+                  "extra_body": {"reasoning_effort": "low", "max_completion_tokens": 2048}
+              }
+          }
+          path = pathlib.Path.home() / '.opencodereview' / 'config.json'
+          path.write_text(json.dumps(config))
+          print('OCR prompt ceiling=4500; compression thresholds=2700/3600; output cap=2048; reasoning=low')
+          CONFIG
+      # Complete config wins over provider inputs; keep URL/model/extra_body in BOTH blocks aligned.
       - name: Review pull request
         uses: executiveusa/open-code-review@2d685ab0d057aec8255f18cd0a5f5a14fbfd5195
         with:
@@ -35,7 +51,7 @@ jobs:
           llm_model: openai/gpt-oss-20b
           llm_use_anthropic: "false"
           llm_auth_token: ${{ secrets.GROQ_API_KEY }}
-          llm_extra_body: '{"reasoning_effort":"low"}'
+          llm_extra_body: '{"reasoning_effort":"low","max_completion_tokens":2048}'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           language: English
           review_concurrency: "1"
