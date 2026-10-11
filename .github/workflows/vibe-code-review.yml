@@ -48,6 +48,13 @@ jobs:
         if: always()
         shell: bash
         run: |
+          set -euo pipefail
+          test -f /tmp/ocr-stderr.log
+          # Pinned OCR 1.11.8 omission signals; re-derive on version changes.
+          if grep -Eq 'tokens exceeds 80% of max_tokens\(|Pre-filtered|exceeded the token size limit' /tmp/ocr-stderr.log; then
+            echo "::error::Review omitted oversized changed files"
+            exit 1
+          fi
           python3 - <<'PYTHON'
           import json, os
           with open('/tmp/ocr-result.json') as f:
