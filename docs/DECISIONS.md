@@ -8,6 +8,10 @@ Companion files: [BRAIN.md](BRAIN.md) (start here) · [MISTAKES.md](MISTAKES.md)
 [NEXT.md](NEXT.md). The `.claude/skills/starnet-*` skills are the enforcement layer for
 many of these — they win on any wording conflict.
 
+## Engineering gates
+
+- **G15 security audit is law** (2026-10-09, Bambú). No app ships without a security audit receipt for the exact commit being shipped; no receipt or a stale one is an automatic HOLD. The full law (six phases, rules R1-R10) and the StarNet factory contract live in [SECURITY_AUDIT_LAW.md](SECURITY_AUDIT_LAW.md). Ordered for both vibe-engineering and the software factory; canonical text in vibe-engineering `factory/icm/template/shared/SECURITY_AUDIT_LAW.md`.
+
 ## Product
 
 - **StarNet is for beginners and power users.** It is easier for beginners to use, never

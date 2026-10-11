@@ -32,6 +32,7 @@ durable structure rather than a one-time task.
   reuse vs rebuild (dated 2026-06-13); explains the lineage of the ported engine.
 - **NEXT.md** — the living task queue, reconciled against trunk (updated as items land or are
   invalidated).
+- **SECURITY_AUDIT_LAW.md** - the G15 security audit ship-gate law (six phases, R1-R10) plus the StarNet factory contract; locked 2026-10-09.
 
 Other reference/design docs (subsystem analyses and design proposals):
 
