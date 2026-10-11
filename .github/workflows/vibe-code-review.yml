@@ -15,12 +15,25 @@ permissions:
 
 jobs:
   review:
+    name: OpenCodeReview
     if: github.event.pull_request.draft == false
-    uses: executiveusa/open-code-review/.github/workflows/vibe-code-review.yml@864933213372cc488b3f2f2b1deaab84ea91b855
-    with:
-      ocr_version: "1.11.8"   # exact integrity-locked package version
-      llm_url: https://openrouter.ai/api/v1/chat/completions
-      model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free   # $0 lane with a live-proven OCR pass (2026-09-11)
-      review_concurrency: "1"   # serial review keeps the burst under free-tier token/min caps
-    secrets:
-      llm_token: ${{ secrets.OPENROUTER_API_KEY }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Review pull request
+        uses: executiveusa/open-code-review@2d685ab0d057aec8255f18cd0a5f5a14fbfd5195
+        with:
+          ocr_version: "1.11.8"   # exact integrity-locked package version
+          llm_url: https://api.groq.com/openai/v1/chat/completions
+          llm_model: openai/gpt-oss-20b
+          llm_use_anthropic: "false"
+          llm_auth_token: ${{ secrets.GROQ_API_KEY }}
+          llm_extra_body: '{"reasoning_effort":"low"}'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          language: English
+          review_concurrency: "1"
+          sticky_summary: "true"
+          incremental: "true"
+          upload_artifacts: "true"
+          route_severity_below: low
+          route_categories: style,documentation
