@@ -15,12 +15,75 @@ permissions:
 
 jobs:
   review:
+    name: OpenCodeReview
     if: github.event.pull_request.draft == false
-    uses: executiveusa/open-code-review/.github/workflows/vibe-code-review.yml@864933213372cc488b3f2f2b1deaab84ea91b855
-    with:
-      ocr_version: "1.11.8"   # exact integrity-locked package version
-      llm_url: https://openrouter.ai/api/v1/chat/completions
-      model: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free   # $0 lane with a live-proven OCR pass (2026-09-11)
-      review_concurrency: "1"   # serial review keeps the burst under free-tier token/min caps
-    secrets:
-      llm_token: ${{ secrets.OPENROUTER_API_KEY }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Bound reviewer context for the free provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$HOME/.opencodereview"
+          python3 - <<'CONFIG'
+          import json, os, pathlib
+          config = {
+              "max_tokens": 4500,
+              "llm": {
+                  "url": "https://api.groq.com/openai/v1/chat/completions",
+                  "model": "openai/gpt-oss-20b",
+                  "protocol": "openai",
+                  "auth_token_cmd": "printenv OCR_LLM_TOKEN",
+                  "extra_body": {"reasoning_effort": "low", "max_completion_tokens": 2048}
+              }
+          }
+          path = pathlib.Path.home() / '.opencodereview' / 'config.json'
+          path.write_text(json.dumps(config))
+          print('OCR prompt ceiling=4500; compression thresholds=2700/3600; output cap=2048; reasoning=low')
+          CONFIG
+      # Complete config wins over provider inputs; keep URL/model/extra_body in BOTH blocks aligned.
+      - name: Review pull request
+        uses: executiveusa/open-code-review@2d685ab0d057aec8255f18cd0a5f5a14fbfd5195
+        with:
+          ocr_version: "1.11.8"   # exact integrity-locked package version
+          llm_url: https://api.groq.com/openai/v1/chat/completions
+          llm_model: openai/gpt-oss-20b
+          llm_use_anthropic: "false"
+          llm_auth_token: ${{ secrets.GROQ_API_KEY }}
+          llm_extra_body: '{"reasoning_effort":"low","max_completion_tokens":2048}'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          language: English
+          review_concurrency: "1"
+          sticky_summary: "true"
+          incremental: "true"
+          upload_artifacts: "true"
+          route_severity_below: low
+          route_categories: style,documentation
+      - name: Require complete review coverage
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f /tmp/ocr-stderr.log
+          # Pinned OCR 1.11.8 omission signals; re-derive on version changes.
+          if grep -Eq 'tokens exceeds 80% of max_tokens\(|Pre-filtered|exceeded the token size limit' /tmp/ocr-stderr.log; then
+            echo "::error::Review omitted oversized changed files"
+            exit 1
+          fi
+          python3 - <<'PYTHON'
+          import json, os
+          with open('/tmp/ocr-result.json') as f:
+              result = json.load(f)
+          manifest = result['manifest']
+          coverage = manifest['coverage']
+          assert manifest['terminal_state'] == 'complete', 'Review did not complete'
+          assert not coverage['failed'] and not coverage['waived'], 'Incomplete review coverage'
+          selected = {x['item_id'] for x in coverage['selected']}
+          covered = {x['item_id'] for x in coverage['completed'] + coverage['reused']}
+          assert selected and selected == covered, 'Selected items were not all covered'
+          assert manifest['input']['resolved_head'] == os.environ['EXPECTED_HEAD'], 'Wrong head reviewed'
+          print('Exact-head selected coverage complete')
+          PYTHON
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
