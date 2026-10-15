@@ -35,20 +35,22 @@ function makeKnowledgeDesk({ supabaseUrl, supabaseKey, fetchImpl = globalThis.fe
 
   function fileSearch(q, district, limit) {
     if (!fileIndex) fileIndex = buildFileIndex();
-    const terms = q.toLowerCase().split(/\W+/).filter(t => t.length > 2);
+    const anyTerm = /\sor\s/i.test(q);                         // websearch syntax: "a or b" matches either
+    const terms = [...new Set(q.toLowerCase().split(/\W+/).filter(t => t.length > 2 && t !== 'or'))];
     if (!terms.length) return [];
     const allowed = routedSources(district);
     const scored = [];
     for (const d of fileIndex) {
       if (!allowed.has(d.source_id)) continue;
-      let score = 0, hit = -1;
+      let score = 0, distinct = 0, hit = -1;
       for (const t of terms) {
         let i = d.lower.indexOf(t), n = 0;
         if (i >= 0 && hit < 0) hit = i;
         while (i >= 0 && n < 20) { n++; i = d.lower.indexOf(t, i + t.length); }
-        if (!n) { score = 0; break; }                       // every term must appear, like websearch_to_tsquery AND
-        score += n;
+        if (!n && !anyTerm) { score = 0; break; }           // plain query: every term must appear (websearch AND)
+        if (n) { distinct++; score += n; }
       }
+      if (score) score += distinct * 100;                   // passages matching more of the words rank first
       if (score) scored.push({ d, score, hit });
     }
     scored.sort((a, b) => b.score - a.score);

@@ -35,6 +35,7 @@
 //   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
 //   POST /v1/commerce/evidence             → record start/settle evidence from a real commerce worker
 //   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
+//   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
 //   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
@@ -49,6 +50,8 @@ const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
@@ -462,6 +465,7 @@ const missionDesk = makeMissionDesk({
     .catch(e => { if (e && e.body && e.body.status) return e.body; throw e; })
 });
 const recoveredMissions = missionDesk.recoverOnBoot();
+const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
 // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
 const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
@@ -586,6 +590,16 @@ async function handleRequest(req, res) {
       const out = missionDesk.accept(envelope);
       if (out.done) out.done.catch(e => log('error', 'mission settle failed', { error: e.message }));
       return send(out.code, out.body);
+    }
+
+    // GET /v1/districts — Heisenberg's last tick: each district RUNNING / BLOCKED (with the exact question) / IDLE.
+    // Written by scripts/district/foreman.js; a board older than 15 minutes says so instead of looking current.
+    if (method === 'GET' && url === '/v1/districts') {
+      let board = null;
+      try { board = JSON.parse(fs.readFileSync(DISTRICT_STATE_FILE, 'utf8')).board || null; } catch (_) { /* no tick yet */ }
+      if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
+      const ageMs = Date.now() - Date.parse(board.at);
+      return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
     }
 
     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)

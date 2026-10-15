@@ -91,6 +91,8 @@ function req(method, port, p, headers) {
   A.eq((await desk.search({ q: 'x', district: 'Bad District!' })).code, 400, 'a malformed district is refused');
   A.eq((await desk.search({ q: 'x', limit: 500 })).code, 400, 'limit is bounded');
   A.ok(desk.sources('impact').body.sources.some(s => s.id === 'cause-specialist'), 'sources lists what a district may use');
+  A.eq((await desk.search({ q: 'grant zzqqxx', district: 'impact' })).body.results.length, 0, 'a plain query needs every word');
+  A.ok((await desk.search({ q: 'grant or zzqqxx', district: 'impact' })).body.results.length > 0, 'an "or" query matches any word, ranked by how many match');
 
   // ---- knowledge desk: Supabase backend (stubbed PostgREST) ----
   const calls = [];
