@@ -56,11 +56,12 @@ function decideDistrict(district, items, lane, now, queueErrors = {}) {
   if (qerr) return { ...base, action: 'BLOCKED', question: 'Queue ' + district.queue.repo + ' cannot be read: ' + qerr };
 
   const spent = spentToday(lane, now);
-  const open = mine.filter(i => !lane.finished[i.number]);
+  // Oldest first everywhere (GitHub lists newest first), so the first item of a lane is the one named and run first.
+  const open = mine.filter(i => !lane.finished[i.number])
+    .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)) || a.number - b.number);
   const exhausted = open.filter(i => (lane.attempts[i.number] || 0) >= district.max_attempts);
   const runnable = open
-    .filter(i => i.approved && !i.blocked && (lane.attempts[i.number] || 0) < district.max_attempts)
-    .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)) || a.number - b.number);
+    .filter(i => i.approved && !i.blocked && (lane.attempts[i.number] || 0) < district.max_attempts);
 
   if (runnable.length && spent >= district.daily_usd_cap) {
     return { ...base, action: 'BLOCKED', question: 'Daily budget used ($' + spent.toFixed(2) + ' of $' + district.daily_usd_cap.toFixed(2) + '). Raise the cap or it resumes after 00:00 UTC.' };

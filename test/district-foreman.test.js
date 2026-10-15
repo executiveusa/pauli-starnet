@@ -163,5 +163,11 @@ function req(method, port, p, headers) {
     child.kill(); sidecar.close();
   }
 
+  // ---- GitHub lists newest first: the approval question still names the lane's first item first (live #63-#66) ----
+  const live = [66, 65, 64, 63].map(n => issue(n, 'impact', [], { created_at: '2026-10-15T16:48:4' + (n > 64 ? 4 : 3) + 'Z' }));
+  const askLive = one(D('impact'), live);
+  A.ok(askLive.issue === 63 && /^Approve #63 "Task 63", #64 "Task 64", #65 "Task 65"/.test(askLive.question), 'the approval question is oldest first, whatever order GitHub returns');
+  A.eq(one(D('impact'), live.map(i => Object.assign({}, i, { labels: i.labels.concat({ name: 'approved' }) }))).issue, 63, 'with everything approved, the oldest item runs first');
+
   A.report('district-foreman.test');
 })().catch(e => { console.error(e); process.exit(1); });
