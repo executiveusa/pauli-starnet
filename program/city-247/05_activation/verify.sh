@@ -3,12 +3,12 @@
 # Run from anywhere; set:
 #   REPO_DIR               the server checkout of pauli-starnet (default /opt/pauli-starnet)
 #   SUPABASE_DB_CONTAINER  docker container of the Supabase Postgres (default: first name matching supabase.*db)
-#   GW                     gateway base URL (default http://127.0.0.1:4000)
+#   GW                     gateway base URL (default http://127.0.0.1:4001)
 #   GATEWAY_BEARER_TOKEN   gateway bearer (from Infisical)
 #   GITHUB_TOKEN           token that can read executiveusa/pauli-starnet
 set -u
 REPO_DIR=${REPO_DIR:-/opt/pauli-starnet}
-GW=${GW:-http://127.0.0.1:4000}
+GW=${GW:-http://127.0.0.1:4001}
 GH_REPO=executiveusa/pauli-starnet
 EXPECT_SHA=be5f77b3cb1a1e6d0d9bc4de58dc220c49325a20
 pass=0; fail=0; skip=0
