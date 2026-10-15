@@ -200,3 +200,6 @@ dev/.shots-toast/
 
 # gateway mission desk state (runtime data, never committed)
 gateway/data/
+
+# knowledge loader output (generated SQL; regenerate with scripts/knowledge/ingest.js)
+/build/

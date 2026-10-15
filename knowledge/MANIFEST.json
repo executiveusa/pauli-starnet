@@ -1,0 +1,96 @@
+{
+  "generated_from": "knowledge/sources.json",
+  "sources": {
+    "mozi-sales": {
+      "status": "indexed",
+      "documents": 43,
+      "chunks": 943,
+      "chars": 1332874,
+      "insights": 33,
+      "content_sha256": "6460b2b87b91e74d01757ee666b539ef3e91e044b53246b5ab54026e966eeea8"
+    },
+    "manny-hormozi-315": {
+      "status": "on_server",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
+    },
+    "metricsmule-video": {
+      "status": "indexed",
+      "documents": 150,
+      "chunks": 1140,
+      "chars": 1554608,
+      "insights": 15,
+      "content_sha256": "bbaf778c606f004ce7d5e7d58cf5228fbf926a1fd6f3fe65ed5467ab30cad27e"
+    },
+    "email-copywriter": {
+      "status": "indexed",
+      "documents": 143,
+      "chunks": 913,
+      "chars": 1270540,
+      "insights": 0,
+      "content_sha256": "50f9ad51fd3185194206356e1cafdd4fae4b4bc28e92511aab32139c67012fde"
+    },
+    "jake-trinder-20": {
+      "status": "indexed",
+      "documents": 20,
+      "chunks": 553,
+      "chars": 786917,
+      "insights": 0,
+      "content_sha256": "321ffd294849d441c75f443ccbbffee15e62c9e75ade22a8a61924e32fd9506d"
+    },
+    "monica-main": {
+      "status": "indexed",
+      "documents": 40,
+      "chunks": 676,
+      "chars": 911085,
+      "insights": 0,
+      "content_sha256": "42d5e685610b14ec3af8d033d55a5bc07cb15368794b904ea0406d844c8dc532"
+    },
+    "cause-specialist": {
+      "status": "indexed",
+      "documents": 40,
+      "chunks": 319,
+      "chars": 433960,
+      "insights": 0,
+      "content_sha256": "c8f2576ddf9d2167a91adf848370729e87830c363d1a82943dc66716fb9d8fd8"
+    },
+    "middleton-method": {
+      "status": "indexed",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 10,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "jasper-smart-sites": {
+      "status": "on_server",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
+    },
+    "closer-sales-call-stages": {
+      "status": "external",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
+    },
+    "stefan-3d": {
+      "status": "external",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
+    },
+    "androoagi-study": {
+      "status": "unlocated",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
+    }
+  }
+}
