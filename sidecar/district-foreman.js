@@ -45,12 +45,15 @@ function spentToday(lane, now) {
   return lane.spend && lane.spend.day === utcDay(now) ? Number(lane.spend.usd) || 0 : 0;
 }
 
-function decideDistrict(district, items, lane, now) {
+function decideDistrict(district, items, lane, now, queueErrors = {}) {
   const mine = items.filter(i => i.district === district.id && !i.is_pr);
   const base = { district: district.id, active: district.active, queued: mine.length };
 
   if (lane.inflight) return { ...base, action: 'RUNNING', issue: lane.inflight.issue, mission_id: lane.inflight.mission_id };
   if (!district.active) return { ...base, action: 'IDLE', reason: mine.length ? 'lane not active yet; ' + mine.length + ' item(s) wait for it' : 'lane not active yet' };
+  // An unreadable queue is not an empty one: never report IDLE when we could not look.
+  const qerr = district.queue && queueErrors[district.queue.repo];
+  if (qerr) return { ...base, action: 'BLOCKED', question: 'Queue ' + district.queue.repo + ' cannot be read: ' + qerr };
 
   const spent = spentToday(lane, now);
   const open = mine.filter(i => !lane.finished[i.number]);
@@ -89,10 +92,10 @@ function decideDistrict(district, items, lane, now) {
 }
 
 // The whole city, one tick. maxDispatch bounds how many missions one tick may start across all districts.
-function decide({ districts, items, state, now, maxDispatch = 3 }) {
+function decide({ districts, items, state, now, maxDispatch = 3, queueErrors = {} }) {
   let budget = maxDispatch;
   return districts.map(d => {
-    const out = decideDistrict(d, items, laneState(state, d.id), now);
+    const out = decideDistrict(d, items, laneState(state, d.id), now, queueErrors);
     if (out.action === 'DISPATCH') {
       if (budget <= 0) return { ...out, action: 'IDLE', reason: 'waiting for a dispatch slot this tick' };
       budget--;

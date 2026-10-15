@@ -46,6 +46,9 @@ function makeForeman({ env = process.env, fetchImpl = globalThis.fetch, now = ()
   }
 
   async function readQueue(repo) {
+    // GitHub answers "list issues" with [] when Issues are turned off, which would look like an empty queue.
+    const meta = await call('https://api.github.com/repos/' + repo, { headers: ghHeaders() });
+    if (meta && meta.has_issues === false) throw new Error('Issues are disabled on this repo (enable them: Settings > General > Features > Issues)');
     const items = [];
     for (let page = 1; page <= 5; page++) {
       const list = await call('https://api.github.com/repos/' + repo + '/issues?state=open&per_page=100&page=' + page, { headers: ghHeaders() });
@@ -102,8 +105,14 @@ function makeForeman({ env = process.env, fetchImpl = globalThis.fetch, now = ()
     // 1. Read the queues (one call set per repo).
     const repos = [...new Set(registry.districts.map(d => d.queue.repo))];
     let items = [];
+    const queueErrors = {};
     for (const repo of repos) {
-      try { items = items.concat(await readQueue(repo)); } catch (e) { errors.push('queue ' + repo + ': ' + e.message); }
+      try { items = items.concat(await readQueue(repo)); }
+      catch (e) {
+        const why = /\b410\b|disabled/i.test(e.message) ? 'Issues are disabled on this repo (enable them: Settings > General > Features > Issues)' : e.message.slice(0, 160);
+        queueErrors[repo] = why;
+        errors.push('queue ' + repo + ': ' + why);
+      }
     }
     const byNumber = new Map(items.map(i => [i.repo + '#' + i.number, i]));
 
@@ -122,7 +131,7 @@ function makeForeman({ env = process.env, fetchImpl = globalThis.fetch, now = ()
     }
 
     // 3. Decide, then dispatch.
-    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10) });
+    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10), queueErrors });
     for (const dec of decisions) {
       if (dec.action !== 'DISPATCH') continue;
       const item = dec.item;

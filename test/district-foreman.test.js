@@ -60,6 +60,8 @@ function req(method, port, p, headers) {
   const parked = one(D('impact'), [issue(7, 'impact', ['approved'])], { districts: { impact: { finished: { 7: { status: 'needs_human', mission_id: 'm7', why: 'publishing needs the owner' } } } } });
   A.ok(parked.action === 'BLOCKED' && /publishing needs the owner/.test(parked.question), 'a mission parked for the owner keeps the district BLOCKED with its reason');
   A.eq(one(D('impact'), [issue(8, 'impact', ['approved'], { pull_request: {} })]).action, 'IDLE', 'pull requests are not queue items');
+  const unread = F.decide({ districts: [D('impact', { queue: { repo: 'o/r' } })], items: [], state: {}, now: NOW, queueErrors: { 'o/r': 'Issues are disabled on this repo' } })[0];
+  A.ok(unread.action === 'BLOCKED' && /cannot be read: Issues are disabled/.test(unread.question), 'an unreadable queue blocks with the reason; it is never reported as an empty IDLE queue');
   const order = one(D('impact'), [issue(12, 'impact', ['approved'], { created_at: '2026-10-12T00:00:00Z' }), issue(11, 'impact', ['approved'], { created_at: '2026-10-11T00:00:00Z' })]);
   A.eq(order.issue, 11, 'the oldest approved item goes first');
   const many = F.decide({ districts: [D('a'), D('b'), D('c')], items: items([issue(1, 'a', ['approved']), issue(2, 'b', ['approved']), issue(3, 'c', ['approved'])]), state: {}, now: NOW, maxDispatch: 2 });
@@ -112,7 +114,8 @@ function req(method, port, p, headers) {
     const fetchImpl = async (url, init = {}) => {
       if (url.startsWith('https://api.github.com/')) {
         ghCalls.push({ url, method: init.method || 'GET', body: init.body });
-        const body = (init.method || 'GET') === 'GET' ? JSON.stringify(queue) : '{}';
+        const isRepo = /^https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+$/.test(url);
+        const body = (init.method || 'GET') === 'GET' ? JSON.stringify(isRepo ? { has_issues: true } : queue) : '{}';
         return { ok: true, status: 200, text: async () => body };
       }
       return fetch(url, init);
@@ -146,6 +149,11 @@ function req(method, port, p, headers) {
     const board = JSON.parse((await req('GET', GW, '/v1/districts', auth)).body);
     A.ok(board.districts.length === 12 && board.stale === false && typeof board.age_seconds === 'number', 'GET /v1/districts serves the latest board with its age');
     A.eq((await req('GET', GW, '/v1/districts')).status, 401, 'the board needs the gateway bearer');
+
+    const off = makeForeman({ env: { ...env, STARNET_DISTRICT_STATE: path.join(tmp, 'off.json') }, fetchImpl: async (url, init) => url.startsWith('https://api.github.com/repos/') && !/issues/.test(url)
+      ? { ok: true, status: 200, text: async () => JSON.stringify({ has_issues: false }) } : fetchImpl(url, init) });
+    const offBoard = await off.tick();
+    A.ok(offBoard.districts.find(d => d.district === 'impact').action === 'BLOCKED' && /Issues are disabled/.test(offBoard.districts.find(d => d.district === 'impact').question), 'Issues turned off on the queue repo: active districts are BLOCKED with the setting to change, not IDLE');
 
     const quiet = makeForeman({ env: { ...env, FOREMAN_GITHUB_WRITE: '' }, fetchImpl });
     const before = ghCalls.length;
