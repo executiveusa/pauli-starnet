@@ -113,6 +113,22 @@ function build(registry, opts) {
         entry.insights++;
       }
     }
+    if (s.intelligence) {
+      // Per-video intelligence records (ideas, workflow, actions, claims to verify): one cited draft insight each.
+      const dir = path.join(ROOT, s.intelligence);
+      const district = s.routes[0].district;
+      for (const f of fs.readdirSync(dir).filter(n => n.endsWith('.json')).sort()) {
+        const r = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+        if (!r.video_id || !r.title) continue;
+        const sec = (name, list) => (Array.isArray(list) && list.length ? name + ':\n' + list.map(x => '- ' + x).join('\n') : '');
+        const body = [sec('Ideas', r.major_ideas), sec('Workflow', r.proposed_workflow), sec('Actions', r.actionable_recommendations),
+          sec('Verify before using', r.claims_requiring_current_verification)].filter(Boolean).join('\n\n');
+        if (!body) continue;
+        sql.push(`INSERT INTO kb_insights (id, source_id, district, kind, title, body, evidence, created_by) VALUES (${L.sqlStr(s.id + ':' + r.video_id)}, ${L.sqlStr(s.id)}, ${L.sqlStr(district)}, 'playbook', ${L.sqlStr(r.title)}, ${L.sqlStr(body)}, ${L.sqlJson([{ video_id: r.video_id, quote: null }])}, ${L.sqlStr('import:' + s.intelligence)})
+  ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body, evidence = EXCLUDED.evidence, updated_at = now() WHERE kb_insights.status = 'draft';`);
+        entry.insights++;
+      }
+    }
     manifest.sources[s.id] = entry;
   }
   sql.push('COMMIT;');

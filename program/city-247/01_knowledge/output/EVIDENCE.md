@@ -16,7 +16,7 @@ Run on 2026-10-15 in the builder's container (Postgres 16.13, local socket). Not
 
 ```
 $ KB_TEST_PGHOST=<local socket> node test/knowledge.test.js
-knowledge.test: OK (72 assertions)
+knowledge.test: OK (74 assertions)
 ```
 
 ## Load + search
@@ -24,14 +24,14 @@ knowledge.test: OK (72 assertions)
 ```
  sources | routes | documents | chunks | insights 
 ---------+--------+-----------+--------+----------
-      12 |     19 |       436 |   4544 |       58
+      12 |     19 |       436 |   4544 |      138
 (1 row)
 
     source_id     | external_id |                     title                     | rank  
 ------------------+-------------+-----------------------------------------------+-------
- cause-specialist | NVJyUFfRQtM | Before a Funder Gives You Money, They Check T | 0.146
- cause-specialist | hdk5pvzKDHI | The Tells That Funders Use to Reject AI Fundr | 0.146
- cause-specialist | xl1Ccs9HGaA | Small Nonprofits Keep Making These 4 Fundrais | 0.099
+ cause-specialist | EEvMEzOWnjI | Most Nonprofits Are Fundraising Wrong         | 0.073
+ cause-specialist | NVJyUFfRQtM | Before a Funder Gives You Money, They Check T | 0.071
+ cause-specialist | hdk5pvzKDHI | The Tells That Funders Use to Reject AI Fundr | 0.071
 (3 rows)
 
     source_id    | external_id |                     title                     | rank  
@@ -41,11 +41,13 @@ knowledge.test: OK (72 assertions)
  jake-trinder-20 | 9-UeFXA-aZg | how I made $473,783 last month at 21          | 0.221
 (3 rows)
 
- district | insights 
-----------+----------
- creative |       15
- revenue  |       43
-(2 rows)
+ district  | insights 
+-----------+----------
+ creative  |       15
+ financial |       40
+ impact    |       40
+ revenue   |       43
+(4 rows)
 ```
 
 ## Not proven here

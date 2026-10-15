@@ -45,7 +45,7 @@
       "documents": 40,
       "chunks": 676,
       "chars": 911085,
-      "insights": 0,
+      "insights": 40,
       "content_sha256": "42d5e685610b14ec3af8d033d55a5bc07cb15368794b904ea0406d844c8dc532"
     },
     "cause-specialist": {
@@ -53,7 +53,7 @@
       "documents": 40,
       "chunks": 319,
       "chars": 433960,
-      "insights": 0,
+      "insights": 40,
       "content_sha256": "c8f2576ddf9d2167a91adf848370729e87830c363d1a82943dc66716fb9d8fd8"
     },
     "middleton-method": {

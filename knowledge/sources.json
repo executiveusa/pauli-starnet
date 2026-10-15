@@ -118,7 +118,8 @@
           "district": "impact",
           "use_for": "funding paths for NW Kids and partner nonprofits"
         }
-      ]
+      ],
+      "intelligence": "impact/source-intel/transcript-research/intelligence/monica-main"
     },
     {
       "id": "cause-specialist",
@@ -131,7 +132,8 @@
           "district": "impact",
           "use_for": "nonprofit fundraising, donor asks, grant readiness for NW Kids"
         }
-      ]
+      ],
+      "intelligence": "impact/source-intel/transcript-research/intelligence/cause-specialist"
     },
     {
       "id": "middleton-method",
