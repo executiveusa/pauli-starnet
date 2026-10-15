@@ -578,6 +578,70 @@
     "closer-framework",
     "evidence"
    ]
+  },
+  {
+   "id": "middleton-method",
+   "name": "The Middleton Method (JP Middleton / Gym Members Now)",
+   "district": "middleton",
+   "home": "repo",
+   "context_contract": "districts/middleton/README.md",
+   "entry": {
+    "canon": "districts/middleton/canon/system.json",
+    "scripts": "districts/middleton/canon/scripts.md",
+    "metrics": "districts/middleton/canon/metrics.md",
+    "citizens": "districts/middleton/citizens.yaml"
+   },
+   "attribution": "48 JP Middleton videos (2026). Revenue, results and benchmark numbers are his own claims, unverified: attribute them to him, never to industry data. The 4+ review gate and the raffle-for-feedback scripts are quoted source only, not approved practice (see README Boundaries).",
+   "workflow_stages": [
+    "diagnose",
+    "offer_design",
+    "pitch",
+    "close",
+    "retention_ascension",
+    "referral_partners"
+   ],
+   "tags": [
+    "sales",
+    "local-business",
+    "reviews",
+    "reactivation",
+    "lead-nurturing",
+    "unverified-claims"
+   ]
+  },
+  {
+   "id": "email-copywriter",
+   "name": "Email Copywriter (Alan Dragou / @dragualin channel)",
+   "district": "creative",
+   "home": "repo",
+   "context_contract": "districts/creative/email-copywriter/CONTEXT.md",
+   "entry": {
+    "readme": "districts/creative/email-copywriter/README.md",
+    "agent_rules": "districts/creative/email-copywriter/CLAUDE.md",
+    "skills": [
+     "districts/creative/email-copywriter/skills/email-copywriting.md",
+     "districts/creative/email-copywriter/skills/review-checklist.md"
+    ],
+    "processes": "districts/creative/email-copywriter/docs/PROCESSES.md",
+    "coverage": "districts/creative/email-copywriter/docs/COVERAGE.md",
+    "catalog": "districts/creative/email-copywriter/knowledge/catalog.json",
+    "transcripts_dir": "districts/creative/email-copywriter/knowledge/transcripts/"
+   },
+   "retrieval_note": "149 transcripts; never load the whole corpus. Read only the files relevant to the task.",
+   "attribution": "The creator's revenue claims, conversion rates and marketing generalizations are his own and unverified. Install candidate, drafting and review only; not deployed.",
+   "workflow_stages": [
+    "pain_research",
+    "offer_design",
+    "reinforce_onboard",
+    "retention_ascension"
+   ],
+   "tags": [
+    "email",
+    "copywriting",
+    "drafting",
+    "unverified-claims",
+    "install-candidate"
+   ]
   }
  ]
 }

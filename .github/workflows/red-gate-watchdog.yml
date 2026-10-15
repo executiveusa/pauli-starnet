@@ -1,0 +1,38 @@
+# Owner: Hermes, Command District.
+# Watches the watchers: once a day, checks every fleet repository's main-branch GitHub Actions
+# gates and keeps one issue here listing any gate that has been red (or stuck queued) for more than
+# 24 hours. A repository it cannot read is listed as unknown, never as green.
+# Needs the FLEET_READ_TOKEN secret (fine-grained, read-only: Actions + Metadata on the fleet
+# repositories). Without it only public repositories are visible and the rest show as unknown.
+name: Red-gate watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 13 * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: red-gate-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Check fleet gates and update the tracking issue
+        env:
+          FLEET_READ_TOKEN: ${{ secrets.FLEET_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RED_GATE_HOURS: '24'
+        run: node scripts/red-gate-watchdog.js

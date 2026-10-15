@@ -206,6 +206,40 @@ const hardline = (call) => (call && call.args && /(^|\/)(\.env|permissions\.allo
     A.ok(!connOn(writeCall, WRITE).allow, 'a connector grant does NOT unlock ordinary writes');
   }
 
+  /* ---- UNATTENDED CREW GRANT: a foreman mission may delegate to its crew, and nothing else ------------ */
+  {
+    const DISPATCH = { name: 'team.dispatch', capability: 'orchestrator', scope: 'execute', requiresConsent: true };
+    const SUMMON = { name: 'team.summon', capability: 'orchestrator', scope: 'write', requiresConsent: true };
+    const SPAWN = { name: 'team.spawn', capability: 'orchestrator', scope: 'execute', requiresConsent: true };
+    const SHELL = { name: 'shell.exec', capability: 'workbench', scope: 'execute', requiresConsent: true };
+    const FAKE = { name: 'team.dispatch', capability: 'mcp:evil', scope: 'execute', requiresConsent: true };
+    const call = n => ({ name: n, args: {} });
+    const crewOn = makeConsentBroker({ surface: 'autonomous', crewGrant: () => true });
+    const crewOff = makeConsentBroker({ surface: 'autonomous' });
+    A.ok(!crewOff(call('team.dispatch'), DISPATCH).allow, 'without the crew grant an unattended lead cannot dispatch');
+    const r = crewOn(call('team.dispatch'), DISPATCH);
+    A.ok(r.allow === true && /foreman mission crew grant/.test(r.reason), 'the crew grant lets an unattended foreman dispatch its crew');
+    A.ok(!crewOn(call('team.summon'), SUMMON).allow, 'the crew grant never lets the foreman create new agents');
+    A.ok(!crewOn(call('team.spawn'), SPAWN).allow, 'the crew grant never unlocks team.spawn');
+    A.ok(!crewOn(call('shell.exec'), SHELL).allow, 'the crew grant never unlocks shell');
+    A.ok(!crewOn(call('team.dispatch'), FAKE).allow, 'a tool merely NAMED team.dispatch from a connector gets nothing');
+    A.ok(!crewOn({ name: 'fs.write', args: { path: 'x.md' } }, WRITE).allow, 'the crew grant never unlocks writes');
+    A.ok(!crewOn({ name: 'team.dispatch', args: { background: true } }, DISPATCH).allow, 'the crew grant never allows a background dispatch the mission cannot wait for');
+    const bg = { name: 'team.dispatch', args: { background: true } };
+    for (const [label, extra] of [['per-agent/master Full Access', { bypass: true }], ['full power', { unrestrictedHost: true }]]) {
+      const mission = makeConsentBroker(Object.assign({ surface: 'autonomous', crewGrant: () => true, missionRun: true }, extra));
+      A.ok(!mission(bg, DISPATCH).allow, 'a mission run never allows a background dispatch, even under ' + label);
+      A.ok(mission(call('team.dispatch'), DISPATCH).allow, 'a blocking dispatch still works under ' + label);
+      const notMission = makeConsentBroker(Object.assign({ surface: 'autonomous' }, extra));
+      A.ok(notMission(bg, DISPATCH).allow, 'outside a mission, ' + label + ' still allows background dispatch');
+    }
+    const crewInteractive = makeConsentBroker({ surface: 'interactive', crewGrant: () => true, prompt: () => 'deny' });
+    const d = crewInteractive(call('team.dispatch'), DISPATCH);
+    A.ok(d && typeof d.then === 'function', 'on a watched run the human is still asked');
+    const throwing = makeConsentBroker({ surface: 'autonomous', crewGrant: () => { throw new Error('x'); } });
+    A.ok(!throwing(call('team.dispatch'), DISPATCH).allow, 'a throwing grant predicate fails closed');
+  }
+
   /* ---- Full Access has one canonical persisted meaning ---------------------------------------------- */
   {
     const auto = makeConsentBroker({ surface: 'autonomous', bypass: () => true, hardline: hardline });

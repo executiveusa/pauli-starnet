@@ -88,7 +88,7 @@ function startMock() {
   const base = await startMock();
   const env = Object.assign({}, process.env, {
     SKYNET_DEV: '1', SKYNET_FULL_ACCESS: '1', SKYNET_WORKSPACES: SCRATCH, SKYNET_PORT: PORT,
-    SKYNET_OPENROUTER_BASE: base, SKYNET_OPENROUTER_KEY: 'sk-or-v1-reliability-proof', SKYNET_DEFAULT_MODEL: 'test/model'
+    SKYNET_OPENROUTER_BASE: base, SKYNET_OPENROUTER_KEY: 'mock', SKYNET_DEFAULT_MODEL: 'test/model'
   });
   console.log('[seed-mock-reliability] ' + base + ' -> http://127.0.0.1:' + PORT + (KEEP ? ' [kept]' : ' [fresh]'));
   const child = spawn(process.execPath, [SIDECAR], { cwd: REPO, env, stdio: 'inherit' });

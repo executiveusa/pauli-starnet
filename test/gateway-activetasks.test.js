@@ -50,6 +50,7 @@ async function main() {
     env: Object.assign({}, process.env, {
       GATEWAY_BEARER_TOKEN: TOKEN,
       GATEWAY_PORT: String(GW_PORT),
+      STARNET_REVISION: 'da861f25b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5',
       STARNET_PORT: String(SC_PORT),
       STARNET_WORKSPACE_PATH: path.join(__dirname, 'fixtures-no-such-dir'),
       LOG_LEVEL: 'error'
@@ -65,6 +66,10 @@ async function main() {
 
   const auth = { Authorization: 'Bearer ' + TOKEN };
   const before = JSON.parse((await req('GET', GW_PORT, '/v1/city/status', auth)).body);
+  A.eq(before.revision, 'da861f25b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5', 'city status reports the deployed commit');
+  const health = JSON.parse((await req('GET', GW_PORT, '/health', auth)).body);
+  A.eq(health.revision, before.revision, '/health reports the same commit');
+  A.ok(before.citizens.every(c => c.status === 'unknown'), 'roster citizens without a heartbeat read unknown');
   A.eq(before.activeTasks, [], 'no tasks dispatched means no claimed activity');
 
   const taskBody = JSON.stringify({ task: 'probe', context: { source: 'city-web', district: 'commerce', building: 'commerce_factory', slot: 'operator', agentId: 'ecom-merci' } });

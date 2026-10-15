@@ -1,0 +1,13 @@
+# Proposed snippet to merge after inspecting the live Creative District registry.
+version: 1
+district: creative
+citizens:
+  - id: email-copywriter
+    kind: agent
+    path: districts/creative/email-copywriter
+    role: email-copywriting-specialist
+    mode: draft-and-review-only
+    status: PROPOSED
+    knowledge: knowledge/catalog.json
+    routes: [email-draft, subject-lines, opt-in, welcome-sequence, email-launch, email-audit]
+    gates: [client-facts-verified, owner-review-before-release]
