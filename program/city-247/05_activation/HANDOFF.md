@@ -10,7 +10,9 @@ Review and merge PR #62 into `feat/harness-backend`. CI on the branch: see the P
 work (`knowledge`, `district-foreman`, `review-gate`, `first-lanes`) pass in the builder's container (receipts in
 `01_knowledge` … `04_first_lanes`). Pre-existing, not from this work: `qa-product-perfect-claims.test.js` fails the
 same way on the clean base (a release path list missing `frontend/app/jev-control.js`), and `lint-determinism` reports
-13 old findings; neither touches these files.
+13 old findings. The full fast list was run one test at a time (440 steps); six more fail identically on the clean
+base `a5eb2276` (same failure lines, diffed): `crt-context-loss.e2e`, `opensource-readiness`, `website-app-sync`,
+`lint-determinism`, `failopen-ratchet`, `city-web`. None touches these files.
 
 ## 1. Database: the knowledge base on the self-hosted Supabase (Instinct)
 Facts from Instinct (2026-09-27, UNVERIFIED by the builder): Supabase runs on the old server as docker project
