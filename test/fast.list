@@ -697,6 +697,7 @@ test/program-status.test.js
 test/gateway-missions.test.js
 test/knowledge.test.js
 test/district-foreman.test.js
+test/review-gate.test.js
 test/gateway-hardening.test.js
 test/supervisor.test.js
 test/pauli-memory.test.js

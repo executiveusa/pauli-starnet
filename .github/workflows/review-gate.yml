@@ -1,0 +1,40 @@
+name: Review Gate
+
+# SHIP/HOLD for the exact head commit of a pull request (program/city-247/03_review_gate).
+# Posts the commit status "starnet/review-gate". Only a reviewer named in the repository variable
+# REVIEW_GATE_REVIEWERS can make it SHIP, and never on a change they built. Make the status required in
+# branch protection to turn it into a merge gate.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+  check_suite:
+    types: [completed]
+
+concurrency:
+  group: review-gate-${{ github.event.pull_request.number || github.event.check_suite.head_sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+  statuses: write
+
+jobs:
+  review-gate:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'check_suite' || github.event.check_suite.pull_requests[0] != null
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verdict for the head commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW_GATE_REVIEWERS: ${{ vars.REVIEW_GATE_REVIEWERS }}
+          REVIEW_GATE_REQUIRED_CHECKS: ${{ vars.REVIEW_GATE_REQUIRED_CHECKS }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number }}
+        run: node scripts/review/gate.js --repo "${{ github.repository }}" --pr "$PR_NUMBER"
