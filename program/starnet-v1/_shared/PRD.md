@@ -182,8 +182,9 @@ It is separate from Impact, Creative and every other district.
 Verified problems to fix in Phase 3:
 - **Three district lists disagree.** The map (`frontend/*/cityos.js`) has 13, the registry
   (`registry/districts.yaml`) has 7, and the folders (`districts/`) have 5. Only Creative and Crypto Cuties
-  are in all three. **Impact exists only on the map.** Fix: `registry/districts.yaml` is the one home; the map
-  and folders are generated from it or checked against it.
+  are in all three. **Impact exists only on the map.** Decided 2026-10-15 (owner, Q4): the CitySpec map is the
+  one list (12 districts); `registry/districts.json` is generated from it by `scripts/city/build-registry.js`
+  and the test fails when it drifts. See `program/city-247/`.
 - **The name `fanni` means two agents:** Cuties' CC-003 Fanni (`executiveusa/fanni`) and Kupuri's social
   agent (`executiveusa/agent-fanni-kupuri-`, granted `social.prepare` in `registry/policy.v1.json`). Fix:
   namespace every agent id by district or tenant (`cuties.fanni`, `kupuri.fanni`).

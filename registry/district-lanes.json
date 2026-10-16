@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "contract": "program/city-247/CONTEXT.md",
+    "rule": "District ids come from the CitySpec (frontend/app/cityos.js). This file only adds how each district works: its queue, budget, retry limit and which permissions it may run unattended. registry/districts.json is generated from both; never edit it by hand.",
+    "queue": "GitHub issues labeled district:<id>. An issue runs only with the label 'approved'. 'blocked' parks it with its question. Labels need repo write access, so only collaborators can approve.",
+    "defaults": { "daily_usd_cap": 1.0, "max_attempts": 3, "unattended_permissions": ["research"] }
+  },
+  "lanes": {
+    "production":   { "active": true,  "queue_repo": "executiveusa/pauli-starnet", "purpose": "software factory: pull projects from GitHub, build in the vibe-engineering pipeline, independent review before anything ships" },
+    "impact":       { "active": true,  "queue_repo": "executiveusa/pauli-starnet", "purpose": "NW Kids: Google Business Profile and Google for Nonprofits grants (Ad Grants first), donor and grant readiness" },
+    "commerce":     { "active": true,  "queue_repo": "executiveusa/pauli-starnet", "purpose": "Freedom of Speech store: product research and test-only Etsy/Printify integration; nothing is listed or sold without the owner" },
+    "revenue":      { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "offers, pricing and outreach drafts (Mozi, Middleton, Jasper smart sites)" },
+    "creative":     { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "design, video and UGC production behind the design gate" },
+    "financial":    { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "costs, budgets and the credit department (Monica Main)" },
+    "intelligence": { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "research, knowledge extraction and the knowledge base" },
+    "command":      { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "owner approvals, mission state, Heisenberg HQ" },
+    "operations":   { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "night operations, server hygiene, monitoring" },
+    "experiment":   { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "bounded experiments with a written hypothesis and stop rule" },
+    "crypto-cuties":{ "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "the Cuties penthouse; its own canon and identity locks win" },
+    "pauli":        { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "Pauli's penthouse and the Hall of Canon; Pauli runs only with owner permission (expensive)" }
+  },
+  "aliases": {
+    "factory": "production",
+    "casa-central": "command",
+    "social": "creative",
+    "jev": "intelligence",
+    "middleton": "revenue",
+    "sales": "revenue"
+  }
+}
