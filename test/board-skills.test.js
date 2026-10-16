@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const { loadRegistry, selectSkills, chairPicks, pickBoardSkills } = require('../sidecar/pauli-board-skills.js');
+const { loadRegistry, selectSkills, chairPicks, pickBoardSkills, termHits } = require('../sidecar/pauli-board-skills.js');
 
 const BOARD_DIR = path.join(__dirname, '..', 'districts', 'pauli', 'board');
 
@@ -22,23 +22,47 @@ test('registry: every skill has a file, a seat, keywords and cited sources', () 
   }
 });
 
-test('registry: missing dir fails open, never throws', () => {
+test('registry: missing dir fails open with an errors array, never throws', () => {
   const reg = loadRegistry(path.join(os.tmpdir(), 'no-such-board-dir'));
   A.equal(reg.ok, false);
   A.equal(reg.skills.length, 0);
+  A.ok(Array.isArray(reg.errors) && reg.errors.length > 0);
+  const noDir = loadRegistry(null);
+  A.equal(noDir.ok, false);
+  A.deepEqual(noDir.errors, ['no-board-dir']);
 });
 
-test('registry: path escape and source-less entries are rejected', () => {
+test('registry: path escape, absolute path, null root, null entries, source-less rejected', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'reg-'));
   fs.mkdirSync(path.join(tmp, 'skills'));
+  fs.writeFileSync(path.join(tmp, 'skills', 'ok.md'), '# ok\nSources: x\n');
   fs.writeFileSync(path.join(tmp, 'skills', 'registry.json'), JSON.stringify({ skills: [
     { id: 'bad/escape', seat: 'x', title: 'x', path: '../outside.md', sources: ['s'] },
-    { id: 'bad/nosources', seat: 'x', title: 'x', path: 'ok.md', sources: [] }
+    { id: 'bad/absolute', seat: 'x', title: 'x', path: '/etc/passwd', sources: ['s'] },
+    { id: 'bad/nosources', seat: 'x', title: 'x', path: 'ok.md', sources: [] },
+    null,
+    'a string is not an entry'
   ] }));
   const reg = loadRegistry(tmp);
   A.equal(reg.ok, false);
   A.equal(reg.skills.length, 0);
-  A.equal(reg.errors.length, 2);
+  A.equal(reg.errors.length, 5);
+  fs.writeFileSync(path.join(tmp, 'skills', 'registry.json'), 'null');
+  const nullReg = loadRegistry(tmp);
+  A.equal(nullReg.ok, false);
+  A.equal(nullReg.skills.length, 0);
+  fs.writeFileSync(path.join(tmp, 'skills', 'registry.json'), '{"skills": "not-array"}');
+  const badArr = loadRegistry(tmp);
+  A.equal(badArr.ok, false);
+  A.ok(badArr.errors.some(e => /array/.test(e)));
+});
+
+test('matching: whole-term boundaries, no substring bleed', () => {
+  A.equal(termHits('call', 'download files locally'), false, 'call must not hit locally');
+  A.equal(termHits('who', 'the whole plan'), false, 'who must not hit whole');
+  A.equal(termHits('call', 'book the sales call thursday'), true);
+  A.equal(termHits('who', 'who is this for'), true);
+  A.equal(termHits('Call', 'BOOK THE CALL'), true, 'case-insensitive');
 });
 
 test('selection: deterministic, ranked by distinct keyword hits, id tie-break', () => {
@@ -47,6 +71,12 @@ test('selection: deterministic, ranked by distinct keyword hits, id tie-break', 
   A.equal(picks[0].id, 'hormozi/retention-and-money-models');
   const again = selectSkills('fix churn in our subscription billing and pricing tiers', reg.skills);
   A.deepEqual(picks, again, 'same input, same picks');
+});
+
+test('selection: duplicate keywords count once', () => {
+  const skills = [{ id: 'a', seat: 's', title: 't', path: 'p', keywords: ['ship', 'ship', 'ship'], sources: ['x'] }];
+  const picks = selectSkills('ship it', skills);
+  A.equal(picks[0].matched, 1, 'one point per distinct keyword');
 });
 
 test('selection: no hits means empty, not a guess', () => {
@@ -62,11 +92,10 @@ test('chair picks: real ids honored, invented ids dropped', () => {
 });
 
 test('receipt block: chair wins over matcher, matcher fills when chair silent', () => {
-  const reg = { boardDir: BOARD_DIR };
-  const chair = pickBoardSkills({ ...reg, proposal: 'p', verdict: { skills: ['hormozi/offer-architecture'], recommendation: 'sell stuff' } });
+  const chair = pickBoardSkills({ boardDir: BOARD_DIR, proposal: 'p', verdict: { skills: ['hormozi/offer-architecture'], recommendation: 'sell stuff' } });
   A.equal(chair.pickedBy, 'chair');
   A.equal(chair.skills[0].id, 'hormozi/offer-architecture');
-  const matched = pickBoardSkills({ ...reg, proposal: 'our email campaign funnel for the launch', verdict: {} });
+  const matched = pickBoardSkills({ boardDir: BOARD_DIR, proposal: 'our email campaign funnel for the launch', verdict: {} });
   A.equal(matched.pickedBy, 'match');
   A.ok(matched.skills.length > 0);
   const none = pickBoardSkills({ boardDir: null, proposal: 'p', verdict: {} });

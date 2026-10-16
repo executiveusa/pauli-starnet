@@ -32,7 +32,7 @@
      run({ roomId, proposal, models, grant, roleInstructions? })      -> { ok, result? | error }
      isAstraModel(modelId)                                            -> boolean */
 'use strict';
-const { pickBoardSkills } = require('./pauli-board-skills.js');
+const { loadRegistry, pickBoardSkills } = require('./pauli-board-skills.js');
 
 const DEFAULT_ASTRA = 'gpt-6-astra';
 const DEFAULT_EXPECTED_OUTPUT = 400;  // tokens per role turn, COUNCIL.md role shapes are short
@@ -254,7 +254,7 @@ function makePauliCouncilRunner(deps) {
       '\nAnswer ONLY as JSON: {"position": "<paragraph>", "vote": "APPROVE" | "REJECT" | "MODIFY", "reason": "<one line>"}';
   }
 
-  function chairPromptFor(visible, instructions) {
+  function chairPromptFor(visible, instructions, skillIds) {
     let body = 'PROPOSAL:\n' + visible.proposal + '\n';
     for (const s of visible.statements || []) {
       body += '\nROUND ' + (s.round || 1) + ' - SEAT ' + s.seat + ' (weight ' + s.weight + ', voted ' + s.vote + '):\n' + s.text + '\nreason: ' + s.reason + '\n';
@@ -263,7 +263,10 @@ function makePauliCouncilRunner(deps) {
     body += '\nWEIGHTED TALLY (final votes): APPROVE=' + t.APPROVE + ' REJECT=' + t.REJECT + ' MODIFY=' + t.MODIFY + '\n';
     const extra = instructions && instructions.chair ? '\nMISSION INSTRUCTIONS:\n' + instructions.chair + '\n' : '';
     return 'You are the CHAIR of this board of advisors. Each seat answered blind in round 1, then argued in round 2 - round-2 votes are final. Summarize the debate in your reasoning, weigh the final votes (weights are not votes to count blindly - judge the arguments), then lock the ruling.' + extra + '\n' + body +
-      '\nAnswer ONLY as JSON: {"ruling": "APPROVE" | "REJECT" | "MODIFY" | "halt", "modifications": "<if MODIFY, the new proposal text>", "judge_reasoning": "<one paragraph>", "recommendation": "<the scored recommendation the owner acts on>", "scores": {"confidence": 0-10, "dissent": 0-10}}';
+      '\nAnswer ONLY as JSON: {"ruling": "APPROVE" | "REJECT" | "MODIFY" | "halt", "modifications": "<if MODIFY, the new proposal text>", "judge_reasoning": "<one paragraph>", "recommendation": "<the scored recommendation the owner acts on>", "scores": {"confidence": 0-10, "dissent": 0-10}' +
+      (Array.isArray(skillIds) && skillIds.length
+        ? ', "skills": ["<optional: ids of the execution skills to run after this ruling - pick only from: ' + skillIds.join(', ') + '>"]'
+        : '') + '}';
   }
 
   function runBoard({ roomId, proposal, seats, chairModel, grant, seatInstructions, boardDir }) {
@@ -302,7 +305,8 @@ function makePauliCouncilRunner(deps) {
 
     const cvres = council.boardView(roomId, debateId, 'chair');
     if (!cvres.ok) return cvres;
-    const judged = callModel({ model: chairModel, role: 'chair', prompt: chairPromptFor(cvres.visible, seatInstructions), missionId: grant.missionId });
+    const boardSkillIds = boardDir ? loadRegistry(boardDir).skills.map(s => s.id) : [];
+    const judged = callModel({ model: chairModel, role: 'chair', prompt: chairPromptFor(cvres.visible, seatInstructions, boardSkillIds), missionId: grant.missionId });
     if (!judged || typeof judged.text !== 'string' || !judged.text.trim()) {
       return bad('worker-failed', 'chair worker returned no text - debate ' + debateId + ' left open for retry');
     }
@@ -321,7 +325,8 @@ function makePauliCouncilRunner(deps) {
     });
     if (!ruled.ok) return ruled;
 
-    const skillsPicked = pickBoardSkills({ boardDir, proposal, verdict });
+    // Execution skills attach only to a LOCKED ruling - a halt/escalation leaves no execution plan.
+    const skillsPicked = (!ruled.escalated && ruled.locked) ? pickBoardSkills({ boardDir, proposal, verdict }) : null;
 
     const receipt = {
       receiptId: 'exec_' + idgen(),
