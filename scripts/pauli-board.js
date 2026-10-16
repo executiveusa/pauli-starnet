@@ -33,6 +33,10 @@ const missionId = arg('mission', null);
 const budgetUSD = parseFloat(arg('budget', 'NaN'));
 const grantModel = arg('grant-model', null);
 const grantTtlMin = parseInt(arg('grant-ttl-min', '60'), 10);
+if (Number.isNaN(grantTtlMin) || grantTtlMin <= 0) {
+  console.error('--grant-ttl-min must be a positive integer (got: ' + arg('grant-ttl-min', '60') + ')');
+  process.exit(2);
+}
 const repoRoot = path.join(__dirname, '..');
 const pricesPath = arg('prices', path.join(repoRoot, 'districts', 'pauli', 'board', 'prices.free.json'));
 
@@ -40,18 +44,38 @@ if (!proposal || !manifestPath || !missionId || !grantModel || Number.isNaN(budg
   console.error('required: --proposal --board --mission --budget --grant-model [--yes] [--prices] [--grant-ttl-min]');
   process.exit(2);
 }
-const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+let manifest;
+let prices;
+try {
+  manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+} catch (e) {
+  console.error('cannot read/parse board manifest ' + manifestPath + ': ' + (e && e.message ? e.message : String(e)));
+  process.exit(2);
+}
 const manifestDir = path.dirname(manifestPath);
-const prices = JSON.parse(fs.readFileSync(pricesPath, 'utf8'));
+try {
+  prices = JSON.parse(fs.readFileSync(pricesPath, 'utf8'));
+} catch (e) {
+  console.error('cannot read/parse prices file ' + pricesPath + ': ' + (e && e.message ? e.message : String(e)));
+  process.exit(2);
+}
 const seatInstructions = {};
 for (const s of manifest.seats) {
-  if (s.brain) seatInstructions[s.id] = fs.readFileSync(path.join(manifestDir, s.brain), 'utf8');
+  if (!s.brain) continue;
+  const brainPath = path.join(manifestDir, s.brain);
+  try {
+    seatInstructions[s.id] = fs.readFileSync(brainPath, 'utf8');
+  } catch (e) {
+    console.error('cannot read brain file for seat ' + s.id + ' at ' + brainPath + ': ' + (e && e.message ? e.message : String(e)));
+    process.exit(2);
+  }
 }
 
 const apiKey = process.env.OPENROUTER_API_KEY;
 async function callModel({ model, prompt }) {
   if (!apiKey) return { text: '' }; // runner turns this into a clean worker-failed
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const apiEndpoint = process.env.OPENROUTER_API_ENDPOINT || 'https://openrouter.ai/api/v1/chat/completions';
+  const res = await fetch(apiEndpoint, {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }] })
@@ -74,7 +98,8 @@ async function callModel({ model, prompt }) {
   console.log(JSON.stringify(est.estimate, null, 2));
   if (!has('yes')) { console.log('\nDry run only. Re-run with --yes to execute against this estimate.'); process.exit(0); }
 
-  const grant = { missionId, provider: 'openrouter', model: grantModel, expiresAt: Date.now() + grantTtlMin * 60000, budgetUSD };
+  const provider = process.env.OPENROUTER_PROVIDER || 'openrouter';
+  const grant = { missionId, provider, model: grantModel, expiresAt: Date.now() + grantTtlMin * 60000, budgetUSD };
   const ran = await runner.runBoard({ roomId, proposal, seats: manifest.seats, chairModel: manifest.chairModel, grant, seatInstructions });
   if (!ran.ok) { console.error('run refused/failed:', JSON.stringify(ran)); process.exit(1); }
   const closed = council.close(roomId);
