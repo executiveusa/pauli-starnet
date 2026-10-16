@@ -209,22 +209,29 @@ function makePauliCouncilRunner(deps) {
     }
     const proposalTokens = tokenize(proposal);
     const turns = [];
-    seats.forEach((s, i) => {
-      const inputTokens = proposalTokens + i * expectedOutputTokens;
-      const t = { role: 'seat', seat: s.id, model: s.model, inputTokens, expectedOutputTokens, math: 'proposal + ' + i + ' prior statements in, ' + expectedOutputTokens + ' out' };
+    seats.forEach(s => { // round 1: blind - proposal only, no statements visible
+      const t = { role: 'seat', round: 1, seat: s.id, model: s.model, inputTokens: proposalTokens, expectedOutputTokens, math: 'blind round: proposal only in, ' + expectedOutputTokens + ' out' };
       t.costUSD = turnCost(t.model, t.inputTokens, t.expectedOutputTokens);
       t.withHeadroomUSD = t.costUSD * headroomFactor;
       turns.push(t);
     });
-    const chairTokens = proposalTokens + seats.length * expectedOutputTokens;
-    const chair = { role: 'chair', model: chairModel, inputTokens: chairTokens, expectedOutputTokens, math: 'proposal + ' + seats.length + ' statements + tally in, ' + expectedOutputTokens + ' out' };
+    seats.forEach(s => { // round 2: argue - proposal + every round-1 position visible
+      const inputTokens = proposalTokens + seats.length * expectedOutputTokens;
+      const t = { role: 'seat', round: 2, seat: s.id, model: s.model, inputTokens, expectedOutputTokens, math: 'argument round: proposal + ' + seats.length + ' round-1 positions in, ' + expectedOutputTokens + ' out' };
+      t.costUSD = turnCost(t.model, t.inputTokens, t.expectedOutputTokens);
+      t.withHeadroomUSD = t.costUSD * headroomFactor;
+      turns.push(t);
+    });
+    const chairTokens = proposalTokens + seats.length * 2 * expectedOutputTokens;
+    const chair = { role: 'chair', model: chairModel, inputTokens: chairTokens, expectedOutputTokens, math: 'proposal + ' + (seats.length * 2) + ' statements (2 rounds) + tally in, ' + expectedOutputTokens + ' out' };
     chair.costUSD = turnCost(chairModel, chairTokens, expectedOutputTokens);
     chair.withHeadroomUSD = chair.costUSD * headroomFactor;
     turns.push(chair);
     const totalCostUSD = turns.reduce((sum, t) => sum + t.withHeadroomUSD, 0);
     return ok({
       estimate: {
-        mode: 'board', proposalTokens, seats: seats.length,
+        mode: 'board', proposalTokens, seats: seats.length, rounds: 2,
+        models: { chair: chairModel, seats: Object.fromEntries(seats.map(s => [s.id, s.model])) },
         expectedOutputTokensPerTurn: expectedOutputTokens, headroomFactor,
         turns, totalCostUSD,
         astra: isAstraModel(chairModel) || seats.some(s => isAstraModel(s.model))
@@ -233,24 +240,28 @@ function makePauliCouncilRunner(deps) {
   }
 
   function seatPromptFor(seat, visible, instructions) {
+    const round = visible.round || 1;
     let body = 'PROPOSAL:\n' + visible.proposal + '\n';
     for (const s of visible.statements || []) {
       body += '\nSEAT ' + s.seat + ' (voted ' + s.vote + '):\n' + s.text + '\n';
     }
     const brain = instructions && instructions[seat.id] ? '\nYOUR BRAIN (persona source material - answer from it, in its voice):\n' + instructions[seat.id] + '\n' : '';
-    return 'You hold the ' + seat.id.toUpperCase() + ' seat on a board of advisors. Give your position in one short paragraph, then cast your vote.' + brain + '\n' + body +
+    const ask = round === 1
+      ? 'You hold the ' + seat.id.toUpperCase() + ' seat on a board of advisors. You are answering BLIND: no other seat has weighed in and you cannot see their positions. Give your own position in one short paragraph, then cast your vote.'
+      : 'You hold the ' + seat.id.toUpperCase() + ' seat on a board of advisors. These are the opening positions of every seat (including yours). ARGUE: defend or change your position in one short paragraph - this vote is your final one.';
+    return ask + brain + '\n' + body +
       '\nAnswer ONLY as JSON: {"position": "<paragraph>", "vote": "APPROVE" | "REJECT" | "MODIFY", "reason": "<one line>"}';
   }
 
   function chairPromptFor(visible, instructions) {
     let body = 'PROPOSAL:\n' + visible.proposal + '\n';
     for (const s of visible.statements || []) {
-      body += '\nSEAT ' + s.seat + ' (weight ' + s.weight + ', voted ' + s.vote + '):\n' + s.text + '\nreason: ' + s.reason + '\n';
+      body += '\nROUND ' + (s.round || 1) + ' - SEAT ' + s.seat + ' (weight ' + s.weight + ', voted ' + s.vote + '):\n' + s.text + '\nreason: ' + s.reason + '\n';
     }
     const t = visible.tally || { APPROVE: 0, REJECT: 0, MODIFY: 0 };
-    body += '\nWEIGHTED TALLY: APPROVE=' + t.APPROVE + ' REJECT=' + t.REJECT + ' MODIFY=' + t.MODIFY + '\n';
+    body += '\nWEIGHTED TALLY (final votes): APPROVE=' + t.APPROVE + ' REJECT=' + t.REJECT + ' MODIFY=' + t.MODIFY + '\n';
     const extra = instructions && instructions.chair ? '\nMISSION INSTRUCTIONS:\n' + instructions.chair + '\n' : '';
-    return 'You are the CHAIR of this board of advisors. Weigh the seats and their votes (weights are not votes to count blindly - judge the arguments), then lock the ruling.' + extra + '\n' + body +
+    return 'You are the CHAIR of this board of advisors. Each seat answered blind in round 1, then argued in round 2 - round-2 votes are final. Summarize the debate in your reasoning, weigh the final votes (weights are not votes to count blindly - judge the arguments), then lock the ruling.' + extra + '\n' + body +
       '\nAnswer ONLY as JSON: {"ruling": "APPROVE" | "REJECT" | "MODIFY" | "halt", "modifications": "<if MODIFY, the new proposal text>", "judge_reasoning": "<one paragraph>", "recommendation": "<the scored recommendation the owner acts on>", "scores": {"confidence": 0-10, "dissent": 0-10}}';
   }
 
@@ -267,6 +278,7 @@ function makePauliCouncilRunner(deps) {
     const debateId = started.debateId;
     const usage = { turns: [], totalCostUSD: 0 };
 
+    for (let round = 1; round <= 2; round++) { // round 1: blind positions; round 2: argument (final votes)
     for (const seat of seats) {
       const vres = council.boardView(roomId, debateId, seat.id);
       if (!vres.ok) return vres;
@@ -281,9 +293,10 @@ function makePauliCouncilRunner(deps) {
       const spoke = council.boardSpeak(roomId, debateId, seat.id, { text: stmt.position || stmt.text, vote: stmt.vote, reason: stmt.reason });
       if (!spoke.ok) return spoke;
       if (resp.usage && typeof resp.usage.costUSD === 'number') {
-        usage.turns.push({ role: 'seat', seat: seat.id, model: seat.model, usage: resp.usage });
+        usage.turns.push({ role: 'seat', round, seat: seat.id, model: seat.model, usage: resp.usage });
         usage.totalCostUSD += resp.usage.costUSD;
       }
+    }
     }
 
     const cvres = council.boardView(roomId, debateId, 'chair');
@@ -310,6 +323,7 @@ function makePauliCouncilRunner(deps) {
     const receipt = {
       receiptId: 'exec_' + idgen(),
       debateId, roomId, mode: 'board',
+      models: { chair: chairModel, seats: Object.fromEntries(seats.map(s => [s.id, s.model])) },
       missionId: grant.missionId,
       grant: { provider: grant.provider, model: grant.model, budgetUSD: grant.budgetUSD, expiresAt: grant.expiresAt },
       estimate: est.estimate,
@@ -322,7 +336,20 @@ function makePauliCouncilRunner(deps) {
     return ok({ result: { debateId, escalated: !!ruled.escalated, locked: ruled.locked || null, usage, receipt } });
   }
 
-  return { estimate, run, estimateBoard, runBoard, isAstraModel };
+  function applyModelOverrides(manifest, overrides) {
+    // Swap seat/chair models without editing the manifest file: overrides = { '<seatId>': 'model-id', chair: 'model-id' }
+    const out = JSON.parse(JSON.stringify(manifest || {}));
+    for (const [id, model] of Object.entries(overrides || {})) {
+      if (typeof model !== 'string' || !model.trim()) return bad('no-model', 'override for ' + id + ' needs a model id');
+      if (id === 'chair') { out.chairModel = model; continue; }
+      const seat = (out.seats || []).find(s => s.id === id);
+      if (!seat) return bad('unknown-seat', 'no seat ' + id + ' in this manifest');
+      seat.model = model;
+    }
+    return ok({ manifest: out });
+  }
+
+  return { estimate, run, estimateBoard, runBoard, isAstraModel, applyModelOverrides };
 }
 
 module.exports = { makePauliCouncilRunner };
