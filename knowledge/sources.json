@@ -205,6 +205,24 @@
           "use_for": "Etsy/Printify store method once located"
         }
       ]
+    },
+    {
+      "id": "seth-godin-books",
+      "title": "Seth Godin book canon (20 books)",
+      "creator": "Seth Godin",
+      "status": "on_server",
+      "location": "prod-city-1: /root/board-corpus/seth-godin (20 txt, ~5.5MB; PRIVATE - licensed material, never committed or published)",
+      "title_index": "knowledge/seth-godin-titles.json",
+      "routes": [
+        {
+          "district": "pauli",
+          "use_for": "board seat seth (districts/pauli/board/seats/seth-godin.md): marketing, tribes, shipping doctrine"
+        },
+        {
+          "district": "revenue",
+          "use_for": "positioning, storytelling, smallest-viable-market and permission-based outreach"
+        }
+      ]
     }
   ]
 }
