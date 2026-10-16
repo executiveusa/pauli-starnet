@@ -5,12 +5,16 @@ Board mode is part of the StarNet council, not a separate system. The 3-turn adv
 same module:
 
 - N persona seats (2..8), each with an id, a model, a weight, and a brain folder (markdown).
-- Seats speak in declared order; a seat sees the proposal plus only the statements before it
-  (the council's information-asymmetry rule, generalized).
-- Every seat casts one weighted vote (APPROVE / REJECT / MODIFY + one-line reason).
-- The chair (never a seat model - judge independence) sees every statement plus the weighted
-  tally and locks the section-3 ruling contract extended with statements, tally and the scored
-  recommendation. `halt` escalates to the human, same as the debate.
+- BLIND-FIRST: in round 1 every seat locks its own position seeing only the proposal - no seat
+  sees any other seat's take. In round 2 every seat sees all round-1 positions (never other
+  round-2 arguments) and argues to its final vote.
+- The tally counts final votes only; a round-1 vote that changed in the argument is not counted.
+- The chair (never a seat model - judge independence) sees every statement from both rounds plus
+  the final-vote tally, summarizes the debate, and locks the section-3 ruling contract extended
+  with statements, rounds, tally and the scored recommendation. `halt` escalates to the human,
+  same as the debate.
+- Every seat runs on its own model, swappable per call with `--set seat=model` on the CLI (or by
+  editing the manifest); every estimate, receipt and locked ruling lists the seat -> model map.
 - Same ASTRA gate (deny-by-default mission grant with budget), same estimate-before-run pricing
   (unknown models refused, free models are $0 entries), same hashed receipts and minutes ledger.
 

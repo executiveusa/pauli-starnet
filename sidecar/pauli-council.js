@@ -258,8 +258,11 @@ function makePauliCouncil(deps) {
   function isBoard(debate) { return debate && debate.mode === 'board'; }
 
   function boardTally(debate) {
+    // blind-first: a seat's LAST statement is its final vote; earlier rounds are argument, not votes
     const t = { APPROVE: 0, REJECT: 0, MODIFY: 0 };
-    for (const s of debate.statements) t[s.vote] += s.weight;
+    const final = new Map();
+    for (const s of debate.statements) final.set(s.seat, s);
+    for (const s of final.values()) t[s.vote] += s.weight;
     return t;
   }
 
@@ -286,7 +289,7 @@ function makePauliCouncil(deps) {
       seats: seats.map(s => ({ id: s.id, model: s.model, weight: typeof s.weight === 'number' ? s.weight : 1 })),
       chairModel,
       expectedCost: typeof expectedCost === 'number' ? expectedCost : null,
-      statements: [],      // [{ seq, seat, model, text, vote, weight, reason, at }] - seq is the seat order index
+      statements: [],      // [{ seq, round, seat, model, text, vote, weight, reason, at }] - round 1 = blind positions, round 2 = argument (final vote)
       ruling: null,
       escalated: false,
       locked: null,
@@ -302,15 +305,21 @@ function makePauliCouncil(deps) {
     if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
     const visible = { proposal: debate.proposal };
     if (who === 'chair') {
-      visible.statements = debate.statements.map(s => ({ seat: s.seat, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason }));
+      visible.statements = debate.statements.map(s => ({ round: s.round, seat: s.seat, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason }));
       visible.tally = boardTally(debate);
       return ok({ visible });
     }
     const idx = debate.seats.findIndex(s => s.id === who);
     if (idx === -1) return bad('bad-seat', 'who must be a seat id or chair');
-    visible.statements = debate.statements
-      .filter(s => s.seq < idx) // ordered reveal: only the seats before this one
-      .map(s => ({ seat: s.seat, text: s.text, vote: s.vote, reason: s.reason }));
+    const round = Math.floor(debate.statements.length / debate.seats.length) + 1;
+    visible.round = round;
+    if (round === 1) {
+      visible.statements = []; // blind-first: every seat locks its own position before seeing any other
+    } else {
+      visible.statements = debate.statements
+        .filter(s => s.round === 1) // the argument round shows every round-1 position, never other round-2 arguments
+        .map(s => ({ seat: s.seat, text: s.text, vote: s.vote, reason: s.reason }));
+    }
     return ok({ visible });
   }
 
@@ -320,13 +329,16 @@ function makePauliCouncil(deps) {
     if (!debate) return bad('no-debate', 'unknown debate');
     if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
     if (debate.locked || debate.escalated) return bad('debate-over', 'debate is already settled');
-    const expected = debate.seats[debate.statements.length];
-    if (!expected) return bad('max-turns', 'every seat has spoken; the chair rules now');
-    if (seatId !== expected.id) return bad('out-of-order', 'turn ' + (debate.statements.length + 1) + ' belongs to seat ' + expected.id);
+    const turn = debate.statements.length;
+    const nSeats = debate.seats.length;
+    if (turn >= nSeats * 2) return bad('max-turns', 'every seat has spoken in both rounds; the chair rules now');
+    const round = Math.floor(turn / nSeats) + 1;
+    const expected = debate.seats[turn % nSeats];
+    if (seatId !== expected.id) return bad('out-of-order', 'turn ' + (turn + 1) + ' (round ' + round + ') belongs to seat ' + expected.id);
     if (typeof text !== 'string' || !text.trim()) return bad('empty-turn', 'statement text required');
     if (!RULINGS.includes(vote)) return bad('bad-vote', 'vote must be APPROVE, REJECT, or MODIFY');
     debate.statements.push({
-      seq: debate.statements.length, seat: seatId, model: expected.model,
+      seq: turn, round, seat: seatId, model: expected.model,
       text, vote, weight: expected.weight,
       reason: typeof reason === 'string' ? reason : '',
       at: clock()
@@ -340,7 +352,7 @@ function makePauliCouncil(deps) {
     if (!debate) return bad('no-debate', 'unknown debate');
     if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
     if (debate.locked || debate.escalated) return bad('debate-over', 'debate is already settled');
-    if (debate.statements.length !== debate.seats.length) return bad('out-of-order', 'the chair rules after every seat has spoken');
+    if (debate.statements.length !== debate.seats.length * 2) return bad('out-of-order', 'the chair rules after every seat has spoken in both rounds (blind position, then argument)');
     if (ruling === 'halt') { // same as the debate: escalate to the human, no auto-proceed
       debate.escalated = true;
       return ok({ escalated: true });
@@ -355,7 +367,8 @@ function makePauliCouncil(deps) {
       debate_id: debate.debate_id,
       mode: 'board',
       proposal: debate.proposal,
-      statements: debate.statements.map(s => ({ seat: s.seat, model: s.model, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason })),
+      statements: debate.statements.map(s => ({ round: s.round, seat: s.seat, model: s.model, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason })),
+      models: { chair: debate.chairModel, seats: Object.fromEntries(debate.seats.map(s => [s.id, s.model])) },
       tally: boardTally(debate),
       ruling,
       modifications: ruling === 'MODIFY' ? modifications : null,
