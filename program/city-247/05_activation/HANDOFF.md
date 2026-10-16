@@ -74,7 +74,7 @@ signed link (likely expired), and one reused test password. Rotate the Stripe ke
 - Nothing here has run on the server; the first real crew mission per lane is the proof still owed.
 - Etsy's live API spec and Google's program pages were not reachable from the builder's container: the Etsy
   payload fields and the Google program table are marked UNVERIFIED in the code and docs.
-- The store (Commerce) is blocked on its own open decisions 0002, 0004, 0009 and seller of record.
+- The store (Commerce) is blocked on its own open decisions 0002, 0004, 0009. Seller of record answered: Jeremy Bowers (owner decision, Oct 2026); the store account remains owner-only.
 - AndrooAGI study: still unlocated. Stefan's raw transcripts: unlocated (the synthesis is in impact-city-2026).
 - Cloudroom: self-hosting is documented as of its 2026-10-14 release (Ubuntu 24.04, one script, a fresh VM per
   trusted user, no Docker socket). Deferred per Q11; not installed.

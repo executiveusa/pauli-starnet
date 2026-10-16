@@ -63,7 +63,7 @@ on the server and record it.
 10. **Report to Bambú.** Give every verify line that is not PASS with its exact reason, the issue numbers created, and
     what is still owed:
     - the first real crew mission per lane, after Bambú approves an issue
-    - decisions 0002, 0004 and 0009 and the seller of record for the store
+    - decisions 0002, 0004 and 0009 for the store (seller of record is answered: Jeremy Bowers)
     - rotation of the leaked secrets (Stripe live key first; the types are listed in HANDOFF §6)
 
 ## Done means

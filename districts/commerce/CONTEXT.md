@@ -9,8 +9,9 @@ may not add categories, edit the constitution, or act on OPEN decisions. Read it
 pass its `WALKTEST.md` before writing there.
 
 ## Blocked on the owner today (the store's OPEN decisions)
-- 0002 legal line for designs · 0004 seed budget and daily cap · 0009 categories beyond Trump ·
-  0003/0020 seller of record and the store account (identity and payout are human-only steps).
+- 0002 legal line for designs · 0004 seed budget and daily cap · 0009 categories beyond Trump.
+  Seller of record: ANSWERED - Jeremy Bowers (owner decision, Oct 2026). The store account itself
+  (identity and payout) remains an owner-only step, still open.
 Until these close, the lane does research only: niches, demand signals, competitor listings, using the knowledge
 routed to commerce (Mozi offers, MetricsMule UGC ads).
 
