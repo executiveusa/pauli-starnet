@@ -1,0 +1,19 @@
+{
+  "_comment": "Free-first price table for board mode. $0 entries are real table entries (unknown models are refused, never silently free). Verified against openrouter.ai/models 2026-10-16T02:36Z - the previous llama-3.3-70b and qwen-2.5-72b :free ids no longer exist.",
+  "nvidia/nemotron-3-super-120b-a12b:free": {
+    "inputPerMToken": 0,
+    "outputPerMToken": 0
+  },
+  "google/gemma-4-31b-it:free": {
+    "inputPerMToken": 0,
+    "outputPerMToken": 0
+  },
+  "google/gemma-4-26b-a4b-it:free": {
+    "inputPerMToken": 0,
+    "outputPerMToken": 0
+  },
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+    "inputPerMToken": 0,
+    "outputPerMToken": 0
+  }
+}
