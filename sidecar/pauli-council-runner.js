@@ -32,6 +32,7 @@
      run({ roomId, proposal, models, grant, roleInstructions? })      -> { ok, result? | error }
      isAstraModel(modelId)                                            -> boolean */
 'use strict';
+const { pickBoardSkills } = require('./pauli-board-skills.js');
 
 const DEFAULT_ASTRA = 'gpt-6-astra';
 const DEFAULT_EXPECTED_OUTPUT = 400;  // tokens per role turn, COUNCIL.md role shapes are short
@@ -265,7 +266,7 @@ function makePauliCouncilRunner(deps) {
       '\nAnswer ONLY as JSON: {"ruling": "APPROVE" | "REJECT" | "MODIFY" | "halt", "modifications": "<if MODIFY, the new proposal text>", "judge_reasoning": "<one paragraph>", "recommendation": "<the scored recommendation the owner acts on>", "scores": {"confidence": 0-10, "dissent": 0-10}}';
   }
 
-  function runBoard({ roomId, proposal, seats, chairModel, grant, seatInstructions }) {
+  function runBoard({ roomId, proposal, seats, chairModel, grant, seatInstructions, boardDir }) {
     const est = estimateBoard({ proposal, seats, chairModel });
     if (!est.ok) return est;
     const modelMap = { chair: chairModel };
@@ -320,6 +321,8 @@ function makePauliCouncilRunner(deps) {
     });
     if (!ruled.ok) return ruled;
 
+    const skillsPicked = pickBoardSkills({ boardDir, proposal, verdict });
+
     const receipt = {
       receiptId: 'exec_' + idgen(),
       debateId, roomId, mode: 'board',
@@ -331,6 +334,7 @@ function makePauliCouncilRunner(deps) {
       outcome: ruled.escalated ? 'escalated' : ruled.locked.ruling,
       at: new Date(clock()).toISOString()
     };
+    if (skillsPicked) receipt.skills = skillsPicked; // post-ruling execution skills; logged before hashing
     receipt.receiptHash = crypto.createHash('sha256').update(JSON.stringify(receipt), 'utf8').digest('hex');
     appendReceipt(receipt); // fail-open: the in-memory result stands
     return ok({ result: { debateId, escalated: !!ruled.escalated, locked: ruled.locked || null, usage, receipt } });
