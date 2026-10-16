@@ -13,7 +13,13 @@ const ROOTS = ['shared', 'sidecar'];
 // creates the real clock/fetch/fs and INJECTS them into the otherwise-pure backend. The rule
 // bans ambient time/randomness in backend LOGIC, not at the injection boundary — so the host is
 // exempt by design (same intent as the not-yet-scanned frontend/app shim noted above).
-const EXCLUDE = new Set(['sidecar/index.js'].map(p => path.normalize(p)));
+const EXCLUDE = new Set(['sidecar/index.js',
+  // sidecar/jev-shadow-openrouter.js is a standalone process entry point (reads env, binds a
+  // port, owns its latency clocks) - a composition root like the host, not DI'd backend logic.
+  'sidecar/jev-shadow-openrouter.js',
+  // sidecar/mcp/pauli-memory-serve.js is the stdio wiring edge for the memory MCP server - its own
+  // header declares it only wires ambient deps (fs, path, clock, crypto); composition root.
+  'sidecar/mcp/pauli-memory-serve.js'].map(p => path.normalize(p)));
 
 let fail = 0;
 const err = m => { fail++; console.log('FAIL: ' + m); };
