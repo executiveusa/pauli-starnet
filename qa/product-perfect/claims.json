@@ -18,8 +18,8 @@
   "expectedClaimCount": 37,
   "releaseSurface": {
     "algorithm": "sha256",
-    "sourceCommit": "da565def7b5c35fc8fc14e599a87deefe98566c2",
-    "pathSetSha256": "d82935b70fec4db2a08c3e188ef2ab4a65cdfc6d0cbcf72f6ea16b0a30314fb2",
+    "sourceCommit": "8f8420b78666287dd3188e0164d25035fa8ae144",
+    "pathSetSha256": "d0a4217b8ec95db6935dce483a39fc6f5e480c3db613326434f37a1842527d4c",
     "files": [
       {
         "path": "INSTALL.md",
@@ -148,8 +148,8 @@
       },
       {
         "path": "frontend/app/cityos.js",
-        "bytes": 31521,
-        "sha256": "75ea9e7fd91a47038d886ec6f53b85ef1887c78ba58b43ca2a08adf45bea4ac5"
+        "bytes": 32945,
+        "sha256": "69ef8fe207034ab8f4ddf5917b9646f47b10a7445af32b80445b27681224c0b7"
       },
       {
         "path": "frontend/app/classicons.js",
@@ -320,6 +320,11 @@
         "path": "frontend/app/interview.js",
         "bytes": 10029,
         "sha256": "2eda416911c1ec352b4729c3fb1a6f26d1b0986cf238a8846955d9d15d263d18"
+      },
+      {
+        "path": "frontend/app/jev-control.js",
+        "bytes": 4769,
+        "sha256": "4f9814ae113d645fa24beaf9336780a3490585eeb908c4a111d2a4ec963e3a31"
       },
       {
         "path": "frontend/app/journey.js",
@@ -998,8 +1003,8 @@
       },
       {
         "path": "frontend/city/city.js",
-        "bytes": 9174,
-        "sha256": "dcde890abf621ca91fe7ef5ee938f9e2ceb326a6c77d5ee2ba96d94656f37bf3"
+        "bytes": 10997,
+        "sha256": "369d15005c44825597929bd7443269964b0438ffa1885419cab3fa5ab82cae4e"
       },
       {
         "path": "frontend/city/deploy/city-core.js",
@@ -1018,13 +1023,13 @@
       },
       {
         "path": "frontend/city/deploy/city.js",
-        "bytes": 9174,
-        "sha256": "dcde890abf621ca91fe7ef5ee938f9e2ceb326a6c77d5ee2ba96d94656f37bf3"
+        "bytes": 10997,
+        "sha256": "369d15005c44825597929bd7443269964b0438ffa1885419cab3fa5ab82cae4e"
       },
       {
         "path": "frontend/city/deploy/index.html",
-        "bytes": 3292,
-        "sha256": "e64718fdbd5249484f991427a457c851c940be94850d81d01dc528c5fb7bbb5d"
+        "bytes": 3461,
+        "sha256": "15af459949a812771ac10cbaa47cf09b5042d58e80b7377fb21b2d66df2aed91"
       },
       {
         "path": "frontend/city/deploy/owner.html",
@@ -1038,8 +1043,8 @@
       },
       {
         "path": "frontend/city/deploy/world/cityos.js",
-        "bytes": 32281,
-        "sha256": "070973af759d82bb97f75a0d3ed33deee9f7d294b6184fc1361fb8fae7514665"
+        "bytes": 33705,
+        "sha256": "8b1c7d83f3e13938fafbdc1c15e5822449e97be550010891849aea1ad8f005f1"
       },
       {
         "path": "frontend/city/deploy/world/conveyor.js",
@@ -1113,8 +1118,8 @@
       },
       {
         "path": "frontend/city/index.html",
-        "bytes": 3292,
-        "sha256": "e64718fdbd5249484f991427a457c851c940be94850d81d01dc528c5fb7bbb5d"
+        "bytes": 3461,
+        "sha256": "15af459949a812771ac10cbaa47cf09b5042d58e80b7377fb21b2d66df2aed91"
       },
       {
         "path": "frontend/city/world/assets.js",
@@ -1123,8 +1128,8 @@
       },
       {
         "path": "frontend/city/world/cityos.js",
-        "bytes": 32281,
-        "sha256": "070973af759d82bb97f75a0d3ed33deee9f7d294b6184fc1361fb8fae7514665"
+        "bytes": 33705,
+        "sha256": "8b1c7d83f3e13938fafbdc1c15e5822449e97be550010891849aea1ad8f005f1"
       },
       {
         "path": "frontend/city/world/conveyor.js",
@@ -1268,8 +1273,8 @@
       },
       {
         "path": "frontend/index.html",
-        "bytes": 76998,
-        "sha256": "52d29d48576815c2ce9e12586cef7b077f6faa3cf3b98862e6740af0195436b5"
+        "bytes": 77133,
+        "sha256": "d716b0d01bd9e6f68ba15cf5a66b98deda6bb0cfdb86b9e635ac94cfacc68851"
       },
       {
         "path": "frontend/js/arcade.js",
@@ -1834,7 +1839,7 @@
         {
           "kind": "contains",
           "path": "frontend/app/chat.js",
-          "needle": "openItBtn.textContent = '▶ Open it — try it in a tab'"
+          "needle": "openItBtn.textContent = '\u25b6 Open it \u2014 try it in a tab'"
         },
         {
           "kind": "contains",
@@ -1938,7 +1943,7 @@
         {
           "kind": "contains",
           "path": "frontend/app/autonomy.js",
-          "needle": "run free toward my goals while i’m away"
+          "needle": "run free toward my goals while i\u2019m away"
         },
         {
           "kind": "contains",
@@ -2307,7 +2312,7 @@
       "verdict": "SHIPPED",
       "disposition": "PROVEN",
       "ownerWave": "W2",
-      "qualification": "The app server and stores are local; third-party provider/channel/update traffic remains qualified. Managed credits (optional, not yet launched) add a billing account and relay model calls through StarNet's gateway — PRIVACY.md states that carve-out explicitly.",
+      "qualification": "The app server and stores are local; third-party provider/channel/update traffic remains qualified. Managed credits (optional, not yet launched) add a billing account and relay model calls through StarNet's gateway \u2014 PRIVACY.md states that carve-out explicitly.",
       "liveProofRequired": true,
       "liveProof": "PENDING",
       "refsChecked": [
@@ -2582,7 +2587,7 @@
       "verdict": "SHIPPED",
       "disposition": "PROVEN",
       "ownerWave": "W6",
-      "qualification": "Budget enforcement exists; free/no-markup remains an owner business-policy claim, and is now scoped to the BYOK path — TERMS.md §2 states plainly that StarNet does resell model access on the optional credits path.",
+      "qualification": "Budget enforcement exists; free/no-markup remains an owner business-policy claim, and is now scoped to the BYOK path \u2014 TERMS.md \u00a72 states plainly that StarNet does resell model access on the optional credits path.",
       "liveProofRequired": true,
       "liveProof": "PENDING",
       "refsChecked": [
@@ -2813,7 +2818,7 @@
       "verdict": "MISSING",
       "disposition": "FIX",
       "ownerWave": "W2",
-      "qualification": "The sidecar warms OpenRouter models at server listen. The frontend no longer loads Google Fonts — VT323 ships locally (the STARNET font law), so the remaining boot egress is the catalog warm alone.",
+      "qualification": "The sidecar warms OpenRouter models at server listen. The frontend no longer loads Google Fonts \u2014 VT323 ships locally (the STARNET font law), so the remaining boot egress is the catalog warm alone.",
       "authorityChecks": [
         {
           "kind": "contains",
