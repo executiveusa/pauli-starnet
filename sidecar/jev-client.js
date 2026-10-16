@@ -1,4 +1,5 @@
 'use strict';
+const { note } = require('./failopen.js');
 
 // Pure StarNet-side Jev adapter. Ambient fetch/env stay in sidecar/index.js.
 // OFF means OFF: disabled calls return locally and never touch the network.
@@ -35,7 +36,7 @@ function makeJevClient(opts) {
 
     const text = await response.text();
     let body = text;
-    try { body = text ? JSON.parse(text) : null; } catch (_) {}
+    try { body = text ? JSON.parse(text) : null; } catch (e) { note('jev-client.parseBody', e); }
 
     if (!response.ok) {
       return {
