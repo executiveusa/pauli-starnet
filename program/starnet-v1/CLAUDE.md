@@ -13,6 +13,7 @@ You are in the build program for StarNet v1. Captain: Bambú. It covers 8 repos;
 | The stage order and the status rule | `CONTEXT.md` |
 | Current status | run `node program/starnet-v1/_system/status.mjs` (never hand-edit status) |
 | The work itself | `01_truth/` … `06_proof-run/` (each has a `CONTEXT.md` contract) |
+| Handoffs between agents (dated, newest wins) | `_shared/handoffs/` |
 
 ## Rules for any agent working here
 

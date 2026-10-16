@@ -18,6 +18,8 @@
 //   GATEWAY_BEARER_TOKEN      (required) — inbound auth token for the Command Center
 //   STARNET_PORT              (optional, default: 8787) — sidecar port
 //   STARNET_SIDECAR_TOKEN     (optional) — sidecar bearer token if sidecar requires auth
+//   KB_SUPABASE_URL           (optional) — self-hosted Supabase URL for the knowledge base
+//   KB_SUPABASE_SERVICE_KEY   (optional) — its service-role key (never sent to a browser)
 //   GATEWAY_PORT              (optional, default: 4000) — gateway listen port
 //   GATEWAY_HOST              (optional, default: 127.0.0.1) — bind address (set to 0.0.0.0 only when behind a private-network proxy)
 //   RATE_LIMIT_WINDOW_MS      (optional, default: 60000)
@@ -33,6 +35,10 @@
 //   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
 //   POST /v1/commerce/evidence             → record start/settle evidence from a real commerce worker
 //   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
+//   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
+//   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
+//   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
 //
 // Start:
 //   node server.js
@@ -42,7 +48,10 @@
 
 const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
+const { makeKnowledgeDesk } = require('./knowledge');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
@@ -456,6 +465,9 @@ const missionDesk = makeMissionDesk({
     .catch(e => { if (e && e.body && e.body.status) return e.body; throw e; })
 });
 const recoveredMissions = missionDesk.recoverOnBoot();
+const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
+// Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
+const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
 
 // ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
@@ -578,6 +590,33 @@ async function handleRequest(req, res) {
       const out = missionDesk.accept(envelope);
       if (out.done) out.done.catch(e => log('error', 'mission settle failed', { error: e.message }));
       return send(out.code, out.body);
+    }
+
+    // GET /v1/districts — Heisenberg's last tick: each district RUNNING / BLOCKED (with the exact question) / IDLE.
+    // Written by scripts/district/foreman.js; a board older than 15 minutes says so instead of looking current.
+    if (method === 'GET' && url === '/v1/districts') {
+      let board = null;
+      try { board = JSON.parse(fs.readFileSync(DISTRICT_STATE_FILE, 'utf8')).board || null; } catch (_) { /* no tick yet */ }
+      if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
+      const ageMs = Date.now() - Date.parse(board.at);
+      return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+    }
+
+    // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)
+    if (method === 'GET' && url.startsWith('/v1/knowledge/')) {
+      const u = new URL(url, 'http://gateway.local');
+      const district = u.searchParams.get('district') || null;
+      try {
+        let out;
+        if (u.pathname === '/v1/knowledge/search') out = await knowledgeDesk.search({ q: u.searchParams.get('q') || '', district, limit: parseInt(u.searchParams.get('limit') || '8', 10) });
+        else if (u.pathname === '/v1/knowledge/insights') out = await knowledgeDesk.insights({ district, status: u.searchParams.get('status') });
+        else if (u.pathname === '/v1/knowledge/sources') out = knowledgeDesk.sources(district);
+        else return send(404, { error: 'NOT_FOUND' });
+        return send(out.code, out.body);
+      } catch (e) {
+        log('error', 'knowledge query failed', { error: e.message });
+        return send(502, { error: 'KNOWLEDGE_BACKEND_FAILED' });
+      }
     }
 
     // GET /v1/missions/:id — the mission's current ResultEnvelope

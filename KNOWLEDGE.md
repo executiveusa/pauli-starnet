@@ -9,7 +9,9 @@ Method: ICM (Interpretable Context Methodology, Jake Van Clief - github.com/RinD
 | This repo | Knowledge graphs, playbooks, contracts, district packages (e.g. districts/sales/mozi/) |
 | R2 (video-exports.thepaulieffect.com) | Large raw artifacts: transcript archives, catalogs, sample exports (knowledge/ prefix) |
 
-Machine-readable index: `knowledge-index.json` (same directory as this file). It lists every source, its entry points, its tags, and its node/record listings. Query pattern: grep the index by tag or stage -> open the pointer -> read the cited section or node, not the whole file.
+Database: every source below (plus server-held and missing ones) is registered in `knowledge/sources.json`, loaded into the self-hosted Supabase by `scripts/knowledge/ingest.js`, and queried through the gateway (`/v1/knowledge/search?q=&district=`). Contract: `knowledge/CONTEXT.md`.
+
+Machine-readable node index: `knowledge-index.json` (same directory as this file). It lists every source, its entry points, its tags, and its node/record listings. Query pattern: grep the index by tag or stage -> open the pointer -> read the cited section or node, not the whole file.
 
 ## Registered sources
 
@@ -20,6 +22,12 @@ Machine-readable index: `knowledge-index.json` (same directory as this file). It
 | closer-sales-call-stages | sales | external repo (pauli-command-center @ 93da3853f6) | CLOSER call-stage doc + verbatim evidence (video ZMW8AfQeGqQ) | pcc:docs/CLOSER-SALES-CALL-STAGES.md |
 | middleton-method | middleton | repo | JP Middleton local-business method: service sequence, scripts, metrics. His numbers are unverified claims; the 4+ review gate and raffle scripts are quoted source, not approved practice | districts/middleton/README.md |
 | email-copywriter | creative | repo | Email copy knowledge base (@dragualin, 149 transcripts). Creator claims unverified; install candidate, drafting and review only | districts/creative/email-copywriter/CONTEXT.md |
+| jake-trinder-20 | creative | repo | Jake Trinder educational YouTube channel system (20 transcripts) | knowledge/sources.json |
+| monica-main | financial, impact | repo | Monica Main business credit and funding (40 transcripts) | impact/source-intel/transcript-research/ |
+| cause-specialist | impact | repo | Joanne Toller nonprofit fundraising (40 transcripts) | impact/source-intel/transcript-research/ |
+| jasper-smart-sites | production, revenue | server (NEW box) | Jasper smart-site pitch/offer logic (50 transcripts) | knowledge/sources.json |
+| manny-hormozi-315 | revenue | server (old box) | Hormozi canonical long-form, 315 transcripts | knowledge/sources.json |
+| stefan-3d | creative | external repo (impact-city-2026) | Stefan 3D Blender workflow synthesis | knowledge/sources.json |
 
 ## Rules
 
