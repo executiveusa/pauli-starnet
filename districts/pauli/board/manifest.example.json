@@ -1,0 +1,7 @@
+{
+  "chairModel": "qwen/qwen-2.5-72b-instruct:free",
+  "seats": [
+    { "id": "operator", "model": "meta-llama/llama-3.3-70b-instruct:free", "weight": 1, "brain": "seats/operator.example.md" },
+    { "id": "skeptic", "model": "meta-llama/llama-3.3-70b-instruct:free", "weight": 1, "brain": "seats/skeptic.example.md" }
+  ]
+}

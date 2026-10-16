@@ -1,0 +1,5 @@
+{
+  "_comment": "Free-first price table for board mode. $0 entries are real table entries (unknown models are refused, never silently free). Verify current :free ids at openrouter.ai/models before adding more.",
+  "meta-llama/llama-3.3-70b-instruct:free": { "inputPerMToken": 0, "outputPerMToken": 0 },
+  "qwen/qwen-2.5-72b-instruct:free": { "inputPerMToken": 0, "outputPerMToken": 0 }
+}
