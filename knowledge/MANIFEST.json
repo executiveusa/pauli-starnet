@@ -91,6 +91,13 @@
       "chunks": 0,
       "chars": 0,
       "insights": 0
+    },
+    "seth-godin-books": {
+      "status": "on_server",
+      "documents": 0,
+      "chunks": 0,
+      "chars": 0,
+      "insights": 0
     }
   }
 }
