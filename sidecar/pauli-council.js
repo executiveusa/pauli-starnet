@@ -230,7 +230,8 @@ function makePauliCouncil(deps) {
     const { room, error } = requireOpen(roomId); if (error) return error;
     room.closed = true;
     const debates = Array.from(room.debates.values()).map(d => ({
-      debate_id: d.debate_id, ruling: d.ruling, escalated: d.escalated, turns: d.turns.length
+      debate_id: d.debate_id, mode: d.mode === 'board' ? 'board' : 'debate', ruling: d.ruling, escalated: d.escalated,
+      turns: d.mode === 'board' ? d.statements.length : d.turns.length
     }));
     const receiptCore = {
       roomId: room.roomId,
@@ -245,7 +246,133 @@ function makePauliCouncil(deps) {
     return ok({ receipt });
   }
 
-  return { openRoom, putSecret, getSecret, enqueue, drain, requiresDebate, startDebate, view, speak, rule, close };
+
+  /* BOARD MODE (opt-in parallel protocol; the 3-turn debate above is unchanged).
+     N persona seats speak in declared seat order, each casting one weighted vote; a seat sees the
+     proposal plus only the statements of the seats BEFORE it (the same information-asymmetry rule,
+     generalized). The chair sees every statement plus the live tally and locks the section-3 ruling
+     shape extended with the board record (statements, tally, scored recommendation). 'halt'
+     escalates to the human, same as the debate. */
+  const BOARD_SEATS_MIN = 2, BOARD_SEATS_MAX = 8;
+
+  function isBoard(debate) { return debate && debate.mode === 'board'; }
+
+  function boardTally(debate) {
+    const t = { APPROVE: 0, REJECT: 0, MODIFY: 0 };
+    for (const s of debate.statements) t[s.vote] += s.weight;
+    return t;
+  }
+
+  function startBoardDebate(roomId, { proposal, seats, chairModel, expectedCost }) {
+    const { room, error } = requireOpen(roomId); if (error) return error;
+    if (typeof proposal !== 'string' || !proposal.trim()) return bad('no-proposal', 'proposal text required');
+    if (!Array.isArray(seats) || seats.length < BOARD_SEATS_MIN || seats.length > BOARD_SEATS_MAX) {
+      return bad('bad-seats', 'a board needs ' + BOARD_SEATS_MIN + '..' + BOARD_SEATS_MAX + ' seats');
+    }
+    const ids = seats.map(s => s && s.id);
+    if (ids.some(id => typeof id !== 'string' || !id.trim())) return bad('bad-seat', 'every seat needs an id');
+    if (new Set(ids).size !== ids.length) return bad('duplicate-seat', 'seat ids must be unique');
+    for (const s of seats) {
+      if (typeof s.model !== 'string' || !s.model.trim()) return bad('no-model', 'seat ' + s.id + ' needs a model');
+      if (s.weight !== undefined && (typeof s.weight !== 'number' || !(s.weight > 0))) return bad('bad-weight', 'seat ' + s.id + ' weight must be a positive number');
+    }
+    if (typeof chairModel !== 'string' || !chairModel.trim()) return bad('no-model', 'chairModel required');
+    if (seats.some(s => s.model === chairModel)) return bad('chair-conflict', 'the chair must NOT share a model with any seat (judge independence, COUNCIL.md section 1)');
+    const debateId = 'deb_' + idgen();
+    room.debates.set(debateId, {
+      debate_id: debateId,
+      mode: 'board',
+      proposal,
+      seats: seats.map(s => ({ id: s.id, model: s.model, weight: typeof s.weight === 'number' ? s.weight : 1 })),
+      chairModel,
+      expectedCost: typeof expectedCost === 'number' ? expectedCost : null,
+      statements: [],      // [{ seq, seat, model, text, vote, weight, reason, at }] - seq is the seat order index
+      ruling: null,
+      escalated: false,
+      locked: null,
+      startedAt: clock()
+    });
+    return ok({ debateId });
+  }
+
+  function boardView(roomId, debateId, who) {
+    const { room, error } = requireOpen(roomId); if (error) return error;
+    const debate = getDebate(room, debateId);
+    if (!debate) return bad('no-debate', 'unknown debate');
+    if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
+    const visible = { proposal: debate.proposal };
+    if (who === 'chair') {
+      visible.statements = debate.statements.map(s => ({ seat: s.seat, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason }));
+      visible.tally = boardTally(debate);
+      return ok({ visible });
+    }
+    const idx = debate.seats.findIndex(s => s.id === who);
+    if (idx === -1) return bad('bad-seat', 'who must be a seat id or chair');
+    visible.statements = debate.statements
+      .filter(s => s.seq < idx) // ordered reveal: only the seats before this one
+      .map(s => ({ seat: s.seat, text: s.text, vote: s.vote, reason: s.reason }));
+    return ok({ visible });
+  }
+
+  function boardSpeak(roomId, debateId, seatId, { text, vote, reason }) {
+    const { room, error } = requireOpen(roomId); if (error) return error;
+    const debate = getDebate(room, debateId);
+    if (!debate) return bad('no-debate', 'unknown debate');
+    if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
+    if (debate.locked || debate.escalated) return bad('debate-over', 'debate is already settled');
+    const expected = debate.seats[debate.statements.length];
+    if (!expected) return bad('max-turns', 'every seat has spoken; the chair rules now');
+    if (seatId !== expected.id) return bad('out-of-order', 'turn ' + (debate.statements.length + 1) + ' belongs to seat ' + expected.id);
+    if (typeof text !== 'string' || !text.trim()) return bad('empty-turn', 'statement text required');
+    if (!RULINGS.includes(vote)) return bad('bad-vote', 'vote must be APPROVE, REJECT, or MODIFY');
+    debate.statements.push({
+      seq: debate.statements.length, seat: seatId, model: expected.model,
+      text, vote, weight: expected.weight,
+      reason: typeof reason === 'string' ? reason : '',
+      at: clock()
+    });
+    return ok({ turn: debate.statements.length });
+  }
+
+  function boardRule(roomId, debateId, { ruling, modifications, reasoning, recommendation, scores }) {
+    const { room, error } = requireOpen(roomId); if (error) return error;
+    const debate = getDebate(room, debateId);
+    if (!debate) return bad('no-debate', 'unknown debate');
+    if (!isBoard(debate)) return bad('not-board', 'debate is not a board session');
+    if (debate.locked || debate.escalated) return bad('debate-over', 'debate is already settled');
+    if (debate.statements.length !== debate.seats.length) return bad('out-of-order', 'the chair rules after every seat has spoken');
+    if (ruling === 'halt') { // same as the debate: escalate to the human, no auto-proceed
+      debate.escalated = true;
+      return ok({ escalated: true });
+    }
+    if (!RULINGS.includes(ruling)) return bad('bad-ruling', 'ruling must be APPROVE, REJECT, MODIFY, or halt');
+    if (ruling === 'MODIFY' && (typeof modifications !== 'string' || !modifications.trim())) {
+      return bad('no-modifications', 'a MODIFY ruling must carry the new proposal text');
+    }
+    if (typeof reasoning !== 'string' || !reasoning.trim()) return bad('no-reasoning', 'judge_reasoning is required');
+    if (typeof recommendation !== 'string' || !recommendation.trim()) return bad('no-recommendation', 'a board ruling carries the scored recommendation');
+    const locked = { // COUNCIL.md section-3 contract, board extension
+      debate_id: debate.debate_id,
+      mode: 'board',
+      proposal: debate.proposal,
+      statements: debate.statements.map(s => ({ seat: s.seat, model: s.model, text: s.text, vote: s.vote, weight: s.weight, reason: s.reason })),
+      tally: boardTally(debate),
+      ruling,
+      modifications: ruling === 'MODIFY' ? modifications : null,
+      chair_model: debate.chairModel,
+      judge_reasoning: reasoning,
+      recommendation,
+      scores: scores && typeof scores === 'object' ? scores : null,
+      expires_at: new Date(clock() + reDebateAfterMs).toISOString()
+    };
+    debate.ruling = ruling;
+    debate.locked = locked;
+    const day = new Date(clock()).toISOString().slice(0, 10);
+    append(pathMod.join(dir, 'decisions', day, debate.debate_id + '.json'), locked); // fail-open: the in-memory lock stands
+    return ok({ locked });
+  }
+
+  return { openRoom, putSecret, getSecret, enqueue, drain, requiresDebate, startDebate, view, speak, rule, close, startBoardDebate, boardView, boardSpeak, boardRule };
 }
 
 module.exports = { makePauliCouncil };

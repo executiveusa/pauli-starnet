@@ -192,7 +192,137 @@ function makePauliCouncilRunner(deps) {
     return ok({ result: { debateId, escalated: !!ruled.escalated, locked: ruled.locked || null, usage, receipt } });
   }
 
-  return { estimate, run, isAstraModel };
+
+  /* BOARD MODE: same ASTRA gate, same receipts, N persona seats + a chair. Free-first: seats price
+     from the same table (a free model is a $0 table entry - an unknown model is still refused). */
+
+  function estimateBoard({ proposal, seats, chairModel }) {
+    if (typeof proposal !== 'string' || !proposal.trim()) return bad('no-proposal', 'proposal text required');
+    if (!Array.isArray(seats) || seats.length < 2) return bad('bad-seats', 'a board needs at least 2 seats');
+    if (typeof chairModel !== 'string' || !chairModel.trim()) return bad('no-model', 'chairModel required');
+    if (!priceOf(chairModel)) return bad('unpriced-model', 'no price table entry for ' + chairModel + ' (unknown models are never silently free)');
+    if (seats.some(s => s.model === chairModel)) return bad('chair-conflict', 'chair must differ from every seat model (COUNCIL.md section 1 independence)');
+    for (const s of seats) {
+      if (!s || typeof s.id !== 'string' || !s.id.trim()) return bad('bad-seat', 'every seat needs an id');
+      if (typeof s.model !== 'string' || !s.model.trim()) return bad('no-model', 'seat ' + s.id + ' needs a model');
+      if (!priceOf(s.model)) return bad('unpriced-model', 'no price table entry for ' + s.model + ' (unknown models are never silently free)');
+    }
+    const proposalTokens = tokenize(proposal);
+    const turns = [];
+    seats.forEach((s, i) => {
+      const inputTokens = proposalTokens + i * expectedOutputTokens;
+      const t = { role: 'seat', seat: s.id, model: s.model, inputTokens, expectedOutputTokens, math: 'proposal + ' + i + ' prior statements in, ' + expectedOutputTokens + ' out' };
+      t.costUSD = turnCost(t.model, t.inputTokens, t.expectedOutputTokens);
+      t.withHeadroomUSD = t.costUSD * headroomFactor;
+      turns.push(t);
+    });
+    const chairTokens = proposalTokens + seats.length * expectedOutputTokens;
+    const chair = { role: 'chair', model: chairModel, inputTokens: chairTokens, expectedOutputTokens, math: 'proposal + ' + seats.length + ' statements + tally in, ' + expectedOutputTokens + ' out' };
+    chair.costUSD = turnCost(chairModel, chairTokens, expectedOutputTokens);
+    chair.withHeadroomUSD = chair.costUSD * headroomFactor;
+    turns.push(chair);
+    const totalCostUSD = turns.reduce((sum, t) => sum + t.withHeadroomUSD, 0);
+    return ok({
+      estimate: {
+        mode: 'board', proposalTokens, seats: seats.length,
+        expectedOutputTokensPerTurn: expectedOutputTokens, headroomFactor,
+        turns, totalCostUSD,
+        astra: isAstraModel(chairModel) || seats.some(s => isAstraModel(s.model))
+      }
+    });
+  }
+
+  function seatPromptFor(seat, visible, instructions) {
+    let body = 'PROPOSAL:\n' + visible.proposal + '\n';
+    for (const s of visible.statements || []) {
+      body += '\nSEAT ' + s.seat + ' (voted ' + s.vote + '):\n' + s.text + '\n';
+    }
+    const brain = instructions && instructions[seat.id] ? '\nYOUR BRAIN (persona source material - answer from it, in its voice):\n' + instructions[seat.id] + '\n' : '';
+    return 'You hold the ' + seat.id.toUpperCase() + ' seat on a board of advisors. Give your position in one short paragraph, then cast your vote.' + brain + '\n' + body +
+      '\nAnswer ONLY as JSON: {"position": "<paragraph>", "vote": "APPROVE" | "REJECT" | "MODIFY", "reason": "<one line>"}';
+  }
+
+  function chairPromptFor(visible, instructions) {
+    let body = 'PROPOSAL:\n' + visible.proposal + '\n';
+    for (const s of visible.statements || []) {
+      body += '\nSEAT ' + s.seat + ' (weight ' + s.weight + ', voted ' + s.vote + '):\n' + s.text + '\nreason: ' + s.reason + '\n';
+    }
+    const t = visible.tally || { APPROVE: 0, REJECT: 0, MODIFY: 0 };
+    body += '\nWEIGHTED TALLY: APPROVE=' + t.APPROVE + ' REJECT=' + t.REJECT + ' MODIFY=' + t.MODIFY + '\n';
+    const extra = instructions && instructions.chair ? '\nMISSION INSTRUCTIONS:\n' + instructions.chair + '\n' : '';
+    return 'You are the CHAIR of this board of advisors. Weigh the seats and their votes (weights are not votes to count blindly - judge the arguments), then lock the ruling.' + extra + '\n' + body +
+      '\nAnswer ONLY as JSON: {"ruling": "APPROVE" | "REJECT" | "MODIFY" | "halt", "modifications": "<if MODIFY, the new proposal text>", "judge_reasoning": "<one paragraph>", "recommendation": "<the scored recommendation the owner acts on>", "scores": {"confidence": 0-10, "dissent": 0-10}}';
+  }
+
+  function runBoard({ roomId, proposal, seats, chairModel, grant, seatInstructions }) {
+    const est = estimateBoard({ proposal, seats, chairModel });
+    if (!est.ok) return est;
+    const modelMap = { chair: chairModel };
+    seats.forEach(s => { modelMap['seat:' + s.id] = s.model; });
+    const grantError = validateGrant(grant, modelMap, est.estimate);
+    if (grantError) return grantError;
+
+    const started = council.startBoardDebate(roomId, { proposal, seats, chairModel, expectedCost: est.estimate.totalCostUSD });
+    if (!started.ok) return started;
+    const debateId = started.debateId;
+    const usage = { turns: [], totalCostUSD: 0 };
+
+    for (const seat of seats) {
+      const vres = council.boardView(roomId, debateId, seat.id);
+      if (!vres.ok) return vres;
+      const resp = callModel({ model: seat.model, role: 'seat', seat: seat.id, prompt: seatPromptFor(seat, vres.visible, seatInstructions), missionId: grant.missionId });
+      if (!resp || typeof resp.text !== 'string' || !resp.text.trim()) {
+        return bad('worker-failed', 'seat ' + seat.id + ' worker returned no text - debate ' + debateId + ' left open for retry');
+      }
+      let stmt;
+      try { stmt = JSON.parse(resp.text); } catch (_) {
+        return bad('seat-unparseable', 'seat ' + seat.id + ' output is not the {position, vote, reason} JSON - debate ' + debateId + ' left open for review');
+      }
+      const spoke = council.boardSpeak(roomId, debateId, seat.id, { text: stmt.position || stmt.text, vote: stmt.vote, reason: stmt.reason });
+      if (!spoke.ok) return spoke;
+      if (resp.usage && typeof resp.usage.costUSD === 'number') {
+        usage.turns.push({ role: 'seat', seat: seat.id, model: seat.model, usage: resp.usage });
+        usage.totalCostUSD += resp.usage.costUSD;
+      }
+    }
+
+    const cvres = council.boardView(roomId, debateId, 'chair');
+    if (!cvres.ok) return cvres;
+    const judged = callModel({ model: chairModel, role: 'chair', prompt: chairPromptFor(cvres.visible, seatInstructions), missionId: grant.missionId });
+    if (!judged || typeof judged.text !== 'string' || !judged.text.trim()) {
+      return bad('worker-failed', 'chair worker returned no text - debate ' + debateId + ' left open for retry');
+    }
+    if (judged.usage && typeof judged.usage.costUSD === 'number') {
+      usage.turns.push({ role: 'chair', model: chairModel, usage: judged.usage });
+      usage.totalCostUSD += judged.usage.costUSD;
+    }
+    let verdict;
+    try { verdict = JSON.parse(judged.text); } catch (_) {
+      return bad('chair-unparseable', 'chair output is not the contract JSON - debate ' + debateId + ' left open for review');
+    }
+    const ruled = council.boardRule(roomId, debateId, {
+      ruling: verdict.ruling, modifications: verdict.modifications,
+      reasoning: verdict.judge_reasoning || verdict.reasoning,
+      recommendation: verdict.recommendation, scores: verdict.scores
+    });
+    if (!ruled.ok) return ruled;
+
+    const receipt = {
+      receiptId: 'exec_' + idgen(),
+      debateId, roomId, mode: 'board',
+      missionId: grant.missionId,
+      grant: { provider: grant.provider, model: grant.model, budgetUSD: grant.budgetUSD, expiresAt: grant.expiresAt },
+      estimate: est.estimate,
+      usage,
+      outcome: ruled.escalated ? 'escalated' : ruled.locked.ruling,
+      at: new Date(clock()).toISOString()
+    };
+    receipt.receiptHash = crypto.createHash('sha256').update(JSON.stringify(receipt), 'utf8').digest('hex');
+    appendReceipt(receipt); // fail-open: the in-memory result stands
+    return ok({ result: { debateId, escalated: !!ruled.escalated, locked: ruled.locked || null, usage, receipt } });
+  }
+
+  return { estimate, run, estimateBoard, runBoard, isAstraModel };
 }
 
 module.exports = { makePauliCouncilRunner };
