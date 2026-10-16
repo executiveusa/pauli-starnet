@@ -62,42 +62,16 @@ function categorize(t) {
    builds land as real pushes/PRs on the owner's PUBLIC repos — verifiable by
    anyone, and exactly the work the gateway task queue cannot see. Only public-
    event fields are read (type, public repo name, created_at); commit messages,
-   authors, and anything private never enter. A repo binds to a district by an
-   explicit table; the bound agent is a roster citizen of that district, else the
-   orchestrator (the fleet foreman — the control chain routes all work through
-   him). An event inside PULSE_RUNNING_MIN reads as RUNNING (that district is
-   mid-build right now); older reads as completed. receipt is always false:
-   these are observed repo events, not gateway receipts. The row carries the
-   public repo name in `detail` so the evidence is inspectable. GitHub failure
+   authors, and anything private never enter. A row names no agent: a repo event proves the repo changed, not which agent (if any) did
+   it, so the row carries agent:null, source:'github', state:'observed' and is
+   labelled repo activity. An agent is named only for a gateway task that links
+   it. receipt is always false. The row carries the public repo name in `detail`
+   so the evidence is inspectable. GitHub failure
    never fails the status read — stale cache beats blank, blank beats a 502. */
 const GH_USER = () => process.env.CITY_GITHUB_USER || 'executiveusa';
-const PULSE_RUNNING_MIN = 20;
 const PULSE_WINDOW_MIN = 360;
 const PULSE_TTL_MS = 90000;   // ~40 req/hr per warm instance: inside GitHub's 60/hr unauth ceiling; if a GITHUB_TOKEN env is later added the hook is already in the fetch
 let pulseCache = { at: 0, items: [] };
-
-const REPO_DISTRICT = [
-  [/kupuri|synthia[-_]?avatar|akash/i, 'creative'],
-  [/asce?3nd|video|montage|render/i, 'video'],
-  [/second[-_]?brain|memory|archive/i, 'intelligence'],
-  [/fish[-_]?on/i, 'production'],
-  [/task[-_]?master|mvp|template|telegram|transportation|directory|strapi/i, 'production'],
-  [/gateway|connector|clonely|fanz|shop|store|commerce/i, 'commerce'],
-  [/starnet|skynet|pauli|yappyverse|bamboo|heisenberg/i, 'command']
-];
-const districtForRepo = repo => { for (const [re, d] of REPO_DISTRICT) if (re.test(repo)) return d; return 'command'; };
-
-/* The roster's own districts decide who carries the work; a district with no
-   seated citizen falls to the orchestrator (hero), who coordinates every lane. */
-function pickPulseAgent(citizens, district, seed) {
-  const list = Array.isArray(citizens) ? citizens.filter(c => c && c.name) : [];
-  let pool = list.filter(c => String(c.district || '').toLowerCase() === district);
-  if (!pool.length) pool = list.filter(c => c.hero === true || String(c.role || '').toLowerCase() === 'orchestrator');
-  if (!pool.length) return null;
-  let h = 0;
-  for (const ch of String(seed)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return pool[h % pool.length].name;
-}
 
 const REPO_NAME = /^[A-Za-z0-9_.-]{1,60}$/;
 async function pulseEvents(now) {
@@ -137,9 +111,9 @@ async function pulseEvents(now) {
     }
     const items = Array.from(byKey.values()).map(x => ({
       event: eventId('gh:' + x.id),
-      state: x.age <= PULSE_RUNNING_MIN ? 'running' : 'completed',
-      district: districtForRepo(x.repo),
-      category: 'ops',
+      state: 'observed',
+      source: 'github',
+      category: 'repo',
       detail: text(x.kind + ' → ' + x.repo, 80),
       startedAgoMin: x.age,
       settledAgoMin: x.age,
@@ -150,9 +124,8 @@ async function pulseEvents(now) {
   return pulseCache.items;
 }
 
-/* Merge gateway-proven activity with repo-proven activity, newest first, capped.
-   Agent binding happens HERE, against the sanitized public roster. */
-function mergeActivity(upstream, pulse, citizens) {
+/* Merge gateway-proven activity with observed repo activity, newest first, capped. */
+function mergeActivity(upstream, pulse) {
   const merged = (Array.isArray(upstream) ? upstream.slice() : []);
   // A repo-event burst (a big sync night) must never flush the gateway's own
   // RECEIPTED history out of the feed: the pulse takes at most 12 of the 20
@@ -161,7 +134,8 @@ function mergeActivity(upstream, pulse, citizens) {
     merged.push({
       event: p.event,
       state: p.state,
-      agent: pickPulseAgent(citizens, p.district, p.event),
+      source: p.source,
+      agent: null,
       category: p.category,
       detail: p.detail,
       startedAgoMin: p.startedAgoMin,
@@ -184,7 +158,8 @@ function statusDTO(src, now) {
       name: text(c.name, 40),
       role: text(c.role, 40),
       district: text(c.district, 40),
-      status: c.status === 'online' ? 'online' : 'offline',
+      // no heartbeat evidence is 'unknown', never 'offline' and never 'online'
+      status: c.status === 'online' || c.status === 'offline' ? c.status : 'unknown',
       hero: c.id === 'agent' || c.role === 'orchestrator' || undefined
     } : null)
     .filter(c => c && c.name)
@@ -206,6 +181,7 @@ function statusDTO(src, now) {
     .map(t => { if (t.detail == null) delete t.detail; return t; });
   return {
     live: health,
+    revision: typeof s.revision === 'string' && /^[0-9a-f]{7,40}$/.test(s.revision) ? s.revision : 'unknown',
     city: { name: text(s.city && s.city.name, 60) || "Pauli's Place" },
     generatedAgoMin: agoMin(s.generatedAt, now),
     citizens,
@@ -298,7 +274,7 @@ export default async (req) => {
     if (route.kind === 'status') {
       const now = Date.now();
       const dto = statusDTO(await get('/v1/city/status'), now);
-      dto.activity = mergeActivity(dto.activity, await pulseEvents(now), dto.citizens);
+      dto.activity = mergeActivity(dto.activity, await pulseEvents(now));
       return new Response(JSON.stringify(dto), { status: 200, headers: JSONH });
     }
     // world: geometry + the id->public-name map from the status read

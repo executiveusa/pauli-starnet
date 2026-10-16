@@ -13,7 +13,7 @@
     "creative":     { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "design, video and UGC production behind the design gate" },
     "financial":    { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "costs, budgets and the credit department (Monica Main)" },
     "intelligence": { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "research, knowledge extraction and the knowledge base" },
-    "command":      { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "owner approvals, mission state, Heisenberg HQ" },
+    "command":      { "active": true,  "queue_repo": "executiveusa/pauli-starnet", "purpose": "Command Center (executiveusa/pauli-command-center): owner approvals, mission state, Heisenberg HQ; factory queue drives its fixes" },
     "operations":   { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "night operations, server hygiene, monitoring" },
     "experiment":   { "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "bounded experiments with a written hypothesis and stop rule" },
     "crypto-cuties":{ "active": false, "queue_repo": "executiveusa/pauli-starnet", "purpose": "the Cuties penthouse; its own canon and identity locks win" },

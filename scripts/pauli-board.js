@@ -120,7 +120,7 @@ async function callModel({ model, prompt }) {
 
   const provider = process.env.OPENROUTER_PROVIDER || 'openrouter';
   const grant = { missionId, provider, model: grantModel, expiresAt: Date.now() + grantTtlMin * 60000, budgetUSD };
-  const ran = await runner.runBoard({ roomId, proposal, seats: manifest.seats, chairModel: manifest.chairModel, grant, seatInstructions });
+  const ran = await runner.runBoard({ roomId, proposal, seats: manifest.seats, chairModel: manifest.chairModel, grant, seatInstructions, boardDir: manifestDir });
   if (!ran.ok) { console.error('run refused/failed:', JSON.stringify(ran)); process.exit(1); }
   const closed = council.close(roomId);
   console.log('\nRESULT:');

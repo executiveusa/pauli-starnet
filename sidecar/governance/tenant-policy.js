@@ -73,7 +73,8 @@ function prepareSocialCandidate(input, options = {}) {
   const prep = authorize({ tenantId: input.tenantId, actorId: input.preparedBy, capabilityId: 'social.prepare' }, policy);
   if (!prep.allowed) return { ok: false, stage: 'prepare', authorization: prep };
 
-  const now = options.now || new Date().toISOString();
+  const now = options.now;
+  if (!now) return { ok: false, stage: 'clock', error: 'injected clock required: pass options.now' };
   const contentHash = stableHash({ channel: input.channel, content: input.content });
   const receipt = {
     receiptId: 'prep-' + contentHash.slice(0, 16),
@@ -104,7 +105,8 @@ function approvePreparedCandidate(input, options = {}) {
     return { ok: false, stage: 'approval', authorization: denied('human-approval-required') };
   }
 
-  const now = options.now || new Date().toISOString();
+  const now = options.now;
+  if (!now) return { ok: false, stage: 'clock', error: 'injected clock required: pass options.now' };
   const approvalReceipt = {
     receiptId: 'approval-' + stableHash({ prepareReceiptId: receipt.receiptId, approvalId: approval.approvalId }).slice(0, 16),
     version: 1,

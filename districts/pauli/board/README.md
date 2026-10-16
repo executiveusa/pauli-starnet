@@ -31,3 +31,13 @@ The estimate prints first; nothing runs until you re-run with `--yes`. Free-firs
 manifest and `prices.free.json` use OpenRouter `:free` ids at $0 - verify current free ids at
 openrouter.ai/models before editing. Real persona brains replace `seats/*.example.md` (a brain is
 a markdown folder of source material; the seat answers from it, in its voice).
+
+## Execution skills (after the ruling)
+
+`skills/registry.json` lists distilled, per-claim-cited skills from the seat canons (Seth: 20-book
+KB; Hormozi: mozi-sales + CLOSER transcripts). Method: book-to-skill (MIT,
+github.com/virgiliojr94/book-to-skill) - distilled guidance and citations only, private source
+material never lands in git. When a ruling locks, the execution receipt gains a `skills` block:
+the chair may name skill ids in its contract JSON (`"skills": ["seth/shipping-and-courage"]`,
+unknown ids dropped), otherwise a deterministic keyword matcher ranks the registry against the
+proposal + recommendation. Receipts stay the audit: who picked what is logged before hashing.
