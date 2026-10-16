@@ -704,6 +704,7 @@ test/supervisor.test.js
 test/pauli-memory.test.js
 test/pauli-council.test.js
 test/pauli-council-runner.test.js
+test/pauli-board.test.js
 test/pauli-registry.test.js
 test/pauli-canon-sync.test.js
 test/pauli-memory-mcp.test.js
