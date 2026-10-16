@@ -46,3 +46,13 @@ SkillSpector (static, --no-llm; LLM analyzers need an owner-configured key): all
 LICENSE files ride along in better-ui/ and animate/. Skipped from the repo: agentation
 (PolyForm Shield license), codex (duplicates the reviewer lane), the three MCP plugins
 (vendor URLs needing his logins).
+
+## the-extractor (adopted 2026-10-15)
+
+| Skill | Source | License | Why |
+| --- | --- | --- | --- |
+| the-extractor | github.com/executiveusa/the-extractor @ea3df3e (skills/the-extractor) - HIS OWN repo | MIT | The anti-slop device: destruction-first audit (delete before replace) for copy, sites, agent output |
+
+SkillSpector (static): 7/100 risk, no executables. Only the SKILL.md is adopted - the CLI,
+action and site stay in the upstream repo. Known limit (memory, Oct 14): it does not extract
+design or roast by itself; zero findings does not clear a site.
