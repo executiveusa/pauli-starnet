@@ -1,0 +1,99 @@
+{
+  "repo": "executiveusa/pauli-starnet",
+  "labels": [
+    {
+      "name": "district:production",
+      "color": "5319e7",
+      "description": "Production district queue (software factory)"
+    },
+    {
+      "name": "district:impact",
+      "color": "0e8a16",
+      "description": "Impact district queue (NW Kids)"
+    },
+    {
+      "name": "district:commerce",
+      "color": "d93f0b",
+      "description": "Commerce district queue (Freedom of Speech store)"
+    },
+    {
+      "name": "approved",
+      "color": "2ea44f",
+      "description": "Owner/lead approved: Heisenberg may run it"
+    },
+    {
+      "name": "blocked",
+      "color": "b60205",
+      "description": "Parked with a Question: line for the owner"
+    },
+    {
+      "name": "needs-review",
+      "color": "fbca04",
+      "description": "Finished; waiting for an independent reviewer"
+    },
+    {
+      "name": "perm:repo.write",
+      "color": "c5def5",
+      "description": "Needs repo write: never unattended"
+    }
+  ],
+  "issues": [
+    {
+      "title": "Verify the Google programs for NW Kids from the official pages",
+      "labels": [
+        "district:impact"
+      ],
+      "body": "Turn the UNVERIFIED table in impact/LANE.md into verified facts: for Google for Nonprofits, Ad Grants, Workspace for Nonprofits, YouTube Nonprofit Program and Google Business Profile, record eligibility, what NW Kids gets, the steps, and the official link for each claim (read the pages; no account actions).\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at impact/nwkids/google-programs.md, each fact with its URL and the date read. Research only."
+    },
+    {
+      "title": "NW Kids Google readiness checklist (profile + Ad Grants)",
+      "labels": [
+        "district:impact"
+      ],
+      "body": "Using the verified program facts and the impact knowledge (cause-specialist: funders check online visibility first, NVJyUFfRQtM), draft the checklist NW Kids must meet: 501(c)(3) documents, Google for Nonprofits validation, Business Profile verification, website requirements for Ad Grants, conversion tracking. Mark each item have / missing / unknown from nwkids.org.\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at impact/nwkids/google-readiness.md. Draft only; nothing is created or submitted."
+    },
+    {
+      "title": "Draft the NW Kids Google Business Profile copy",
+      "labels": [
+        "district:impact"
+      ],
+      "body": "From nwkids.org and the owner's notes, draft the profile: name, category options, description (750 chars), services, first 3 posts, and the photo list we need from the organized Drive media. Facts only from the site or the owner.\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at impact/nwkids/google-profile-draft.md. Draft only."
+    },
+    {
+      "title": "Find the 10 easiest grants NW Kids qualifies for this quarter",
+      "labels": [
+        "district:impact"
+      ],
+      "body": "Research grants for a Seattle-area youth nonprofit (mentoring, keeping kids out of trouble). For each: funder, amount, deadline, eligibility, effort (low/med/high), link. Rank by fit and effort. Use the impact knowledge on where small nonprofits should look (cause-specialist iJgi48rlgNA).\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at impact/nwkids/grant-shortlist.md. Research only; nothing is applied for."
+    },
+    {
+      "title": "Smart-site factory: write the HVAC demo spec from the Jasper logic",
+      "labels": [
+        "district:production"
+      ],
+      "body": "Turn the Jasper smart-site flow A-C (form -> durable lead -> private operator view) into a buildable spec for a reusable HVAC demo (Modern Air), with the owner's prices ($1,950 setup, $197 care) as the offer. Knowledge: jasper-smart-sites (on the NEW box), mozi-sales offers.\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at districts/production/specs/hvac-smart-site.md with acceptance tests. Spec only."
+    },
+    {
+      "title": "Brownfield inspection: allweather roofing and GOAT alliance repos",
+      "labels": [
+        "district:production"
+      ],
+      "body": "Read-only inspection of the roofing site and executiveusa/goatalliance: what exists, what runs, tests, deploy target, blast radius, and the smallest slice that makes each a working smart site. No changes.\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at districts/production/inspections/<repo>.md each."
+    },
+    {
+      "title": "Freedom of Speech store: niche and demand research for the owner's category decision",
+      "labels": [
+        "district:commerce"
+      ],
+      "body": "The store cannot add categories (its constitution); the owner decides (freedomofspeech decisions/0009). Prepare the decision: 10 candidate free-speech niches with demand signals, competition, legal-line risk notes and 3 original design directions each. Use commerce knowledge (mozi-sales offers, metricsmule-video UGC ads).\n\nDeliver: the result text (posted on this issue by Heisenberg). After independent review it is filed at districts/commerce/research/niche-options.md. Research only; no designs published, no listings."
+    },
+    {
+      "title": "Freedom of Speech store: answer the open decisions (owner)",
+      "labels": [
+        "district:commerce",
+        "blocked"
+      ],
+      "body": "The store pipeline is blocked on owner decisions in executiveusa/freedomofspeech: 0002 legal line, 0004 seed budget and daily cap, 0009 categories beyond Trump, 0003/0020 seller of record and store account.\n\nQuestion: Please decide 0002, 0004 and 0009 (and who is seller of record) so the store can make its first brief."
+    }
+  ]
+}

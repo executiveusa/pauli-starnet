@@ -2,7 +2,7 @@
 
 Where do I go? Work about the Crypto Cuties synthetic creators - Mila (CC-001), Fanni (CC-003), and future cuties - routes through this file. Read on entry to any crypto-cuties seat or task.
 
-Status: PLANNED (declared in registry/districts.yaml). The penthouse is where the Cuties operate freely inside StarNet; their canon, identity locks, and production law live in their own repos and win on any conflict.
+Status: PLANNED (declared in registry/districts.json, generated from the CitySpec). The penthouse is where the Cuties operate freely inside StarNet; their canon, identity locks, and production law live in their own repos and win on any conflict.
 
 ## Owner-decision log
 

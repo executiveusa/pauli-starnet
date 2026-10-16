@@ -219,3 +219,34 @@ A.eq(freeEst.estimate.totalCostUSD, 0, 'all-free board estimates $0');
 A.ok(!freeRunner.estimateBoard({ proposal: PROPOSAL, seats: freeSeats, chairModel: 'free-chair' }).estimate.astra, 'no astra in free lineup');
 
 A.report();
+
+/* CLI input guards (OCR run 38838498928 findings): bad --grant-ttl-min, unreadable
+   manifest/prices/brain files must exit 2 with a clear message, never crash raw. */
+{
+  const { spawnSync } = require('node:child_process');
+  const cli = path.join(__dirname, '..', 'scripts', 'pauli-board.js');
+  const manifestOk = path.join(root, 'mini-manifest.json');
+  fs.writeFileSync(manifestOk, JSON.stringify({ seats: [{ id: 'a', weight: 1 }], chairModel: 'm' }));
+  const pricesOk = path.join(root, 'mini-prices.json');
+  fs.writeFileSync(pricesOk, '{}');
+  const baseArgs = [cli, '--proposal', 'p', '--mission', 'm1', '--budget', '1', '--grant-model', 'm', '--board', manifestOk, '--prices', pricesOk];
+  const run = args => spawnSync('node', args, { encoding: 'utf8' });
+
+  const badTtl = run([...baseArgs, '--grant-ttl-min', 'abc']);
+  A.eq(badTtl.status, 2, 'non-numeric --grant-ttl-min exits 2');
+  A.ok(/grant-ttl-min must be a positive integer/.test(badTtl.stderr), 'ttl message is clear');
+
+  const noManifest = run([cli, '--proposal', 'p', '--mission', 'm1', '--budget', '1', '--grant-model', 'm', '--board', path.join(root, 'nope.json'), '--prices', pricesOk]);
+  A.eq(noManifest.status, 2, 'missing manifest exits 2');
+  A.ok(/cannot read\/parse board manifest/.test(noManifest.stderr), 'manifest message is clear');
+
+  const noPrices = run([cli, '--proposal', 'p', '--mission', 'm1', '--budget', '1', '--grant-model', 'm', '--board', manifestOk, '--prices', path.join(root, 'nope.json')]);
+  A.eq(noPrices.status, 2, 'missing prices exits 2');
+  A.ok(/cannot read\/parse prices file/.test(noPrices.stderr), 'prices message is clear');
+
+  const manifestBrain = path.join(root, 'brain-manifest.json');
+  fs.writeFileSync(manifestBrain, JSON.stringify({ seats: [{ id: 'a', weight: 1, brain: 'missing-brain.md' }], chairModel: 'm' }));
+  const noBrain = run([cli, '--proposal', 'p', '--mission', 'm1', '--budget', '1', '--grant-model', 'm', '--board', manifestBrain, '--prices', pricesOk]);
+  A.eq(noBrain.status, 2, 'missing brain file exits 2');
+  A.ok(/cannot read brain file/.test(noBrain.stderr), 'brain message is clear');
+}
