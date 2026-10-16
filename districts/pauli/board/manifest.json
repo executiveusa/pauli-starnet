@@ -1,8 +1,24 @@
 {
   "_comment": "The real board. Add a member: drop seats/<name>.md here (voice + principles + positions, markdown) and add one seats entry. Brains are prompt-injected - keep them tight (a few KB), the KB holds the rest. Free models first; verify :free ids at openrouter.ai/models. Swap any seat model at call time with --set seat=model; every receipt and ruling lists seat -> model.",
-  "chairModel": "qwen/qwen-2.5-72b-instruct:free",
+  "chairModel": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
   "seats": [
-    { "id": "hormozi", "model": "meta-llama/llama-3.3-70b-instruct:free", "weight": 1, "brain": "seats/hormozi.md" },
-    { "id": "skeptic", "model": "meta-llama/llama-3.3-70b-instruct:free", "weight": 1, "brain": "seats/skeptic.example.md" }
+    {
+      "id": "hormozi",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "weight": 1,
+      "brain": "seats/hormozi.md"
+    },
+    {
+      "id": "skeptic",
+      "model": "google/gemma-4-31b-it:free",
+      "weight": 1,
+      "brain": "seats/skeptic.example.md"
+    },
+    {
+      "id": "seth",
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "weight": 1,
+      "brain": "seats/seth-godin.md"
+    }
   ]
 }
