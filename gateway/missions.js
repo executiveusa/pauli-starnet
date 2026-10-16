@@ -73,7 +73,7 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
       completed_at: ['done', 'failed', 'needs_human'].includes(fields.status) ? now() : null,
       crew,
       solo: fields.solo === undefined ? null : fields.solo,
-      runtime: { starnet_mission_id: envelope.mission_id, run_id: fields.run_id || null, revision }
+      runtime: { starnet_mission_id: envelope.mission_id, run_id: fields.run_id || null, revision, usd: Number(fields.usd) || 0 }
     };
   }
 
@@ -99,7 +99,7 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
         status: out && out.status === 'done' ? 'done' : 'failed',
         summary: out && out.status === 'done' ? out.summary : '',
         failures: out && out.status === 'done' ? [] : [String((out && out.reason) || 'foreman returned no result')],
-        crew: (out && out.crew) || [], solo: out ? out.solo : null, run_id: out && out.run_id
+        crew: (out && out.crew) || [], solo: out ? out.solo : null, run_id: out && out.run_id, usd: out && out.usd
       }))
       .catch(e => envelopeFor(envelope, { status: 'failed', failures: ['foreman run failed: ' + (e && e.message ? e.message : String(e))] }))
       .then(final => save({ mission_id: envelope.mission_id, envelope, result: final }).result);

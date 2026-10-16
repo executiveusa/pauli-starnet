@@ -1,0 +1,210 @@
+{
+  "meta": {
+    "name": "StarNet city knowledge sources",
+    "version": "1.0.0",
+    "updated": "2026-10-15",
+    "contract": "knowledge/CONTEXT.md",
+    "district_ids": "frontend/app/cityos.js CitySpec (12 districts). A route to any other id fails the test.",
+    "status_values": {
+      "indexed": "transcripts are in this repo; the loader reads them",
+      "on_server": "transcripts exist on a server path named in location; run the loader there with --dir",
+      "external": "lives in another repo; pointer only until it is copied or loaded",
+      "unlocated": "talked about, not found in any repo or known path; a district queue item hunts for it"
+    }
+  },
+  "sources": [
+    {
+      "id": "mozi-sales",
+      "title": "Alex Hormozi sales and offer doctrine (Mozi)",
+      "creator": "Alex Hormozi",
+      "status": "indexed",
+      "location": "districts/sales/mozi/transcripts",
+      "title_index": "districts/sales/mozi/knowledge/video-index.json",
+      "graph": "districts/sales/mozi/knowledge/hormozi-knowledge-graph.json",
+      "routes": [
+        {
+          "district": "revenue",
+          "use_for": "offer architecture, pricing, sales process, call prep (graph nodes + 5 playbooks)"
+        },
+        {
+          "district": "commerce",
+          "use_for": "product offers and value stacking for store products"
+        },
+        {
+          "district": "command",
+          "use_for": "back-to-front business diagnosis before Heisenberg assigns revenue work"
+        }
+      ]
+    },
+    {
+      "id": "manny-hormozi-315",
+      "title": "Hormozi canonical long-form (Manny the Manager, 315 transcripts)",
+      "creator": "Alex Hormozi",
+      "status": "on_server",
+      "location": "old box: clients-districts/advisors/manny-the-manager transcript store (pulled with tools/apify_pull.py; ~2.13M words)",
+      "routes": [
+        {
+          "district": "revenue",
+          "use_for": "deeper evidence for Mozi principles; Madison marketing roles"
+        }
+      ]
+    },
+    {
+      "id": "metricsmule-video",
+      "title": "MetricsMule AI video prompt engineering (150 videos)",
+      "creator": "MetricsMule",
+      "status": "indexed",
+      "location": "districts/creative/video/transcripts",
+      "title_index": "districts/creative/video/knowledge/video-index.json",
+      "graph": "districts/creative/video/knowledge/metricsmule-knowledge-graph.json",
+      "routes": [
+        {
+          "district": "creative",
+          "use_for": "UGC and AI video prompting per model (Seedance, Higgsfield, Kling), video lane"
+        },
+        {
+          "district": "commerce",
+          "use_for": "UGC product ads for store listings"
+        }
+      ]
+    },
+    {
+      "id": "email-copywriter",
+      "title": "Email copywriting (@dragualin, 149 transcripts)",
+      "creator": "@dragualin",
+      "status": "indexed",
+      "location": "districts/creative/email-copywriter/knowledge/transcripts",
+      "title_index": "districts/creative/email-copywriter/knowledge/catalog.json",
+      "routes": [
+        {
+          "district": "creative",
+          "use_for": "drafting and reviewing email copy; creator claims unverified"
+        },
+        {
+          "district": "revenue",
+          "use_for": "outreach and follow-up sequences for offers"
+        }
+      ]
+    },
+    {
+      "id": "jake-trinder-20",
+      "title": "Jake Trinder educational YouTube channel growth (20 videos)",
+      "creator": "Jake Trinder",
+      "status": "indexed",
+      "location": "districts/creative/video/youtube-system-agent/_shared/corpus/jake-trinder-20/transcripts",
+      "routes": [
+        {
+          "district": "creative",
+          "use_for": "faceless/educational channel system for the 5 YouTube channels"
+        },
+        {
+          "district": "revenue",
+          "use_for": "content-led lead generation"
+        }
+      ]
+    },
+    {
+      "id": "monica-main",
+      "title": "Monica Main business credit and funding (40 videos)",
+      "creator": "Monica Main",
+      "status": "indexed",
+      "location": "impact/source-intel/transcript-research/transcripts/monica-main",
+      "routes": [
+        {
+          "district": "financial",
+          "use_for": "credit department: business credit building and funding steps"
+        },
+        {
+          "district": "impact",
+          "use_for": "funding paths for NW Kids and partner nonprofits"
+        }
+      ],
+      "intelligence": "impact/source-intel/transcript-research/intelligence/monica-main"
+    },
+    {
+      "id": "cause-specialist",
+      "title": "Joanne Toller fundraising coach (Cause Specialist, 40 videos)",
+      "creator": "Joanne Toller",
+      "status": "indexed",
+      "location": "impact/source-intel/transcript-research/transcripts/cause-specialist",
+      "routes": [
+        {
+          "district": "impact",
+          "use_for": "nonprofit fundraising, donor asks, grant readiness for NW Kids"
+        }
+      ],
+      "intelligence": "impact/source-intel/transcript-research/intelligence/cause-specialist"
+    },
+    {
+      "id": "middleton-method",
+      "title": "JP Middleton local-business AI system method (48 videos)",
+      "creator": "JP Middleton",
+      "status": "indexed",
+      "location": "districts/middleton",
+      "routes": [
+        {
+          "district": "revenue",
+          "use_for": "local-business offer sequence, scripts and metrics (his numbers unverified)"
+        }
+      ],
+      "canon": "districts/middleton/canon/system.json",
+      "status_note": "raw transcripts are not in the repo; the distilled canon (48 videos, cited) loads as insights"
+    },
+    {
+      "id": "jasper-smart-sites",
+      "title": "Jasper (HighLevel) smart-site pitch and offer logic (50 transcripts)",
+      "creator": "Jasper",
+      "status": "on_server",
+      "location": "NEW box: /root/jasper-highlevel-transcripts/selected50/ (50 files + hashes + ledger, per Instinct 2026-10-12; not verified from the repo)",
+      "routes": [
+        {
+          "district": "production",
+          "use_for": "smart-site factory flow A-C: form -> durable lead -> private operator view"
+        },
+        {
+          "district": "revenue",
+          "use_for": "smart-site offer and pitch; owner prices $1,950 setup + $197 care (Jasper's prices are reference only)"
+        }
+      ]
+    },
+    {
+      "id": "closer-sales-call-stages",
+      "title": "CLOSER sales call stages",
+      "creator": "Alex Hormozi",
+      "status": "external",
+      "location": "executiveusa/pauli-command-center docs/CLOSER-SALES-CALL-STAGES.md (+ docs/sales-evidence/ZMW8AfQeGqQ-clean-transcript.txt)",
+      "routes": [
+        {
+          "district": "revenue",
+          "use_for": "call-stage script for sales calls"
+        }
+      ]
+    },
+    {
+      "id": "stefan-3d",
+      "title": "Stefan 3D AI Blender/game production workflow",
+      "creator": "Stefan 3D AI",
+      "status": "external",
+      "location": "executiveusa/impact-city-2026 docs/research/game-production-workflow-synthesis.md (distilled); the 39-40 raw transcripts are unlocated",
+      "routes": [
+        {
+          "district": "creative",
+          "use_for": "3D/Blender pipeline: hero detail, low-poly background, MCP-driven rigging"
+        }
+      ]
+    },
+    {
+      "id": "androoagi-study",
+      "title": "AndrooAGI 24-video agent-city and store study",
+      "creator": "@androoAGI",
+      "status": "unlocated",
+      "location": "not found in repos or known server paths as of 2026-10-12 audit",
+      "routes": [
+        {
+          "district": "commerce",
+          "use_for": "Etsy/Printify store method once located"
+        }
+      ]
+    }
+  ]
+}

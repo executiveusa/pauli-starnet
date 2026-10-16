@@ -1,0 +1,329 @@
+{
+  "generated": "by scripts/city/build-registry.js from frontend/app/cityos.js + registry/district-lanes.json + knowledge/sources.json; do not edit",
+  "districts": [
+    {
+      "id": "crypto-cuties",
+      "label": "CUTIES DISTRICT",
+      "buildings": [
+        "CUTIES PENTHOUSE"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "the Cuties penthouse; its own canon and identity locks win",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:crypto-cuties",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
+      "aliases": []
+    },
+    {
+      "id": "pauli",
+      "label": "PAULI'S PENTHOUSE",
+      "buildings": [
+        "THE PENTHOUSE",
+        "PAULI'S PLACE",
+        "HALL OF CANON"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "Pauli's penthouse and the Hall of Canon; Pauli runs only with owner permission (expensive)",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:pauli",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
+      "aliases": []
+    },
+    {
+      "id": "command",
+      "label": "COMMAND DISTRICT",
+      "buildings": [
+        "HEISENBERG HQ"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "owner approvals, mission state, Heisenberg HQ",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:command",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "mozi-sales"
+      ],
+      "aliases": [
+        "casa-central"
+      ]
+    },
+    {
+      "id": "production",
+      "label": "PRODUCTION DISTRICT",
+      "buildings": [
+        "SOFTWARE FACTORY",
+        "PI AGENT FOUNDRY"
+      ],
+      "foreman": "heisenberg",
+      "active": true,
+      "purpose": "software factory: pull projects from GitHub, build in the vibe-engineering pipeline, independent review before anything ships",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:production",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "jasper-smart-sites"
+      ],
+      "aliases": [
+        "factory"
+      ]
+    },
+    {
+      "id": "revenue",
+      "label": "REVENUE DISTRICT",
+      "buildings": [
+        "REVENUE CENTER"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "offers, pricing and outreach drafts (Mozi, Middleton, Jasper smart sites)",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:revenue",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "mozi-sales",
+        "manny-hormozi-315",
+        "email-copywriter",
+        "jake-trinder-20",
+        "middleton-method",
+        "jasper-smart-sites",
+        "closer-sales-call-stages"
+      ],
+      "aliases": [
+        "middleton",
+        "sales"
+      ]
+    },
+    {
+      "id": "impact",
+      "label": "IMPACT DISTRICT",
+      "buildings": [
+        "IMPACT HQ",
+        "STEWARDSHIP HOUSE"
+      ],
+      "foreman": "heisenberg",
+      "active": true,
+      "purpose": "NW Kids: Google Business Profile and Google for Nonprofits grants (Ad Grants first), donor and grant readiness",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:impact",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "monica-main",
+        "cause-specialist"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "creative",
+      "label": "CREATIVE DISTRICT",
+      "buildings": [
+        "CREATIVE STUDIO"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "design, video and UGC production behind the design gate",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:creative",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "metricsmule-video",
+        "email-copywriter",
+        "jake-trinder-20",
+        "stefan-3d"
+      ],
+      "aliases": [
+        "social"
+      ]
+    },
+    {
+      "id": "commerce",
+      "label": "COMMERCE DISTRICT",
+      "buildings": [
+        "COMMERCE FACTORY",
+        "CONNECTOR EXCHANGE"
+      ],
+      "foreman": "heisenberg",
+      "active": true,
+      "purpose": "Freedom of Speech store: product research and test-only Etsy/Printify integration; nothing is listed or sold without the owner",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:commerce",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "mozi-sales",
+        "metricsmule-video",
+        "androoagi-study"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "intelligence",
+      "label": "INTELLIGENCE DISTRICT",
+      "buildings": [
+        "INTELLIGENCE CENTER",
+        "MEMORY ARCHIVE"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "research, knowledge extraction and the knowledge base",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:intelligence",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
+      "aliases": [
+        "jev"
+      ]
+    },
+    {
+      "id": "experiment",
+      "label": "EXPERIMENT DISTRICT",
+      "buildings": [
+        "EXPERIMENT LAB"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "bounded experiments with a written hypothesis and stop rule",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:experiment",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
+      "aliases": []
+    },
+    {
+      "id": "financial",
+      "label": "FINANCIAL DISTRICT",
+      "buildings": [
+        "REVENUE HALL",
+        "TREASURY + PAYMENTS",
+        "COST + TOKENOMICS",
+        "ACCOUNTING + CLOSE",
+        "TAX OFFICE",
+        "EXECUTIVE FINANCE"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "costs, budgets and the credit department (Monica Main)",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:financial",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [
+        "monica-main"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "operations",
+      "label": "OPERATIONS DISTRICT",
+      "buildings": [
+        "NIGHT OPERATIONS"
+      ],
+      "foreman": "heisenberg",
+      "active": false,
+      "purpose": "night operations, server hygiene, monitoring",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:operations",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
+      "aliases": []
+    }
+  ]
+}
