@@ -101,3 +101,29 @@ test('receipt block: chair wins over matcher, matcher fills when chair silent', 
   const none = pickBoardSkills({ boardDir: null, proposal: 'p', verdict: {} });
   A.equal(none, null, 'no registry -> skills omitted from the receipt');
 });
+
+test('selection: equal-hit tie breaks by id without sort contract violation', () => {
+  const skills = [
+    { id: 'b/beta', seat: 's', title: 't', path: 'p', keywords: ['ship'], sources: ['x'] },
+    { id: 'a/alpha', seat: 's', title: 't', path: 'p', keywords: ['ship'], sources: ['x'] }
+  ];
+  const picks = selectSkills('ship it', skills);
+  A.equal(picks.length, 2);
+  A.deepEqual(picks.map(p => p.id), ['a/alpha', 'b/beta'], 'tie falls back to id order');
+});
+
+test('registry: unusable file path records an error instead of crashing', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'board-skills-'));
+  fs.mkdirSync(path.join(dir, 'skills'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'skills', 'registry.json'), JSON.stringify({ skills: [
+    { id: 'bad/nullbyte', seat: 's', title: 't', path: 'bad\0path.md', keywords: ['x'], sources: ['y'] },
+    { id: 'good/one', seat: 's', title: 't', path: 'good.md', keywords: ['x'], sources: ['y'] }
+  ] }));
+  fs.writeFileSync(path.join(dir, 'skills', 'good.md'), 'ok');
+  const reg = loadRegistry(dir);
+  A.equal(reg.skills.length, 1, 'good skill still loads');
+  A.ok(reg.errors.some(e => e.includes('bad/nullbyte') && (e.includes('file check failed') || e.includes('file missing'))), 'bad path recorded in errors, no crash');
+});

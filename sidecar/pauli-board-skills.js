@@ -38,7 +38,14 @@ function loadRegistry(boardDir) {
       errors.push('skill ' + raw.id + ' path escapes the skills dir');
       continue;
     }
-    if (!fs.existsSync(path.join(boardDir, 'skills', raw.path))) { errors.push('skill ' + raw.id + ' file missing: ' + raw.path); continue; }
+    let skillFileExists = false;
+    try {
+      skillFileExists = fs.existsSync(path.join(boardDir, 'skills', raw.path));
+    } catch (err) {
+      errors.push('skill ' + raw.id + ' file check failed: ' + (err && err.code ? err.code : 'unknown'));
+      continue;
+    }
+    if (!skillFileExists) { errors.push('skill ' + raw.id + ' file missing: ' + raw.path); continue; }
     if (!Array.isArray(raw.sources) || !raw.sources.length) { errors.push('skill ' + raw.id + ' cites no sources'); continue; }
     skills.push({
       id: raw.id, seat: raw.seat, title: raw.title, path: 'skills/' + raw.path,
@@ -67,7 +74,7 @@ function selectSkills(text, skills, { max = 3 } = {}) {
     const hits = new Set(s.keywords.filter(k => termHits(k, hay))).size;
     return { skill: s, hits };
   }).filter(row => row.hits > 0);
-  scored.sort((a, b) => b.hits - a.hits || (a.skill.id < b.skill.id ? -1 : 1));
+  scored.sort((a, b) => b.hits - a.hits || (a.skill.id === b.skill.id ? 0 : (a.skill.id < b.skill.id ? -1 : 1)));
   return scored.slice(0, max).map(row => ({
     id: row.skill.id, seat: row.skill.seat, title: row.skill.title, path: row.skill.path, matched: row.hits
   }));
