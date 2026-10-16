@@ -154,7 +154,8 @@ function runKupuriMission(envelope, options = {}) {
     return { ok: false, stage: 'fanni-prepare', detail: prepared || null };
   }
 
-  const now = options.now || new Date().toISOString();
+  const now = options.now;
+  if (!now) return { ok: false, stage: 'clock', error: 'injected clock required: pass options.now' };
   const mission = {
     version: 1,
     missionId: envelope.missionId,
