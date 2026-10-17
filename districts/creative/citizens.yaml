@@ -10,3 +10,12 @@ citizens:
     routes: [email-draft, subject-lines, opt-in, welcome-sequence, email-launch, email-audit]
     gates: [client-facts-verified, owner-review-before-release]
     status: LIVE
+  - id: hairline-animator
+    kind: agent
+    path: districts/creative/hairline-animator
+    role: hairline-animation-specialist
+    mode: draft-and-review-only
+    knowledge: hairline-animator/skills/hairline-animation.md
+    routes: [brand-intro, hero-animation, line-art, deck-visual]
+    gates: [owner-review-before-release, no-automations]
+    status: LIVE
