@@ -9,6 +9,7 @@
    - kill switches armed: STARNET_JEV_DISABLED=1 env + x-starnet-jev-enabled header gate
 */
 'use strict';
+const { note } = require('./failopen.js');
 
 const http = require('http');
 const fs = require('fs');
@@ -142,7 +143,7 @@ async function callGateway(state) {
     });
     const text = await resp.text();
     let parsed = null;
-    try { parsed = text ? JSON.parse(text) : null; } catch {}
+    try { parsed = text ? JSON.parse(text) : null; } catch (e) { note('jev-shadow.parseShadowResponse', e); }
     if (!resp.ok) {
       if ((resp.status === 429 || resp.status >= 500) && !callGateway._retried) {
         callGateway._retried = true;
@@ -193,7 +194,7 @@ async function callGatewayCustom(state, questions) {
     });
     const text = await resp.text();
     let parsed = null;
-    try { parsed = text ? JSON.parse(text) : null; } catch {}
+    try { parsed = text ? JSON.parse(text) : null; } catch (e) { note('jev-shadow.parseModelBody', e); }
     if (!resp.ok) {
       if ((resp.status === 429 || resp.status >= 500) && !callGatewayCustom._retried) {
         callGatewayCustom._retried = true;
@@ -244,7 +245,7 @@ async function callModel(state) {
       });
       const text = await resp.text();
       let parsed = null;
-      try { parsed = text ? JSON.parse(text) : null; } catch {}
+      try { parsed = text ? JSON.parse(text) : null; } catch (e) { note('jev-shadow.parseRetryBody', e); }
       if (!resp.ok) {
         lastErr = { model, status: resp.status, body: clip(text, 300) };
         if (resp.status === 429 && !callModel._retried) {
@@ -259,7 +260,7 @@ async function callModel(state) {
       let answers = null;
       try { answers = JSON.parse(content); } catch {
         const m = typeof content === 'string' && content.match(/\{[\s\S]*\}/);
-        if (m) { try { answers = JSON.parse(m[0]); } catch {} }
+        if (m) { try { answers = JSON.parse(m[0]); } catch (e) { note('jev-shadow.parseExtracted', e); } }
       }
       if (!validAnswers(answers)) {
         lastErr = { model, status: 200, error: 'shape_invalid', content: clip(content, 300) };
@@ -286,7 +287,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'GET' && u.pathname === '/status') {
     let ledgerCount = 0;
-    try { ledgerCount = fs.readFileSync(LEDGER, 'utf8').trim().split(/\n/).filter(Boolean).length; } catch {}
+    try { ledgerCount = fs.readFileSync(LEDGER, 'utf8').trim().split(/\n/).filter(Boolean).length; } catch (e) { note('jev-shadow.ledgerCount', e); }
     return json(res, 200, { ok: true, district: 'jev', citizen: 'jev-shadow', mode: 'recommend-only', version: VERSION, models: MODELS, hardOff: HARD_OFF, keyConfigured: Boolean(API_KEY), ledgerEntries: ledgerCount, uptimeSec: Math.round(process.uptime()) });
   }
   if (req.method !== 'POST' || u.pathname !== '/api/jev-decision') {
@@ -305,7 +306,7 @@ const server = http.createServer(async (req, res) => {
   req.on('data', (c) => { body += c; if (body.length > 65536) req.destroy(); });
   req.on('end', async () => {
     let parsed = null;
-    try { parsed = JSON.parse(body); } catch {}
+    try { parsed = JSON.parse(body); } catch (e) { note('jev-shadow.parseBody', e); }
     const state = parsed && parsed.state;
     if (state == null) return json(res, 400, { ok: false, error: 'state_required' });
     const customQ = parsed.questions !== undefined ? parsed.questions : null;
