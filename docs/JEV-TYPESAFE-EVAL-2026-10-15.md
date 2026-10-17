@@ -24,23 +24,37 @@ Question type: Choice over the candidate elements on the page (current picker su
 same candidate set it uses today).
 Design:
 1. Capture N=100 frozen decision points from recorded jev-browser sessions (state = page
-   summary + candidate list; label = the action the current path took + whether the session
-   succeeded). Capture only, no live runs.
+   summary + candidate list). Capture only, no live runs. Label each point PER DECISION, not
+   per session: (a) success-path action - the action taken on a session that succeeded;
+   (b) failure-causing action - the action at the point where a failed session actually went
+   wrong; (c) neutral action on a failed session - taken before/after the real failure point,
+   so it carries no deferral signal. A session failing later must not mark earlier points.
 2. Replay offline: Jev answers each frozen point. No side effects, no browser control.
 3. Metrics: top-1 agreement with the action that actually led to success; abstention quality
-   (low-confidence cases it should defer); latency per decision; cost per 1k decisions.
+   on failure-causing points only; latency per decision; cost per 1k decisions.
+4. Pre-registered abstention rule: Jev defers when its top-choice probability is below 0.80.
+   Report the deferral rate; do not tune the 0.80 cutoff on this sample.
 Pass bar to even discuss adoption: >=90% agreement with successful-path actions AND defers
-on the cases the current path failed, at <10% of current lane cost.
+on >=70% of failure-causing points, at <10% of current lane cost.
 
 ## Lane 2: pre-filter scorer (gauntlet/UGC + GOAT lead scoring)
 
 Question type: Score on the existing rubric (gauntlet verdict rubric; GOAT lead tiers).
 Design:
-1. Freeze 200 past judgments with their final verdicts (UGC review outcomes, GOAT lead outcomes).
+1. Freeze 200 past judgments with their final verdicts (UGC review outcomes, GOAT lead outcomes -
+   see the GOAT constraint below). Split 100 calibration / 100 test BEFORE looking at results;
+   any threshold learning happens on calibration only and is reported on test.
 2. Jev scores each frozen item; compare distribution vs the human/judge verdicts.
-3. Metrics: rank correlation; false-pass rate (items Jev scores high that judges rejected -
-   the number that matters for a pre-filter); cost per 1k.
-Pass bar: false-pass rate <2% at a recall of >=80% on judge-approved items.
+3. Pre-registered operating point: "scores high" = Jev places its modal (highest-probability)
+   score inside the judge-approved rubric band. False-pass rate = judge-rejected items Jev
+   scores high / ALL judge-rejected items (not / all items Jev passes).
+4. Metrics: rank correlation; false-pass rate as defined; cost per 1k.
+GOAT constraint: the privacy bar below forbids lead records in payloads, but rubric text alone
+gives Jev no item-specific signal. Before any GOAT freeze, define a de-identified feature
+representation (tier-relevant features only - no names, contacts, notes, or history) and get
+it approved. If no representation is approved, the GOAT lane drops from this eval and only
+the gauntlet/UGC lane runs.
+Pass bar: false-pass rate <2% at a recall of >=80% on judge-approved items, on the test split.
 
 ## Cost and authority
 
