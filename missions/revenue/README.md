@@ -14,5 +14,6 @@ The owner function deliberately refuses all work when `OWNER_SECRET` is unset. S
 
 1. `sovereign-agent-city-audit.md` - make the $2,500 City Audit a concrete sellable delivery system.
 2. `pauli-scroll-world-open-source.md` - package Pauli Scroll World as an open-source anti-slop workflow, stopping before public release.
+3. `seo-audit-any-company.md` + `seo-audit-role.json` - a parameterized, repeatable evidence-gathering mission (wraps `executiveusa/pauli-claude-seo`): fill in the company intake table, dispatch, get back a measured-only SEO data sheet gated by one of three access tiers (free / +Google credentials / +named paid extension with a dollar cap). This is read-only and a natural companion to the City Audit above, not a replacement for it.
 
-Both are zero-spend, reversible preparation missions. Outreach, publishing, paid services, destructive changes, and promises to a client remain gated.
+#2 and #3 are zero-spend by default; #3's Tier 3 is the one exception, and only when the owner names a specific tool and dollar cap in that mission's intake table. Outreach, publishing, paid services beyond an approved cap, destructive changes, and promises to a client remain gated across all packages.

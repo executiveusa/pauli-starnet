@@ -1,0 +1,55 @@
+{
+  "schema_version": "starnet.seo-audit-role/v1",
+  "role_id": "seo-audit-worker",
+  "status": "template",
+  "default_deny": true,
+  "tiers": {
+    "tier_1_free": {
+      "label": "Free, real network access, no credentials",
+      "requires": ["domain", "real_outbound_network_access"],
+      "available_capabilities": [
+        "crawl_technical",
+        "read_content_schema_images_sitemap",
+        "read_core_web_vitals_psi_crux",
+        "read_free_backlink_signals_moz_bing_commoncrawl"
+      ],
+      "spend_cap_usd": 0
+    },
+    "tier_2_google_credentials": {
+      "label": "Tier 1 + owner-configured Google credentials",
+      "requires": ["tier_1_free", "google_oauth_or_service_account_configured", "owner_confirmed_in_intake"],
+      "available_capabilities": [
+        "read_search_console_90d",
+        "read_ga4_90d"
+      ],
+      "spend_cap_usd": 0
+    },
+    "tier_3_paid_extensions": {
+      "label": "Tier 1+2 + named paid extension with an owner-approved dollar cap",
+      "requires": ["tier_2_google_credentials", "owner_named_tool", "owner_named_dollar_cap"],
+      "available_capabilities": [
+        "read_dataforseo",
+        "read_ahrefs",
+        "read_se_ranking",
+        "read_profound"
+      ],
+      "spend_cap_usd": null,
+      "spend_cap_source": "set per-dispatch from the mission's Company intake table; never inferred"
+    }
+  },
+  "never_implicit": [
+    "publish_content",
+    "edit_client_site",
+    "change_search_console_settings",
+    "change_gbp_listing",
+    "purchase_backlinks",
+    "change_schema_on_client_site",
+    "run_ads",
+    "message_client_or_third_party",
+    "exceed_named_spend_cap",
+    "report_estimated_value_as_measured"
+  ],
+  "grant_requires": ["company_intake_completed", "domain", "tier_requested", "owner_evidence_ref", "expires_at"],
+  "revocation_path": "mission dispatch record in the owner surface; a revoked grant stops the worker before its next tool call",
+  "assignees": []
+}
