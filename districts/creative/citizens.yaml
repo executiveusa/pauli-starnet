@@ -1,6 +1,17 @@
 version: 1
 district: creative
 citizens:
+  - id: hyperframe-station
+    kind: station
+    path: districts/creative/hyperframe-station/
+    role: html-native video intros and hyperframes
+    seats: [darya, creative-agents]
+    entry: compositions/intro-reveal/render.py
+    docs: [README.md, CONTEXT.md, DESIGN.md, docs/RESEARCH.md, docs/PATTERN-CROWN-INTRO.md]
+    floor: free-tier-only (hyperframes CLI local render, $0)
+    copy-law: placeholder text only until owner/Ivette exact words
+    gates: [visual-world-first, collins-protocol, pr-unmerged-owner-review]
+    status: LIVE
   - id: email-copywriter
     kind: agent
     path: districts/creative/email-copywriter
