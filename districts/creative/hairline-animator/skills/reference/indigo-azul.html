@@ -239,7 +239,7 @@
   document.addEventListener('visibilitychange', onVisibility);
 
   resize();
-  raf = requestAnimationFrame(frame);
+  if (!document.hidden) raf = requestAnimationFrame(frame);
 
   // Intro sequence: draw-on runs on CSS; lift the overlay when the title
   // finishes animating, with a fallback if no animation event fires.
@@ -251,8 +251,21 @@
     document.getElementById('brand').classList.add('on');
     document.getElementById('controls').classList.add('on');
   }
-  var introTitle = document.querySelector('#intro text');
-  if (introTitle) introTitle.addEventListener('animationend', liftIntro, { once: true });
+  // The title runs draw + fillin and the sub runs fillin later; lifting on the
+  // first animationend would cut the sequence short. Wait for every animation.
+  var introAnims = [];
+  document.querySelectorAll('#intro text').forEach(function (el) {
+    if (el.getAnimations) introAnims = introAnims.concat(el.getAnimations());
+  });
+  var pendingAnims = introAnims.length;
+  if (!pendingAnims) {
+    setTimeout(liftIntro, 3400);
+  } else {
+    introAnims.forEach(function (a) {
+      a.finished.then(function () { if (--pendingAnims <= 0) liftIntro(); })
+                .catch(function () { if (--pendingAnims <= 0) liftIntro(); });
+    });
+  }
   setTimeout(liftIntro, 5000);
 })();
 </script>
