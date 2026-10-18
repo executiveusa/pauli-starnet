@@ -239,7 +239,7 @@
   document.addEventListener('visibilitychange', onVisibility);
 
   resize();
-  if (!document.hidden) raf = requestAnimationFrame(frame);
+  raf = requestAnimationFrame(frame);
 
   // Intro sequence: draw-on runs on CSS; lift the overlay when the title
   // finishes animating, with a fallback if no animation event fires.
