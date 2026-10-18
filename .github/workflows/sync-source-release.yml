@@ -77,16 +77,22 @@ jobs:
           echo "title=$(jq -r .title "$RUNNER_TEMP/source-release-plan/plan.json")" >> "$GITHUB_OUTPUT"
 
       - name: Require the immutable source tag
+        id: tagcheck
         if: steps.plan.outputs.action != 'noop'
         shell: bash
         env:
           TAG: ${{ steps.source.outputs.tag }}
         run: |
           set -euo pipefail
-          gh api "repos/$SOURCE_REPO/git/ref/tags/$TAG" --silent
+          if gh api "repos/$SOURCE_REPO/git/ref/tags/$TAG" --silent; then
+            echo "tagExists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=Source tag missing::$TAG is not tagged in $SOURCE_REPO. The ship gate must tag the release commit before the mirror can copy the installers. Skipping the mirror instead of failing."
+            echo "tagExists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Download and hash-check the human installers
-        if: steps.plan.outputs.action != 'noop'
+        if: steps.plan.outputs.action != 'noop' && steps.tagcheck.outputs.tagExists == 'true'
         shell: bash
         env:
           TAG: ${{ steps.source.outputs.tag }}
@@ -108,7 +114,7 @@ jobs:
           done < <(jq -c '.assets[]' "$RUNNER_TEMP/source-release-plan/plan.json")
 
       - name: Create or repair the source draft
-        if: steps.plan.outputs.action != 'noop'
+        if: steps.plan.outputs.action != 'noop' && steps.tagcheck.outputs.tagExists == 'true'
         shell: bash
         env:
           TAG: ${{ steps.source.outputs.tag }}
@@ -128,7 +134,7 @@ jobs:
           gh release upload "$TAG" --repo "$SOURCE_REPO" --clobber "$RUNNER_TEMP/source-release-assets"/*
 
       - name: Publish the complete source release as latest
-        if: steps.plan.outputs.action != 'noop'
+        if: steps.plan.outputs.action != 'noop' && steps.tagcheck.outputs.tagExists == 'true'
         shell: bash
         env:
           TAG: ${{ steps.source.outputs.tag }}
