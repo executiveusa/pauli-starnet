@@ -17,7 +17,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; overflow: hidden; background: var(--bg); transition: background .6s; }
-  #stage { position: fixed; inset: 0; display: block; cursor: crosshair; }
+  #stage { position: fixed; inset: 0; display: block; cursor: crosshair; touch-action: none; }
 
   /* Intro overlay */
   #intro {
@@ -95,6 +95,7 @@
 (function () {
   var canvas = document.getElementById('stage');
   var ctx = canvas.getContext('2d');
+  if (!ctx) { console.error('INDIGO AZUL: 2d canvas context unavailable'); return; }
   var DPR = Math.min(window.devicePixelRatio || 1, 2);
   var W = 0, H = 0;
 
@@ -205,7 +206,7 @@
       rt.lift += (rt.liftTarget - rt.lift) * 0.075;
       drawRosette(rt, t);
     }
-    requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
   }
 
   function setPointer(x, y) { pointer.x = x; pointer.y = y; }
@@ -226,15 +227,46 @@
     this.textContent = dark ? 'dark' : 'light';
   });
 
-  resize();
-  requestAnimationFrame(frame);
+  var raf = 0;
+  function onVisibility() {
+    if (document.hidden) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    } else if (!raf) {
+      raf = requestAnimationFrame(frame);
+    }
+  }
+  document.addEventListener('visibilitychange', onVisibility);
 
-  // Intro sequence: draw-on runs on CSS; lift the overlay after ~3.4s.
-  setTimeout(function () {
+  resize();
+  raf = requestAnimationFrame(frame);
+
+  // Intro sequence: draw-on runs on CSS; lift the overlay when the title
+  // finishes animating, with a fallback if no animation event fires.
+  var introLifted = false;
+  function liftIntro() {
+    if (introLifted) return;
+    introLifted = true;
     document.getElementById('intro').classList.add('done');
     document.getElementById('brand').classList.add('on');
     document.getElementById('controls').classList.add('on');
-  }, 3400);
+  }
+  // The title runs draw + fillin and the sub runs fillin later; lifting on the
+  // first animationend would cut the sequence short. Wait for every animation.
+  var introAnims = [];
+  document.querySelectorAll('#intro text').forEach(function (el) {
+    if (el.getAnimations) introAnims = introAnims.concat(el.getAnimations());
+  });
+  var pendingAnims = introAnims.length;
+  if (!pendingAnims) {
+    setTimeout(liftIntro, 3400);
+  } else {
+    introAnims.forEach(function (a) {
+      a.finished.then(function () { if (--pendingAnims <= 0) liftIntro(); })
+                .catch(function () { if (--pendingAnims <= 0) liftIntro(); });
+    });
+  }
+  setTimeout(liftIntro, 5000);
 })();
 </script>
 </body>
