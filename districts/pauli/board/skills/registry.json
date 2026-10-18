@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "_comment": "Executable skills distilled from the seat canons (book-to-skill method, MIT: github.com/virgiliojr94/book-to-skill). After a ruling locks, the chair picks skills by id (or the deterministic matcher picks from proposal+ruling keywords); the selection is logged in the execution receipt. Distilled guidance + citations only - no verbatim book text. Private source material never lands in git.",
+  "skills": [
+    { "id": "seth/remarkability", "seat": "seth", "title": "Remarkability", "path": "seth/remarkability.md",
+      "keywords": ["launch", "product", "page", "offer", "design", "remarkable", "build", "create", "make"],
+      "sources": ["Purple Cow", "Free Prize Inside", "We Are All Weird", "Small Is the New Big"] },
+    { "id": "seth/attention-and-permission", "seat": "seth", "title": "Attention and Permission", "path": "seth/attention-and-permission.md",
+      "keywords": ["email", "ads", "outreach", "funnel", "launch", "audience", "subscribers", "campaign", "marketing"],
+      "sources": ["Permission Marketing", "Unleashing the Ideavirus", "Meatball Sundae", "The Big Red Fez"] },
+    { "id": "seth/market-and-story", "seat": "seth", "title": "Market and Story", "path": "seth/market-and-story.md",
+      "keywords": ["positioning", "market", "audience", "brand", "story", "community", "tribe", "strategy", "who"],
+      "sources": ["This Is Marketing", "All Marketers Are Liars", "Tribes", "This Is Strategy", "The Song of Significance", "The Knot"] },
+    { "id": "seth/shipping-and-courage", "seat": "seth", "title": "Shipping and Courage", "path": "seth/shipping-and-courage.md",
+      "keywords": ["ship", "stuck", "blocked", "scope", "quit", "deadline", "fear", "execute", "build", "finish"],
+      "sources": ["The Practice", "Poke the Box", "Linchpin", "The Dip", "The Icarus Deception", "Stop Stealing Dreams"] },
+    { "id": "hormozi/offer-architecture", "seat": "hormozi", "title": "Offer Architecture", "path": "hormozi/offer-architecture.md",
+      "keywords": ["price", "pricing", "offer", "package", "tier", "sell", "revenue", "charge", "value"],
+      "sources": ["mozi-sales (KB transcripts zzleYxkf39k, 8VqSFBMMS4M, mRlSb0O5QNU)"] },
+    { "id": "hormozi/sales-call-closer", "seat": "hormozi", "title": "Sales Call - CLOSER", "path": "hormozi/sales-call-closer.md",
+      "keywords": ["call", "sales", "close", "pitch", "objection", "partner", "meeting", "dial", "demo"],
+      "sources": ["closer-sales-call-stages (CLOSER-SALES-CALL-STAGES.md, transcript ZMW8AfQeGqQ)", "mozi-sales (8VqSFBMMS4M)"] },
+    { "id": "hormozi/retention-and-money-models", "seat": "hormozi", "title": "Retention and Money Models", "path": "hormozi/retention-and-money-models.md",
+      "keywords": ["churn", "retention", "recurring", "subscription", "members", "billing", "renew", "cancel"],
+      "sources": ["mozi-sales (KB transcript -j8_YCWZ05Q + money-models distillations)"] }
+  ]
+}

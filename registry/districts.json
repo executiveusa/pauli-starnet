@@ -56,8 +56,8 @@
         "HEISENBERG HQ"
       ],
       "foreman": "heisenberg",
-      "active": false,
-      "purpose": "owner approvals, mission state, Heisenberg HQ",
+      "active": true,
+      "purpose": "Command Center (executiveusa/pauli-command-center): owner approvals, mission state, Heisenberg HQ; factory queue drives its fixes",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
         "label": "district:command",
