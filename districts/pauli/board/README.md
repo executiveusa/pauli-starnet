@@ -4,7 +4,7 @@ Board mode is part of the StarNet council, not a separate system. The 3-turn adv
 (advocate -> critic -> judge) is unchanged; a board session is the opt-in parallel protocol in the
 same module:
 
-- N persona seats (2..8), each with an id, a model, a weight, and a brain folder (markdown).
+- N persona seats (2..12), each with an id, a model, a weight, and a brain folder (markdown).
 - BLIND-FIRST: in round 1 every seat locks its own position seeing only the proposal - no seat
   sees any other seat's take. In round 2 every seat sees all round-1 positions (never other
   round-2 arguments) and argues to its final vote.

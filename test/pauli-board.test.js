@@ -1,5 +1,5 @@
 /* pauli-board (board mode: persona seats, weighted vote, chair ruling - built INTO the council) —
-   headless proof: board debates open with 2..8 seats and an independent chair; BLIND-FIRST: every
+   headless proof: board debates open with 2..12 seats and an independent chair; BLIND-FIRST: every
    seat locks its round-1 position seeing only the proposal, then round 2 shows every round-1
    position and each seat argues to a final vote; the tally counts only final votes; the chair
    summarizes and locks the section-3 contract extended with statements, rounds, seat->model map,
@@ -38,6 +38,18 @@ const GRANT = { missionId: 'msn-board', provider: 'openrouter', model: 'claude-f
 const mkCouncil = () => makePauliCouncil({ fs, pathMod: path, root, clock, idgen, crypto });
 const mkRunner = (council, callModel) => makePauliCouncilRunner({ council, callModel, prices: PRICES, fs, pathMod: path, root, clock, idgen, crypto });
 const mkRoom = council => council.openRoom({ participants: [{ id: 'p1' }] }).roomId;
+
+// --- the live manifest must fit the seat cap (a board over the cap silently never opens) ---
+{
+  const live = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'districts', 'pauli', 'board', 'manifest.json'), 'utf8'));
+  const c = mkCouncil(); const r = mkRoom(c);
+  const seats = live.seats.map(s => ({ id: s.id, model: 'free-seat', weight: s.weight }));
+  A.ok(live.seats.some(s => s.id === 'kallaway'), 'live manifest includes the kallaway seat');
+  A.ok(c.startBoardDebate(r, { proposal: PROPOSAL, seats, chairModel: CHAIR }).ok, 'a board with ALL ' + seats.length + ' live manifest seats opens');
+  const c2 = mkCouncil(); const r2 = mkRoom(c2);
+  const tooMany = Array.from({ length: 13 }, (_, i) => ({ id: 's' + i, model: 'free-seat' }));
+  A.ok(!c2.startBoardDebate(r2, { proposal: PROPOSAL, seats: tooMany, chairModel: CHAIR }).ok, '13 seats still refused (cap is 12)');
+}
 
 // --- council rules: opening a board ----------------------------------------
 let council = mkCouncil();

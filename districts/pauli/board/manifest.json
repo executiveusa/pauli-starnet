@@ -55,6 +55,12 @@
       "model": "google/gemma-4-31b-it:free",
       "weight": 1,
       "brain": "seats/michele-torti.md"
+    },
+    {
+      "id": "kallaway",
+      "model": "google/gemma-4-31b-it:free",
+      "weight": 1,
+      "brain": "seats/kallaway.md"
     }
   ]
 }
