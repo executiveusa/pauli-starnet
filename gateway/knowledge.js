@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const L = require('../scripts/knowledge/lib.js');
+const W = require('../scripts/knowledge/wiki.js');
 
 const DISTRICT_RE = /^[a-z][a-z0-9-]{0,39}$/;
 
@@ -31,6 +32,48 @@ function makeKnowledgeDesk({ supabaseUrl, supabaseKey, fetchImpl = globalThis.fe
       }
     }
     return docs;
+  }
+
+  // The compiled layer (knowledge/wiki/SCHEMA.md): maintained pages ride the same search, labelled
+  // kind "wiki" and ranked ahead of raw passages, so agents still have exactly one place to look.
+  let wikiPages = null;
+  function wikiIndex() {
+    if (!wikiPages) {
+      let loaded = [];
+      try { loaded = W.loadPages(root); }
+      catch (e) { console.error('wiki load failed: ' + e.message); wikiPages = []; return wikiPages; }   // search still returns raw hits
+      wikiPages = loaded
+        .filter(p => !p.error)
+        .map(p => ({ slug: p.slug, title: p.meta.title, updated: p.meta.updated, sources: p.meta.sources, text: p.meta.title + '\n' + p.body, lower: (p.meta.title + '\n' + p.body).toLowerCase() }));
+    }
+    return wikiPages;
+  }
+
+  function wikiSearch(q, district, limit) {
+    const anyTerm = /\sor\s/i.test(q);
+    const terms = [...new Set(q.toLowerCase().split(/\W+/).filter(t => t.length > 2 && t !== 'or'))];
+    if (!terms.length) return [];
+    const scored = [];
+    const allowed = district ? routedSources(district) : null;
+    for (const d of wikiIndex()) {
+      // A district query only sees pages compiled from at least one source routed to that district.
+      if (allowed && !d.sources.some(sid => allowed.has(sid))) continue;
+      let score = 0, distinct = 0, hit = -1;
+      for (const t of terms) {
+        let i = d.lower.indexOf(t), n = 0;
+        if (i >= 0 && hit < 0) hit = i;
+        while (i >= 0 && n < 20) { n++; i = d.lower.indexOf(t, i + t.length); }
+        if (!n && !anyTerm) { score = 0; break; }
+        if (n) { distinct++; score += n; }
+      }
+      if (score) score += distinct * 100;
+      if (score) scored.push({ d, score, hit });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, limit).map(({ d, score, hit }) => ({
+      source_id: 'city-wiki', external_id: d.slug, title: d.title, url: null, kind: 'wiki',
+      snippet: d.text.slice(Math.max(0, hit - 120), hit + 240).trim(), rank: score
+    }));
   }
 
   function fileSearch(q, district, limit) {
@@ -80,11 +123,12 @@ function makeKnowledgeDesk({ supabaseUrl, supabaseKey, fetchImpl = globalThis.fe
   async function search({ q, district = null, limit = 8 }) {
     const bad = check(q, district, limit);
     if (bad) return { code: 400, body: { error: bad } };
+    const wiki = wikiSearch(q, district, limit);
     if (useDb) {
       const results = await rest('rpc/kb_search', { method: 'POST', body: JSON.stringify({ p_query: q, p_district: district, p_limit: limit }) });
-      return { code: 200, body: { backend: 'supabase', district, q, results } };
+      return { code: 200, body: { backend: 'supabase', district, q, results: wiki.concat(results).slice(0, limit) } };
     }
-    return { code: 200, body: { backend: 'files', district, q, results: fileSearch(q, district, limit), note: 'repo transcripts only; on_server sources need the database' } };
+    return { code: 200, body: { backend: 'files', district, q, results: wiki.concat(fileSearch(q, district, limit)).slice(0, limit), note: 'repo transcripts only; on_server sources need the database' } };
   }
 
   async function insights({ district, status = null }) {
