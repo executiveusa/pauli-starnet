@@ -145,6 +145,8 @@ jobs:
             --title "$TITLE" --notes-file "$RUNNER_TEMP/source-release-plan/body.md"
 
       - name: Verify the published mirror and latest pointer
+        # Skipped (with the notice above) while the release tag is missing: nothing was mirrored, so there is nothing to verify.
+        if: steps.plan.outputs.action == 'noop' || steps.tagcheck.outputs.tagExists == 'true'
         shell: bash
         env:
           TAG: ${{ steps.source.outputs.tag }}
