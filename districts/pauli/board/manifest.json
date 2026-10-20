@@ -49,6 +49,12 @@
       "model": "minimax/minimax-m3.1-flash:free",
       "weight": 1,
       "brain": "seats/cody-schneider.md"
+    },
+    {
+      "id": "michele-torti",
+      "model": "google/gemma-4-31b-it:free",
+      "weight": 1,
+      "brain": "seats/michele-torti.md"
     }
   ]
 }
