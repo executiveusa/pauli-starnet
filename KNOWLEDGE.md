@@ -29,9 +29,18 @@ Machine-readable node index: `knowledge-index.json` (same directory as this file
 | manny-hormozi-315 | revenue | server (old box) | Hormozi canonical long-form, 315 transcripts | knowledge/sources.json |
 | stefan-3d | creative | external repo (impact-city-2026) | Stefan 3D Blender workflow synthesis | knowledge/sources.json |
 
+## The wiki layer (compiled knowledge)
+
+`knowledge/wiki/` holds the maintained pages agents read first - the LLM-Wiki pattern on top of the
+sources below. Contract: `knowledge/wiki/SCHEMA.md`. Agents query the gateway as before; wiki pages
+come back first, labelled `kind: "wiki"`. When you add or change a source, update the pages that draw
+on it in the same commit - the lint (`scripts/knowledge/wiki.js lint`, in the fast gate) flags stale
+pages by source hash.
+
 ## Rules
 
 1. Cite by node ID or source ID + video ID. Verbatim evidence and interpretation stay separated when you cite.
 2. One home per fact. If a rule lives in a playbook, point at it - never copy it into a new file.
 3. New extractions land through workspaces/knowledge-extraction/ (4-stage pipeline) so they arrive index-ready.
 4. Adding a source = append to knowledge-index.json + one row here. Both, same commit.
+5. Adding or changing a source also updates the wiki pages it touches (SCHEMA.md "Ingest"). A source is not ingested until the wiki reflects it.
