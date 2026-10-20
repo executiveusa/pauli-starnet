@@ -253,7 +253,7 @@ function makePauliCouncil(deps) {
      generalized). The chair sees every statement plus the live tally and locks the section-3 ruling
      shape extended with the board record (statements, tally, scored recommendation). 'halt'
      escalates to the human, same as the debate. */
-  const BOARD_SEATS_MIN = 2, BOARD_SEATS_MAX = 8;
+  const BOARD_SEATS_MIN = 2, BOARD_SEATS_MAX = 12;
 
   function isBoard(debate) { return debate && debate.mode === 'board'; }
 
