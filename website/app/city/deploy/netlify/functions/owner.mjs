@@ -65,6 +65,19 @@ export default async (req) => {
   if (base === '/logout' && req.method === 'POST') {
     return ok({ owner: false }, { 'set-cookie': COOKIE + '=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0' });
   }
+  if (base === '/command-center' && req.method === 'GET') {
+    if (!secret) return refuse(503, 'owner mode not configured');
+    if (!(await sessionValid(req, secret))) return refuse(401, 'no session');
+    if (!upstream || !bearer) return refuse(503, 'gateway not configured');
+    const r = await fetch(upstream + '/v1/command-center', { headers: { authorization: 'Bearer ' + bearer } }).catch(() => null);
+    if (!r) return refuse(502, 'gateway unreachable');
+    if (!r.ok) return refuse(502, 'gateway refused the command-center read');
+    const d = await r.json().catch(() => ({}));
+    // read-only owner view: only these top-level keys pass; the bearer and any other upstream field stay server-side.
+    const out = {};
+    for (const k of ['generated_at', 'degraded', 'approvals', 'receipts', 'cost', 'permissions']) if (k in d) out[k] = d[k];
+    return ok(out);
+  }
   const taskMatch = base.match(/^\/tasks\/([A-Za-z0-9._-]{1,80})$/);
   if (taskMatch && req.method === 'GET') {
     if (!secret) return refuse(503, 'owner mode not configured');
