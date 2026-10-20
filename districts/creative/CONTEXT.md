@@ -10,6 +10,7 @@ Where do I go? Creative work in the city routes through this file. Read on entry
 | metricsmule playbooks | video/playbooks/ | prompt-generator system, seedance structure, realism doctrine, model formulas, ugc-influencer production |
 | metricsmule transcripts | video/transcripts/<video_id>.txt | Verbatim evidence only when a citation needs exact words |
 | metricsmule R2 mirror | https://video-exports.thepaulieffect.com/knowledge/metricsmule/ | Catalog TSV, bulk archive, external-fetchable copies |
+| motionvideo (tool lane) | motionvideo/README.md | Motion graphics, explainers, showreels. Uses the user-level MotionVideo pack on the server (never copied into a repo) |
 | dragualin-email-copywriter | email-copywriter/README.md -> knowledge/catalog.json | Email copy doctrine from the @dragualin archive (149 transcripts) - drafts and audits only, cite by video ID |
 
 Proactive rule: agents on a creative task pull the nodes tagged for their workflow stage BEFORE drafting and cite node IDs in output. The README's usage routing ("PROMPTING A SCENE?", "SEEDANCE WORK?", ...) is the entry contract. Do not wait to be asked.
