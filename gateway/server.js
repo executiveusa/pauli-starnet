@@ -35,6 +35,8 @@
 //   GET  /v1/heisenberg/tasks/:id         → get task status/result/logs/receipt
 //   POST /v1/commerce/evidence             → record start/settle evidence from a real commerce worker
 //   POST /v1/approvals/:id/decision       → owner approve/reject decision (auditable)
+//   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
+//   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
@@ -49,6 +51,7 @@
 const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
+const { makeCostLedger, buildCommandCenter } = require('./command-center');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -473,6 +476,8 @@ if (recoveredMissions) log('warn', 'missions interrupted by restart marked faile
 // ─── TASK STORE (in-memory) ───────────────────────────────────────────────────
 // Stores running/completed tasks by ID for GET /v1/heisenberg/tasks/:id
 const taskStore = new Map();
+const costLedger = makeCostLedger(process.env.STARNET_COST_LEDGER || path.join(__dirname, 'data', 'mission-costs.jsonl'));
+const POLICY_FILE = process.env.STARNET_POLICY_FILE || path.join(__dirname, '..', 'registry', 'policy.v1.json');
 
 // ─── REQUEST HANDLER ──────────────────────────────────────────────────────────
 async function handleRequest(req, res) {
@@ -568,6 +573,33 @@ async function handleRequest(req, res) {
         starnet: { ok: starnetOk, host: `${STARNET_HOST}:${STARNET_PORT}` },
         generatedAt: new Date().toISOString()
       });
+    }
+
+    // GET /v1/command-center: the owner's phone view. Read-only; approval decisions stay fail-closed below.
+    if (method === 'GET' && url === '/v1/command-center') {
+      const status = await getCityStatus();
+      let policy = null;
+      try { policy = JSON.parse(fs.readFileSync(POLICY_FILE, 'utf8')); } catch (e) { log('warn', 'policy unreadable', { error: e.message }); }
+      const out = buildCommandCenter({
+        approvals: status.approvals || [],
+        tasks: [...taskStore.values()].slice(-100),
+        costRows: costLedger.read(),
+        policy,
+        rosterIds: (status.citizens || []).map(c => c.id)
+      });
+      out.degraded = !!status.degraded;
+      out.policy_loaded = !!policy;
+      return send(200, out);
+    }
+
+    // POST /v1/costs: record tokens for one mission against a district. Append-only; invalid rows are refused, never coerced.
+    if (method === 'POST' && url === '/v1/costs') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const r = costLedger.record(body);
+      if (!r.ok) return send(400, { error: 'INVALID_COST_ROW', detail: r.error });
+      return send(201, { ok: true, row: r.row });
     }
 
     // GET /v1/city/status
