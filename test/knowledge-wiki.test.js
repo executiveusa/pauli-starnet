@@ -52,6 +52,27 @@ function write(root, rel, text) {
   A.ok(r.warnings.some(w => w.includes('alpha: stale')), 'a source hash mismatch warns stale');
   A.ok(r.warnings.some(w => w.includes('gamma: orphan')), 'an unlinked page warns orphan');
 
+  // ---- review fixes: duplicates, artifact staleness, district routing, load failures ----
+  write(tmp, 'knowledge/wiki/index.md', '# i\n- [[alpha]]\n- [[alpha]]\n');
+  A.ok(W.lint(tmp).errors.join('\n').includes('lists a page more than once: alpha'), 'a duplicate index entry is an error');
+  const gfile = path.join(tmp, 'g.json'); fs.writeFileSync(gfile, '{"a":1}');
+  const srcDef = { id: 'mozi-sales', graph: 'g.json', routes: [] };
+  const h1 = W.artifactHash(tmp, srcDef); fs.writeFileSync(gfile, '{"a":2}');
+  A.ok(h1 && h1 !== W.artifactHash(tmp, srcDef), 'artifactHash changes when the graph file changes');
+  write(tmp, 'knowledge/sources.json', JSON.stringify({ sources: [srcDef] }));
+  write(tmp, 'knowledge/wiki/index.md', '# i\n- [[alpha]]\n');
+  write(tmp, 'knowledge/wiki/pages/alpha.md', '---\ntitle: A\nupdated: 2026-10-20\nsources: mozi-sales\nsource_hashes:\n  mozi-sales: ' + 'b'.repeat(64) + '\nartifact_hashes:\n  mozi-sales: ' + h1 + '\n---\nClaims.');
+  A.ok(W.lint(tmp).warnings.some(w => w.includes('alpha: stale - graph/canon')), 'a changed graph with unchanged transcripts warns stale');
+  write(tmp, 'knowledge/wiki/pages/alpha.md', '---\ntitle: A\nupdated: 2026-10-20\nsources: mozi-sales\nsource_hashes:\n  mozi-sales: ' + 'b'.repeat(64) + '\nartifact_hashes:\n  mozi-sales: ' + W.artifactHash(tmp, srcDef) + '\n---\nClaims.');
+  A.ok(!W.lint(tmp).warnings.some(w => w.includes('alpha: stale')), 'a matching artifact hash is not stale');
+  const unreadable = fs.mkdtempSync(path.join(os.tmpdir(), 'wiki-empty-'));
+  A.eq(W.loadPages(unreadable), [], 'a missing wiki dir loads as no pages');
+  const dd = makeKnowledgeDesk({ root: ROOT });
+  const imp = await dd.search({ q: 'hormozi doctrine', district: 'impact', limit: 5 });
+  A.ok(imp.body.results.every(x => x.external_id !== 'mozi-sales-doctrine'), 'a district query does not return a wiki page compiled only from sources not routed to it');
+  const rev = await dd.search({ q: 'hormozi doctrine', district: 'revenue', limit: 5 });
+  A.ok(rev.body.results.some(x => x.external_id === 'mozi-sales-doctrine'), 'a routed district still gets the wiki page');
+
   // ---- gateway: wiki pages fold into both backends, labelled and first ----
   const desk = makeKnowledgeDesk({ root: ROOT });
   const hit = await desk.search({ q: 'hormozi doctrine', limit: 5 });

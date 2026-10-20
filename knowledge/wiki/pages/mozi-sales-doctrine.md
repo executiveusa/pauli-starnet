@@ -4,6 +4,8 @@ updated: 2026-10-20
 sources: mozi-sales
 source_hashes:
   mozi-sales: 6460b2b87b91e74d01757ee666b539ef3e91e044b53246b5ab54026e966eeea8
+artifact_hashes:
+  mozi-sales: a5415daf8aeea37750ff2ef6368aaac3ba024564863a02502a63a212f41b4b9b
 ---
 
 # Mozi sales doctrine (compiled)

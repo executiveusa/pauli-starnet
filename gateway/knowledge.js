@@ -39,19 +39,25 @@ function makeKnowledgeDesk({ supabaseUrl, supabaseKey, fetchImpl = globalThis.fe
   let wikiPages = null;
   function wikiIndex() {
     if (!wikiPages) {
-      wikiPages = W.loadPages(root)
+      let loaded = [];
+      try { loaded = W.loadPages(root); }
+      catch (e) { console.error('wiki load failed: ' + e.message); wikiPages = []; return wikiPages; }   // search still returns raw hits
+      wikiPages = loaded
         .filter(p => !p.error)
-        .map(p => ({ slug: p.slug, title: p.meta.title, updated: p.meta.updated, text: p.meta.title + '\n' + p.body, lower: (p.meta.title + '\n' + p.body).toLowerCase() }));
+        .map(p => ({ slug: p.slug, title: p.meta.title, updated: p.meta.updated, sources: p.meta.sources, text: p.meta.title + '\n' + p.body, lower: (p.meta.title + '\n' + p.body).toLowerCase() }));
     }
     return wikiPages;
   }
 
-  function wikiSearch(q, limit) {
+  function wikiSearch(q, district, limit) {
     const anyTerm = /\sor\s/i.test(q);
     const terms = [...new Set(q.toLowerCase().split(/\W+/).filter(t => t.length > 2 && t !== 'or'))];
     if (!terms.length) return [];
     const scored = [];
+    const allowed = district ? routedSources(district) : null;
     for (const d of wikiIndex()) {
+      // A district query only sees pages compiled from at least one source routed to that district.
+      if (allowed && !d.sources.some(sid => allowed.has(sid))) continue;
       let score = 0, distinct = 0, hit = -1;
       for (const t of terms) {
         let i = d.lower.indexOf(t), n = 0;
@@ -117,7 +123,7 @@ function makeKnowledgeDesk({ supabaseUrl, supabaseKey, fetchImpl = globalThis.fe
   async function search({ q, district = null, limit = 8 }) {
     const bad = check(q, district, limit);
     if (bad) return { code: 400, body: { error: bad } };
-    const wiki = wikiSearch(q, limit);
+    const wiki = wikiSearch(q, district, limit);
     if (useDb) {
       const results = await rest('rpc/kb_search', { method: 'POST', body: JSON.stringify({ p_query: q, p_district: district, p_limit: limit }) });
       return { code: 200, body: { backend: 'supabase', district, q, results: wiki.concat(results).slice(0, limit) } };

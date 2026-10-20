@@ -10,6 +10,13 @@ source_hashes:
   monica-main: 42d5e685610b14ec3af8d033d55a5bc07cb15368794b904ea0406d844c8dc532
   cause-specialist: c8f2576ddf9d2167a91adf848370729e87830c363d1a82943dc66716fb9d8fd8
   middleton-method: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+artifact_hashes:
+  mozi-sales: a5415daf8aeea37750ff2ef6368aaac3ba024564863a02502a63a212f41b4b9b
+  metricsmule-video: 1d84b3da20b62aa78cfb2da6352011c87497c4205ba20cac00d109b5fd1fcae4
+  email-copywriter: 68836f3472cbdbeebe8c0ec958d4cb79166b38967f48c74bf22103abd1cec8eb
+  monica-main: 9c3c52f7f19454c0ec75e45d2234ce3bfac2c4a54a3c722f8ee4e0182567d971
+  cause-specialist: a50f644cfe883d981038232e3c00e3b2580dcdfa47fee77f6fea149b63f221f6
+  middleton-method: 6e8acb4569d00770cedb110312976be9baa7e64b5f7d75063ff84d7c745d253f
 ---
 
 # City knowledge brain - overview
