@@ -749,3 +749,5 @@ test/task-profile.test.js
 test/workforce-control-plane.test.js
 test/workforce-gateway.test.js
 test/youtube-icm-walk.test.js
+test/command-center.test.js
+test/owner-command-center.test.js
