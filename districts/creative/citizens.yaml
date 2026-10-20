@@ -19,3 +19,12 @@ citizens:
     routes: [brand-intro, hero-animation, line-art, deck-visual]
     gates: [owner-review-before-release, no-automations]
     status: LIVE
+  - id: motionvideo
+    kind: tool-lane
+    path: districts/creative/motionvideo
+    role: motion-graphics-and-showreels
+    mode: draft-and-review-only
+    knowledge: motionvideo/README.md
+    routes: [motion-graphic, explainer-video, showreel, title-sequence, prompt-ideas]
+    gates: [owner-review-before-release, pack-files-never-in-repo, no-automations]
+    status: LIVE
