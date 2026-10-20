@@ -37,6 +37,18 @@
       "model": "google/gemma-4-26b-a4b-it:free",
       "weight": 1,
       "brain": "seats/jake-van-clief.md"
+    },
+    {
+      "id": "boring-marketer",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "weight": 1,
+      "brain": "seats/boring-marketer.md"
+    },
+    {
+      "id": "cody-schneider",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "weight": 1,
+      "brain": "seats/cody-schneider.md"
     }
   ]
 }
