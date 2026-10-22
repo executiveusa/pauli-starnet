@@ -1,0 +1,99 @@
+{
+  "mission": {
+    "route": "city",
+    "source": "instinct",
+    "target": "starnet",
+    "approval": {
+      "scope": [],
+      "granted": false
+    },
+    "trace_id": "trace_9fbea9dd-0e8b-4f78-b082-d0dc2272a56c",
+    "created_at": "2026-09-27T09:51:13.906Z",
+    "mission_id": "c6d0eacd-d71e-4932-bd5c-9504649756e8",
+    "request_id": "req_567b9ec4-0b70-49fc-ba2c-e77953911313",
+    "constraints": [],
+    "permissions": [
+      "research"
+    ],
+    "user_intent": "Heisenberg, run a crew mission on stage 04: brief on the Texas commercial solar leads market from multiple angles. Have the crew split the work: one worker covers market size and growth, another covers the top competitors and typical lead pricing. Keep each worker tight: at most 3 web searches and 2 page fetches per worker, then write the finding and stop. Synthesize into a short sourced brief.",
+    "context_refs": [],
+    "conversation_id": "conv_e6e34bad-834e-48f9-a489-063a69556f5c",
+    "desired_outcome": "Heisenberg, run a crew mission on stage 04: brief on the Texas commercial solar leads market from multiple angles. Have the crew split the work: one worker covers market size and growth, another covers the top competitors and typical lead pricing. Keep each worker tight: at most 3 web searches and 2 page fetches per worker, then write the finding and stop. Synthesize into a short sourced brief.",
+    "idempotency_key": "idem_c1f8514a-8ea5-4e80-bd19-bb25597ec030"
+  },
+  "status": "done",
+  "result": {
+    "mission_id": "c6d0eacd-d71e-4932-bd5c-9504649756e8",
+    "request_id": "req_567b9ec4-0b70-49fc-ba2c-e77953911313",
+    "trace_id": "trace_9fbea9dd-0e8b-4f78-b082-d0dc2272a56c",
+    "agent_id": "starnet",
+    "status": "done",
+    "summary": "**Texas Commercial Solar Leads Market – Multi‑Angle Brief**\n\n**1. Market Size & Growth (Scout)**  \n- No direct public figure for the Texas commercial‑solar‑leads market value was found within the search limits.  \n- Proxy: Texas ranks #2 nationally for installed solar PV capacity at **≈41,460 MW (Q4 2024)**【https://www.biscred.com/post/how-smart-solar-companies-use-data-to-generate-solar-leads】.  \n- Lead‑generation efficiency indicator: SolarReviews reports customers generate **$6–$8 gross margin per $1 spent on leads**【https://www.solarreviews.com/solar-leads】.  \n- Specific CAGR or percentage growth rate for the leads market was not located in the allowed searches.\n\n**2. Competitors & Lead Pricing (Analyst)**  \n- **Top competitors** (Texas‑focused or national platforms active in TX):  \n  - *Abstrakt Marketing Group* – B2B appointment‑setting, exclusive per market.  \n  - *EnergySage* – Solar marketplace delivering shared, high‑intent homeowner leads.  \n  - *Modernize* – Home‑improvement lead platform offering shared & exclusive solar leads.  \n  - *SolarReviews* – Consumer review/marketplace providing shared solar leads from homeowners researching installers.  \n- **Typical lead pricing**:  \n  - Shared leads: **$30 – $100 per lead** (common marketplace range).  \n  - Exclusive leads: premium, custom‑quoted (e.g., Abstrakt’s appointment‑setting service).  \n  - Commercial appointment‑setting/lead‑gen services: custom pricing based on market, volume, scope (not publicly listed).  \n- Sources: ActiveProspect guide, SolarReviews overview, industry blog on lead cost, and ConvertCalculator pricing context【https://activeprospect.com/blog/buy-solar-leads/】【https://www.solarreviews.com/solar-leads】【https://pipe.solar/blogs/solar-leads-cost】【https://www.convertcalculator.com/blog/buying-solar-leads/】.\n\n*Note: Due to the per‑worker limits (≤3 searches, ≤2 fetches), precise USD market size and CAGR for the Texas commercial solar leads market were not retrievable from the available public sources.*",
+    "artifacts": [
+      {
+        "type": "trace",
+        "ref": "starnet://run/b02d493b-9d28-4717-8f22-b23d9b91ff10",
+        "summary": "scout done"
+      },
+      {
+        "type": "trace",
+        "ref": "starnet://run/ad73ba40-00e5-4030-bb48-edaab1d34328",
+        "summary": "analyst done"
+      },
+      {
+        "type": "external_state",
+        "ref": "git:f0520dac009056803d3a359fe5a1770e851ea980",
+        "summary": "StarNet gateway revision"
+      }
+    ],
+    "evidence": [
+      {
+        "type": "trace",
+        "ref": "starnet://run/803cea2f-e9f2-4b88-872d-0ae33e0616ba",
+        "summary": "foreman run"
+      },
+      {
+        "type": "trace",
+        "ref": "starnet://run/b02d493b-9d28-4717-8f22-b23d9b91ff10",
+        "summary": "scout done"
+      },
+      {
+        "type": "trace",
+        "ref": "starnet://run/ad73ba40-00e5-4030-bb48-edaab1d34328",
+        "summary": "analyst done"
+      },
+      {
+        "type": "external_state",
+        "ref": "git:f0520dac009056803d3a359fe5a1770e851ea980",
+        "summary": "StarNet gateway revision"
+      }
+    ],
+    "failures": [],
+    "human_blocker": null,
+    "handoff": null,
+    "memory_candidate": null,
+    "next_action": null,
+    "completed_at": "2026-09-27T09:54:35.758Z",
+    "crew": [
+      {
+        "agent_id": "scout",
+        "run_id": "b02d493b-9d28-4717-8f22-b23d9b91ff10",
+        "status": "done"
+      },
+      {
+        "agent_id": "analyst",
+        "run_id": "ad73ba40-00e5-4030-bb48-edaab1d34328",
+        "status": "done"
+      }
+    ],
+    "solo": false,
+    "runtime": {
+      "starnet_mission_id": "c6d0eacd-d71e-4932-bd5c-9504649756e8",
+      "run_id": "803cea2f-e9f2-4b88-872d-0ae33e0616ba",
+      "revision": "f0520dac009056803d3a359fe5a1770e851ea980"
+    },
+    "receipt_id": "rcpt_4dcb91c6-ef83-4203-a929-4023152bcf40"
+  },
+  "created_at": "2026-09-27T09:51:13.906+00:00",
+  "updated_at": "2026-09-27T09:57:57.431Z"
+}

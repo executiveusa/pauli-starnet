@@ -1,0 +1,38 @@
+[
+ {
+  "source": "runs.jsonl",
+  "runId": "380ccd2f-62b6-4197-b0d3-445522ad04f5",
+  "agentId": "analyst",
+  "reason": "done",
+  "turns": 14,
+  "tokens": 307254,
+  "title": "Identify top competitors in Texas commercial solar leads market and typical lead pricing ("
+ },
+ {
+  "source": "runs.jsonl",
+  "runId": "bf9d90ef-e03c-4a5f-b63f-9a5c9ca1c8d5",
+  "agentId": "scout",
+  "reason": "cancelled",
+  "turns": 14,
+  "tokens": 262106,
+  "title": "Research Texas commercial solar leads market: provide current market size (value, maybe in"
+ },
+ {
+  "source": "ledger.jsonl",
+  "runId": "380ccd2f-62b6-4197-b0d3-445522ad04f5",
+  "agentId": "analyst",
+  "turns": 14,
+  "usd": 0,
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "ts": 1790497477765
+ },
+ {
+  "source": "ledger.jsonl",
+  "runId": "bf9d90ef-e03c-4a5f-b63f-9a5c9ca1c8d5",
+  "agentId": "scout",
+  "turns": 14,
+  "usd": 0,
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "ts": 1790497723805
+ }
+]

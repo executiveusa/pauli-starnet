@@ -1,0 +1,21 @@
+{
+    "mission_id": "c6d0eacd-d71e-4932-bd5c-9504649756e8",
+    "trace_id": "trace_9fbea9dd-0e8b-4f78-b082-d0dc2272a56c",
+    "actor": "starnet",
+    "status": "done",
+    "tier": "GREEN",
+    "approval_ref": null,
+    "inputs_hash": "sha256:5f07a6da55ad092ec39b947b5714b59518d04b8ac0d1f4503c3d4caf7461f8d5",
+    "outputs_hash": "sha256:597b3d00cc8e97da1ae06c72154a322d79a2630d83eab01552454968613fc17b",
+    "evidence": [
+        "starnet://run/803cea2f-e9f2-4b88-872d-0ae33e0616ba",
+        "starnet://run/b02d493b-9d28-4717-8f22-b23d9b91ff10",
+        "starnet://run/ad73ba40-00e5-4030-bb48-edaab1d34328",
+        "git:f0520dac009056803d3a359fe5a1770e851ea980"
+    ],
+    "revision": "f0520dac009056803d3a359fe5a1770e851ea980",
+    "receipt_id": "rcpt_4dcb91c6-ef83-4203-a929-4023152bcf40",
+    "created_at": "2026-09-27T09:57:57.411Z",
+    "prev_hash": "sha256:4aaa6d97d5b170d280f01ac8dad37afc597eebf54ad88d432f7294e32cd2fbdc",
+    "hash": "sha256:e71c7b59745cda293496bf3f17b158b66ebb0e7165ce1545c8a468302a17423e"
+}
