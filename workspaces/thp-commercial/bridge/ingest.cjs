@@ -24,6 +24,8 @@ async function ingestWhatsApp({rawBody,signature,appSecret,lookupOwner,claimInbo
   if(claim?.persisted!==true)return {ok:false,error:'inbox_unconfirmed',processed:accepted,duplicate,rejected};
   const decision=processIntent({tenantId:'thp-commercial',actorId:identity.actorId,identity,channel:'whatsapp_cloud',text:event.text,requestId:event.providerMessageId},{verifyActor:({actor,identity:verified})=>actor===verified?.actorId&&verified?.verified===true});
   if(!decision.ok){rejected++;continue}
+  // Do not send a blank response if a private-data executor has not been implemented.
+  if(typeof decision.answer!=='string'||!decision.answer.trim())return {ok:false,error:'agent_response_unavailable',processed:accepted,duplicate,rejected};
   // No real-world external action is allowed by the current router. Only status or a request for approval.
   let stored;
   try{stored=await recordReceipt({tenantId:'thp-commercial',providerMessageId:event.providerMessageId,receiptId:decision.receiptId,intent:decision.intent,status:decision.status})}
