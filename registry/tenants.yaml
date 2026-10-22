@@ -15,3 +15,13 @@ tenants:
     status: LIVE
     isolation_required: true
     purpose: reusable-starnet-and-hermes-capabilities
+
+  - id: thp-commercial
+    owner: thp-owner-pending-channel-verification
+    status: CONFIGURATION_ONLY
+    isolation_required: true
+    purpose: single-agent-commercial-flooring-operations
+    company_workspace: workspaces/thp-commercial/CONTEXT.md
+    enforcement_policy: registry/policy.v1.json
+    source_business_facts: executiveusa/thp-commercial-bid-room/data/thp-approved-facts.json
+    public_customer_data: false

@@ -7,9 +7,17 @@
       "owner_ref": "kupuri-human-owner",
       "isolation_required": true,
       "agents": {
-        "hermes": ["mission.route", "github.read"],
-        "alex": ["mission.request", "avatar.compose"],
-        "fanni": ["social.prepare"]
+        "hermes": [
+          "mission.route",
+          "github.read"
+        ],
+        "alex": [
+          "mission.request",
+          "avatar.compose"
+        ],
+        "fanni": [
+          "social.prepare"
+        ]
       }
     },
     "shared-platform": {
@@ -17,33 +25,125 @@
       "owner_ref": "platform-owner",
       "isolation_required": true,
       "agents": {
-        "hermes": ["mission.route", "github.read", "deploy.preview"]
+        "hermes": [
+          "mission.route",
+          "github.read",
+          "deploy.preview"
+        ]
+      }
+    },
+    "thp-commercial": {
+      "status": "CONFIGURATION_ONLY",
+      "owner_ref": "thp-approved-owner-pending",
+      "isolation_required": true,
+      "agents": {
+        "thp-instinct": [
+          "mission.request"
+        ],
+        "hermes": [
+          "mission.route"
+        ]
       }
     }
   },
   "agents": {
-    "hermes": {"tenant_scope":"shared","direct_infrastructure_access":false},
-    "alex": {"tenant_scope":"configurable","direct_infrastructure_access":false},
-    "fanni": {"tenant_scope":"kupuri","direct_infrastructure_access":false}
+    "hermes": {
+      "tenant_scope": "shared",
+      "direct_infrastructure_access": false
+    },
+    "alex": {
+      "tenant_scope": "configurable",
+      "direct_infrastructure_access": false
+    },
+    "fanni": {
+      "tenant_scope": "kupuri",
+      "direct_infrastructure_access": false
+    },
+    "thp-instinct": {
+      "tenant_scope": "thp-commercial",
+      "direct_infrastructure_access": false
+    }
   },
   "capabilities": {
-    "mission.route": {"risk":"low","approval":"none","infrastructure":false},
-    "mission.request": {"risk":"low","approval":"none","infrastructure":false},
-    "github.read": {"risk":"low","approval":"none","infrastructure":true},
-    "social.prepare": {"risk":"low","approval":"none","infrastructure":true},
-    "social.publish": {"risk":"high","approval":"human","infrastructure":true},
-    "deploy.preview": {"risk":"medium","approval":"mission-scope","infrastructure":true},
-    "deploy.production": {"risk":"high","approval":"human","infrastructure":true},
-    "github.write": {"risk":"high","approval":"human","infrastructure":true},
-    "spend": {"risk":"critical","approval":"human","infrastructure":true},
-    "avatar.compose": {"risk":"low","approval":"none","infrastructure":false}
+    "mission.route": {
+      "risk": "low",
+      "approval": "none",
+      "infrastructure": false
+    },
+    "mission.request": {
+      "risk": "low",
+      "approval": "none",
+      "infrastructure": false
+    },
+    "github.read": {
+      "risk": "low",
+      "approval": "none",
+      "infrastructure": true
+    },
+    "social.prepare": {
+      "risk": "low",
+      "approval": "none",
+      "infrastructure": true
+    },
+    "social.publish": {
+      "risk": "high",
+      "approval": "human",
+      "infrastructure": true
+    },
+    "deploy.preview": {
+      "risk": "medium",
+      "approval": "mission-scope",
+      "infrastructure": true
+    },
+    "deploy.production": {
+      "risk": "high",
+      "approval": "human",
+      "infrastructure": true
+    },
+    "github.write": {
+      "risk": "high",
+      "approval": "human",
+      "infrastructure": true
+    },
+    "spend": {
+      "risk": "critical",
+      "approval": "human",
+      "infrastructure": true
+    },
+    "avatar.compose": {
+      "risk": "low",
+      "approval": "none",
+      "infrastructure": false
+    }
   },
-  "new_agent_default": {"tenant_scope":"private","capabilities":[],"rooms":[],"note":"An agent that is not listed above starts private: creator only, no capabilities, until added here."},
+  "new_agent_default": {
+    "tenant_scope": "private",
+    "capabilities": [],
+    "rooms": [],
+    "note": "An agent that is not listed above starts private: creator only, no capabilities, until added here."
+  },
   "hard_denies": [
-    {"actor":"alex","when":"infrastructure","reason":"owner-facing avatars cannot directly exercise infrastructure capabilities"},
-    {"actor":"fanni","capability":"social.publish","reason":"publishing is not granted in the first Kupuri vertical slice"},
-    {"capability":"deploy.production","reason":"production deployment is outside the first Kupuri vertical slice"},
-    {"capability":"github.write","reason":"destructive/write GitHub authority is outside the first Kupuri vertical slice"},
-    {"capability":"spend","reason":"spend is outside the first Kupuri vertical slice"}
+    {
+      "actor": "alex",
+      "when": "infrastructure",
+      "reason": "owner-facing avatars cannot directly exercise infrastructure capabilities"
+    },
+    {
+      "actor": "fanni",
+      "capability": "social.publish",
+      "reason": "publishing is not granted in the first Kupuri vertical slice"
+    },
+    {
+      "capability": "deploy.production",
+      "reason": "production deployment is outside the first Kupuri vertical slice"
+    },
+    {
+      "capability": "github.write",
+      "reason": "destructive/write GitHub authority is outside the first Kupuri vertical slice"
+    },
+    {
+      "capability": "spend",
+      "reason": "spend is outside the first Kupuri vertical slice"
+    }
   ]
 }
