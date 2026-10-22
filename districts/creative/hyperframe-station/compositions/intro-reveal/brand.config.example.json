@@ -1,0 +1,18 @@
+{
+  "brand": "Crown & Core",
+  "bg": "#0a0908",
+  "ink": "#f3ede2",
+  "accent": "#c9a86a",
+  "accent2": "#c9a86a",
+  "display_font": "Cormorant Garamond",
+  "wordmark": "CROWN & CORE",
+  "wordmark2": "",
+  "tagline": "The direction we recommend",
+  "credits": "PREPARED FOR LETHIA - MACS DIGITAL MEDIA",
+  "duration": 12,
+  "logo": {
+    "mode": "svg",
+    "scale": 420,
+    "markup": "<svg viewBox=\"0 0 100 100\"><path d=\"M50 10 L90 50 L50 90 L10 50 Z\" fill=\"#c9a86a\" stroke=\"#c9a86a\" stroke-width=\"1\"/></svg>"
+  }
+}
