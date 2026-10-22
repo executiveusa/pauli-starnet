@@ -1,0 +1,16 @@
+{
+  "tenant": "thp-commercial",
+  "phase": "integration_not_live",
+  "owner_channel": "not_connected",
+  "database": "blocked_by_supabase_free_project_quota",
+  "website": "existing_thp_vercel_site_independent",
+  "starnet_bridge": "contract_only",
+  "first_walk_test": "pending_ci",
+  "customer_data_access": "disabled",
+  "next_gate": "Connect dedicated tenant database and authenticated WhatsApp provider, then prove one message -> one action -> durable receipt.",
+  "human_approvals": [
+    "THP contact and privacy details",
+    "provider sender and spend approval",
+    "go_live"
+  ]
+}
