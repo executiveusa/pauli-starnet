@@ -1,0 +1,124 @@
+From 870c7306ec2f53055dc76a2a821006597bb91792 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 24 Oct 2026 05:06:42 +0000
+Subject: [PATCH] foreman: report finished-but-unposted results instead of 'no
+ work queued'
+
+On prod-city-1 the impact and production lanes logged 'IDLE no work queued' 271 times while #63-#68 were open and
+approved. Missions that finish are recorded as finished; with FOREMAN_GITHUB_WRITE unset their results are never
+posted, and the lane then looked empty. The board now names each finished item, its mission id and where to read it.
+Also regenerates registry/districts.json (stale after the seth-godin-books source) and updates the active-lane test
+for the command lane the owner activated on 2026-10-16.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UT634vRaoTwhUfNCqUDbT5
+---
+ registry/districts.json       |  7 +++++--
+ scripts/district/foreman.js   |  2 +-
+ sidecar/district-foreman.js   | 12 +++++++++---
+ test/district-foreman.test.js |  9 ++++++++-
+ 4 files changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/registry/districts.json b/registry/districts.json
+index 9335151eb..e678efe2b 100644
+--- a/registry/districts.json
++++ b/registry/districts.json
+@@ -46,7 +46,9 @@
+       "unattended_permissions": [
+         "research"
+       ],
+-      "knowledge": [],
++      "knowledge": [
++        "seth-godin-books"
++      ],
+       "aliases": []
+     },
+     {
+@@ -131,7 +133,8 @@
+         "jake-trinder-20",
+         "middleton-method",
+         "jasper-smart-sites",
+-        "closer-sales-call-stages"
++        "closer-sales-call-stages",
++        "seth-godin-books"
+       ],
+       "aliases": [
+         "middleton",
+diff --git a/scripts/district/foreman.js b/scripts/district/foreman.js
+index 7e95a11e4..c92ca0d65 100644
+--- a/scripts/district/foreman.js
++++ b/scripts/district/foreman.js
+@@ -131,7 +131,7 @@ function makeForeman({ env = process.env, fetchImpl = globalThis.fetch, now = ()
+     }
+ 
+     // 3. Decide, then dispatch.
+-    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10), queueErrors });
++    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10), queueErrors, resultsPosted: ghWrite });
+     for (const dec of decisions) {
+       if (dec.action !== 'DISPATCH') continue;
+       const item = dec.item;
+diff --git a/sidecar/district-foreman.js b/sidecar/district-foreman.js
+index 0ec55597f..39dd2e2e5 100644
+--- a/sidecar/district-foreman.js
++++ b/sidecar/district-foreman.js
+@@ -45,7 +45,7 @@ function spentToday(lane, now) {
+   return lane.spend && lane.spend.day === utcDay(now) ? Number(lane.spend.usd) || 0 : 0;
+ }
+ 
+-function decideDistrict(district, items, lane, now, queueErrors = {}) {
++function decideDistrict(district, items, lane, now, queueErrors = {}, resultsPosted = true) {
+   const mine = items.filter(i => i.district === district.id && !i.is_pr);
+   const base = { district: district.id, active: district.active, queued: mine.length };
+ 
+@@ -89,14 +89,20 @@ function decideDistrict(district, items, lane, now, queueErrors = {}) {
+   if (waiting.length) {
+     return { ...base, action: 'BLOCKED', issue: waiting[0].number, question: 'Approve ' + waiting.slice(0, 3).map(i => '#' + i.number + ' "' + i.title + '"').join(', ') + ' (add the label "approved") to start.' };
+   }
++  // Finished work whose result never reached the issue is not "no work": say where the results are instead.
++  const unposted = resultsPosted ? [] : mine.filter(i => lane.finished[i.number] && lane.finished[i.number].status === 'done');
++  if (unposted.length) {
++    const list = unposted.slice(0, 3).map(i => '#' + i.number + ' (mission ' + lane.finished[i.number].mission_id + ')').join(', ');
++    return { ...base, action: 'BLOCKED', issue: unposted[0].number, question: unposted.length + ' item(s) finished but their results were never posted to GitHub: ' + list + '. Read them at /v1/missions/<id>, or set FOREMAN_GITHUB_WRITE=1 so results are posted.' };
++  }
+   return { ...base, action: 'IDLE', reason: 'no work queued: open an issue labeled district:' + district.id };
+ }
+ 
+ // The whole city, one tick. maxDispatch bounds how many missions one tick may start across all districts.
+-function decide({ districts, items, state, now, maxDispatch = 3, queueErrors = {} }) {
++function decide({ districts, items, state, now, maxDispatch = 3, queueErrors = {}, resultsPosted = true }) {
+   let budget = maxDispatch;
+   return districts.map(d => {
+-    const out = decideDistrict(d, items, laneState(state, d.id), now, queueErrors);
++    const out = decideDistrict(d, items, laneState(state, d.id), now, queueErrors, resultsPosted);
+     if (out.action === 'DISPATCH') {
+       if (budget <= 0) return { ...out, action: 'IDLE', reason: 'waiting for a dispatch slot this tick' };
+       budget--;
+diff --git a/test/district-foreman.test.js b/test/district-foreman.test.js
+index 0b02c6c72..0bf6aa077 100644
+--- a/test/district-foreman.test.js
++++ b/test/district-foreman.test.js
+@@ -35,7 +35,7 @@ function req(method, port, p, headers) {
+   const reg = buildRegistry();
+   A.eq(reg.districts.length, 12, 'the registry has the 12 CitySpec districts');
+   A.eq(render(reg), fs.readFileSync(path.join(ROOT, 'registry', 'districts.json'), 'utf8'), 'registry/districts.json is current (run scripts/city/build-registry.js)');
+-  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['commerce', 'impact', 'production'], 'the first three lanes are active, the rest are honest IDLE');
++  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'commerce', 'impact', 'production'], 'the active lanes are command (owner, 2026-10-16), commerce, impact and production; the rest are honest IDLE');
+   A.ok(reg.districts.every(d => d.queue.label === 'district:' + d.id && d.foreman === 'heisenberg'), 'every district has a queue label and Heisenberg as foreman');
+   A.ok(reg.districts.find(d => d.id === 'impact').knowledge.includes('cause-specialist'), 'districts carry their knowledge sources');
+   A.ok(reg.districts.find(d => d.id === 'production').aliases.includes('factory'), 'old ids map by alias (factory -> production)');
+@@ -169,5 +169,12 @@ function req(method, port, p, headers) {
+   A.ok(askLive.issue === 63 && /^Approve #63 "Task 63", #64 "Task 64", #65 "Task 65"/.test(askLive.question), 'the approval question is oldest first, whatever order GitHub returns');
+   A.eq(one(D('impact'), live.map(i => Object.assign({}, i, { labels: i.labels.concat({ name: 'approved' }) }))).issue, 63, 'with everything approved, the oldest item runs first');
+ 
++  // ---- finished work with FOREMAN_GITHUB_WRITE unset is reported, not hidden as "no work queued" (prod-city-1, 2026-10-24) ----
++  const doneState = { districts: { impact: { finished: { 63: { status: 'done', mission_id: 'd-impact-63-a1', at: '2026-10-16T00:00:00Z' } } } } };
++  const doneIssue = [issue(63, 'impact', ['approved'])];
++  const hidden = F.decide({ districts: [D('impact')], items: items(doneIssue), state: doneState, now: NOW, resultsPosted: false })[0];
++  A.ok(hidden.action === 'BLOCKED' && /never posted to GitHub: #63 \(mission d-impact-63-a1\)/.test(hidden.question) && /FOREMAN_GITHUB_WRITE=1/.test(hidden.question), 'finished but unposted results are named, with where to read them');
++  A.eq(F.decide({ districts: [D('impact')], items: items(doneIssue), state: doneState, now: NOW })[0].action, 'IDLE', 'with results posted, a finished lane is IDLE as before');
++
+   A.report('district-foreman.test');
+ })().catch(e => { console.error(e); process.exit(1); });
+-- 
+2.43.0
+
