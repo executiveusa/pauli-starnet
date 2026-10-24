@@ -38,6 +38,7 @@
 //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
 //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   GET  /v1/rooms                         → meeting rooms (issue #71): manifests, validation errors, agent-mail proof
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
 //   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
@@ -52,6 +53,7 @@ const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
 const { makeCostLedger, buildCommandCenter } = require('./command-center');
+const rooms = require('./rooms');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -469,6 +471,9 @@ const missionDesk = makeMissionDesk({
 });
 const recoveredMissions = missionDesk.recoverOnBoot();
 const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
+// Meeting rooms (issue #71): manifests in rooms/, validated against the district registry and agent roster.
+const ROOMS_DIR = process.env.STARNET_ROOMS_DIR || path.join(__dirname, '..', 'rooms');
+const REGISTRY_DIR = process.env.STARNET_REGISTRY_DIR || path.join(__dirname, '..', 'registry');
 // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
 const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
@@ -632,6 +637,27 @@ async function handleRequest(req, res) {
       if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
       const ageMs = Date.now() - Date.parse(board.at);
       return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+    }
+
+    // GET /v1/rooms — every meeting room, its validation errors, and only what agent-mail proves about it.
+    // agent_mail is 'not_configured' until AGENT_MAIL_URL is set; message counts stay null until a thread read exists.
+    if (method === 'GET' && url === '/v1/rooms') {
+      let districtIds = [];
+      let agentIds = [];
+      try { const reg = JSON.parse(fs.readFileSync(path.join(REGISTRY_DIR, 'districts.json'), 'utf8')); districtIds = (reg.districts || reg).map(d => d.id); } catch (_) { /* reported below */ }
+      try { agentIds = rooms.agentIdsFromYaml(fs.readFileSync(path.join(REGISTRY_DIR, 'agents.yaml'), 'utf8')); } catch (_) { /* reported below */ }
+      const loaded = rooms.loadRooms(ROOMS_DIR, { districtIds, agentIds });
+      if (!districtIds.length) loaded.errors.unshift('registry/districts.json unreadable');
+      let directory = null;
+      if (process.env.AGENT_MAIL_URL) {
+        const { AgentMailClient } = require('../shared/agent-mail-client.js');
+        const client = new AgentMailClient({ clientName: 'starnet-gateway-rooms' });
+        directory = key => client.ensureProject(key).then(() => client.directory(key));
+      }
+      const projectKey = process.env.AGENT_MAIL_PROJECT || path.join(__dirname, '..');
+      const out = [];
+      for (const room of loaded.rooms) out.push({ ...room, proof: await rooms.roomProof(room, { directory, projectKey }) });
+      return send(200, { rooms: out, errors: loaded.errors, degraded: loaded.errors.length > 0 || out.some(r => r.proof.agent_mail !== 'reachable') });
     }
 
     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)

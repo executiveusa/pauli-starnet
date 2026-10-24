@@ -698,6 +698,7 @@ test/gateway-missions.test.js
 test/knowledge.test.js
 test/knowledge-wiki.test.js
 test/district-foreman.test.js
+test/rooms.test.js
 test/review-gate.test.js
 test/first-lanes.test.js
 test/gateway-hardening.test.js
