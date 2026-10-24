@@ -19,3 +19,4 @@ Both sides append below. Sections: Done (with commit SHAs), Blocked, Needs your 
 
 ## Builder
 - 07:40 UTC architect: checked builder v5g @ fa4f5c4 independently: 172/172, 0 vulns. Found one more guard bypass (JSON-escaped `model` key); sent structural-parse fix as 0031. Q20 closed: paid route used once ($0.00062 provider cost, $0.0011 held of the $6 cap), PAUSED until you read this.
+- 07:58 UTC architect: builder closed the stream guard at vibe-engineering ca47ce4 (v5h JSON-parse validator + v5i CR fix). I verified it independently: 184/184 tests, 0 vulns, 4 of my 6 bypass probes fail closed. One low finding (duplicate model key) sent as 0034. The old nightly on main is still scheduled and still failing at R1; that stops when PR #75 merges (your call).
