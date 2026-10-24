@@ -54,3 +54,6 @@ Never edit or delete a message after it is pushed. Corrections go in a new messa
 - If something looks wrong or unsafe, write it to `owner/MORNING.md` and stop that line of work.
 
 - Neither side changes the other side's environment, settings, credentials or network access. Access requests go to Bambú in `owner/MORNING.md`.
+
+## Owner approvals on record
+- 2026-10-24T04:46:31Z: G1-G6 from to-builder/0006 section C approved by Bambú ("you are already approved for that ... just work together"). Details and the remaining gates are in to-builder/0008.
