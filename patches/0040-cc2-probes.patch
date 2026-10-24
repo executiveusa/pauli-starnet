@@ -1,0 +1,1000 @@
+From 18e51db55ee8181978e7835858ec9bff4239c07e Mon Sep 17 00:00:00 2001
+From: "Instinct Builder (for Bambu)" <builder@instinct.local>
+Date: Sat, 24 Oct 2026 02:15:51 -0600
+Subject: [PATCH] CC2 probes: truthful-degradation envelope + 4 probe families
+ + fixture tests (8/8)
+
+Architect board 0006 section D: every panel reads {ok, observed_at, source,
+latency_ms, error}; a failed probe is a failed card with error and age, never
+an empty or green card. Pure parsers exported for fixture tests; fetchers wire
+through the existing httpProbe at integration time.
+
+Families: gateway /v1/districts (districts/action/question/stale/age_seconds),
+foreman timer via the gateway board (last run/exit/next run; absent fields
+degrade to null honestly - live field names unverified), factory latest run +
+runner online/offline (read-only Actions API). Council graph stays truthful
+not-wired (no status route in the canonical gateway).
+
+Fixtures: factory-runs/runners RECORDED from the public GitHub API
+2026-10-24 ~02:15 CST (runners total_count 0 is the real recorded state);
+gateway payloads SYNTHETIC per the 0006 shape (no live /v1/districts payload
+has ever been recorded; district labels remain hypothesis-only). Provenance in
+fixtures/README.md. Local code + tests only - no deploy, no host changes.
+---
+ fixtures/README.md                            |  15 +
+ fixtures/factory-runners-RECORDED.json        |   4 +
+ fixtures/factory-runs-RECORDED.json           | 701 ++++++++++++++++++
+ fixtures/gateway-board-foreman-SYNTHETIC.json |   6 +
+ fixtures/gateway-districts-SYNTHETIC.json     |   6 +
+ probes-cc2.js                                 | 103 +++
+ tests/cc2-probes.test.mjs                     |  79 ++
+ 7 files changed, 914 insertions(+)
+ create mode 100644 fixtures/README.md
+ create mode 100644 fixtures/factory-runners-RECORDED.json
+ create mode 100644 fixtures/factory-runs-RECORDED.json
+ create mode 100644 fixtures/gateway-board-foreman-SYNTHETIC.json
+ create mode 100644 fixtures/gateway-districts-SYNTHETIC.json
+ create mode 100644 probes-cc2.js
+ create mode 100644 tests/cc2-probes.test.mjs
+
+diff --git a/fixtures/README.md b/fixtures/README.md
+new file mode 100644
+index 0000000..352ca74
+--- /dev/null
++++ b/fixtures/README.md
+@@ -0,0 +1,15 @@
++# CC2 probe fixtures
++
++Provenance, per fixture:
++
++- factory-runs-RECORDED.json - RECORDED 2026-10-24 ~02:15 CST from the public
++  GitHub Actions API (GET /repos/executiveusa/vibe-engineering/actions/runs?per_page=3).
++- factory-runners-RECORDED.json - RECORDED same time (GET .../actions/runners);
++  total_count 0 is the real recorded state (no self-hosted runners registered).
++- gateway-districts-SYNTHETIC.json - SYNTHETIC. Shape per architect board 0006
++  section D (districts, action, question, stale, age_seconds). No live
++  /v1/districts payload has ever been recorded; values are invented, shape is
++  the architect's. District labels remain hypothesis-only per the desk read.
++- gateway-board-foreman-SYNTHETIC.json - SYNTHETIC. Foreman timer fields read
++  through the gateway board per 0006 section D; exact live field names are
++  UNVERIFIED, so the parser degrades honestly when a field is absent.
+diff --git a/fixtures/factory-runners-RECORDED.json b/fixtures/factory-runners-RECORDED.json
+new file mode 100644
+index 0000000..bc9c309
+--- /dev/null
++++ b/fixtures/factory-runners-RECORDED.json
+@@ -0,0 +1,4 @@
++{
++ "total_count": 0,
++ "runners": []
++}
+\ No newline at end of file
+diff --git a/fixtures/factory-runs-RECORDED.json b/fixtures/factory-runs-RECORDED.json
+new file mode 100644
+index 0000000..ecc6ef5
+--- /dev/null
++++ b/fixtures/factory-runs-RECORDED.json
+@@ -0,0 +1,701 @@
++{
++ "total_count": 1099,
++ "workflow_runs": [
++  {
++   "id": 40074776742,
++   "name": "Nightly Production Readiness Factory",
++   "node_id": "WFR_kwLOTa8Has8AAAAJVKSQpg",
++   "head_branch": "main",
++   "head_sha": "6dfb317721ceb146b588e176920287b45b1324f4",
++   "path": ".github/workflows/nightly-production-readiness.yml",
++   "display_title": "Nightly Production Readiness Factory",
++   "run_number": 119,
++   "event": "schedule",
++   "status": "completed",
++   "conclusion": "failure",
++   "workflow_id": 315536353,
++   "check_suite_id": 108623525856,
++   "check_suite_node_id": "CS_kwDOTa8Has8AAAAZSnd34A",
++   "url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742",
++   "html_url": "https://github.com/executiveusa/vibe-engineering/actions/runs/40074776742",
++   "pull_requests": [],
++   "created_at": "2026-10-24T07:36:02Z",
++   "updated_at": "2026-10-24T07:36:14Z",
++   "actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "run_attempt": 1,
++   "referenced_workflows": [],
++   "run_started_at": "2026-10-24T07:36:02Z",
++   "triggering_actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "jobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742/jobs",
++   "logs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742/logs",
++   "check_suite_url": "https://api.github.com/repos/executiveusa/vibe-engineering/check-suites/108623525856",
++   "artifacts_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742/artifacts",
++   "cancel_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742/cancel",
++   "rerun_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40074776742/rerun",
++   "previous_attempt_url": null,
++   "workflow_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/workflows/315536353",
++   "head_commit": {
++    "id": "6dfb317721ceb146b588e176920287b45b1324f4",
++    "tree_id": "f62256d68c8d74352d01569c1695bed9327a16d3",
++    "message": "docs: add lazy workflow skill routes (#72)\n\nCo-authored-by: executiveusa <executiveusa@users.noreply.github.com>",
++    "timestamp": "2026-10-13T16:22:56Z",
++    "author": {
++     "name": "THE PAULI EFFECT",
++     "email": "[redacted-account-email]"
++    },
++    "committer": {
++     "name": "GitHub",
++     "email": "noreply@github.com"
++    }
++   },
++   "repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   },
++   "head_repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   }
++  },
++  {
++   "id": 40068990371,
++   "name": "Vercel Production",
++   "node_id": "WFR_kwLOTa8Has8AAAAJVExFow",
++   "head_branch": "main",
++   "head_sha": "6dfb317721ceb146b588e176920287b45b1324f4",
++   "path": ".github/workflows/vercel-production.yml",
++   "display_title": "Vercel Production",
++   "run_number": 270,
++   "event": "workflow_run",
++   "status": "completed",
++   "conclusion": "skipped",
++   "workflow_id": 345984956,
++   "check_suite_id": 108608096570,
++   "check_suite_node_id": "CS_kwDOTa8Has8AAAAZSYwJOg",
++   "url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371",
++   "html_url": "https://github.com/executiveusa/vibe-engineering/actions/runs/40068990371",
++   "pull_requests": [],
++   "created_at": "2026-10-24T06:08:06Z",
++   "updated_at": "2026-10-24T06:08:13Z",
++   "actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "run_attempt": 1,
++   "referenced_workflows": [],
++   "run_started_at": "2026-10-24T06:08:06Z",
++   "triggering_actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "jobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371/jobs",
++   "logs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371/logs",
++   "check_suite_url": "https://api.github.com/repos/executiveusa/vibe-engineering/check-suites/108608096570",
++   "artifacts_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371/artifacts",
++   "cancel_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371/cancel",
++   "rerun_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068990371/rerun",
++   "previous_attempt_url": null,
++   "workflow_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/workflows/345984956",
++   "head_commit": {
++    "id": "6dfb317721ceb146b588e176920287b45b1324f4",
++    "tree_id": "f62256d68c8d74352d01569c1695bed9327a16d3",
++    "message": "docs: add lazy workflow skill routes (#72)\n\nCo-authored-by: executiveusa <executiveusa@users.noreply.github.com>",
++    "timestamp": "2026-10-13T16:22:56Z",
++    "author": {
++     "name": "THE PAULI EFFECT",
++     "email": "[redacted-account-email]"
++    },
++    "committer": {
++     "name": "GitHub",
++     "email": "noreply@github.com"
++    }
++   },
++   "repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   },
++   "head_repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   }
++  },
++  {
++   "id": 40068970513,
++   "name": ".github/workflows/vibe-code-review.yml",
++   "node_id": "WFR_kwLOTa8Has8AAAAJVEv4EQ",
++   "head_branch": "factory/phase0-hosted-dry-lane",
++   "head_sha": "71b14deb64fb76f0731c8fc38322517ec4f5f2f0",
++   "path": ".github/workflows/vibe-code-review.yml",
++   "display_title": "Phase 0: hosted dry lane with zero-model guarantee",
++   "run_number": 78,
++   "event": "pull_request",
++   "status": "completed",
++   "conclusion": "failure",
++   "workflow_id": 348684937,
++   "check_suite_id": 108608042373,
++   "check_suite_node_id": "CS_kwDOTa8Has8AAAAZSYs1hQ",
++   "url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513",
++   "html_url": "https://github.com/executiveusa/vibe-engineering/actions/runs/40068970513",
++   "pull_requests": [
++    {
++     "url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls/75",
++     "id": 4992615103,
++     "number": 75,
++     "head": {
++      "ref": "factory/phase0-hosted-dry-lane",
++      "sha": "71b14deb64fb76f0731c8fc38322517ec4f5f2f0",
++      "repo": {
++       "id": 1303316330,
++       "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++       "name": "vibe-engineering"
++      }
++     },
++     "base": {
++      "ref": "main",
++      "sha": "6dfb317721ceb146b588e176920287b45b1324f4",
++      "repo": {
++       "id": 1303316330,
++       "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++       "name": "vibe-engineering"
++      }
++     }
++    }
++   ],
++   "created_at": "2026-10-24T06:07:47Z",
++   "updated_at": "2026-10-24T06:07:47Z",
++   "actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "run_attempt": 1,
++   "referenced_workflows": [],
++   "run_started_at": "2026-10-24T06:07:47Z",
++   "triggering_actor": {
++    "login": "executiveusa",
++    "id": 191772270,
++    "node_id": "U_kgDOC242bg",
++    "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++    "gravatar_id": "",
++    "url": "https://api.github.com/users/executiveusa",
++    "html_url": "https://github.com/executiveusa",
++    "followers_url": "https://api.github.com/users/executiveusa/followers",
++    "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++    "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++    "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++    "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++    "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++    "repos_url": "https://api.github.com/users/executiveusa/repos",
++    "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++    "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++    "type": "User",
++    "user_view_type": "public",
++    "site_admin": false
++   },
++   "jobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513/jobs",
++   "logs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513/logs",
++   "check_suite_url": "https://api.github.com/repos/executiveusa/vibe-engineering/check-suites/108608042373",
++   "artifacts_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513/artifacts",
++   "cancel_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513/cancel",
++   "rerun_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/runs/40068970513/rerun",
++   "previous_attempt_url": null,
++   "workflow_url": "https://api.github.com/repos/executiveusa/vibe-engineering/actions/workflows/348684937",
++   "head_commit": {
++    "id": "71b14deb64fb76f0731c8fc38322517ec4f5f2f0",
++    "tree_id": "369601a361a0eb30d960cdd76d1d041ddae79eb9",
++    "message": "fix: vite 8.1.5 -> 8.3.5 (dependabot #74 port) - clears Quality Gate audit failure on PR #75; 113/113 suite green",
++    "timestamp": "2026-10-24T06:06:28Z",
++    "author": {
++     "name": "Instinct Agent",
++     "email": "agent@instinct.com"
++    },
++    "committer": {
++     "name": "Instinct Agent",
++     "email": "agent@instinct.com"
++    }
++   },
++   "repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   },
++   "head_repository": {
++    "id": 1303316330,
++    "node_id": "R_kgDOTa8Hag",
++    "name": "vibe-engineering",
++    "full_name": "executiveusa/vibe-engineering",
++    "private": false,
++    "owner": {
++     "login": "executiveusa",
++     "id": 191772270,
++     "node_id": "U_kgDOC242bg",
++     "avatar_url": "https://avatars.githubusercontent.com/u/191772270?v=4",
++     "gravatar_id": "",
++     "url": "https://api.github.com/users/executiveusa",
++     "html_url": "https://github.com/executiveusa",
++     "followers_url": "https://api.github.com/users/executiveusa/followers",
++     "following_url": "https://api.github.com/users/executiveusa/following{/other_user}",
++     "gists_url": "https://api.github.com/users/executiveusa/gists{/gist_id}",
++     "starred_url": "https://api.github.com/users/executiveusa/starred{/owner}{/repo}",
++     "subscriptions_url": "https://api.github.com/users/executiveusa/subscriptions",
++     "organizations_url": "https://api.github.com/users/executiveusa/orgs",
++     "repos_url": "https://api.github.com/users/executiveusa/repos",
++     "events_url": "https://api.github.com/users/executiveusa/events{/privacy}",
++     "received_events_url": "https://api.github.com/users/executiveusa/received_events",
++     "type": "User",
++     "user_view_type": "public",
++     "site_admin": false
++    },
++    "html_url": "https://github.com/executiveusa/vibe-engineering",
++    "description": "Vibe ",
++    "fork": false,
++    "url": "https://api.github.com/repos/executiveusa/vibe-engineering",
++    "forks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/forks",
++    "keys_url": "https://api.github.com/repos/executiveusa/vibe-engineering/keys{/key_id}",
++    "collaborators_url": "https://api.github.com/repos/executiveusa/vibe-engineering/collaborators{/collaborator}",
++    "teams_url": "https://api.github.com/repos/executiveusa/vibe-engineering/teams",
++    "hooks_url": "https://api.github.com/repos/executiveusa/vibe-engineering/hooks",
++    "issue_events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/events{/number}",
++    "events_url": "https://api.github.com/repos/executiveusa/vibe-engineering/events",
++    "assignees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/assignees{/user}",
++    "branches_url": "https://api.github.com/repos/executiveusa/vibe-engineering/branches{/branch}",
++    "tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/tags",
++    "blobs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/blobs{/sha}",
++    "git_tags_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/tags{/sha}",
++    "git_refs_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/refs{/sha}",
++    "trees_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/trees{/sha}",
++    "statuses_url": "https://api.github.com/repos/executiveusa/vibe-engineering/statuses/{sha}",
++    "languages_url": "https://api.github.com/repos/executiveusa/vibe-engineering/languages",
++    "stargazers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/stargazers",
++    "contributors_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contributors",
++    "subscribers_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscribers",
++    "subscription_url": "https://api.github.com/repos/executiveusa/vibe-engineering/subscription",
++    "commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/commits{/sha}",
++    "git_commits_url": "https://api.github.com/repos/executiveusa/vibe-engineering/git/commits{/sha}",
++    "comments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/comments{/number}",
++    "issue_comment_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues/comments{/number}",
++    "contents_url": "https://api.github.com/repos/executiveusa/vibe-engineering/contents/{+path}",
++    "compare_url": "https://api.github.com/repos/executiveusa/vibe-engineering/compare/{base}...{head}",
++    "merges_url": "https://api.github.com/repos/executiveusa/vibe-engineering/merges",
++    "archive_url": "https://api.github.com/repos/executiveusa/vibe-engineering/{archive_format}{/ref}",
++    "downloads_url": "https://api.github.com/repos/executiveusa/vibe-engineering/downloads",
++    "issues_url": "https://api.github.com/repos/executiveusa/vibe-engineering/issues{/number}",
++    "pulls_url": "https://api.github.com/repos/executiveusa/vibe-engineering/pulls{/number}",
++    "milestones_url": "https://api.github.com/repos/executiveusa/vibe-engineering/milestones{/number}",
++    "notifications_url": "https://api.github.com/repos/executiveusa/vibe-engineering/notifications{?since,all,participating}",
++    "labels_url": "https://api.github.com/repos/executiveusa/vibe-engineering/labels{/name}",
++    "releases_url": "https://api.github.com/repos/executiveusa/vibe-engineering/releases{/id}",
++    "deployments_url": "https://api.github.com/repos/executiveusa/vibe-engineering/deployments"
++   }
++  }
++ ]
++}
+\ No newline at end of file
+diff --git a/fixtures/gateway-board-foreman-SYNTHETIC.json b/fixtures/gateway-board-foreman-SYNTHETIC.json
+new file mode 100644
+index 0000000..b4bb253
+--- /dev/null
++++ b/fixtures/gateway-board-foreman-SYNTHETIC.json
+@@ -0,0 +1,6 @@
++{
++  "districts": [
++    { "id": "foreman", "action": "idle", "question": null, "stale": false, "age_seconds": 45,
++      "last_run_at": "2026-10-24T07:10:00Z", "last_exit": 0, "next_run_at": "2026-10-24T07:20:00Z" }
++  ]
++}
+diff --git a/fixtures/gateway-districts-SYNTHETIC.json b/fixtures/gateway-districts-SYNTHETIC.json
+new file mode 100644
+index 0000000..f007e89
+--- /dev/null
++++ b/fixtures/gateway-districts-SYNTHETIC.json
+@@ -0,0 +1,6 @@
++{
++  "districts": [
++    { "id": "alpha", "action": "idle", "question": null, "stale": false, "age_seconds": 12 },
++    { "id": "beta", "action": "work", "question": "need owner input", "stale": true, "age_seconds": 9000 }
++  ]
++}
+diff --git a/probes-cc2.js b/probes-cc2.js
+new file mode 100644
+index 0000000..84d0f64
+--- /dev/null
++++ b/probes-cc2.js
+@@ -0,0 +1,103 @@
++// CC2 probes (architect board 0006 section D): truthful-degradation probes for
++// the StarNet command center. EVERY panel reads one envelope:
++//   { ok, observed_at, source, latency_ms, error, ...parsed fields }
++// A failed probe reports ok:false with its error and the observation time -
++// never an empty or green card. Parsers are pure and exported for fixture
++// tests; fetchers wrap them with the existing httpProbe (deadline, size cap,
++// host allowlist). No deploy, no host changes, read-only sources only.
++'use strict';
++
++function envelope(source, latencyMs, parsed, error) {
++  return {
++    ok: !error,
++    observed_at: new Date().toISOString(),
++    source,
++    latency_ms: latencyMs,
++    error: error || null,
++    ...(parsed || {}),
++  };
++}
++
++const str = (v, n) => (typeof v === 'string' ? v.slice(0, n || 200) : null);
++const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
++
++// /v1/districts (shape per 0006 section D; live payload never recorded).
++function parseDistricts(body) {
++  let doc;
++  try { doc = JSON.parse(body); } catch { return { error: 'unparseable_body' }; }
++  const list = Array.isArray(doc && doc.districts) ? doc.districts : null;
++  if (!list) return { error: 'no_districts_field' };
++  return {
++    parsed: {
++      districts: list.slice(0, 50).map((d) => ({
++        id: str(d && d.id, 64),
++        action: str(d && d.action, 64),
++        question: str(d && d.question, 200),
++        stale: d && d.stale === true,
++        age_seconds: num(d && d.age_seconds),
++      })),
++    },
++  };
++}
++
++// Foreman timer through the gateway board: exact live field names are
++// UNVERIFIED, so every field degrades to null (honest) when absent; stale and
++// age_seconds always come through when the board provides them.
++function parseForemanTimer(body) {
++  const d = parseDistricts(body);
++  if (d.error) return d;
++  const f = d.parsed.districts.find((x) => x.id === 'foreman') || d.parsed.districts[0] || null;
++  if (!f) return { error: 'no_foreman_row' };
++  let raw = null;
++  try { raw = (JSON.parse(body).districts || []).find((x) => x && x.id === f.id) || null; } catch {}
++  return {
++    parsed: {
++      foreman: {
++        last_run_at: str(raw && raw.last_run_at, 40),
++        last_exit: num(raw && raw.last_exit),
++        next_run_at: str(raw && raw.next_run_at, 40),
++        stale: f.stale,
++        age_seconds: f.age_seconds,
++      },
++    },
++  };
++}
++
++// Factory (read-only Actions API): latest run status/conclusion + runner
++// online/offline. Fixtures recorded from the public API.
++function parseFactoryRuns(body) {
++  let doc;
++  try { doc = JSON.parse(body); } catch { return { error: 'unparseable_body' }; }
++  const runs = Array.isArray(doc && doc.workflow_runs) ? doc.workflow_runs : null;
++  if (!runs) return { error: 'no_workflow_runs_field' };
++  const latest = runs[0] || null;
++  return {
++    parsed: {
++      latest_run: latest ? {
++        id: num(latest.id),
++        name: str(latest.name, 120),
++        status: str(latest.status, 40),
++        conclusion: latest.conclusion == null ? null : str(latest.conclusion, 40),
++        updated_at: str(latest.updated_at, 40),
++      } : null,
++      total_count: num(doc.total_count),
++    },
++  };
++}
++
++function parseFactoryRunners(body) {
++  let doc;
++  try { doc = JSON.parse(body); } catch { return { error: 'unparseable_body' }; }
++  const runners = Array.isArray(doc && doc.runners) ? doc.runners : null;
++  if (!runners) return { error: 'no_runners_field' };
++  const online = runners.filter((r) => r && r.status === 'online').length;
++  return {
++    parsed: {
++      runners_total: runners.length,
++      runners_online: online,
++      runner_state: runners.length === 0 ? 'none_registered' : (online > 0 ? 'online' : 'offline'),
++    },
++  };
++}
++
++module.exports = { envelope, parseDistricts, parseForemanTimer, parseFactoryRuns, parseFactoryRunners };
+diff --git a/tests/cc2-probes.test.mjs b/tests/cc2-probes.test.mjs
+new file mode 100644
+index 0000000..9cf6a4b
+--- /dev/null
++++ b/tests/cc2-probes.test.mjs
+@@ -0,0 +1,79 @@
++// CC2 fixture tests (architect 0006 section D): every probe renders the
++// {ok, observed_at, source, latency_ms, error} envelope; a failed probe is a
++// failed card with error + age, never an empty or green card. Parsers run
++// against the fixtures in ../fixtures (RECORDED factory, SYNTHETIC gateway -
++// see fixtures/README.md). Deterministic: no network.
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import { createRequire } from 'node:module';
++const { envelope, parseDistricts, parseForemanTimer, parseFactoryRuns, parseFactoryRunners } =
++  createRequire(import.meta.url)('../probes-cc2.js');
++const fx = (n) => readFileSync(new URL(`../fixtures/${n}`, import.meta.url), 'utf8');
++
++test('envelope: every panel carries ok/observed_at/source/latency_ms/error', () => {
++  const e = envelope('test-source', 42, { x: 1 }, null);
++  assert.equal(e.ok, true); assert.equal(e.source, 'test-source');
++  assert.equal(e.latency_ms, 42); assert.equal(e.error, null);
++  assert.ok(!Number.isNaN(Date.parse(e.observed_at)));
++  const bad = envelope('test-source', 7, null, 'deadline');
++  assert.equal(bad.ok, false); assert.equal(bad.error, 'deadline');
++});
++
++test('districts probe parses districts/action/question/stale/age_seconds (SYNTHETIC shape fixture)', () => {
++  const r = parseDistricts(fx('gateway-districts-SYNTHETIC.json'));
++  assert.ok(!r.error);
++  assert.equal(r.parsed.districts.length, 2);
++  const b = r.parsed.districts[1];
++  assert.equal(b.id, 'beta'); assert.equal(b.action, 'work');
++  assert.equal(b.question, 'need owner input');
++  assert.equal(b.stale, true); assert.equal(b.age_seconds, 9000);
++});
++
++test('districts probe degrades truthfully on garbage and on missing field', () => {
++  assert.equal(parseDistricts('not json').error, 'unparseable_body');
++  assert.equal(parseDistricts('{"other": 1}').error, 'no_districts_field');
++});
++
++test('foreman timer reads last run/exit/next run through the board, with stale/age', () => {
++  const r = parseForemanTimer(fx('gateway-board-foreman-SYNTHETIC.json'));
++  assert.ok(!r.error);
++  assert.equal(r.parsed.foreman.last_run_at, '2026-10-24T07:10:00Z');
++  assert.equal(r.parsed.foreman.last_exit, 0);
++  assert.equal(r.parsed.foreman.next_run_at, '2026-10-24T07:20:00Z');
++  assert.equal(r.parsed.foreman.stale, false);
++  assert.equal(r.parsed.foreman.age_seconds, 45);
++});
++
++test('foreman timer degrades honestly when timer fields are absent (UNVERIFIED live names)', () => {
++  const r = parseForemanTimer(fx('gateway-districts-SYNTHETIC.json'));
++  assert.ok(!r.error);
++  assert.equal(r.parsed.foreman.last_run_at, null);
++  assert.equal(r.parsed.foreman.last_exit, null);
++  assert.equal(r.parsed.foreman.next_run_at, null);
++  assert.equal(typeof r.parsed.foreman.stale, 'boolean');
++});
++
++test('factory probe parses the RECORDED runs fixture to a minimal shape', () => {
++  const r = parseFactoryRuns(fx('factory-runs-RECORDED.json'));
++  assert.ok(!r.error);
++  assert.ok(r.parsed.latest_run.id > 0);
++  assert.ok(['queued', 'in_progress', 'completed', 'waiting', 'requested', 'pending'].includes(r.parsed.latest_run.status));
++  assert.ok(r.parsed.total_count > 0);
++});
++
++test('factory runners probe reads the RECORDED empty-runners state honestly', () => {
++  const r = parseFactoryRunners(fx('factory-runners-RECORDED.json'));
++  assert.ok(!r.error);
++  assert.equal(r.parsed.runners_total, 0);
++  assert.equal(r.parsed.runner_state, 'none_registered');
++});
++
++test('factory runners probe reports online/offline truthfully', () => {
++  const body = JSON.stringify({ runners: [{ status: 'online' }, { status: 'offline' }] });
++  const r = parseFactoryRunners(body);
++  assert.equal(r.parsed.runners_online, 1);
++  assert.equal(r.parsed.runner_state, 'online');
++  const off = parseFactoryRunners(JSON.stringify({ runners: [{ status: 'offline' }] }));
++  assert.equal(off.parsed.runner_state, 'offline');
++});
+-- 
+2.34.1
+
