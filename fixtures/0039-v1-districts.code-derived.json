@@ -1,0 +1,199 @@
+{
+ "ok": {
+  "at": "2026-10-24T08:00:00.000Z",
+  "queued_items": 2,
+  "errors": [],
+  "districts": [
+   {
+    "district": "crypto-cuties",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "pauli",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "command",
+    "active": true,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "no work queued: open an issue labeled district:command"
+   },
+   {
+    "district": "production",
+    "active": true,
+    "queued": 1,
+    "action": "DISPATCH",
+    "issue": 101,
+    "attempt": 1
+   },
+   {
+    "district": "revenue",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "impact",
+    "active": true,
+    "queued": 1,
+    "action": "BLOCKED",
+    "issue": 102,
+    "question": "Approve #102 \"Sample unapproved task\" (add the label \"approved\") to start."
+   },
+   {
+    "district": "creative",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "commerce",
+    "active": true,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "no work queued: open an issue labeled district:commerce"
+   },
+   {
+    "district": "intelligence",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "experiment",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "financial",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "operations",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   }
+  ],
+  "age_seconds": 120,
+  "stale": false
+ },
+ "stale": {
+  "at": "2026-10-24T08:00:00.000Z",
+  "queued_items": 2,
+  "errors": [],
+  "districts": [
+   {
+    "district": "crypto-cuties",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "pauli",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "command",
+    "active": true,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "no work queued: open an issue labeled district:command"
+   },
+   {
+    "district": "production",
+    "active": true,
+    "queued": 1,
+    "action": "DISPATCH",
+    "issue": 101,
+    "attempt": 1
+   },
+   {
+    "district": "revenue",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "impact",
+    "active": true,
+    "queued": 1,
+    "action": "BLOCKED",
+    "issue": 102,
+    "question": "Approve #102 \"Sample unapproved task\" (add the label \"approved\") to start."
+   },
+   {
+    "district": "creative",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "commerce",
+    "active": true,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "no work queued: open an issue labeled district:commerce"
+   },
+   {
+    "district": "intelligence",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "experiment",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "financial",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   },
+   {
+    "district": "operations",
+    "active": false,
+    "queued": 0,
+    "action": "IDLE",
+    "reason": "lane not active yet"
+   }
+  ],
+  "age_seconds": 1800,
+  "stale": true
+ },
+ "noTick": {
+  "status": 503,
+  "body": {
+   "error": "NO_FOREMAN_TICK",
+   "hint": "the foreman has not run yet (scripts/district/foreman.js)"
+  }
+ }
+}
