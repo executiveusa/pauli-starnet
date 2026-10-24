@@ -1,0 +1,172 @@
+From b1d707bb36146d50bd62b9dcd10be7ac37d5be44 Mon Sep 17 00:00:00 2001
+From: "Instinct Builder (for Bambu)" <builder@localhost>
+Date: Sat, 24 Oct 2026 02:45:57 -0600
+Subject: [PATCH] CC2c: architect 0042 review fixes - gateway errors render
+ ok:false WITH state (F1), board.errors carried + degraded flag (F2),
+ mission_id carried (F3), README integration requirements; 12/12
+
+---
+ fixtures/README.md        | 11 ++++++++++
+ probes-cc2.js             | 25 +++++++++++++++-------
+ tests/cc2-probes.test.mjs | 44 ++++++++++++++++++++++++++++++++-------
+ 3 files changed, 65 insertions(+), 15 deletions(-)
+
+diff --git a/fixtures/README.md b/fixtures/README.md
+index ae55f59..a823930 100644
+--- a/fixtures/README.md
++++ b/fixtures/README.md
+@@ -20,3 +20,14 @@
+   mission_id?`. The board carries no foreman exit code (`last_exit` renders
+   'unknown', never null-as-success) and no next_run field (derived as `at` +
+   5 min timer cadence).
++
++## Integration requirements (architect 0042)
++
++- A gateway error body (503 NO_FOREMAN_TICK) must render as a FAILED card
++  (ok:false, error `gateway_NO_FOREMAN_TICK`) with the state still visible -
++  never ok:true with empty fields.
++- `stale:true` must render amber, not green; the data is kept and shown.
++- `degraded:true` (board.errors non-empty) must be visible; the foreman exits
++  2 when errors are non-empty, so a calm board of IDLEs with dropped errors is
++  a false-all-clear.
++- `mission_id` on a RUNNING row links to `/v1/missions/<id>`.
+diff --git a/probes-cc2.js b/probes-cc2.js
+index 45cb69c..d5e1240 100644
+--- a/probes-cc2.js
++++ b/probes-cc2.js
+@@ -2,7 +2,11 @@
+ // the StarNet command center. EVERY panel reads one envelope:
+ //   { ok, observed_at, source, latency_ms, error, ...parsed fields }
+ // A failed probe reports ok:false with its error and the observation time -
+-// never an empty or green card. Parsers are pure and exported for fixture
++// never an empty or green card. Gateway error bodies (e.g. 503
++// NO_FOREMAN_TICK) return BOTH an error and the parsed state, so the card is
++// ok:false and still shows what the gateway said. board.errors is carried
++// (capped) with degraded:true so queue read failures never look like a calm
++// board of IDLEs. Parsers are pure and exported for fixture
+ // tests; fetchers wrap them with the existing httpProbe (deadline, size cap,
+ // host allowlist). No deploy, no host changes, read-only sources only.
+ //
+@@ -37,7 +41,7 @@ function parseBoard(body) {
+   try { doc = JSON.parse(body); } catch { return { error: 'unparseable_body' }; }
+   // 503 NO_FOREMAN_TICK body: the gateway has no board yet. Not a parse
+   // failure - a truthful foreman state.
+-  if (doc && typeof doc.error === 'string') return { error: 'gateway_' + doc.error, gateway_error: str(doc.error, 80), hint: str(doc.hint, 200) };
++  if (doc && typeof doc.error === 'string') return { gateway: { error: str(doc.error, 80), hint: str(doc.hint, 200) } };
+   if (!doc || !Array.isArray(doc.districts)) return { error: 'no_districts_field' };
+   return { doc };
+ }
+@@ -45,14 +49,20 @@ function parseBoard(body) {
+ // /v1/districts: the 12-district board plus wrapper fields.
+ function parseDistricts(body) {
+   const b = parseBoard(body);
+-  if (b.error) return b.gateway_error ? { parsed: { gateway_error: b.gateway_error, hint: b.hint, districts: null } } : b;
++  // A gateway error body (e.g. 503 NO_FOREMAN_TICK) is a failed card that
++  // still shows the state: error set AND parsed present -> envelope ok:false.
++  if (b.gateway) return { error: 'gateway_' + b.gateway.error, parsed: { gateway_error: b.gateway.error, hint: b.gateway.hint, districts: null } };
++  if (b.error) return b;
+   const doc = b.doc;
++  const errs = Array.isArray(doc.errors) ? doc.errors.filter((e) => typeof e === 'string').slice(0, 10).map((e) => e.slice(0, 200)) : [];
+   return {
+     parsed: {
+       at: str(doc.at, 40),
+       queued_items: num(doc.queued_items),
+       age_seconds: num(doc.age_seconds),
+       stale: doc.stale === true,
++      errors: errs,
++      degraded: errs.length > 0,
+       districts: doc.districts.slice(0, 50).map((d) => ({
+         district: str(d && d.district, 64),
+         active: !!(d && d.active === true),
+@@ -62,6 +72,7 @@ function parseDistricts(body) {
+         attempt: num(d && d.attempt),
+         question: str(d && d.question, 200),
+         reason: str(d && d.reason, 200),
++        mission_id: str(d && d.mission_id, 80),
+       })),
+     },
+   };
+@@ -72,11 +83,11 @@ function parseDistricts(body) {
+ // next_run field (derived as at + 5 min cadence).
+ function parseForemanTimer(body) {
+   const b = parseBoard(body);
+-  if (b.gateway_error) {
+-    return { parsed: { foreman: {
+-      timer_state: b.gateway_error === 'NO_FOREMAN_TICK' ? 'no_tick' : 'gateway_error',
++  if (b.gateway) {
++    return { error: 'gateway_' + b.gateway.error, parsed: { foreman: {
++      timer_state: b.gateway.error === 'NO_FOREMAN_TICK' ? 'no_tick' : 'gateway_error',
+       last_run_at: null, next_run_at: null, last_exit: 'unknown',
+-      stale: null, age_seconds: null, hint: b.hint,
++      stale: null, age_seconds: null, hint: b.gateway.hint,
+     } } };
+   }
+   if (b.error) return b;
+diff --git a/tests/cc2-probes.test.mjs b/tests/cc2-probes.test.mjs
+index a20d0ec..9414cfd 100644
+--- a/tests/cc2-probes.test.mjs
++++ b/tests/cc2-probes.test.mjs
+@@ -43,11 +43,32 @@ test('districts probe degrades truthfully on garbage and on missing field', () =
+   assert.equal(parseDistricts('{"other": 1}').error, 'no_districts_field');
+ });
+ 
+-test('districts probe renders the 503 NO_FOREMAN_TICK body as a state, not a green card', () => {
++test('districts probe renders the 503 NO_FOREMAN_TICK body as ok:false WITH the state visible', () => {
+   const r = parseDistricts(JSON.stringify(board.noTick.body));
+-  assert.ok(!r.error);
++  assert.equal(r.error, 'gateway_NO_FOREMAN_TICK');
+   assert.equal(r.parsed.gateway_error, 'NO_FOREMAN_TICK');
+   assert.equal(r.parsed.districts, null);
++  const card = envelope('gw', 5, r.parsed, r.error);
++  assert.equal(card.ok, false);
++  assert.equal(card.error, 'gateway_NO_FOREMAN_TICK');
++  assert.equal(card.gateway_error, 'NO_FOREMAN_TICK'); // state survives on the failed card
++});
++
++test('districts probe carries board.errors and flags degraded (never a calm board of IDLEs)', () => {
++  const withErr = { ...board.ok, errors: ['impact: 403'] };
++  const r = parseDistricts(JSON.stringify(withErr));
++  assert.ok(!r.error);
++  assert.equal(r.parsed.degraded, true);
++  assert.equal(r.parsed.errors[0], 'impact: 403');
++  const clean = parseDistricts(JSON.stringify(board.ok));
++  assert.equal(clean.parsed.degraded, false);
++  assert.deepEqual(clean.parsed.errors, []);
++});
++
++test('districts probe carries mission_id when a row has one', () => {
++  const withMission = { ...board.ok, districts: [{ district: 'production', active: true, queued: 1, action: 'RUNNING', mission_id: 'm-abc-123' }] };
++  const r = parseDistricts(JSON.stringify(withMission));
++  assert.equal(r.parsed.districts[0].mission_id, 'm-abc-123');
+ });
+ 
+ test('foreman timer: last run = board.at, next = at + 5 min cadence, exit unknown (never null-as-success)', () => {
+@@ -61,12 +82,19 @@ test('foreman timer: last run = board.at, next = at + 5 min cadence, exit unknow
+   assert.equal(f.stale, false); assert.equal(f.age_seconds, 120);
+ });
+ 
+-test('foreman timer: stale board and NO_FOREMAN_TICK degrade honestly', () => {
+-  const stale = parseForemanTimer(JSON.stringify(board.stale)).parsed.foreman;
+-  assert.equal(stale.timer_state, 'stale'); assert.equal(stale.stale, true);
+-  const noTick = parseForemanTimer(JSON.stringify(board.noTick.body)).parsed.foreman;
+-  assert.equal(noTick.timer_state, 'no_tick');
+-  assert.equal(noTick.last_run_at, null); assert.equal(noTick.last_exit, 'unknown');
++test('foreman timer: stale board keeps data; NO_FOREMAN_TICK is ok:false with no_tick state', () => {
++  const staleR = parseForemanTimer(JSON.stringify(board.stale));
++  assert.ok(!staleR.error);
++  assert.equal(staleR.parsed.foreman.timer_state, 'stale');
++  assert.equal(staleR.parsed.foreman.stale, true);
++  const r = parseForemanTimer(JSON.stringify(board.noTick.body));
++  assert.equal(r.error, 'gateway_NO_FOREMAN_TICK');
++  assert.equal(r.parsed.foreman.timer_state, 'no_tick');
++  assert.equal(r.parsed.foreman.last_run_at, null);
++  assert.equal(r.parsed.foreman.last_exit, 'unknown');
++  const card = envelope('gw', 5, r.parsed, r.error);
++  assert.equal(card.ok, false); // failed card, state still visible
++  assert.equal(card.foreman.timer_state, 'no_tick');
+ });
+ 
+ test('factory probe parses the RECORDED runs fixture to a minimal shape', () => {
+-- 
+2.34.1
+
