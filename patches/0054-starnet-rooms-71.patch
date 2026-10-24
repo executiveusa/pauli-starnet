@@ -1,0 +1,319 @@
+From 16d877cd079ef347cb628bcf881343cdb20d5643 Mon Sep 17 00:00:00 2001
+From: "Claude (architect)" <noreply@anthropic.com>
+Date: Sat, 24 Oct 2026 19:35:08 +0000
+Subject: [PATCH] rooms (#71): manifest schema, pilot room, GET /v1/rooms with
+ agent-mail proof
+
+A meeting room is rooms/<project>.json validated against
+registry/districts.json and registry/agents.yaml: the reviewer is a
+standing member and can never chair, the approver is named, bad
+manifests are reported with their file name. GET /v1/rooms (behind the
+gateway bearer) serves each room with only what agent-mail proves:
+not_configured until AGENT_MAIL_URL is set, unreachable with its error,
+members only when agent-mail lists them; message counts stay null
+until a thread read exists. Pilot room: foundry-computer (production).
+JSON, not YAML: the repo has no YAML parser and the registry is JSON.
+Agent-mail deployment on the server stays owner-gated.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UT634vRaoTwhUfNCqUDbT5
+---
+ gateway/rooms.js            |  76 ++++++++++++++++++++++++++
+ gateway/server.js           |  26 +++++++++
+ rooms/foundry-computer.json |  16 ++++++
+ test/fast.list              |   1 +
+ test/rooms.test.js          | 106 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 225 insertions(+)
+ create mode 100644 gateway/rooms.js
+ create mode 100644 rooms/foundry-computer.json
+ create mode 100644 test/rooms.test.js
+
+diff --git a/gateway/rooms.js b/gateway/rooms.js
+new file mode 100644
+index 000000000..0f758219c
+--- /dev/null
++++ b/gateway/rooms.js
+@@ -0,0 +1,76 @@
++/* rooms.js — meeting rooms (issue #71): one room per project where agents and the reviewer share a thread.
++   A room is a manifest rooms/<project>.json plus one agent-mail thread. This module validates manifests against
++   the district registry and the agent roster, and reports only what agent-mail can prove about each room.
++   Ruthless rule: no field asserts what the harness can't prove. Message counts and last-message times stay null
++   until the agent-mail client can read a thread; members are "registered" only when agent-mail lists them. */
++'use strict';
++
++const fs = require('fs');
++const path = require('path');
++
++const STATUSES = ['active', 'paused', 'closed'];
++const REVIEWER = 'reviewer'; // standing member of every room
++const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
++
++// One manifest -> list of problems (empty = valid). districtIds/agentIds come from the registries.
++function validateRoom(doc, { districtIds, agentIds, file }) {
++  const errs = [];
++  const r = doc && doc.room;
++  if (!r || typeof r !== 'object') return ['missing "room" object'];
++  if (typeof r.project !== 'string' || !SLUG.test(r.project)) errs.push('project must be a lowercase slug');
++  if (file && r.project && path.basename(file, '.json') !== r.project) errs.push('file name must match project (' + r.project + '.json)');
++  if (!districtIds.includes(r.district)) errs.push('district "' + r.district + '" is not in registry/districts.json');
++  if (!Array.isArray(r.members) || !r.members.length) errs.push('members must be a non-empty list');
++  const members = Array.isArray(r.members) ? r.members : [];
++  for (const m of members) if (m !== REVIEWER && !agentIds.includes(m)) errs.push('member "' + m + '" is not in registry/agents.yaml');
++  if (!members.includes(REVIEWER)) errs.push('the reviewer is a standing member of every room');
++  if (!members.includes(r.chair)) errs.push('chair must be one of the members');
++  if (r.chair === REVIEWER) errs.push('the reviewer cannot chair (builder and judge are not the same voice)');
++  if (typeof r.approver !== 'string' || !r.approver) errs.push('approver must be named (identity and money decisions route there)');
++  if (!Array.isArray(r.files) || r.files.some(f => typeof f !== 'string' || !f)) errs.push('files must be a list of pointers (paths or knowledge ids)');
++  if (typeof r.schedule !== 'string' || !r.schedule) errs.push('schedule must reference a loop or cadence note');
++  if (!STATUSES.includes(r.status)) errs.push('status must be one of ' + STATUSES.join('/'));
++  if (r.thread_id !== null && (typeof r.thread_id !== 'string' || !r.thread_id)) errs.push('thread_id is a string, or null until agent-mail opens the thread');
++  return errs;
++}
++
++// Read every rooms/*.json. Bad manifests are reported, never silently dropped.
++function loadRooms(dir, { districtIds, agentIds }) {
++  const rooms = [];
++  const errors = [];
++  let names = [];
++  try { names = fs.readdirSync(dir).filter(n => n.endsWith('.json')).sort(); } catch (_) { return { rooms, errors: ['rooms directory not found: ' + dir] }; }
++  for (const name of names) {
++    const file = path.join(dir, name);
++    let doc;
++    try { doc = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { errors.push(name + ': unparseable JSON'); continue; }
++    const errs = validateRoom(doc, { districtIds, agentIds, file });
++    if (errs.length) errors.push(...errs.map(e => name + ': ' + e));
++    else rooms.push(doc.room);
++  }
++  return { rooms, errors };
++}
++
++// What agent-mail proves about one room. `directory` is an async (projectKey) -> list_agents result, or null when
++// no agent-mail client is configured. Never throws; an unreachable agent-mail is a visible state, not an empty card.
++async function roomProof(room, { directory, projectKey }) {
++  const proof = { agent_mail: 'not_configured', thread_open: room.thread_id !== null, registered_members: null, message_count: null, last_message_at: null, error: null };
++  if (!directory) return proof;
++  try {
++    const listed = await directory(projectKey);
++    const agents = Array.isArray(listed) ? listed : (listed && Array.isArray(listed.agents) ? listed.agents : []);
++    const names = new Set(agents.map(a => String((a && (a.name || a.program)) || '').toLowerCase()));
++    proof.agent_mail = 'reachable';
++    proof.registered_members = room.members.filter(m => m !== REVIEWER && (names.has(m) || names.has('starnet-' + m)));
++  } catch (e) {
++    proof.agent_mail = 'unreachable';
++    proof.error = String(e && e.message || e).slice(0, 200);
++  }
++  return proof;
++}
++
++function agentIdsFromYaml(text) {
++  return [...String(text).matchAll(/^\s*-\s*id:\s*([a-z0-9-]+)\s*$/gm)].map(m => m[1]);
++}
++
++module.exports = { validateRoom, loadRooms, roomProof, agentIdsFromYaml, REVIEWER, STATUSES };
+diff --git a/gateway/server.js b/gateway/server.js
+index ba885964b..1b20c0a28 100644
+--- a/gateway/server.js
++++ b/gateway/server.js
+@@ -38,6 +38,7 @@
+ //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
+ //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
+ //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
++//   GET  /v1/rooms                         → meeting rooms (issue #71): manifests, validation errors, agent-mail proof
+ //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
+ //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
+ //   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
+@@ -52,6 +53,7 @@ const { getCityWorld } = require('./city-world');
+ const { makeMissionDesk } = require('./missions');
+ const { makeKnowledgeDesk } = require('./knowledge');
+ const { makeCostLedger, buildCommandCenter } = require('./command-center');
++const rooms = require('./rooms');
+ const http = require('http');
+ const fs = require('fs');
+ const path = require('path');
+@@ -469,6 +471,9 @@ const missionDesk = makeMissionDesk({
+ });
+ const recoveredMissions = missionDesk.recoverOnBoot();
+ const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
++// Meeting rooms (issue #71): manifests in rooms/, validated against the district registry and agent roster.
++const ROOMS_DIR = process.env.STARNET_ROOMS_DIR || path.join(__dirname, '..', 'rooms');
++const REGISTRY_DIR = process.env.STARNET_REGISTRY_DIR || path.join(__dirname, '..', 'registry');
+ // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
+ const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
+ if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
+@@ -634,6 +639,27 @@ async function handleRequest(req, res) {
+       return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+     }
+ 
++    // GET /v1/rooms — every meeting room, its validation errors, and only what agent-mail proves about it.
++    // agent_mail is 'not_configured' until AGENT_MAIL_URL is set; message counts stay null until a thread read exists.
++    if (method === 'GET' && url === '/v1/rooms') {
++      let districtIds = [];
++      let agentIds = [];
++      try { const reg = JSON.parse(fs.readFileSync(path.join(REGISTRY_DIR, 'districts.json'), 'utf8')); districtIds = (reg.districts || reg).map(d => d.id); } catch (_) { /* reported below */ }
++      try { agentIds = rooms.agentIdsFromYaml(fs.readFileSync(path.join(REGISTRY_DIR, 'agents.yaml'), 'utf8')); } catch (_) { /* reported below */ }
++      const loaded = rooms.loadRooms(ROOMS_DIR, { districtIds, agentIds });
++      if (!districtIds.length) loaded.errors.unshift('registry/districts.json unreadable');
++      let directory = null;
++      if (process.env.AGENT_MAIL_URL) {
++        const { AgentMailClient } = require('../shared/agent-mail-client.js');
++        const client = new AgentMailClient({ clientName: 'starnet-gateway-rooms' });
++        directory = key => client.ensureProject(key).then(() => client.directory(key));
++      }
++      const projectKey = process.env.AGENT_MAIL_PROJECT || path.join(__dirname, '..');
++      const out = [];
++      for (const room of loaded.rooms) out.push({ ...room, proof: await rooms.roomProof(room, { directory, projectKey }) });
++      return send(200, { rooms: out, errors: loaded.errors, degraded: loaded.errors.length > 0 || out.some(r => r.proof.agent_mail !== 'reachable') });
++    }
++
+     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)
+     if (method === 'GET' && url.startsWith('/v1/knowledge/')) {
+       const u = new URL(url, 'http://gateway.local');
+diff --git a/rooms/foundry-computer.json b/rooms/foundry-computer.json
+new file mode 100644
+index 000000000..5506da043
+--- /dev/null
++++ b/rooms/foundry-computer.json
+@@ -0,0 +1,16 @@
++{
++  "room": {
++    "project": "foundry-computer",
++    "district": "production",
++    "thread_id": null,
++    "chair": "hermes",
++    "members": ["hermes", "reviewer"],
++    "approver": "owner",
++    "files": [
++      "program/factory-v1/CONTEXT.md",
++      "registry/district-lanes.json"
++    ],
++    "schedule": "loops/adversarial-reviewer.md",
++    "status": "active"
++  }
++}
+diff --git a/test/fast.list b/test/fast.list
+index 0a6f2810b..caed31a06 100644
+--- a/test/fast.list
++++ b/test/fast.list
+@@ -698,6 +698,7 @@ test/gateway-missions.test.js
+ test/knowledge.test.js
+ test/knowledge-wiki.test.js
+ test/district-foreman.test.js
++test/rooms.test.js
+ test/review-gate.test.js
+ test/first-lanes.test.js
+ test/gateway-hardening.test.js
+diff --git a/test/rooms.test.js b/test/rooms.test.js
+new file mode 100644
+index 000000000..b6ef571d1
+--- /dev/null
++++ b/test/rooms.test.js
+@@ -0,0 +1,106 @@
++/* rooms.test.js — meeting rooms (issue #71): manifest validation and the agent-mail proof.
++   Unit: every validation rule, loading a directory with good and bad manifests, and each proof state.
++   End to end: the real gateway serves GET /v1/rooms from the repo's rooms/ with the real registries, behind the bearer.
++   Run: node test/rooms.test.js */
++'use strict';
++const A = require('./_assert.js');
++const fs = require('fs');
++const os = require('os');
++const path = require('path');
++const http = require('http');
++const { spawn } = require('child_process');
++const R = require('../gateway/rooms.js');
++
++const ROOT = path.join(__dirname, '..');
++const districtIds = JSON.parse(fs.readFileSync(path.join(ROOT, 'registry', 'districts.json'), 'utf8')).districts.map(d => d.id);
++const agentIds = R.agentIdsFromYaml(fs.readFileSync(path.join(ROOT, 'registry', 'agents.yaml'), 'utf8'));
++const ctx = { districtIds, agentIds };
++const good = () => ({ room: { project: 'demo', district: 'production', thread_id: null, chair: 'hermes', members: ['hermes', 'reviewer'], approver: 'owner', files: ['program/factory-v1/CONTEXT.md'], schedule: 'loops/dogfood.md', status: 'active' } });
++const errsFor = mut => { const d = good(); mut(d.room); return R.validateRoom(d, ctx); };
++const has = (errs, frag) => errs.some(e => e.includes(frag));
++
++function req(method, port, p, headers) {
++  return new Promise((resolve, reject) => {
++    const r = http.request({ host: '127.0.0.1', port, path: p, method, headers: headers || {} }, res => {
++      const c = []; res.on('data', d => c.push(d)); res.on('end', () => resolve({ status: res.statusCode, body: Buffer.concat(c).toString('utf8') }));
++    });
++    r.on('error', reject); r.end();
++  });
++}
++
++(async () => {
++  // ---- registries ----
++  A.eq(agentIds, ['hermes', 'alex', 'fanni'], 'agent roster parsed from registry/agents.yaml');
++  A.ok(districtIds.includes('production'), 'district ids come from registry/districts.json');
++
++  // ---- validation ----
++  A.eq(R.validateRoom(good(), ctx), [], 'a complete manifest is valid');
++  A.ok(has(R.validateRoom({}, ctx), 'missing "room"'), 'no room object');
++  A.ok(has(errsFor(r => { r.project = 'Bad Name'; }), 'slug'), 'project must be a slug');
++  A.ok(has(errsFor(r => { r.district = 'atlantis'; }), 'not in registry/districts.json'), 'unknown district refused');
++  A.ok(has(errsFor(r => { r.members = ['hermes', 'ghost', 'reviewer']; }), '"ghost" is not in registry/agents.yaml'), 'unknown member refused');
++  A.ok(has(errsFor(r => { r.members = ['hermes']; }), 'reviewer is a standing member'), 'reviewer must be in every room');
++  A.ok(has(errsFor(r => { r.chair = 'alex'; }), 'chair must be one of the members'), 'chair must be a member');
++  A.ok(has(errsFor(r => { r.chair = 'reviewer'; }), 'reviewer cannot chair'), 'builder and judge are not the same voice');
++  A.ok(has(errsFor(r => { r.approver = ''; }), 'approver must be named'), 'approver required');
++  A.ok(has(errsFor(r => { r.files = ['ok', 42]; }), 'files must be a list'), 'files are pointer strings');
++  A.ok(has(errsFor(r => { r.schedule = ''; }), 'schedule'), 'schedule required');
++  A.ok(has(errsFor(r => { r.status = 'live'; }), 'status must be one of'), 'status enum');
++  A.ok(has(errsFor(r => { r.thread_id = 7; }), 'thread_id'), 'thread_id is a string or null');
++  A.eq(errsFor(r => { r.thread_id = 'th-1'; }), [], 'an opened thread id is valid');
++  A.ok(has(R.validateRoom(good(), Object.assign({ file: '/x/other.json' }, ctx)), 'file name must match'), 'file name must match project');
++
++  // ---- loading: bad manifests are reported, never dropped silently ----
++  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rooms-'));
++  fs.writeFileSync(path.join(tmp, 'demo.json'), JSON.stringify(good()));
++  fs.writeFileSync(path.join(tmp, 'broken.json'), '{ not json');
++  const bad = good(); bad.room.project = 'nochair'; bad.room.chair = 'fanni';
++  fs.writeFileSync(path.join(tmp, 'nochair.json'), JSON.stringify(bad));
++  fs.writeFileSync(path.join(tmp, 'README.md'), 'ignored');
++  const loaded = R.loadRooms(tmp, ctx);
++  A.eq(loaded.rooms.map(r => r.project), ['demo'], 'only valid manifests become rooms');
++  A.ok(loaded.errors.includes('broken.json: unparseable JSON'), 'unparseable manifest reported');
++  A.ok(loaded.errors.some(e => e.startsWith('nochair.json: chair')), 'invalid manifest reported with its file name');
++  A.ok(has(R.loadRooms(path.join(tmp, 'missing'), ctx).errors, 'rooms directory not found'), 'missing directory is an error, not an empty list');
++
++  // ---- the repo's own rooms are valid ----
++  const repoRooms = R.loadRooms(path.join(ROOT, 'rooms'), ctx);
++  A.eq(repoRooms.errors, [], 'every manifest in rooms/ is valid');
++  A.ok(repoRooms.rooms.some(r => r.project === 'foundry-computer'), 'pilot room exists');
++
++  // ---- proof: only what agent-mail can prove ----
++  const room = good().room;
++  const none = await R.roomProof(room, { directory: null, projectKey: 'p' });
++  A.eq([none.agent_mail, none.registered_members, none.message_count, none.last_message_at], ['not_configured', null, null, null], 'no client: nothing asserted');
++  const down = await R.roomProof(room, { directory: async () => { throw new Error('ECONNREFUSED 127.0.0.1:8765'); }, projectKey: 'p' });
++  A.eq(down.agent_mail, 'unreachable', 'unreachable agent-mail is a visible state');
++  A.ok(/ECONNREFUSED/.test(down.error) && down.registered_members === null, 'error kept, no members claimed');
++  const up = await R.roomProof(room, { directory: async () => ({ agents: [{ name: 'starnet-hermes' }, { name: 'someone-else' }] }), projectKey: 'p' });
++  A.eq([up.agent_mail, up.registered_members, up.message_count], ['reachable', ['hermes'], null], 'reachable: members agent-mail lists, message count still unproven');
++  const empty = await R.roomProof(room, { directory: async () => [], projectKey: 'p' });
++  A.eq(empty.registered_members, [], 'reachable but nobody registered: empty, not the manifest list');
++
++  // ---- end to end: the real gateway ----
++  const GW = 49500 + Math.floor(Math.random() * 400), TOKEN = 'tok-' + Math.random().toString(36).slice(2);
++  const env = Object.assign({}, process.env, { GATEWAY_BEARER_TOKEN: TOKEN, GATEWAY_PORT: String(GW), STARNET_PORT: String(GW + 1), STARNET_MISSION_DIR: path.join(tmp, 'missions'), STARNET_DISTRICT_STATE: path.join(tmp, 'd.json'), KB_SUPABASE_URL: '', KB_SUPABASE_SERVICE_KEY: '', LOG_LEVEL: 'error' });
++  delete env.AGENT_MAIL_URL;
++  const child = spawn(process.execPath, [path.join(ROOT, 'gateway', 'server.js')], { env, stdio: 'ignore' });
++  try {
++    const auth = { Authorization: 'Bearer ' + TOKEN };
++    let upGw = false;
++    for (let i = 0; i < 40 && !upGw; i++) { try { await req('GET', GW, '/health', auth); upGw = true; } catch (_) { await new Promise(r => setTimeout(r, 250)); } }
++    A.ok(upGw, 'gateway started');
++    A.eq((await req('GET', GW, '/v1/rooms', {})).status, 401, 'rooms sit behind the gateway bearer');
++    const res = await req('GET', GW, '/v1/rooms', auth);
++    A.eq(res.status, 200, 'GET /v1/rooms answers');
++    const body = JSON.parse(res.body);
++    const pilot = body.rooms.find(r => r.project === 'foundry-computer');
++    A.ok(pilot && pilot.district === 'production', 'pilot room served from rooms/');
++    A.eq(pilot.proof.agent_mail, 'not_configured', 'no AGENT_MAIL_URL: the tile says so');
++    A.eq(body.errors, [], 'no manifest errors');
++    A.eq(body.degraded, true, 'degraded while agent-mail is not reachable');
++  } finally {
++    child.kill();
++  }
++  A.report();
++})().catch(e => { console.log('FAIL: ' + (e && e.stack || e)); process.exit(1); });
+-- 
+2.43.0
+
