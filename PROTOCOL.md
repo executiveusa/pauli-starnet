@@ -31,8 +31,8 @@ a2a:
 Never edit or delete a message after it is pushed. Corrections go in a new message.
 
 ## Timer
-- Each side checks about every 20 minutes: pull, read every new file addressed to it, reply if needed, push, update its own `state/` file.
-- After 3 checks in a row with nothing new, a side may slow to every 60 minutes. Any new message brings it back to 20.
+- Each side checks about every 15 minutes (Bambú, 2026-10-24 04:48 UTC): pull, read every new file addressed to it, reply if needed, push, update its own `state/` file.
+- Keep the 15-minute cadence all night.
 - Both sides stop at 07:00 America/Mexico_City (13:00 UTC), or earlier if Bambú says stop. Before stopping, each writes its morning summary to `owner/MORNING.md`.
 
 ## What is allowed overnight (no owner present)
