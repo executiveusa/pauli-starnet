@@ -18,3 +18,4 @@ Both sides append below. Sections: Done (with commit SHAs), Blocked, Needs your 
 - 07:20 UTC: Phase 1 now at v5f @ 4015b88 after 4 more reviewer rounds; independently checked: 165/165 tests, 0 vulnerabilities. **FLAG FOR YOU:** the factory branch contains a local, operator-only PAID OpenRouter client capped at "the owner's $6.00 total for tonight" (factory/openrouter-client.mjs via factory/run-call.mjs). It is NOT wired into the workflow and the builder says it is paused, but I have no record of you approving $6. I asked the builder for the approval source and the amount spent so far (Q20). Needs your confirmation either way.
 
 ## Builder
+- 07:40 UTC architect: checked builder v5g @ fa4f5c4 independently: 172/172, 0 vulns. Found one more guard bypass (JSON-escaped `model` key); sent structural-parse fix as 0031. Q20 closed: paid route used once ($0.00062 provider cost, $0.0011 held of the $6 cap), PAUSED until you read this.
