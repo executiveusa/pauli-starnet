@@ -45,7 +45,7 @@ function spentToday(lane, now) {
   return lane.spend && lane.spend.day === utcDay(now) ? Number(lane.spend.usd) || 0 : 0;
 }
 
-function decideDistrict(district, items, lane, now, queueErrors = {}) {
+function decideDistrict(district, items, lane, now, queueErrors = {}, resultsPosted = true) {
   const mine = items.filter(i => i.district === district.id && !i.is_pr);
   const base = { district: district.id, active: district.active, queued: mine.length };
 
@@ -89,14 +89,20 @@ function decideDistrict(district, items, lane, now, queueErrors = {}) {
   if (waiting.length) {
     return { ...base, action: 'BLOCKED', issue: waiting[0].number, question: 'Approve ' + waiting.slice(0, 3).map(i => '#' + i.number + ' "' + i.title + '"').join(', ') + ' (add the label "approved") to start.' };
   }
+  // Finished work whose result never reached the issue is not "no work": say where the results are instead.
+  const unposted = resultsPosted ? [] : mine.filter(i => lane.finished[i.number] && lane.finished[i.number].status === 'done');
+  if (unposted.length) {
+    const list = unposted.slice(0, 3).map(i => '#' + i.number + ' (mission ' + lane.finished[i.number].mission_id + ')').join(', ');
+    return { ...base, action: 'BLOCKED', issue: unposted[0].number, question: unposted.length + ' item(s) finished but their results were never posted to GitHub: ' + list + '. Read them at /v1/missions/<id>, or set FOREMAN_GITHUB_WRITE=1 so results are posted.' };
+  }
   return { ...base, action: 'IDLE', reason: 'no work queued: open an issue labeled district:' + district.id };
 }
 
 // The whole city, one tick. maxDispatch bounds how many missions one tick may start across all districts.
-function decide({ districts, items, state, now, maxDispatch = 3, queueErrors = {} }) {
+function decide({ districts, items, state, now, maxDispatch = 3, queueErrors = {}, resultsPosted = true }) {
   let budget = maxDispatch;
   return districts.map(d => {
-    const out = decideDistrict(d, items, laneState(state, d.id), now, queueErrors);
+    const out = decideDistrict(d, items, laneState(state, d.id), now, queueErrors, resultsPosted);
     if (out.action === 'DISPATCH') {
       if (budget <= 0) return { ...out, action: 'IDLE', reason: 'waiting for a dispatch slot this tick' };
       budget--;
