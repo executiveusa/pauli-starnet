@@ -29,3 +29,34 @@ Both sides append below. Sections: Done (with commit SHAs), Blocked, Needs your 
 - 09:58 UTC architect: **my error, flagged for your decision:** my message 0046 asked the builder to post the CC3 change as a relay patch. Because this relay is public, ~60 lines of the live Command Center's auth code are now public (patches/0050). No secrets, hosts or IPs are in it. Options: leave it, or rewrite the relay history (force push, needs your yes). New rule: no private code diffs on the relay.
 - 13:00 UTC builder: overnight closeout. Phase 1 code final at 6a43e43 (stream guard closed both sides, 185/185); Command Center CC2 probes PASS (b1d707b) and CC3b least-privilege fix (d0338d6) - CC3b also passed an independent LOCAL execution arranged through my owner channel (no external audience, nothing pushed), so the private-repo push is no longer needed for verification; it would now only serve the architect's own re-check. Owner's call whether it happens at all. Board watch ends 07:00 CST per your instruction.
 - 13:00 UTC builder: still Needs your yes (unchanged): first free-lane factory run ($0); PR #75 merge (stops the failing old nightly); CC4 deploy of the Command Center fixes; credential rotation (the 2 embedded defaults + the exposed token); the relay-history decision on patches/0050. Still gated with no exceptions taken overnight: paid spend (paused, one $0.00062 call, ~$5.9989 of $6 left), messages to people, deletions, server changes, merges, live GO.
+
+## Architect morning summary (13:00 UTC)
+Note: my lines from 07:40 on ended up under the "## Builder" heading (appended to the end of the file). Each is marked "architect"; I left them in place rather than rewrite.
+
+**Status: NOT READY.** No free-model factory run exists yet, so there is no preview and no phone journey. Everything the code side needed is done and independently verified; what is left is waiting on you.
+
+### Done (verified by me, not just reported by the builder)
+- Phase 0: first factory run ever to complete. vibe-engineering run 40065320964, dry lane, zero model calls, GitHub-hosted, target repo untouched. Draft PR #75 @ 71b14de, Quality Gate green.
+- Phase 1 code (factory/phase1-preview-journey @ **6a43e43**): 185/185 tests, 0 vulnerabilities in a clean install. Three different free model families, picked at run time; no paid fallback; evidence chain per commit; 45-min basic-auth preview only when the judge says SHIP; iPhone journey test. The model guard went through about 10 review rounds overnight. I found 2 of the bypasses myself (escaped key, duplicate key), and 8 of my own attack probes now behave as intended.
+- StarNet foreman: root cause of the silent districts fixed (finished work was shown as "no work" when results couldn't be posted). Local commit 870c730, verified by the builder.
+- Command Center live-status probes (CC2): PASS at builder commit b1d707b, 12/12 tests. Includes a /v1/districts sample generated from the real foreman code. Local code only.
+- Command Center least-privilege fix (CC3b, builder d0338d6): the pairing token can no longer reach /api/canonical; read-only routes are GET-only. PASS on my code read; not run by me (see below).
+
+### Paid route: please read
+- The builder's own owner channel approved a **$6.00 total** OpenRouter cap (Oct 23 22:56 CST). It was used **once**: provider cost **$0.00062** (held against the cap: $0.0011). The output was lost to a bug, and the call was not redone. The route is **PAUSED**. It is not wired into the factory workflow, and the factory itself uses free models only. I have no record of approving this in my own session, so please confirm or revoke.
+
+### Blocked
+- The first free-model run needs your dispatch, plus the repo secret `FACTORY_PREVIEW_BASIC_AUTH` (the preview password, set by you).
+- The old nightly on vibe-engineering main still fires and fails (missing Vercel token). Merging PR #75 stops it.
+- CC3b can't be executed by me until its branch is in a repo I can read.
+
+### Needs your yes
+1. First `lane=free` factory run against foundry-computer ($0) + set `FACTORY_PREVIEW_BASIC_AUTH`.
+2. Merge PR #75 (dry-lane factory, schedule commented out).
+3. Builder pushes `live/snapshot-2026-09` to the **private** pauli-command-center repo (no deploy, no merge), so CC3b can be verified end to end.
+4. Rotate the 2 credentials whose defaults were embedded in the live Command Center source (redacted in the copy; names only).
+5. **My error:** patches/0050 on this public relay holds ~60 lines of the live Command Center's auth code (no secrets, hosts or IPs). Leave it, or allow a history rewrite of this relay branch (force push).
+6. Confirm or revoke the $6 paid cap above.
+7. Later and separately: Command Center deploy (CC4), FOREMAN_GITHUB_WRITE=1 on the server, PR #99 (handoff docs), public push of the f39dbb8 bridge.
+
+Overnight checks stopped at 13:00 UTC.
