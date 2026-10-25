@@ -35,7 +35,7 @@ function req(method, port, p, headers) {
   const reg = buildRegistry();
   A.eq(reg.districts.length, 12, 'the registry has the 12 CitySpec districts');
   A.eq(render(reg), fs.readFileSync(path.join(ROOT, 'registry', 'districts.json'), 'utf8'), 'registry/districts.json is current (run scripts/city/build-registry.js)');
-  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['commerce', 'impact', 'production'], 'the first three lanes are active, the rest are honest IDLE');
+  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'commerce', 'impact', 'production'], 'the active lanes are command (owner, 2026-10-16), commerce, impact and production; the rest are honest IDLE');
   A.ok(reg.districts.every(d => d.queue.label === 'district:' + d.id && d.foreman === 'heisenberg'), 'every district has a queue label and Heisenberg as foreman');
   A.ok(reg.districts.find(d => d.id === 'impact').knowledge.includes('cause-specialist'), 'districts carry their knowledge sources');
   A.ok(reg.districts.find(d => d.id === 'production').aliases.includes('factory'), 'old ids map by alias (factory -> production)');
@@ -168,6 +168,13 @@ function req(method, port, p, headers) {
   const askLive = one(D('impact'), live);
   A.ok(askLive.issue === 63 && /^Approve #63 "Task 63", #64 "Task 64", #65 "Task 65"/.test(askLive.question), 'the approval question is oldest first, whatever order GitHub returns');
   A.eq(one(D('impact'), live.map(i => Object.assign({}, i, { labels: i.labels.concat({ name: 'approved' }) }))).issue, 63, 'with everything approved, the oldest item runs first');
+
+  // ---- finished work with FOREMAN_GITHUB_WRITE unset is reported, not hidden as "no work queued" (prod-city-1, 2026-10-24) ----
+  const doneState = { districts: { impact: { finished: { 63: { status: 'done', mission_id: 'd-impact-63-a1', at: '2026-10-16T00:00:00Z' } } } } };
+  const doneIssue = [issue(63, 'impact', ['approved'])];
+  const hidden = F.decide({ districts: [D('impact')], items: items(doneIssue), state: doneState, now: NOW, resultsPosted: false })[0];
+  A.ok(hidden.action === 'BLOCKED' && /never posted to GitHub: #63 \(mission d-impact-63-a1\)/.test(hidden.question) && /FOREMAN_GITHUB_WRITE=1/.test(hidden.question), 'finished but unposted results are named, with where to read them');
+  A.eq(F.decide({ districts: [D('impact')], items: items(doneIssue), state: doneState, now: NOW })[0].action, 'IDLE', 'with results posted, a finished lane is IDLE as before');
 
   A.report('district-foreman.test');
 })().catch(e => { console.error(e); process.exit(1); });

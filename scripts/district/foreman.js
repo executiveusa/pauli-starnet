@@ -131,7 +131,7 @@ function makeForeman({ env = process.env, fetchImpl = globalThis.fetch, now = ()
     }
 
     // 3. Decide, then dispatch.
-    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10), queueErrors });
+    const decisions = F.decide({ districts: registry.districts, items, state, now: t, maxDispatch: parseInt(env.FOREMAN_MAX_DISPATCH || '3', 10), queueErrors, resultsPosted: ghWrite });
     for (const dec of decisions) {
       if (dec.action !== 'DISPATCH') continue;
       const item = dec.item;

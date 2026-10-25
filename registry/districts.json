@@ -46,7 +46,9 @@
       "unattended_permissions": [
         "research"
       ],
-      "knowledge": [],
+      "knowledge": [
+        "seth-godin-books"
+      ],
       "aliases": []
     },
     {
@@ -131,7 +133,8 @@
         "jake-trinder-20",
         "middleton-method",
         "jasper-smart-sites",
-        "closer-sales-call-stages"
+        "closer-sales-call-stages",
+        "seth-godin-books"
       ],
       "aliases": [
         "middleton",
