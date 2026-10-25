@@ -38,6 +38,9 @@
 //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
 //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   GET  /v1/spend                         → month/day spend vs caps, kill state, alerts
+//   POST /v1/kill | /v1/kill/release        → stop everything (anyone with the bearer) / release (captain only)
+//   GET  /v1/models/default | allowed?model= → newest-DeepSeek default; Opus refused unless POST /v1/models/opus (captain)
 //   POST /v1/factory/intake                → queue a repo for the factory (max 5/day, grill answers); GET lists a day
 //   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
@@ -56,6 +59,8 @@ const { makeKnowledgeDesk } = require('./knowledge');
 const { makeCostLedger, buildCommandCenter } = require('./command-center');
 const personas = require('./personas');
 const { makeIntake } = require('./intake');
+const { makeSpend } = require('./spend');
+const { makeModelPolicy } = require('./models');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -464,7 +469,18 @@ function tokenMatches(token) {
 // ─── MISSION DESK (Terabithia city missions → the sidecar foreman) ────────────
 // One durable file per mission; a restart marks in-flight missions failed instead of leaving them working.
 const FOREMAN_TIMEOUT_MS = parseInt(process.env.STARNET_FOREMAN_TIMEOUT_MS || '900000', 10);
+// Money brakes (program/starnet-v2/03): kill switch + $20/month hard stop + $0.25/mission budget + $2/day alert.
+const spendGuard = makeSpend({
+  file: process.env.STARNET_SPEND_FILE || path.join(__dirname, 'data', 'spend.jsonl'),
+  killFile: process.env.STARNET_KILL_FILE || path.join(__dirname, 'data', 'kill-switch.json')
+});
+// Model policy (D12/D15): newest-DeepSeek default resolved by scripts/models/resolve-default.js; Opus only on a captain grant.
+const modelPolicy = makeModelPolicy({
+  defaultFile: process.env.STARNET_MODEL_DEFAULT_FILE || path.join(__dirname, 'data', 'model-default.json'),
+  opusFile: process.env.STARNET_OPUS_FILE || path.join(__dirname, 'data', 'opus-grant.json')
+});
 const missionDesk = makeMissionDesk({
+  spend: spendGuard,
   stateDir: process.env.STARNET_MISSION_DIR || require('path').join(__dirname, 'data', 'missions'),
   revision: REVISION,
   runForeman: body => sidecarRequest('POST', '/api/missions/run', body, FOREMAN_TIMEOUT_MS)
@@ -618,6 +634,32 @@ async function handleRequest(req, res) {
     if (method === 'GET' && url === '/v1/city/world') {
       const world = getCityWorld();
       return send(world.ok === false ? 503 : 200, world);
+    }
+
+    // GET /v1/spend: month/day spend, caps, kill state, alerts. POST /v1/kill: "stop everything". POST /v1/kill/release: captain only.
+    if (method === 'GET' && url === '/v1/spend') return send(200, spendGuard.summary());
+    if (method === 'POST' && (url === '/v1/kill' || url === '/v1/kill/release')) {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = url === '/v1/kill' ? spendGuard.kill(body) : spendGuard.release(body);
+      if (out.code === 200) log('warn', url === '/v1/kill' ? 'kill switch engaged' : 'kill switch released', { by: body.by });
+      return send(out.code, out.body);
+    }
+
+    // GET /v1/models/default: the default model + Opus state. GET /v1/models/allowed?model=: may a caller use it? POST /v1/models/opus: captain grant.
+    if (method === 'GET' && url === '/v1/models/default') return send(200, modelPolicy.current());
+    if (method === 'GET' && url.startsWith('/v1/models/allowed')) {
+      const v = modelPolicy.allowed(new URL(url, 'http://gateway.local').searchParams.get('model'));
+      return send(v.ok ? 200 : 403, v);
+    }
+    if (method === 'POST' && url === '/v1/models/opus') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = modelPolicy.grantOpus(body);
+      if (out.code === 200) log('warn', 'opus granted by captain', { until: out.body.opus.until });
+      return send(out.code, out.body);
     }
 
     // POST /v1/factory/intake: Instinct (or the command center) queues a repo + instructions + grill answers. GET lists a day.

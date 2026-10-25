@@ -31,7 +31,7 @@ function validate(envelope) {
   return null;
 }
 
-function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOString(), revision = 'unknown' }) {
+function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOString(), revision = 'unknown', spend = null }) {
   fs.mkdirSync(stateDir, { recursive: true, mode: 0o700 });
   // ':' is the only allowed id character that is unsafe in a filename; '~' is never in an id, so the map is one-to-one.
   const fileOf = id => path.join(stateDir, id.replace(/:/g, '~') + '.json');
@@ -91,10 +91,16 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
       save({ mission_id: envelope.mission_id, envelope, result });
       return { code: 200, body: result };
     }
+    // Money brakes (program/starnet-v2/03): the kill switch and the month cap stop a dispatch before it starts; nothing is
+    // saved, so the same mission can be sent again once the captain releases the brake.
+    const gate = spend ? spend.check() : { ok: true, budget_usd: null };
+    if (!gate.ok) return { code: gate.code, body: { error: gate.reason, detail: gate.detail, mission_id: envelope.mission_id } };
+    const district = (/^\[district:([a-z0-9-]+)\]/.exec(envelope.user_intent) || [])[1] || 'direct';
     const result = envelopeFor(envelope, { status: 'working', summary: 'Heisenberg has the mission.' });
     save({ mission_id: envelope.mission_id, envelope, result });
     const done = Promise.resolve()
-      .then(() => runForeman({ mission_id: envelope.mission_id, intent: envelope.user_intent, tier: 'GREEN' }))
+      .then(() => runForeman({ mission_id: envelope.mission_id, intent: envelope.user_intent, tier: 'GREEN', budget_usd: gate.budget_usd }))
+      .then(out => { if (spend && out && typeof out.usd === 'number') spend.record({ mission_id: envelope.mission_id, district, usd: out.usd, model: out.model }); return out; })
       .then(out => envelopeFor(envelope, {
         status: out && out.status === 'done' ? 'done' : 'failed',
         summary: out && out.status === 'done' ? out.summary : '',
