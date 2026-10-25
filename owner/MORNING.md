@@ -68,3 +68,4 @@ Overnight checks stopped at 13:00 UTC.
 - #28 foundry architecture survey delivered (main @ 9d202b0, 81/81 tests). Awaiting critic.
 - Closed: none yet. Full log: pauli-starnet program/claude-lane/LOG.md.
 - 2026-10-25 02:30 UTC architect review: the 7 approved district jobs (production #67 #68 #71, impact #63-#66) have posted no results in 8-10 days; root cause unchanged (results can't be posted). PR #68 test disproved the Codex P1. New PR #76 bundles a CI review rewrite needing new secrets: your call. Builder silent since 0052.
+- 2026-10-25 architect: foreman fix pushed to PR #99 (5055692; tests green; CI green except review-gate HOLD). Results still need FOREMAN_GITHUB_WRITE=1 on the server (builder, msg 0056). Merging #99 is your call.
