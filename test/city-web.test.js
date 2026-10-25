@@ -14,8 +14,8 @@ const Specialties = require('../shared/specialties.js');
 
 // --- canonical model ---
 const model = CityCore.cityModel(CityOS);
-A.eq(model.counts.districts, 12, 'app city model includes Pauli, Financial and Crypto Cuties districts');
-A.eq(model.counts.buildings, 23, 'app city model includes three Pauli, six Financial and the Cuties penthouse buildings');
+A.eq(model.counts.districts, 13, 'app city model includes Pauli, Financial, Crypto Cuties and Security districts');
+A.eq(model.counts.buildings, 24, 'app city model includes three Pauli, six Financial, the Cuties penthouse and the Security lab buildings');
 A.eq(model.schema, 'paulis.place.city', 'city model keeps canonical schema id');
 A.eq(model.version, 2, 'city model keeps CityOS version 2');
 
@@ -263,9 +263,9 @@ A.eq(dseat.seating['revenue/revenue_center/treasurer'].id, 'econ', 'district-les
 
 // --- live map: layout, placement, movement honesty ---
 const layout = CityCore.layoutCity(model);
-A.eq(layout.districts.length, 12, 'map lays out all app districts including Pauli and Financial');
+A.eq(layout.districts.length, 13, 'map lays out all app districts including Pauli and Financial');
 const mapBuildings = layout.districts.reduce((n, d) => n + d.buildings.length, 0);
-A.eq(mapBuildings, 23, 'map lays out all app buildings including Pauli and Financial');
+A.eq(mapBuildings, 24, 'map lays out all app buildings including Pauli and Financial');
 const keys = new Set();
 let inside = true;
 for (const d of layout.districts) for (const b of d.buildings) {
@@ -273,7 +273,7 @@ for (const d of layout.districts) for (const b of d.buildings) {
   keys.add(b.key);
   if (b.x < 0 || b.y < 0 || b.x + b.w > layout.width || b.y + b.h > layout.height) inside = false;
 }
-A.ok(inside && keys.size === 23, 'building blocks unique and inside the viewBox');
+A.ok(inside && keys.size === 24, 'building blocks unique and inside the viewBox');
 
 const seat2 = CityCore.seatCitizens(model, [
   { id: 'ecom-beacon', name: 'BEACON', role: 'optimizer', status: 'online' },

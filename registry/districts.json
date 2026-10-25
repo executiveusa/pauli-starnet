@@ -113,7 +113,7 @@
         "REVENUE CENTER"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "offers, pricing and outreach drafts (Mozi, Middleton, Jasper smart sites)",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -175,7 +175,7 @@
         "CREATIVE STUDIO"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "design, video and UGC production behind the design gate",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -206,7 +206,7 @@
         "CONNECTOR EXCHANGE"
       ],
       "foreman": "heisenberg",
-      "active": true,
+      "active": false,
       "purpose": "Freedom of Speech store: product research and test-only Etsy/Printify integration; nothing is listed or sold without the owner",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -303,6 +303,29 @@
       "knowledge": [
         "monica-main"
       ],
+      "aliases": []
+    },
+    {
+      "id": "security",
+      "label": "SECURITY DISTRICT",
+      "buildings": [
+        "SECURITY LAB"
+      ],
+      "foreman": "heisenberg",
+      "active": true,
+      "purpose": "attack lab + pre-production audit gate (starnet-v2/05): every factory product is attacked twice (G15) by a model family different from its builder and judge; HIGH and CRITICAL findings are never waivable",
+      "queue": {
+        "repo": "executiveusa/pauli-starnet",
+        "label": "district:security",
+        "approve_label": "approved",
+        "blocked_label": "blocked"
+      },
+      "daily_usd_cap": 1,
+      "max_attempts": 3,
+      "unattended_permissions": [
+        "research"
+      ],
+      "knowledge": [],
       "aliases": []
     },
     {
