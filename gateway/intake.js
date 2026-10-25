@@ -13,6 +13,7 @@ const MAX_PER_DAY = 5;
 const REPO_RE = /^[A-Za-z0-9_.-]{1,39}\/[A-Za-z0-9_.-]{1,100}$/;
 const BRANCH_RE = /^[A-Za-z0-9_./-]{1,120}$/;
 const SOURCES = ['instinct', 'command-center'];
+const SETTLE_STATUSES = ['building', 'done', 'failed'];
 
 function utcDay(ms) { return new Date(ms).toISOString().slice(0, 10); }
 
@@ -39,12 +40,40 @@ function makeIntake(file, opts) {
   function read() {
     let txt = '';
     try { txt = fs.readFileSync(file, 'utf8'); } catch (_) { return []; }
-    const rows = [];
+    const rows = [], settles = [];
     for (const line of txt.split('\n')) {
       if (!line) continue;
-      try { const r = JSON.parse(line); if (r && r.id && r.repo) rows.push(r); } catch (_) { /* skip a torn line */ }
+      try {
+        const r = JSON.parse(line);
+        if (r && r.event === 'settle' && r.intake_id) settles.push(r);
+        else if (r && r.id && r.repo) rows.push(r);
+      } catch (_) { /* skip a torn line */ }
+    }
+    // a settle row is the factory's exit verdict for one intake; the latest one wins
+    for (const e of settles) {
+      const r = rows.find(x => x.id === e.intake_id);
+      if (r) { r.status = e.status; r.settled_at = e.ts; r.evidence = e.evidence; }
     }
     return rows;
+  }
+
+  // The factory's exit step (program/starnet-v2/06) settles an intake. 'done' needs the evidence that proves it: the
+  // judge receipt AND the security PASS for the exact commit, by path. A product without both is not done.
+  function settle(body) {
+    const o = body && typeof body === 'object' ? body : {};
+    const id = typeof o.intake_id === 'string' ? o.intake_id : '';
+    const row = read().find(r => r.id === id);
+    if (!row) return { code: 404, body: { error: 'no such intake', intake_id: id } };
+    if (!SETTLE_STATUSES.includes(o.status)) return { code: 400, body: { error: 'status must be ' + SETTLE_STATUSES.join(', ') } };
+    const ev = o.evidence && typeof o.evidence === 'object' ? o.evidence : {};
+    const ref = v => typeof v === 'string' && /^evidence\/[0-9a-f]{7,40}\/[A-Za-z0-9_.-]{1,120}\.json$/.test(v) ? v : null;
+    const evidence = { judge_receipt: ref(ev.judge_receipt), security_receipt: ref(ev.security_receipt) };
+    if (o.status === 'done' && !(evidence.judge_receipt && evidence.security_receipt)) {
+      return { code: 400, body: { error: 'done needs evidence.judge_receipt and evidence.security_receipt (evidence/<sha>/<file>.json)' } };
+    }
+    const e = { event: 'settle', intake_id: id, status: o.status, evidence, ts: new Date(now()).toISOString() };
+    fs.appendFileSync(file, JSON.stringify(e) + '\n', { mode: 0o600 });
+    return { code: 200, body: { intake_id: id, status: o.status, evidence } };
   }
 
   function submit(body) {
@@ -82,7 +111,7 @@ function makeIntake(file, opts) {
     return { day: d, limit: maxPerDay, remaining: Math.max(0, maxPerDay - rows.length), intakes: rows };
   }
 
-  return { submit, list, read };
+  return { submit, list, read, settle };
 }
 
 module.exports = { makeIntake, MAX_PER_DAY, utcDay };

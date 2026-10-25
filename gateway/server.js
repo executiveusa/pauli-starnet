@@ -42,6 +42,9 @@
 //   POST /v1/kill | /v1/kill/release        → stop everything (anyone with the bearer) / release (captain only)
 //   GET  /v1/models/default | allowed?model= → newest-DeepSeek default; Opus refused unless POST /v1/models/opus (captain)
 //   POST /v1/factory/intake                → queue a repo for the factory (max 5/day, grill answers); GET lists a day
+//   POST /v1/factory/intake/settle         → the factory exit verdict for one intake (done needs judge + security receipts)
+//   GET  /v1/board                          → dollars earned, outcomes finished, factory products finished, spend (starnet-v2/08)
+//   POST /v1/revenue                        → record income that actually arrived (captain only)
 //   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
@@ -60,6 +63,7 @@ const { makeCostLedger, buildCommandCenter } = require('./command-center');
 const personas = require('./personas');
 const { makeIntake } = require('./intake');
 const { makeSpend } = require('./spend');
+const { makeBoard, makeRevenue, missionTasks } = require('./board');
 const { makeModelPolicy } = require('./models');
 const http = require('http');
 const fs = require('fs');
@@ -434,7 +438,8 @@ async function getCityStatus() {
     }],
     citizens,
     missions: sidecarData.missions || [],
-    activeTasks: [...taskStore.values()].slice(-20).map(t => ({
+    // missions first (the foreman's real dispatches), then direct /v1/heisenberg tasks
+    activeTasks: missionTasks(missionDesk.list(), citizens).concat([...taskStore.values()].slice(-20).map(t => ({
       id: t.id,
       status: t.status,
       task: t.task,
@@ -442,7 +447,7 @@ async function getCityStatus() {
       startedAt: t.startedAt || null,
       completedAt: t.completedAt || null,
       receiptId: t.receipt && t.receipt.receipt_id ? t.receipt.receipt_id : null
-    })),
+    }))),
     approvals,
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
@@ -491,6 +496,9 @@ const recoveredMissions = missionDesk.recoverOnBoot();
 const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
 // Factory intake queue (program/starnet-v2/02): at most 5 repos a day, each with its grill answers.
 const factoryIntake = makeIntake(process.env.STARNET_INTAKE_FILE || path.join(__dirname, 'data', 'factory-intake.jsonl'));
+// The board (program/starnet-v2/08): every number comes from one of the gateway's own ledgers.
+const revenueLedger = makeRevenue({ file: process.env.STARNET_REVENUE_FILE || path.join(__dirname, 'data', 'revenue.jsonl') });
+const board = makeBoard({ revenue: revenueLedger, missions: missionDesk, intake: factoryIntake, spend: spendGuard });
 // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
 const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
@@ -659,6 +667,24 @@ async function handleRequest(req, res) {
       try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
       const out = modelPolicy.grantOpus(body);
       if (out.code === 200) log('warn', 'opus granted by captain', { until: out.body.opus.until });
+      return send(out.code, out.body);
+    }
+
+    // POST /v1/factory/intake/settle: the factory's exit step records its verdict for one intake.
+    if (method === 'POST' && url === '/v1/factory/intake/settle') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = factoryIntake.settle(body);
+      return send(out.code, out.body);
+    }
+    // GET /v1/board: dollars, outcomes, factory products, spend. POST /v1/revenue: the captain records money that arrived.
+    if (method === 'GET' && url === '/v1/board') return send(200, board.summary());
+    if (method === 'POST' && url === '/v1/revenue') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = revenueLedger.record(body);
       return send(out.code, out.body);
     }
 
