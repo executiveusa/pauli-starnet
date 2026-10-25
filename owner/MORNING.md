@@ -67,3 +67,4 @@ Overnight checks stopped at 13:00 UTC.
 - #33 meeting rooms: schema + pilot room + /v1/rooms (35 assertions). Awaiting critic; public push needs your yes; agent-mail server deploy is gated.
 - #28 foundry architecture survey delivered (main @ 9d202b0, 81/81 tests). Awaiting critic.
 - Closed: none yet. Full log: pauli-starnet program/claude-lane/LOG.md.
+- 2026-10-25 02:30 UTC architect review: the 7 approved district jobs (production #67 #68 #71, impact #63-#66) have posted no results in 8-10 days; root cause unchanged (results can't be posted). PR #68 test disproved the Codex P1. New PR #76 bundles a CI review rewrite needing new secrets: your call. Builder silent since 0052.

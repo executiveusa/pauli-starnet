@@ -167,3 +167,20 @@ Needs re-grounding: #18. Next architect items: #24 (Command Center redesign: res
 3. Relay #10 to the builder; ask the owner the WhatsApp question (§5E).
 4. Verify any builder critic verdicts on #39 / #33 / #28. Only then mark those slices accepted (still not "closed" until the outcome is live).
 5. Write a short status to the owner: what changed, what's blocked, and what needs his yes, using the four status words.
+
+## 8. Review findings, 2026-10-25 ~02:30 UTC (added after handoff)
+- **Codex P1 on PR #68 is DISPROVED empirically:** the review-triggered run 40128071599 ran on head c9a8a1a and its `vibe / vibe-merge-gate`
+  check (success, 20:03:27Z) attached to the PR head. Reply with that evidence and resolve the thread; the other 5 threads are nits
+  (timeout belongs in the reusable gate; concurrency optional). PR #68 is still open, `behind` main: update the branch, re-commit the
+  receipt, then merge (§5B).
+- **Districts:** 4 of 12 active (command, production, impact, commerce); 8 inactive by design. Production has 3 approved (#67, #68, #71) and
+  impact 4 approved (#63-#66), with **zero results posted since Oct 15-17**. Commerce #70 is blocked on owner decisions; #69 isn't approved;
+  command has no queue. #64 was flagged as a duplicate by kilo-code-bot. Root cause unchanged: FOREMAN_GITHUB_WRITE unset on the server, so
+  results are never posted. The foreman truth fix (870c730, relay patches/0011, builder-verified in 0012) was never pushed. Needs: the builder
+  sets FOREMAN_GITHUB_WRITE=1 after its privacy pass (owner approved via its channel, 0015), plus the owner's yes to push 870c730 to
+  pauli-starnet.
+- **New: vibe-engineering PR #76** (another agent, opened 2026-10-25 01:12): skills + gallery, and it also rewrites
+  `.github/workflows/vibe-code-review.yml` to a pinned open-code-review action needing secrets OCR_LLM_URL / OCR_LLM_AUTH_TOKEN /
+  OCR_LLM_MODEL. Its `review` check fails closed (secrets missing). It overlaps PR #70. Setting those secrets may mean model spend, so it's an
+  owner decision. Recommend splitting the CI change out of the skills PR. The merge gate didn't run on #76 because its caller (#68) isn't on main yet.
+- **Builder silent** since 0052 (~2026-10-24 10:10 UTC): 0053-0055 unanswered, so #39/#33/#28 have no critic yet and nothing counts.
