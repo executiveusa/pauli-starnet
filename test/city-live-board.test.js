@@ -146,6 +146,18 @@ const ROSTER = [
     A.eq(board.dollars.has_data, false, 'no revenue recorded = no dollars claimed');
     A.eq((await req('POST', GW, '/v1/revenue', auth, { by: 'instinct', usd: 10, offer: 'kindle', ref: 'FO-1' })).status, 403, 'POST /v1/revenue refuses anyone but the captain');
     A.eq((await req('GET', GW, '/v1/board', {})).status, 401, 'the board sits behind the bearer');
+
+    // offers (starnet-v2/10): start a Kindle job; its green steps go through the same mission desk
+    const list = JSON.parse((await req('GET', GW, '/v1/offers', auth)).body);
+    A.eq(list.offers.map(o => o.id).sort(), ['ai-employee', 'kindle', 'smart-sites'], 'GET /v1/offers lists the money loops');
+    const start = JSON.parse((await req('POST', GW, '/v1/offers/kindle/start', auth, { inputs: { job_id: 'kdp-0001', genre: 'self-help', formats: 'ebook' } })).body);
+    A.eq([start.dispatched.map(d => d.code).join(','), start.gate.step], ['202,202,202,202', 'client-review'], 'a Kindle job dispatches 4 green steps and stops at the client send');
+    const st = JSON.parse((await req('GET', GW, '/v1/city/status', auth)).body);
+    A.eq(st.activeTasks.filter(x => x.status === 'running' && x.context.district === 'revenue').length, 4, 'the started job is live city activity in the revenue district');
+    A.eq((await req('POST', GW, '/v1/offers/kindle/start', auth, { inputs: { job_id: 'kdp-0002', genre: 'Jane <j@x.com>', formats: 'ebook' } })).status, 400, 'client contact details are refused as an input');
+    await req('POST', GW, '/v1/kill', auth, { by: 'instinct', reason: 'stop everything' });
+    const killed = JSON.parse((await req('POST', GW, '/v1/offers/smart-sites/start', auth, { inputs: { job_id: 'site-0001', business_type: 'barber shop', repo: 'executiveusa/demo-barber' } })).body);
+    A.eq(killed.dispatched.map(d => d.code), [423], 'the kill switch stops an offer job at its first step');
   } finally { global.fetch = realFetch; child.kill(); sidecar.close(); }
   A.report();
 })().catch(e => { console.log('FAIL: ' + (e && e.stack || e)); process.exit(1); });

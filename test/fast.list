@@ -702,6 +702,7 @@ test/personas.test.js
 test/factory-intake.test.js
 test/spend-and-kill.test.js
 test/city-live-board.test.js
+test/offers.test.js
 test/review-gate.test.js
 test/first-lanes.test.js
 test/gateway-hardening.test.js

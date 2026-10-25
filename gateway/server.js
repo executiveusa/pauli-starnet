@@ -45,6 +45,7 @@
 //   POST /v1/factory/intake/settle         → the factory exit verdict for one intake (done needs judge + security receipts)
 //   GET  /v1/board                          → dollars earned, outcomes finished, factory products finished, spend (starnet-v2/08)
 //   POST /v1/revenue                        → record income that actually arrived (captain only)
+//   GET  /v1/offers | POST /v1/offers/<id>/start → money-loop templates (starnet-v2/10); start dispatches the green steps
 //   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
@@ -64,6 +65,7 @@ const personas = require('./personas');
 const { makeIntake } = require('./intake');
 const { makeSpend } = require('./spend');
 const { makeBoard, makeRevenue, missionTasks } = require('./board');
+const offers = require('./offers');
 const { makeModelPolicy } = require('./models');
 const http = require('http');
 const fs = require('fs');
@@ -668,6 +670,31 @@ async function handleRequest(req, res) {
       const out = modelPolicy.grantOpus(body);
       if (out.code === 200) log('warn', 'opus granted by captain', { until: out.body.opus.until });
       return send(out.code, out.body);
+    }
+
+    // GET /v1/offers: the money-loop templates. POST /v1/offers/<id>/start {inputs}: plan the job and dispatch its green
+    // steps up to the first gate through the mission desk (same brakes as any mission); gated steps wait for a person.
+    if (method === 'GET' && url === '/v1/offers') {
+      const T = offers.loadTemplates(path.join(__dirname, '..', 'registry', 'offers'));
+      return send(200, { offers: Object.values(T).map(t => ({ id: t.id, label: t.label, inputs: t.inputs, steps: t.steps.map(x => ({ id: x.id, title: x.title, district: x.district, tier: x.tier })), red: t.red })) });
+    }
+    const offerStart = method === 'POST' && /^\/v1\/offers\/([a-z0-9-]{2,40})\/start$/.exec(url);
+    if (offerStart) {
+      const T = offers.loadTemplates(path.join(__dirname, '..', 'registry', 'offers'));
+      const t = T[offerStart[1]];
+      if (!t) return send(404, { error: 'no such offer' });
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const p = offers.plan(t, body.inputs);
+      if (p.error) return send(400, { error: p.error });
+      const dispatched = [];
+      for (const m of p.ready) {
+        const out = missionDesk.accept(m);
+        dispatched.push({ mission_id: m.mission_id, code: out.code, status: out.body && (out.body.status || out.body.error) });
+        if (out.code >= 400) break;   // a brake (kill switch, month cap) stops the rest of the job too
+      }
+      return send(202, { offer: p.offer, job_id: p.job_id, dispatched, gate: p.gate, waiting: p.waiting });
     }
 
     // POST /v1/factory/intake/settle: the factory's exit step records its verdict for one intake.
