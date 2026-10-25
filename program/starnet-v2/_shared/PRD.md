@@ -52,7 +52,7 @@ Paused: **commerce**. Off until a money loop needs them: crypto-cuties, pauli, i
 - Every worker loads a **persona** for its role from the persona library (D1).
 
 ## 7. Persona library (D1)
-All **326** personas from `msitarzewski/agency-agents` (MIT, pinned at b37b5bb) live in StarNet as **model-agnostic data**: role, mission,
+All **283** personas (326 Markdown files, of which 283 define a persona) from `msitarzewski/agency-agents` (MIT, pinned at b37b5bb) live in StarNet as **model-agnostic data**: role, mission,
 rules, and district mapping. Any agent (Instinct, Heisenberg's crew, any model) can load one. Served read-only through the Dojo district,
 with the same review and quarantine pass as the 371 skills; MIT attribution kept; upstream updates only through a reviewed upgrade.
 

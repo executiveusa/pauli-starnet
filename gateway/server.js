@@ -38,6 +38,7 @@
 //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
 //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
 //   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
@@ -52,6 +53,7 @@ const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
 const { makeCostLedger, buildCommandCenter } = require('./command-center');
+const personas = require('./personas');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -632,6 +634,17 @@ async function handleRequest(req, res) {
       if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
       const ageMs = Date.now() - Date.parse(board.at);
       return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+    }
+
+    // GET /v1/personas[?district=&department=&q=] and GET /v1/personas/<department>/<slug>: the persona library (any agent, any model).
+    if (method === 'GET' && (url === '/v1/personas' || url.startsWith('/v1/personas?') || url.startsWith('/v1/personas/'))) {
+      const u = new URL(url, 'http://gateway.local');
+      const regDir = process.env.STARNET_REGISTRY_DIR || path.join(__dirname, '..', 'registry');
+      let lib;
+      try { lib = personas.loadLibrary(regDir); } catch (_) { return send(503, { error: 'PERSONA_LIBRARY_MISSING', hint: 'run scripts/personas/import.js' }); }
+      if (u.pathname === '/v1/personas') return send(200, personas.list(lib, { district: u.searchParams.get('district'), department: u.searchParams.get('department'), q: u.searchParams.get('q') }));
+      const out = personas.get(lib, path.join(regDir, '..'), decodeURIComponent(u.pathname.slice('/v1/personas/'.length)));
+      return send(out.code, out.body);
     }
 
     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)

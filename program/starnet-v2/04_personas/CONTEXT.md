@@ -1,6 +1,6 @@
 # 04_personas
 
-**One job:** 326 agency-agents personas as model-agnostic data with district map, served read-only.
+**One job:** 283 agency-agents personas as model-agnostic data with district map, served read-only.
 
 **Owner:** architect
 
