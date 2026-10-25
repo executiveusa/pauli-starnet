@@ -38,6 +38,7 @@
 //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
 //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   POST /v1/factory/intake                → queue a repo for the factory (max 5/day, grill answers); GET lists a day
 //   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
@@ -54,6 +55,7 @@ const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
 const { makeCostLedger, buildCommandCenter } = require('./command-center');
 const personas = require('./personas');
+const { makeIntake } = require('./intake');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -471,6 +473,8 @@ const missionDesk = makeMissionDesk({
 });
 const recoveredMissions = missionDesk.recoverOnBoot();
 const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
+// Factory intake queue (program/starnet-v2/02): at most 5 repos a day, each with its grill answers.
+const factoryIntake = makeIntake(process.env.STARNET_INTAKE_FILE || path.join(__dirname, 'data', 'factory-intake.jsonl'));
 // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
 const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
@@ -614,6 +618,19 @@ async function handleRequest(req, res) {
     if (method === 'GET' && url === '/v1/city/world') {
       const world = getCityWorld();
       return send(world.ok === false ? 503 : 200, world);
+    }
+
+    // POST /v1/factory/intake: Instinct (or the command center) queues a repo + instructions + grill answers. GET lists a day.
+    if (url === '/v1/factory/intake' || url.startsWith('/v1/factory/intake?')) {
+      if (method === 'POST') {
+        const bodyText = await readBody(req);
+        let body;
+        try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+        const out = factoryIntake.submit(body);
+        return send(out.code, out.body);
+      }
+      if (method === 'GET') return send(200, factoryIntake.list(new URL(url, 'http://gateway.local').searchParams.get('day')));
+      return send(405, { error: 'METHOD_NOT_ALLOWED' });
     }
 
     // POST /v1/missions — a Terabithia MissionEnvelope for the city (program/starnet-v1/_shared/contracts.md §2)
