@@ -18,7 +18,7 @@
   "expectedClaimCount": 37,
   "releaseSurface": {
     "algorithm": "sha256",
-    "sourceCommit": "8fbfa6365916b42a420c6f4aca4f2d93fb92b2a0",
+    "sourceCommit": "2765ff51ec26f83ab946917d65f4ed4eb86d0133",
     "pathSetSha256": "46e604ce4614e64783d167f302dec4dd171e47b8523b9a0c47ffe84b2c258c7f",
     "files": [
       {
@@ -148,8 +148,8 @@
       },
       {
         "path": "frontend/app/cityos.js",
-        "bytes": 32945,
-        "sha256": "69ef8fe207034ab8f4ddf5917b9646f47b10a7445af32b80445b27681224c0b7"
+        "bytes": 33281,
+        "sha256": "40a21e3b1c6372de7dba323317c65a0c49b9f779531bfb176b5923f403015a7a"
       },
       {
         "path": "frontend/app/classicons.js",
