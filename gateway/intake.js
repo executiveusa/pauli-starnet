@@ -45,16 +45,31 @@ function makeIntake(file, opts) {
       if (!line) continue;
       try {
         const r = JSON.parse(line);
-        if (r && r.event === 'settle' && r.intake_id) settles.push(r);
+        if (r && (r.event === 'settle' || r.event === 'approve') && r.intake_id) settles.push(r);
         else if (r && r.id && r.repo) rows.push(r);
       } catch (_) { /* skip a torn line */ }
     }
     // a settle row is the factory's exit verdict for one intake; the latest one wins
     for (const e of settles) {
       const r = rows.find(x => x.id === e.intake_id);
-      if (r) { r.status = e.status; r.settled_at = e.ts; r.evidence = e.evidence; }
+      if (!r) continue;
+      if (e.event === 'approve') { r.morning_approved = true; r.approved_at = e.ts; }
+      else { r.status = e.status; r.settled_at = e.ts; r.evidence = e.evidence; }
     }
     return rows;
+  }
+
+  // The captain's morning approval for an intake that relies on ASSUMED grill answers (yellow): until it is recorded the
+  // factory leaves the intake in the queue (vibe-engineering scripts/select-starnet-intake.mjs).
+  function approve(body) {
+    const o = body && typeof body === 'object' ? body : {};
+    if (o.by !== 'captain' || o.confirm !== 'approve') return { code: 403, body: { error: 'only the captain approves an assumed-answer intake (by: "captain", confirm: "approve")' } };
+    const row = read().find(r => r.id === o.intake_id);
+    if (!row) return { code: 404, body: { error: 'no such intake', intake_id: o.intake_id || null } };
+    if (!row.needs_morning_approval) return { code: 409, body: { error: 'this intake has no assumed answers to approve', intake_id: row.id } };
+    const e = { event: 'approve', intake_id: row.id, by: 'captain', ts: new Date(now()).toISOString() };
+    fs.appendFileSync(file, JSON.stringify(e) + '\n', { mode: 0o600 });
+    return { code: 200, body: { intake_id: row.id, morning_approved: true } };
   }
 
   // The factory's exit step (program/starnet-v2/06) settles an intake. 'done' needs the evidence that proves it: the
@@ -111,7 +126,7 @@ function makeIntake(file, opts) {
     return { day: d, limit: maxPerDay, remaining: Math.max(0, maxPerDay - rows.length), intakes: rows };
   }
 
-  return { submit, list, read, settle };
+  return { submit, list, read, settle, approve };
 }
 
 module.exports = { makeIntake, MAX_PER_DAY, utcDay };

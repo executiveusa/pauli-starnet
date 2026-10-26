@@ -10,12 +10,12 @@ Queue: `district:security` issues, plus every repo the factory sends at its exit
 - **HIGH and CRITICAL findings are never waivable.** MEDIUM needs the captain's yes on the exact finding, LOW is reported.
 
 ## The attack run (free tools only; installed on the VPS by the builder)
-Each run happens in the factory sandbox against the candidate commit and its **private VPS preview**, never against production or anything
-public. In order:
+Each run happens in the factory sandbox against the candidate commit, with the app **started inside that sandbox** (the PRD orders
+security before the deploy step, so the private VPS preview does not exist yet). Never against production or anything public. In order:
 1. **Secrets:** `gitleaks detect` over the full history.
 2. **Static analysis:** `semgrep --config auto` (OWASP top 10 + the language rules).
 3. **Dependencies:** the ecosystem's audit (`npm audit --omit=dev`, `pip-audit`, `govulncheck`) + `trivy fs` over the repo and the image.
-4. **Running app (dynamic):** OWASP ZAP baseline scan against the preview URL, then authenticated checks of the PRD's auth model:
+4. **Running app (dynamic):** OWASP ZAP baseline scan against the app running in the sandbox, then authenticated checks of the PRD's auth model:
    - an unauthenticated user can't reach protected routes
    - one user can't read another's data (IDOR)
    - inputs are checked for injection (SQL, command, template) and XSS
@@ -24,8 +24,10 @@ public. In order:
 5. **The model pass:** the auditor (a security persona from the library, `GET /v1/personas?district=security`) reads the diff, the PRD and the
    tool output, then tries targeted attacks the tools missed: business-logic abuse, privilege escalation, file upload, SSRF, open redirects,
    and secrets in client bundles.
-6. **Receipt:** `evidence/<sha>/07-security-run-<n>.json`: tools and versions, findings with severity, file:line or URL, a reproduction,
-   `auditor_model`, `auditor_family`, and the `input_sha`/`output_sha` chain.
+6. **Receipt:** `docs/evidence/<sha>/07-security-run-<n>.json` in the candidate branch: `commit` (the full sha), tools and versions,
+   `findings` (each with `severity` LOW/MEDIUM/HIGH/CRITICAL, file:line or URL, a reproduction; a MEDIUM carries `fixed: true` or
+   `accepted_by: "captain"`), `auditor_model`, and the `input_sha`/`output_sha` chain. vibe-engineering `factory/exit-bar.mjs` reads exactly
+   these fields.
 
 ## Exit decision
 PASS only when both runs have **zero HIGH/CRITICAL**, every MEDIUM is fixed or captain-accepted, and the auditor family differs from the builder

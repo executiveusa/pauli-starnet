@@ -42,6 +42,7 @@
 //   POST /v1/kill | /v1/kill/release        → stop everything (anyone with the bearer) / release (captain only)
 //   GET  /v1/models/default | allowed?model= → newest-DeepSeek default; Opus refused unless POST /v1/models/opus (captain)
 //   POST /v1/factory/intake                → queue a repo for the factory (max 5/day, grill answers); GET lists a day
+//   POST /v1/factory/intake/approve        → the captain's morning yes for an intake built on assumed grill answers
 //   POST /v1/factory/intake/settle         → the factory exit verdict for one intake (done needs judge + security receipts)
 //   GET  /v1/board                          → dollars earned, outcomes finished, factory products finished, spend (starnet-v2/08)
 //   POST /v1/revenue                        → record income that actually arrived (captain only)
@@ -697,6 +698,14 @@ async function handleRequest(req, res) {
       return send(202, { offer: p.offer, job_id: p.job_id, dispatched, gate: p.gate, waiting: p.waiting });
     }
 
+    // POST /v1/factory/intake/approve: the captain's morning yes for an intake built on assumed grill answers.
+    if (method === 'POST' && url === '/v1/factory/intake/approve') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = factoryIntake.approve(body);
+      return send(out.code, out.body);
+    }
     // POST /v1/factory/intake/settle: the factory's exit step records its verdict for one intake.
     if (method === 'POST' && url === '/v1/factory/intake/settle') {
       const bodyText = await readBody(req);

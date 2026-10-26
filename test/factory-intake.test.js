@@ -53,6 +53,18 @@ function req(method, port, p, headers, body) {
   A.eq(q.list().remaining, 0, 'no slots left today');
   A.eq(q.list().intakes.map(r => r.id), ['intake-2026-10-25-1', 'intake-2026-10-25-2', 'intake-2026-10-25-3', 'intake-2026-10-25-4', 'intake-2026-10-25-5'], 'ids are day + order');
 
+  // ---- the captain's morning approval (assumed answers) ----
+  const assumedRow = q.list().intakes.find(r => r.needs_morning_approval);
+  const plainRow = q.list().intakes.find(r => !r.needs_morning_approval);
+  A.ok(assumedRow && plainRow, 'the day holds one assumed-answer intake and one fully answered');
+  A.eq(q.approve({ intake_id: assumedRow.id, by: 'instinct', confirm: 'approve' }).code, 403, 'Instinct cannot approve for the captain');
+  A.eq(q.approve({ intake_id: assumedRow.id, by: 'captain' }).code, 403, 'approval needs the explicit confirm word');
+  A.eq(q.approve({ intake_id: plainRow.id, by: 'captain', confirm: 'approve' }).code, 409, 'nothing to approve on a fully answered intake');
+  A.eq(q.approve({ intake_id: 'intake-nope', by: 'captain', confirm: 'approve' }).code, 404, 'unknown intake');
+  A.eq(q.approve({ intake_id: assumedRow.id, by: 'captain', confirm: 'approve' }).code, 200, 'the captain approves it');
+  A.eq(q.list().intakes.find(r => r.id === assumedRow.id).morning_approved, true, 'the approval shows on the intake (the factory now takes it)');
+  A.eq(q.list().intakes.length, 5, 'an approval is not a new intake');
+
   // ---- next UTC day resets ----
   clock = Date.parse('2026-10-26T00:00:01Z');
   A.eq(q.submit(base(6)).code, 201, 'a new UTC day opens 5 new slots');
