@@ -18,7 +18,7 @@
   "expectedClaimCount": 37,
   "releaseSurface": {
     "algorithm": "sha256",
-    "sourceCommit": "8fbfa6365916b42a420c6f4aca4f2d93fb92b2a0",
+    "sourceCommit": "b80ea77ccdcd4c7afa929d2e6e03a47bbe1d944b",
     "pathSetSha256": "46e604ce4614e64783d167f302dec4dd171e47b8523b9a0c47ffe84b2c258c7f",
     "files": [
       {
@@ -148,8 +148,8 @@
       },
       {
         "path": "frontend/app/cityos.js",
-        "bytes": 32945,
-        "sha256": "69ef8fe207034ab8f4ddf5917b9646f47b10a7445af32b80445b27681224c0b7"
+        "bytes": 33281,
+        "sha256": "40a21e3b1c6372de7dba323317c65a0c49b9f779531bfb176b5923f403015a7a"
       },
       {
         "path": "frontend/app/classicons.js",
@@ -733,8 +733,8 @@
       },
       {
         "path": "frontend/app/stationbake.js",
-        "bytes": 285069,
-        "sha256": "bfe566f68d30dace964d149f363bba9cbd16bcf33d3d6e2ea9099c44b59b2bfd"
+        "bytes": 285230,
+        "sha256": "04a087ea41ad8ac270e65f23a8a08306d8901c6a7c9dd8a1b4c2bbb66eb6bd55"
       },
       {
         "path": "frontend/app/stationcommands.js",

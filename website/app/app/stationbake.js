@@ -3314,7 +3314,8 @@ const StationBake = (() => {
           let last = 0, lastY = -1e9;
           for (let y = 0; y < CH2; y++) {
             const i = ((y * CW) + x) << 2;
-            if (d[i + 3]) { last = d[i] | (d[i + 1] << 8); lastY = y; }
+            // a blended edge pixel can decode past the last footprint: treat it as "no footprint", never index past `tops`
+            if (d[i + 3]) { const n = d[i] | (d[i + 1] << 8); last = n <= rects.length ? n : 0; lastY = y; }
             else if (last && y - lastY <= skirt) own[y * CW + x] = last;
           }
         }

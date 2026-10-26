@@ -38,6 +38,16 @@
 //   GET  /v1/command-center                → owner read model: pending approvals, receipts per district, cost meter, agent permission cards
 //   POST /v1/costs                         → log tokens for one mission against a district (append-only ledger)
 //   GET  /v1/districts                     → per-district RUNNING/BLOCKED/IDLE from the foreman's last tick
+//   GET  /v1/spend                         → month/day spend vs caps, kill state, alerts
+//   POST /v1/kill | /v1/kill/release        → stop everything (anyone with the bearer) / release (captain only)
+//   GET  /v1/models/default | allowed?model= → newest-DeepSeek default; Opus refused unless POST /v1/models/opus (captain)
+//   POST /v1/factory/intake                → queue a repo for the factory (max 5/day, grill answers); GET lists a day
+//   POST /v1/factory/intake/approve        → the captain's morning yes for an intake built on assumed grill answers
+//   POST /v1/factory/intake/settle         → the factory exit verdict for one intake (done needs judge + security receipts)
+//   GET  /v1/board                          → dollars earned, outcomes finished, factory products finished, spend (starnet-v2/08)
+//   POST /v1/revenue                        → record income that actually arrived (captain only)
+//   GET  /v1/offers | POST /v1/offers/<id>/start → money-loop templates (starnet-v2/10); start dispatches the green steps
+//   GET  /v1/personas[/dept/slug]           → persona library (starnet-v2/04): list, or one persona's card
 //   GET  /v1/knowledge/search?q=&district= → cited transcript passages for a district
 //   GET  /v1/knowledge/insights?district=  → distilled insights (draft/reviewed) for a district
 //   GET  /v1/knowledge/sources?district=   → which knowledge sources a district may use
@@ -52,6 +62,12 @@ const { getCityWorld } = require('./city-world');
 const { makeMissionDesk } = require('./missions');
 const { makeKnowledgeDesk } = require('./knowledge');
 const { makeCostLedger, buildCommandCenter } = require('./command-center');
+const personas = require('./personas');
+const { makeIntake } = require('./intake');
+const { makeSpend } = require('./spend');
+const { makeBoard, makeRevenue, missionTasks } = require('./board');
+const offers = require('./offers');
+const { makeModelPolicy } = require('./models');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -425,7 +441,8 @@ async function getCityStatus() {
     }],
     citizens,
     missions: sidecarData.missions || [],
-    activeTasks: [...taskStore.values()].slice(-20).map(t => ({
+    // missions first (the foreman's real dispatches), then direct /v1/heisenberg tasks
+    activeTasks: missionTasks(missionDesk.list(), citizens).concat([...taskStore.values()].slice(-20).map(t => ({
       id: t.id,
       status: t.status,
       task: t.task,
@@ -433,7 +450,7 @@ async function getCityStatus() {
       startedAt: t.startedAt || null,
       completedAt: t.completedAt || null,
       receiptId: t.receipt && t.receipt.receipt_id ? t.receipt.receipt_id : null
-    })),
+    }))),
     approvals,
     experiments: sidecarData.experiments || [],
     revenue: null,   // unknown until STARNET provides verified telemetry
@@ -460,7 +477,18 @@ function tokenMatches(token) {
 // ─── MISSION DESK (Terabithia city missions → the sidecar foreman) ────────────
 // One durable file per mission; a restart marks in-flight missions failed instead of leaving them working.
 const FOREMAN_TIMEOUT_MS = parseInt(process.env.STARNET_FOREMAN_TIMEOUT_MS || '900000', 10);
+// Money brakes (program/starnet-v2/03): kill switch + $20/month hard stop + $0.25/mission budget + $2/day alert.
+const spendGuard = makeSpend({
+  file: process.env.STARNET_SPEND_FILE || path.join(__dirname, 'data', 'spend.jsonl'),
+  killFile: process.env.STARNET_KILL_FILE || path.join(__dirname, 'data', 'kill-switch.json')
+});
+// Model policy (D12/D15): newest-DeepSeek default resolved by scripts/models/resolve-default.js; Opus only on a captain grant.
+const modelPolicy = makeModelPolicy({
+  defaultFile: process.env.STARNET_MODEL_DEFAULT_FILE || path.join(__dirname, 'data', 'model-default.json'),
+  opusFile: process.env.STARNET_OPUS_FILE || path.join(__dirname, 'data', 'opus-grant.json')
+});
 const missionDesk = makeMissionDesk({
+  spend: spendGuard,
   stateDir: process.env.STARNET_MISSION_DIR || require('path').join(__dirname, 'data', 'missions'),
   revision: REVISION,
   runForeman: body => sidecarRequest('POST', '/api/missions/run', body, FOREMAN_TIMEOUT_MS)
@@ -469,6 +497,11 @@ const missionDesk = makeMissionDesk({
 });
 const recoveredMissions = missionDesk.recoverOnBoot();
 const DISTRICT_STATE_FILE = process.env.STARNET_DISTRICT_STATE || path.join(__dirname, 'data', 'districts-state.json');
+// Factory intake queue (program/starnet-v2/02): at most 5 repos a day, each with its grill answers.
+const factoryIntake = makeIntake(process.env.STARNET_INTAKE_FILE || path.join(__dirname, 'data', 'factory-intake.jsonl'));
+// The board (program/starnet-v2/08): every number comes from one of the gateway's own ledgers.
+const revenueLedger = makeRevenue({ file: process.env.STARNET_REVENUE_FILE || path.join(__dirname, 'data', 'revenue.jsonl') });
+const board = makeBoard({ revenue: revenueLedger, missions: missionDesk, intake: factoryIntake, spend: spendGuard });
 // Knowledge desk: Supabase when KB_SUPABASE_URL + KB_SUPABASE_SERVICE_KEY are set, repo transcripts otherwise.
 const knowledgeDesk = makeKnowledgeDesk({ supabaseUrl: process.env.KB_SUPABASE_URL, supabaseKey: process.env.KB_SUPABASE_SERVICE_KEY });
 if (recoveredMissions) log('warn', 'missions interrupted by restart marked failed', { count: recoveredMissions });
@@ -614,6 +647,96 @@ async function handleRequest(req, res) {
       return send(world.ok === false ? 503 : 200, world);
     }
 
+    // GET /v1/spend: month/day spend, caps, kill state, alerts. POST /v1/kill: "stop everything". POST /v1/kill/release: captain only.
+    if (method === 'GET' && url === '/v1/spend') return send(200, spendGuard.summary());
+    if (method === 'POST' && (url === '/v1/kill' || url === '/v1/kill/release')) {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = url === '/v1/kill' ? spendGuard.kill(body) : spendGuard.release(body);
+      if (out.code === 200) log('warn', url === '/v1/kill' ? 'kill switch engaged' : 'kill switch released', { by: body.by });
+      return send(out.code, out.body);
+    }
+
+    // GET /v1/models/default: the default model + Opus state. GET /v1/models/allowed?model=: may a caller use it? POST /v1/models/opus: captain grant.
+    if (method === 'GET' && url === '/v1/models/default') return send(200, modelPolicy.current());
+    if (method === 'GET' && url.startsWith('/v1/models/allowed')) {
+      const v = modelPolicy.allowed(new URL(url, 'http://gateway.local').searchParams.get('model'));
+      return send(v.ok ? 200 : 403, v);
+    }
+    if (method === 'POST' && url === '/v1/models/opus') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = modelPolicy.grantOpus(body);
+      if (out.code === 200) log('warn', 'opus granted by captain', { until: out.body.opus.until });
+      return send(out.code, out.body);
+    }
+
+    // GET /v1/offers: the money-loop templates. POST /v1/offers/<id>/start {inputs}: plan the job and dispatch its green
+    // steps up to the first gate through the mission desk (same brakes as any mission); gated steps wait for a person.
+    if (method === 'GET' && url === '/v1/offers') {
+      const T = offers.loadTemplates(path.join(__dirname, '..', 'registry', 'offers'));
+      return send(200, { offers: Object.values(T).map(t => ({ id: t.id, label: t.label, inputs: t.inputs, steps: t.steps.map(x => ({ id: x.id, title: x.title, district: x.district, tier: x.tier })), red: t.red })) });
+    }
+    const offerStart = method === 'POST' && /^\/v1\/offers\/([a-z0-9-]{2,40})\/start$/.exec(url);
+    if (offerStart) {
+      const T = offers.loadTemplates(path.join(__dirname, '..', 'registry', 'offers'));
+      const t = T[offerStart[1]];
+      if (!t) return send(404, { error: 'no such offer' });
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const p = offers.plan(t, body.inputs);
+      if (p.error) return send(400, { error: p.error });
+      const dispatched = [];
+      for (const m of p.ready) {
+        const out = missionDesk.accept(m);
+        dispatched.push({ mission_id: m.mission_id, code: out.code, status: out.body && (out.body.status || out.body.error) });
+        if (out.code >= 400) break;   // a brake (kill switch, month cap) stops the rest of the job too
+      }
+      return send(202, { offer: p.offer, job_id: p.job_id, dispatched, gate: p.gate, waiting: p.waiting });
+    }
+
+    // POST /v1/factory/intake/approve: the captain's morning yes for an intake built on assumed grill answers.
+    if (method === 'POST' && url === '/v1/factory/intake/approve') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = factoryIntake.approve(body);
+      return send(out.code, out.body);
+    }
+    // POST /v1/factory/intake/settle: the factory's exit step records its verdict for one intake.
+    if (method === 'POST' && url === '/v1/factory/intake/settle') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = factoryIntake.settle(body);
+      return send(out.code, out.body);
+    }
+    // GET /v1/board: dollars, outcomes, factory products, spend. POST /v1/revenue: the captain records money that arrived.
+    if (method === 'GET' && url === '/v1/board') return send(200, board.summary());
+    if (method === 'POST' && url === '/v1/revenue') {
+      const bodyText = await readBody(req);
+      let body;
+      try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+      const out = revenueLedger.record(body);
+      return send(out.code, out.body);
+    }
+
+    // POST /v1/factory/intake: Instinct (or the command center) queues a repo + instructions + grill answers. GET lists a day.
+    if (url === '/v1/factory/intake' || url.startsWith('/v1/factory/intake?')) {
+      if (method === 'POST') {
+        const bodyText = await readBody(req);
+        let body;
+        try { body = bodyText ? JSON.parse(bodyText) : {}; } catch { return send(400, { error: 'INVALID_JSON' }); }
+        const out = factoryIntake.submit(body);
+        return send(out.code, out.body);
+      }
+      if (method === 'GET') return send(200, factoryIntake.list(new URL(url, 'http://gateway.local').searchParams.get('day')));
+      return send(405, { error: 'METHOD_NOT_ALLOWED' });
+    }
+
     // POST /v1/missions — a Terabithia MissionEnvelope for the city (program/starnet-v1/_shared/contracts.md §2)
     if (method === 'POST' && url === '/v1/missions') {
       const bodyText = await readBody(req);
@@ -632,6 +755,17 @@ async function handleRequest(req, res) {
       if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
       const ageMs = Date.now() - Date.parse(board.at);
       return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+    }
+
+    // GET /v1/personas[?district=&department=&q=] and GET /v1/personas/<department>/<slug>: the persona library (any agent, any model).
+    if (method === 'GET' && (url === '/v1/personas' || url.startsWith('/v1/personas?') || url.startsWith('/v1/personas/'))) {
+      const u = new URL(url, 'http://gateway.local');
+      const regDir = process.env.STARNET_REGISTRY_DIR || path.join(__dirname, '..', 'registry');
+      let lib;
+      try { lib = personas.loadLibrary(regDir); } catch (_) { return send(503, { error: 'PERSONA_LIBRARY_MISSING', hint: 'run scripts/personas/import.js' }); }
+      if (u.pathname === '/v1/personas') return send(200, personas.list(lib, { district: u.searchParams.get('district'), department: u.searchParams.get('department'), q: u.searchParams.get('q') }));
+      const out = personas.get(lib, path.join(regDir, '..'), decodeURIComponent(u.pathname.slice('/v1/personas/'.length)));
+      return send(out.code, out.body);
     }
 
     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)
