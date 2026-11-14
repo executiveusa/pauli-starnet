@@ -75,3 +75,14 @@ We now understand it as a bounded operating command:
 6. Return proof: artifact, source, score, cost, and changed state.
 
 This expands breadth, not authority. Existing constitutional gates remain unchanged.
+
+
+## Space Bunny Alpha lane + citizen question packs (2026-09-28)
+**Source:** owner-attached videos 2026-09-28: stealth-model review (Space Bunny Alpha on OpenRouter) and "10 Levels of Jev For Agentic Engineers".
+**What landed (v0.3.0, recommend-only shadow, PR unmerged):**
+- stealth/space-bunny-alpha is now the primary model INSIDE the openrouter-free fallback lane (deepseek/glm/gemma remain backups). Real TypeSafe Jev via gateway stays primary overall; nothing about the paid lane changed.
+- Space Bunny gets reasoning_effort=low (MODEL_EXTRA) - it reasons at length by default; low keeps typed decisions fast. Verified live: valid contract answers, cost $0.
+- Named question packs (sidecar/jev-question-packs.json): ad-gap-analyzer, brand-quality-gate, inbox-triage (anger/buy-readiness scoring) - the three citizens from the morning funnel short. POST /api/jev-decision accepts {"pack": name, "state": ...}.
+- Custom/pack questions now fall back to the free lane too (callDecisionCustom) - previously gateway-only, so packs cost $0 in shadow mode.
+- Video patterns applied: all questions batched into ONE call; packs are the rank-wide-read-narrow primitive (shortlist/triage first, spend big-model compute only on what survives); whole-loop cost+latency stays in ledger receipts.
+**Boundary restated:** JEV decides, it does not write. Space Bunny is anonymous with no model card - repo work and drafts only, never client-confidential data.
