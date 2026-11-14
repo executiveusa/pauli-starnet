@@ -752,3 +752,4 @@ test/workforce-gateway.test.js
 test/youtube-icm-walk.test.js
 test/command-center.test.js
 test/owner-command-center.test.js
+test/factory-status.test.js
