@@ -12,7 +12,7 @@ on the repair, and holds for owner acceptance, with no human relaying; it surviv
 unauthorized, paused, stopped, over-budget and restricted-permission work.
 
 What is **not** proven: any of the above against real Paperclip; real Hermes/Pi executors; StarNet character
-animation (the data layer and a status panel exist, the 9k-line `world.js` renderer is untouched); voice; on-demand
+animation (the data layer and a gateway-served status page exist; `world.js` and the locked `frontend/` tree are untouched); voice; on-demand
 specialist activation; the overnight soak; costs.
 
 Build-environment blocker: a local Paperclip could not be started here. The published `paperclipai@2026.1106.0` needs
@@ -59,7 +59,7 @@ container). That failure reproduces on a clean checkout and is unrelated to this
 | 2 | The real Hermes and Pi execution endpoints and their auth (their repos are outside this session's scope). `executors.js` defines a proposed JSON contract; it must be matched to the real runtimes. | Owner: repo access or endpoint details | Real artifacts, T17, T19 |
 | 3 | Confirm the 7 Paperclip API assumptions listed in `10_CONSOLIDATION_AND_INVENTORY.md` section 5 on the first live run. | First live run | Everything live |
 | 4 | Command Center prerequisites (documented login / API-wiring blockers) and a phone test. Different repo. | Owner | T12 |
-| 5 | StarNet character/room animation bound to the projection. The data layer, event stream and a status panel are done; `world.js` is untouched by design. | Follow-up PR | Full T11 with screenshots |
+| 5 | StarNet character/room animation bound to the projection. The data layer, event stream and a gateway-served status page are done. `frontend/` is locked by `qa/product-perfect/claims.json`, so binding `world.js` needs an owner-reviewed claims-ledger regeneration first. | Owner review + follow-up PR | Full T11 with screenshots |
 | 6 | On-demand specialist (lowest-cost first) wake -> run -> idle. | Verified entry point | T13 |
 | 7 | Phase 0 server inventory (containers, ports, volumes, backups, revisions) and audit of `macs-starnet-`, `open-agent-platform-pauli`, `crownandcorestarnet`, `pauli-studio-control-plane`. | Server/repo access | Full consolidation ledger |
 

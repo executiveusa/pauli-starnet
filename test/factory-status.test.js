@@ -1,7 +1,7 @@
 'use strict';
-// frontend/app/factory-status.js: the reducer renders only what the stream says, and never stale data as live.
+// gateway/factory/ui/factory-status.js: the reducer renders only what the stream says, and never stale data as live.
 const assert = require('assert');
-const FS = require('../frontend/app/factory-status.js');
+const FS = require('../gateway/factory/ui/factory-status.js');
 let n = 0;
 const ok = (v, m) => { assert.ok(v, m); n++; };
 const eq = (a, b, m) => { assert.deepStrictEqual(a, b, m); n++; };

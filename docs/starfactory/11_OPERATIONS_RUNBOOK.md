@@ -49,6 +49,11 @@ curl -H "Authorization: Bearer $OWNER" -X POST $GW/v1/factory/missions/M-1/accep
 curl -H "Authorization: Bearer $OWNER" -N $GW/v1/factory/events              # SSE; send Last-Event-ID to replay
 ```
 
+## Status page
+
+Open `https://<private gateway>/v1/factory/ui`, enter the owner token (kept in that tab's `sessionStorage` only). The page is
+static and carries no data; everything shown comes from the authenticated `/v1/factory/events` stream.
+
 ## Backup / restore
 
 * Mission data: Paperclip's own backup (`paperclipai db:backup` or your Postgres backup).

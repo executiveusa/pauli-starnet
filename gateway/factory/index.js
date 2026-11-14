@@ -12,6 +12,7 @@
 //   FACTORY_STATE_DIR      receipts/checkpoints/stop flag (default ./.starfactory-state)
 const crypto = require('crypto');
 const path = require('path');
+const fs = require('fs');
 const { makePaperclipClient } = require('./paperclip-client.js');
 const { makeStateStore } = require('./state-store.js');
 const { makeHeisenberg } = require('./heisenberg.js');
@@ -65,6 +66,15 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     if (!urlPath.startsWith('/v1/factory/')) return false;
     const send = (code, body) => helpers.send(res, code, body);
 
+    // Static, data-free status page (no secrets in it; the owner token is typed in and stays in sessionStorage). Strict CSP.
+    const uiFiles = { '/v1/factory/ui': ['index.html', 'text/html; charset=utf-8'], '/v1/factory/ui/factory-status.js': ['factory-status.js', 'application/javascript; charset=utf-8'], '/v1/factory/ui/page.js': ['page.js', 'application/javascript; charset=utf-8'] };
+    if (req.method === 'GET' && uiFiles[urlPath]) {
+      const [file, type] = uiFiles[urlPath];
+      const body = fs.readFileSync(path.join(__dirname, 'ui', file));
+      res.writeHead(200, { 'Content-Type': type, 'Content-Length': body.length, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" });
+      res.end(body); return true;
+    }
+
     // Worker wake: authenticated by its OWN token (Paperclip presents it), never the owner token.
     const wake = /^\/v1\/factory\/wake\/([a-z0-9_-]{1,32})$/.exec(urlPath);
     if (wake && req.method === 'POST') {
@@ -75,6 +85,10 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       send(r.code, r.body);
       return true;
     }
+
+    // A pre-auth call (made before the gateway's bearer gate) may serve ONLY the public routes handled above.
+    // Anything else must fall through to the gate, never reach an owner route.
+    if (helpers.preAuth) return false;
 
     // Everything below is owner-only; the gateway's bearer gate has already run unless this is a test harness.
     if (helpers.requireOwner && !helpers.requireOwner(req)) { send(401, { error: 'UNAUTHORIZED' }); return true; }

@@ -124,8 +124,8 @@ async function handle(req, res) {
   // The legacy server enforces the dedicated A2A bearer itself and fails closed when unconfigured.
   if (path === '/.well-known/agent-card.json' || path === '/.well-known/agent.json') return proxyLegacy(req, res);
   // Paperclip's http adapter wakes a worker here with the dedicated worker token, so this route authenticates itself.
-  if (factory && path.startsWith('/v1/factory/wake/')) {
-    if (await factory.handle(req, res, path, { readBody, send })) return;
+  if (factory && (path.startsWith('/v1/factory/wake/') || path === '/v1/factory/ui' || path.startsWith('/v1/factory/ui/'))) {
+    if (await factory.handle(req, res, path, { readBody, send, preAuth: true })) return;
   }
   if (!authorized(req)) return send(res, 401, { error: 'UNAUTHORIZED' });
   if (factory && path.startsWith('/v1/factory/')) {

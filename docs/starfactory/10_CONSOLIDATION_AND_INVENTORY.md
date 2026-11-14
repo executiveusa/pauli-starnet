@@ -40,7 +40,7 @@ mission intent, acceptance criteria or history that Paperclip does not also hold
 | `executors.js` | `sidecar` (existing StarNet `/api/run`) and `http` (existing Hermes/Pi runtime) executors. |
 | `projection.js` | Read model + SSE for StarNet. States are derived from records, each with evidence. |
 | `index.js` | Environment wiring and `/v1/factory/*` routes. Returns `null` (no behaviour change) when `PAPERCLIP_URL` is unset. |
-| `frontend/app/factory-status.js` | StarNet panel. Dormant unless configured; renders only stream events; shows `unknown` when disconnected. |
+| `gateway/factory/ui/*` | Status page (`GET /v1/factory/ui`, static, no data, strict CSP). Renders only stream events; shows `unknown` when disconnected. It lives outside `frontend/` on purpose: `frontend/app/*.js` and `frontend/index.html` are locked by `qa/product-perfect/claims.json`, and adding to them needs an owner-reviewed ledger regeneration. |
 
 ## 4. Authority and approval boundaries implemented
 

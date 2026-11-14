@@ -118,6 +118,15 @@ async function main() {
     eq((await api('POST', '/v1/factory/wake/pi', { runId: 'r-y', agentId: IDS.qa, context: { taskId: 't' } }, WORKER)).code, 403, 'T15 a wake whose agent id does not match the worker is 403');
     eq(ex.calls.length, 0, 'T15 no executor ran for any rejected request');
 
+    // ---- the status page is static and data-free: served without auth, strict CSP, never carries state or secrets ----
+    const ui = await fetch('http://127.0.0.1:' + gwPort + '/v1/factory/ui');
+    const uiHtml = await ui.text();
+    ok(ui.status === 200 && /Factory status/.test(uiHtml), 'status page is served');
+    ok(/script-src 'self'/.test(ui.headers.get('content-security-policy') || '') && /frame-ancestors 'none'/.test(ui.headers.get('content-security-policy') || ''), 'status page ships a strict CSP');
+    ok(!uiHtml.includes(OWNER) && !uiHtml.includes(WORKER) && !/agent-pi|M-001/.test(uiHtml), 'status page carries no token and no factory state');
+    eq((await fetch('http://127.0.0.1:' + gwPort + '/v1/factory/ui/../state')).status === 200, false, 'path tricks do not reach owner data through the static route');
+    eq((await api('GET', '/v1/factory/ui/other.js', undefined, null)).code, 401, 'only the three listed UI files are public; anything else needs the owner token');
+
     // ---- main mission: implement -> QA FAIL -> repair -> QA PASS -> owner acceptance ----
     ex.qaQueue['M-001'] = ['FAIL', 'PASS'];
     const early = await api('POST', '/v1/factory/missions/M-001/accept', { approver: 'owner' });
