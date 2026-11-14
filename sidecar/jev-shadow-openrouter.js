@@ -148,6 +148,7 @@ async function callGateway(state) {
         state: JSON.stringify(state).slice(0, 6000),
         questions: GATEWAY_QUESTIONS,
       },
+      onParseError: (e) => note('jev-shadow.parseShadowResponse', e),
       ...httpDeps,
     });
     if (!resp.ok) {
@@ -191,6 +192,7 @@ async function callGatewayCustom(state, questions) {
       url: GATEWAY_URL,
       token,
       body: { model: GATEWAY_MODEL, state: JSON.stringify(state).slice(0, 6000), questions },
+      onParseError: (e) => note('jev-shadow.parseModelBody', e),
       ...httpDeps,
     });
     if (!resp.ok) {
@@ -218,7 +220,8 @@ async function callModel(state) {
     const started = Date.now();
     try {
       const { resp, text, parsed } = await openRouterChat({
-        apiKey: API_KEY, model, system: QUESTION_SPEC, user, extra: MODEL_EXTRA[model], ...httpDeps,
+        apiKey: API_KEY, model, system: QUESTION_SPEC, user, extra: MODEL_EXTRA[model], onParseError: (e) => note('jev-shadow.parseRetryBody', e),
+      ...httpDeps,
       });
       if (!resp.ok) {
         lastErr = { model, status: resp.status, body: clip(text, 300) };
@@ -314,7 +317,8 @@ async function callModelCustom(state, questions) {
     const started = Date.now();
     try {
       const { resp, text, parsed } = await openRouterChat({
-        apiKey: API_KEY, model, system: spec, user, extra: MODEL_EXTRA[model], ...httpDeps,
+        apiKey: API_KEY, model, system: spec, user, extra: MODEL_EXTRA[model], onParseError: (e) => note('jev-shadow.parseCustomRetryBody', e),
+      ...httpDeps,
       });
       if (!resp.ok) {
         lastErr = { model, status: resp.status, body: clip(text, 300) };

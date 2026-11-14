@@ -148,6 +148,26 @@ async function main() {
   assert.equal(out.ok, true);
   assert.equal(s.calls.length, 2);
 
+  // A malformed response body is never swallowed silently: the caller's own labelled note() sees it (finding: primary parse sites).
+  {
+    const seen = [];
+    const bad = script(res(200, 'this is not json {'));
+    const r = await postJson('https://example.test/x', { body: {}, fetchImpl: bad.fetchImpl, sleep: bad.sleep, maxRetries: 0, onParseError: (e) => seen.push(e) });
+    assert.equal(r.parsed, null, 'a malformed body parses to null, callers check shape');
+    assert.equal(seen.length, 1, 'onParseError is called exactly once for a malformed body');
+    assert.ok(seen[0] instanceof Error, 'it receives the real parse error');
+    const ok = script(res(200, { fine: true }));
+    const r2 = await postJson('https://example.test/x', { body: {}, fetchImpl: ok.fetchImpl, sleep: ok.sleep, maxRetries: 0, onParseError: (e) => seen.push(e) });
+    assert.deepEqual(r2.parsed, { fine: true });
+    assert.equal(seen.length, 1, 'a well-formed body does not call onParseError');
+    // And the shadow service wires its own labels in at every primary parse site (no site left unlabelled).
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'sidecar', 'jev-shadow-openrouter.js'), 'utf8');
+    for (const label of ['jev-shadow.parseShadowResponse', 'jev-shadow.parseModelBody', 'jev-shadow.parseRetryBody', 'jev-shadow.parseCustomRetryBody']) {
+      assert.ok(src.includes("note('" + label + "'"), label + ' is wired at its call site');
+    }
+    assert.equal((src.match(/catch\s*\{\s*\}/g) || []).length, 0, 'no empty catch blocks remain in the shadow service');
+  }
+
   require('fs').unlinkSync(process.env.JEV_GATEWAY_TOKEN_FILE);
   console.log('jev-http: PASS');
   process.exit(0);

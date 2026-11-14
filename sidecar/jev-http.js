@@ -27,6 +27,7 @@ async function postJson(url, {
   shouldRetry = (status) => status === 429 || status >= 500,
   fetchImpl = (...args) => fetch(...args),
   sleep = defaultSleep,
+  onParseError,
 } = {}) {
   const retries = Number.isInteger(maxRetries) && maxRetries > 0 ? Math.min(maxRetries, 3) : 0;
   let attempts = 0;
@@ -44,14 +45,14 @@ async function postJson(url, {
       continue;
     }
     let parsed = null;
-    try { parsed = text ? JSON.parse(text) : null; } catch (e) { note('jev-http.parseBody', e); /* leave null: callers check shape */ }
+    try { parsed = text ? JSON.parse(text) : null; } catch (e) { (onParseError || ((err) => note('jev-http.parseBody', err)))(e); /* leave null: callers check shape; the failure is always logged, under the caller's own label when it gives one */ }
     return { resp, text, parsed, attempts };
   }
 }
 
 /* OpenRouter chat completion in the shape both free-lane callers use. A 429 is
    retried once per model request after `retryDelayMs`. */
-function openRouterChat({ apiKey, model, system, user, extra, fetchImpl, sleep, retryDelayMs = 8000 }) {
+function openRouterChat({ apiKey, model, system, user, extra, fetchImpl, sleep, onParseError, retryDelayMs = 8000 }) {
   return postJson(OPENROUTER_URL, {
     headers: { authorization: 'Bearer ' + apiKey, accept: 'application/json' },
     body: {
@@ -71,11 +72,12 @@ function openRouterChat({ apiKey, model, system, user, extra, fetchImpl, sleep, 
     shouldRetry: (status) => status === 429,
     fetchImpl,
     sleep,
+    onParseError,
   });
 }
 
 /* Typed-gateway POST: 429 and 5xx are retried once after `retryDelayMs`. */
-function gatewayPost({ url, token, body, fetchImpl, sleep, retryDelayMs = 3000 }) {
+function gatewayPost({ url, token, body, fetchImpl, sleep, onParseError, retryDelayMs = 3000 }) {
   return postJson(url, {
     headers: { authorization: 'Bearer ' + token },
     body,
@@ -85,6 +87,7 @@ function gatewayPost({ url, token, body, fetchImpl, sleep, retryDelayMs = 3000 }
     shouldRetry: (status) => status === 429 || status >= 500,
     fetchImpl,
     sleep,
+    onParseError,
   });
 }
 
