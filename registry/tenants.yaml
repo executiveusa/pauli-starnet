@@ -7,8 +7,21 @@ tenants:
     isolation_required: true
     private_second_brain_public_retrieval: false
     first_vertical_slice: true
+    enforcement_policy: registry/policy.v1.json
+    owner_identity: human-owner-reference-only
+    public_owner_spelling: UNVERIFIED
   - id: shared-platform
     owner: platform-owner
     status: LIVE
     isolation_required: true
     purpose: reusable-starnet-and-hermes-capabilities
+
+  - id: thp-commercial
+    owner: thp-owner-pending-channel-verification
+    status: CONFIGURATION_ONLY
+    isolation_required: true
+    purpose: single-agent-commercial-flooring-operations
+    company_workspace: workspaces/thp-commercial/CONTEXT.md
+    enforcement_policy: registry/policy.v1.json
+    source_business_facts: executiveusa/thp-commercial-bid-room/data/thp-approved-facts.json
+    public_customer_data: false

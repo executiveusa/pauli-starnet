@@ -9,7 +9,9 @@ Method: ICM (Interpretable Context Methodology, Jake Van Clief - github.com/RinD
 | This repo | Knowledge graphs, playbooks, contracts, district packages (e.g. districts/sales/mozi/) |
 | R2 (video-exports.thepaulieffect.com) | Large raw artifacts: transcript archives, catalogs, sample exports (knowledge/ prefix) |
 
-Machine-readable index: `knowledge-index.json` (same directory as this file). It lists every source, its entry points, its tags, and its node/record listings. Query pattern: grep the index by tag or stage -> open the pointer -> read the cited section or node, not the whole file.
+Database: every source below (plus server-held and missing ones) is registered in `knowledge/sources.json`, loaded into the self-hosted Supabase by `scripts/knowledge/ingest.js`, and queried through the gateway (`/v1/knowledge/search?q=&district=`). Contract: `knowledge/CONTEXT.md`.
+
+Machine-readable node index: `knowledge-index.json` (same directory as this file). It lists every source, its entry points, its tags, and its node/record listings. Query pattern: grep the index by tag or stage -> open the pointer -> read the cited section or node, not the whole file.
 
 ## Registered sources
 
@@ -18,6 +20,22 @@ Machine-readable index: `knowledge-index.json` (same directory as this file). It
 | mozi-sales | sales | repo | Hormozi doctrine graph (33 nodes), 5 playbooks, 43 transcripts | districts/sales/mozi/README.md |
 | metricsmule-video | creative | repo (+ r2 mirror) | 150-video prompt-engineering mine: 15-node graph, 5 playbooks, 150 transcripts | districts/creative/video/README.md |
 | closer-sales-call-stages | sales | external repo (pauli-command-center @ 93da3853f6) | CLOSER call-stage doc + verbatim evidence (video ZMW8AfQeGqQ) | pcc:docs/CLOSER-SALES-CALL-STAGES.md |
+| middleton-method | middleton | repo | JP Middleton local-business method: service sequence, scripts, metrics. His numbers are unverified claims; the 4+ review gate and raffle scripts are quoted source, not approved practice | districts/middleton/README.md |
+| email-copywriter | creative | repo | Email copy knowledge base (@dragualin, 149 transcripts). Creator claims unverified; install candidate, drafting and review only | districts/creative/email-copywriter/CONTEXT.md |
+| jake-trinder-20 | creative | repo | Jake Trinder educational YouTube channel system (20 transcripts) | knowledge/sources.json |
+| monica-main | financial, impact | repo | Monica Main business credit and funding (40 transcripts) | impact/source-intel/transcript-research/ |
+| cause-specialist | impact | repo | Joanne Toller nonprofit fundraising (40 transcripts) | impact/source-intel/transcript-research/ |
+| jasper-smart-sites | production, revenue | server (NEW box) | Jasper smart-site pitch/offer logic (50 transcripts) | knowledge/sources.json |
+| manny-hormozi-315 | revenue | server (old box) | Hormozi canonical long-form, 315 transcripts | knowledge/sources.json |
+| stefan-3d | creative | external repo (impact-city-2026) | Stefan 3D Blender workflow synthesis | knowledge/sources.json |
+
+## The wiki layer (compiled knowledge)
+
+`knowledge/wiki/` holds the maintained pages agents read first - the LLM-Wiki pattern on top of the
+sources below. Contract: `knowledge/wiki/SCHEMA.md`. Agents query the gateway as before; wiki pages
+come back first, labelled `kind: "wiki"`. When you add or change a source, update the pages that draw
+on it in the same commit - the lint (`scripts/knowledge/wiki.js lint`, in the fast gate) flags stale
+pages by source hash.
 
 ## Rules
 
@@ -25,3 +43,4 @@ Machine-readable index: `knowledge-index.json` (same directory as this file). It
 2. One home per fact. If a rule lives in a playbook, point at it - never copy it into a new file.
 3. New extractions land through workspaces/knowledge-extraction/ (4-stage pipeline) so they arrive index-ready.
 4. Adding a source = append to knowledge-index.json + one row here. Both, same commit.
+5. Adding or changing a source also updates the wiki pages it touches (SCHEMA.md "Ingest"). A source is not ingested until the wiki reflects it.

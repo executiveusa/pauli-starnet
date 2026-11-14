@@ -29,6 +29,7 @@
      poll(sinceSeq: int) -> { events: evt[], nextSeq: int }       // zero-token: new events only
      worktreeFor(taskId) -> { path, branch } */
 'use strict';
+const { note } = require('./failopen.js');
 
 const PROFILES = Object.freeze({
   'no-mistakes': Object.freeze({ id: 'no-mistakes', mergeAuthority: 'captain-approval', prAllowed: true, mergeAllowed: false }),
@@ -80,7 +81,7 @@ function makeSupervisor(deps) {
 
   function appendEvent(taskId, kind, data) {
     const evt = { seq: logLength() + 1, taskId, kind, at: clock(), data: data || {} };
-    try { ensureDirs(); fs.appendFileSync(logPath, JSON.stringify(evt) + '\n'); } catch (_) { /* fail-open: the task record still carries state */ }
+    try { ensureDirs(); fs.appendFileSync(logPath, JSON.stringify(evt) + '\n'); } catch (e) { note('supervisor.appendEvent', e); /* fail-open: the task record still carries state */ }
     return evt;
   }
 
@@ -201,7 +202,7 @@ function makeSupervisor(deps) {
         try {
           const evt = JSON.parse(line);
           if (evt && typeof evt.seq === 'number' && evt.seq > from) events.push(evt);
-        } catch (_) { /* a torn tail line is ignored, never fatal */ }
+        } catch (e) { note('supervisor.readEvents.tornLine', e); /* a torn tail line is ignored, never fatal */ }
       }
     } catch (_) { events = []; }
     const nextSeq = events.length ? events[events.length - 1].seq : from;

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Pauli's Place - Command Center</title>
+<link rel="stylesheet" href="city.css">
+<style>
+  body { padding: 12px; font-family: 'VT323', 'Courier New', monospace; font-size: 17px; }
+  .wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 12px; }
+  .card { border: 1px solid rgba(120,220,255,.25); background: rgba(8,14,20,.88); padding: 12px; border-radius: 6px; }
+  .card h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: .12em; color: #9fdcff; }
+  .big { display: flex; gap: 10px; flex-wrap: wrap; }
+  .big > div { flex: 1 1 120px; text-align: center; }
+  .big b { display: block; font-size: 28px; color: #eaffff; }
+  .big span { font-size: 12px; letter-spacing: .15em; opacity: .7; }
+  .item { padding: 8px 0; border-bottom: 1px dashed rgba(120,220,255,.14); overflow-wrap: anywhere; }
+  .item:last-child { border-bottom: 0; }
+  .muted { opacity: .65; font-size: 14px; }
+  .ok { color: #7dffb0; } .bad { color: #ff8a8a; } .warn { color: #ffd37d; }
+  .pill { display: inline-block; padding: 0 8px; border: 1px solid currentColor; border-radius: 10px; font-size: 13px; margin-right: 4px; }
+  button { background: #123; color: #9fdcff; border: 1px solid rgba(120,220,255,.4); padding: 10px 16px; font-family: inherit; font-size: 17px; min-height: 44px; }
+  input[type=password] { width: 100%; box-sizing: border-box; background: #05090d; color: #d7f4ff; border: 1px solid rgba(120,220,255,.3); padding: 10px; font-family: inherit; font-size: 17px; min-height: 44px; }
+  a { color: #9fdcff; }
+  details summary { cursor: pointer; padding: 6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card"><h2>COMMAND CENTER</h2>
+    <div class="muted">Owner only. Read-only: this page shows, it never approves or spends. <a href="owner.html">Owner mode</a> · <a href="/">public city</a></div>
+  </div>
+
+  <div class="card" id="login-card" hidden>
+    <h2>UNLOCK</h2>
+    <form id="login-form"><input type="password" id="login-secret" autocomplete="current-password" placeholder="owner secret" required><br><br>
+    <button type="submit">UNLOCK</button> <span id="login-out" class="bad"></span></form>
+  </div>
+
+  <div id="panels" hidden>
+    <div class="card"><h2>AT A GLANCE</h2><div class="big" id="glance"></div><div class="muted" id="stamp"></div></div>
+    <div class="card"><h2>WAITING FOR YOU</h2><div id="approvals"></div></div>
+    <div class="card"><h2>WHAT AGENTS DID (RECEIPTS)</h2><div id="receipts"></div></div>
+    <div class="card"><h2>TOKEN METER</h2><div id="cost"></div></div>
+    <div class="card"><h2>AGENT PERMISSIONS</h2><div id="perms"></div></div>
+  </div>
+</div>
+<script>
+const FN = '/.netlify/functions/owner';
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pl = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const fmt = n => (typeof n === 'number' ? n.toLocaleString('en-US') : 'no data');
+async function j(r) { try { return await r.json(); } catch (_) { return {}; } }
+const riskCls = r => r === 'critical' || r === 'high' ? 'bad' : r === 'medium' ? 'warn' : 'ok';
+function render(d) {
+  const ap = d.approvals || {}, items = ap.items || [], rc = d.receipts || [], cost = d.cost || {}, perms = d.permissions || [];
+  const runs = rc.reduce((a, x) => a + (x.runs || 0), 0), withR = rc.reduce((a, x) => a + (x.with_receipt || 0), 0);
+  $('#glance').innerHTML = [
+    [ap.pending || 0, 'WAITING ON YOU', (ap.pending || 0) ? 'warn' : 'ok'],
+    [withR + ' / ' + runs, 'RUNS WITH RECEIPT', ''],
+    [cost.has_data ? fmt(cost.total_tokens) : 'no data', 'TOKENS LOGGED', ''],
+    [perms.length, 'AGENTS', '']
+  ].map(([v, k, c]) => '<div><b class="' + c + '">' + esc(v) + '</b><span>' + k + '</span></div>').join('');
+  $('#stamp').textContent = (d.degraded ? 'DEGRADED: the STARNET sidecar is unreachable, lists may be empty. ' : '') + 'Updated ' + (d.generated_at || '?');
+  $('#approvals').innerHTML = items.length
+    ? items.map(a => '<div class="item"><span class="pill ' + riskCls(a.risk) + '">' + esc(a.risk) + '</span><b>' + esc(a.title) + '</b><div class="muted">' + esc(a.district) + (a.cost != null ? ' · est. $' + esc(a.cost) : '') + ' · id ' + esc(a.id) + '</div></div>').join('') + '<div class="muted">' + esc(ap.note || '') + '</div>'
+    : '<div class="muted">Nothing is waiting for you.</div>';
+  $('#receipts').innerHTML = rc.length ? rc.map(x =>
+    '<details' + (rc.length === 1 ? ' open' : '') + '><summary><b>' + esc(x.district) + '</b> <span class="muted">' + pl(x.runs, 'run') + ' · ' + x.with_receipt + ' receipted</span></summary>' +
+    x.recent.map(r => '<div class="item"><span class="pill ' + (r.status === 'failed' ? 'bad' : r.status === 'completed' ? 'ok' : 'warn') + '">' + esc(r.status) + '</span>' + esc(r.did || '(no text)') +
+      '<div class="muted">' + esc(r.agent || 'agent unknown') + (r.started_ago_min == null ? '' : ' · ' + (r.started_ago_min === 0 ? 'just now' : r.started_ago_min + ' min ago')) + (r.receipt_id ? ' · receipt ' + esc(r.receipt_id.slice(0, 8)) : ' · NO receipt') + '</div></div>').join('') + '</details>'
+  ).join('') : '<div class="muted">No gateway runs recorded since the gateway last started.</div>';
+  $('#cost').innerHTML = cost.has_data
+    ? '<div class="item"><b>' + fmt(cost.total_tokens) + '</b> tokens logged across ' + cost.rows + ' entries</div>' +
+      (cost.by_district || []).map(x => '<div class="item">' + esc(x.district) + ': <b>' + fmt(x.tokens) + '</b> <span class="muted">' + pl(x.missions, 'mission') + '</span></div>').join('') +
+      '<details><summary>Top missions</summary>' + (cost.top_missions || []).map(m => '<div class="item">' + esc(m.mission_id) + ' <span class="muted">' + esc(m.district) + '</span>: <b>' + fmt(m.tokens) + '</b></div>').join('') + '</details>' +
+      '<div class="muted">Tokens only. Dollars are not computed here. Only runs that log to the ledger appear.</div>'
+    : '<div class="muted">No token data yet. The meter shows numbers only after a run logs them; it will not show 0 as if nothing was spent.</div>';
+  $('#perms').innerHTML = perms.map(a =>
+    '<details><summary><b>' + esc(a.agent) + '</b> <span class="pill ' + (a.registered ? 'ok' : 'warn') + '">' + (a.registered ? esc(a.tenant_scope) : 'private (new)') + '</span></summary>' +
+    (a.note ? '<div class="muted">' + esc(a.note) + '</div>' : '') +
+    ((a.rooms || []).length ? '<div class="muted">Reaches: ' + a.rooms.map(r => esc(r.tenant) + ' (' + esc(r.status) + ')').join(', ') + '</div>' : '') +
+    (a.capabilities || []).map(c => '<div class="item"><span class="pill ' + (c.effective ? riskCls(c.risk) : 'bad') + '">' + esc(c.effective ? c.risk : 'denied') + '</span>' + esc(c.capability) + ' <span class="muted">' + esc(c.tenant) + ' · approval: ' + esc(c.approval) + (c.denied_by ? ' · ' + esc(c.denied_by) : '') + '</span></div>').join('') +
+    ((a.capabilities || []).length || a.note ? '' : '<div class="muted">No capabilities granted.</div>') + '</details>'
+  ).join('') || '<div class="muted">No agents in the policy.</div>';
+}
+async function refresh() {
+  const r = await fetch(FN + '/command-center', { cache: 'no-store' });
+  if (r.status === 401) { $('#panels').hidden = true; $('#login-card').hidden = false; return; }
+  const d = await j(r);
+  if (!r.ok) { $('#stamp').textContent = d.error || ('read failed (' + r.status + ')'); return; }
+  render(d);
+}
+async function boot() {
+  const s = await fetch(FN + '/session', { cache: 'no-store' });
+  if (s.ok) { $('#panels').hidden = false; refresh(); setInterval(refresh, 30000); }
+  else $('#login-card').hidden = false;
+}
+$('#login-form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const r = await fetch(FN + '/login', { method: 'POST', body: JSON.stringify({ secret: $('#login-secret').value }) });
+  if (r.ok) { $('#login-card').hidden = true; $('#panels').hidden = false; refresh(); setInterval(refresh, 30000); }
+  else { const d = await j(r); $('#login-out').textContent = d.error === 'owner mode not configured' ? 'owner mode not configured on this deployment yet' : 'wrong secret'; }
+});
+boot();
+</script>
+</body>
+</html>

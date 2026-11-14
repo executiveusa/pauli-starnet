@@ -32,6 +32,7 @@
      recall({ text?, tags?, tier?, limit? })                            -> { ok, entries, asOf }    // provenance attached, stale flagged
      stats()                                                            -> { episodic, semantic, procedural } */
 'use strict';
+const { note } = require('./failopen.js');
 
 const SLUG = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
@@ -63,9 +64,9 @@ function makePauliMemory(deps) {
     try {
       for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
         if (!line) continue;
-        try { out.push(JSON.parse(line)); } catch (_) { /* torn tail ignored */ }
+        try { out.push(JSON.parse(line)); } catch (e) { note('pauli-memory.tornTail', e); /* torn tail ignored */ }
       }
-    } catch (_) { /* missing file = empty tier */ }
+    } catch (e) { note('pauli-memory.tierMissing', e); /* missing file = empty tier */ }
     return out;
   }
 

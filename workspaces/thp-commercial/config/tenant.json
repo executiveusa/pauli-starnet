@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "tenant_id": "thp-commercial",
+  "display_name": "THP Commercial Flooring",
+  "vertical": "commercial_flooring",
+  "owner_interface": {
+    "primary": "whatsapp",
+    "fallback": "agent_chat",
+    "imessage": {
+      "status": "not_connected",
+      "required": "approved Apple Messages/iMessage gateway with verified recipient authorization"
+    },
+    "whatsapp": {
+      "status": "not_connected",
+      "required": "approved WhatsApp Business API number, webhook and owner identity binding"
+    }
+  },
+  "runtime": {
+    "orchestrator": "instinct",
+    "fallback": [
+      "hermes",
+      "pi"
+    ],
+    "activation": "disabled_until_proven"
+  },
+  "capabilities": {
+    "read_business_facts": "available",
+    "summarize_customer_leads": "requires_private_db",
+    "send_customer_message": "human_approval_and_provider_receipt",
+    "automated_bid_quote": "disabled",
+    "plan_upload_release": "requires_av_and_owner_review",
+    "voice": "opt_in_pilot_only"
+  },
+  "security": {
+    "tenant_host_binding": "server_side",
+    "public_lead_access": false,
+    "operator_auth": "individual_identity_mfa",
+    "secrets": "server_only",
+    "tenant_db": "dedicated_project_required",
+    "allow_shared_botanic_db_for_live_customer_data": false
+  }
+}

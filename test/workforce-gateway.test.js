@@ -86,6 +86,8 @@ async function json(url, init) {
     const base = 'http://127.0.0.1:' + gatewayPort;
     const headers = { Authorization: 'Bearer ' + token };
     await waitUrl(base + '/v1/workforce/status', headers);
+    // The legacy gateway is a second process behind the facade; wait for it too, or a slow runner sees a 503.
+    await waitUrl(base + '/health', headers);
 
     // Workforce status is live and secret-free.
     {

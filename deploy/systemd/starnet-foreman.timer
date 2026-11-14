@@ -1,0 +1,11 @@
+# Runs the foreman every 5 minutes, all day, every day. A missed run (reboot) fires once on boot.
+[Unit]
+Description=StarNet foreman every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

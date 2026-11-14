@@ -1,0 +1,46 @@
+{
+  "version": "2026-10-14",
+  "status": "internal-source-of-truth; production content must be approved",
+  "company": "THP Commercial",
+  "slogan": "Built on Quality. Driven by Partnership. Proven by Results.",
+  "washington_license": "CC THPCOCL742LT",
+  "service_states": [
+    "Washington",
+    "Arizona"
+  ],
+  "specialty": "Commercial flooring, multifamily construction first",
+  "materials": [
+    "Ceramic and porcelain tile",
+    "Carpet",
+    "Luxury vinyl tile (LVT)",
+    "Sheet vinyl",
+    "Resilient flooring",
+    "Hardwood",
+    "FRP wall panels (wall finish)",
+    "Cove base (floor-to-wall trim)",
+    "Specialty flooring systems"
+  ],
+  "social": {
+    "linkedin": "https://www.linkedin.com/company/thp-commercial/home/",
+    "facebook": "https://www.facebook.com/p/THP-Commercial-LLC-61591874464055/"
+  },
+  "prohibited_claims": [
+    "Guaranteed pricing or quote turnaround",
+    "Unverified licenses outside Washington",
+    "Guaranteed capacity/availability",
+    "Projects not approved for publication",
+    "AI assistant has submitted a lead or emailed an estimator"
+  ],
+  "project_records": [
+    {
+      "name": "Jackson Lewis / 520 Pike Building",
+      "source": "THP Facebook post",
+      "public_photo_approval": false
+    },
+    {
+      "name": "Enumclaw flood remodel",
+      "completion_confirmed": false,
+      "public_photo_approval": false
+    }
+  ]
+}

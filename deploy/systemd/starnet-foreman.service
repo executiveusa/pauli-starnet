@@ -1,0 +1,15 @@
+# Heisenberg's district tick (program/city-247/CONTEXT.md). Started by starnet-foreman.timer; one run, then exit.
+# Secrets come from /etc/pauli-starnet.env (names: GITHUB_TOKEN, GATEWAY_BEARER_TOKEN; optional
+# GATEWAY_URL, STARNET_DISTRICT_STATE, FOREMAN_MAX_DISPATCH, FOREMAN_GITHUB_WRITE). Never put values here.
+[Unit]
+Description=StarNet foreman tick (per-district queues)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/pauli-starnet
+EnvironmentFile=/etc/pauli-starnet.env
+ExecStart=/usr/bin/node scripts/district/foreman.js
+TimeoutStartSec=300
+NoNewPrivileges=true
