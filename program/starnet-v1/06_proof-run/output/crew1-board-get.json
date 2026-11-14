@@ -1,0 +1,135 @@
+{
+  "summary": "4 done, 5 waiting on you, 5 other",
+  "items": [
+    {
+      "mission_id": "db1f579a-5fab-44aa-b3e6-cf660c9377a6",
+      "target": "starnet",
+      "status": "done",
+      "summary": "**Texas Commercial Solar Leads Market – Short Sourced Brief**\n\n**Market Size & Growth**  \n- Texas installed **11.6 GWdc** of new solar capacity in 2024, maintaining its rank as the top state for annual solar additions.  \n- Utility‑scale solar in Texas grew **over 730,000%** between 2001 and 2025, reflecting a rapid expansion of the overall solar market.  \n*Sources: SEIA 2024 Market Insight snippet (search result) and Texas 2036 growth analysis snippet*【web_search-0†L1-L4】【web_search-0†L8-L10】.\n\n**Top Competitors & Lead Pricing**  \n- **Abstrakt Marketing Group** – B2B appointment‑setting for large commercial solar projects; exclusive market partnerships; pricing via custom quote.  \n- **EnergySage** – Solar marketplace; high‑intent, shared leads; pricing on request.  \n- **Modernize** – Home‑improvement platform with solar vertical; shared/exclusive leads; ZIP‑code targeting; pricing on request.  \n- **SolarReviews** – Consumer review/marketplace; shared leads from high‑intent homeowners; pricing on request.  \n- **Aged Lead Store** – Public‑priced aged leads; $1.20–$1.50 per lead (30–85 days old).  \n\n*Typical lead‑price ranges:*  \n- Shared leads: **$30–$100** per lead.  \n- Exclusive leads: **$50–$300** per lead (premium for lower competition).  \n- Aged leads: **$1.20–$1.50** per lead.  \n\n*Sources: ActiveProspect guide on solar lead providers, Enzo Dialer resources, and Solcertain 2026 solar‑lead pricing guide*【web_fetch-380ccd2f-62b6-4197-b0d3-445522ad04f5-0.txt】【web_fetch-380ccd2f-62b6-4197-b0d3-445522ad04f5-1.txt】【web_search-0†L13-L15】.\n\n*Note:* The commercial‑lead‑specific market size is not publicly disclosed in detail; the figures above reflect the broader Texas solar market’s strong growth, which drives demand for lead‑generation services.",
+      "receipt_id": "rcpt_864d7efa-2409-45ed-8aa8-26ac32fd1fa4"
+    },
+    {
+      "mission_id": "9f438a5f-4100-4d4e-8aa1-0b2717823702",
+      "target": "starnet",
+      "status": "human_review",
+      "summary": "Operator marked for human review; no execution or owner approval verified. The fleet does not dispatch publish/spend-class work.",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "09f05189-bf68-4dc5-b024-35ddfe6d5212",
+      "target": "pi",
+      "status": "needs_human",
+      "summary": "Parked at the policy layer: Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "a5b8e8fc-6b41-480f-a353-f78dec73eedf",
+      "target": "starnet",
+      "status": "failed",
+      "summary": "",
+      "receipt_id": "rcpt_c3ac33d1-7ed4-43e7-b294-a9643e2e3b04"
+    },
+    {
+      "mission_id": "ed843ebe-1061-4643-bea5-710a22b54864",
+      "target": "pi",
+      "status": "needs_human",
+      "summary": "Parked at the policy layer: Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "836ffa99-9070-45a9-8dce-87287efef82d",
+      "target": "starnet",
+      "status": "needs_human",
+      "summary": "Parked at the policy layer: Publish/spend-class city work parks for the captain",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "51a88852-2281-458a-a440-28fc13c5361b",
+      "target": "starnet",
+      "status": "done",
+      "summary": "As of 2024, Texas has 25.4 GW of total solar generating capacity (utility‑scale and small‑scale) per the U.S. Energy Information Administration【https://www.eia.gov/states/TX/analysis】.",
+      "receipt_id": "rcpt_a3f8b75c-0ab0-4960-8238-727399b5a88e"
+    },
+    {
+      "mission_id": "e5594e11-feb6-4178-bbc5-2cce9840b8b1",
+      "target": "pi",
+      "status": "needs_human",
+      "summary": "Parked at the policy layer: Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "2085c473-4e2f-44e4-a397-34d44ec5a5b7",
+      "target": "starnet",
+      "status": "needs_human",
+      "summary": "Parked at the policy layer: Publish/spend-class city work parks for the captain",
+      "receipt_id": null
+    },
+    {
+      "mission_id": "ca1c280e-fb1a-43af-bf80-8569dcb5073b",
+      "target": "starnet",
+      "status": "done",
+      "summary": "I’m unable to publish the blog post to a live website because the autonomous run does not have consent to write files (`fs_write`) or otherwise post to external sites without credentials.  \n\nBelow is the complete blog post draft that would have been published. You can review it and, if approved, provide the necessary credentials or manual steps to publish it to your live site.\n\n---\n\n**Heisenberg Announces Solar Leads Product: Empowering Solar Installers with High‑Quality, Verified Leads**\n\n*Date:* August 27, 2025\n\nToday, Heisenberg is excited to launch its new Solar Leads product, designed to help solar installation companies grow their businesses by providing access to pre‑qualified, high‑intent solar leads.\n\n### Why Solar Leads Matter\n\nIn the competitive residential solar market, lead quality is paramount. According to SolarReviews, the largest supplier of sales leads to the residential solar industry, verified leads can generate $6‑$8 of gross margin for every $1 spent on leads【https://www.solarreviews.com/solar-leads】. Heisenberg’s Solar Leads product focuses on delivering leads that have been rigorously vetted for authenticity and purchase intent, ensuring installers spend less time on unqualified prospects and more time closing sales.\n\n### Key Features of Heisenberg Solar Leads\n\n- **Verified & Exclusive Leads:** Each lead undergoes multi‑step verification to confirm homeowner interest, property suitability, and contact accuracy.  \n- **Geographic Targeting:** Leads can be filtered by state, city, or ZIP code, allowing installers to focus on their preferred service areas—including high‑growth markets like Texas.  \n- **Real‑Time Delivery:** Leads are delivered instantly via API or CRM integration, enabling rapid follow‑up when homeowner interest is highest.  \n- **Compliance & Data Privacy:** All leads are sourced in compliance with TCPA and other regulations, protecting both installers and homeowners.  \n- **Performance Analytics:** Access to dashboards showing lead conversion rates, cost per acquisition, and ROI metrics.\n\n### How It Works\n\nHeisenberg Solar Leads leverages proven lead generation strategies, including SEO‑optimized landing pages, targeted advertising, and interactive tools such as solar savings quizzes—a method shown to convert website visitors into high‑quality prospects automatically【https://resultcalls.com/blog/how-to-get-website-solar-leads-with-1-simple-quiz】. By combining these tactics with proprietary verification algorithms, Heisenberg ensures that every lead meets stringent quality standards.\n\n### Get Started\n\nSolar installation companies can sign up for Heisenberg Solar Leads starting today at [www.heisenberg.com/solar-leads](http://www.heisenberg.com/solar-leads). Early adopters receive preferential pricing and dedicated onboarding support.\n\n#### About Heisenberg\n\nHeisenberg is a leading provider of data‑driven marketing solutions for home service industries. With a focus on innovation and measurable results, Heisenberg helps businesses connect with the right customers at the right time.\n\n**Press Contact**  \npress@heisenberg.com  \n(555) 123‑4567  \n\n---  \n*Heisenberg Solar Leads: Powering the future of solar, one qualified lead at a time.*\n\n---\n\nIf you can provide write access to your web CMS (or a method to POST the content), I will proceed with publishing immediately. Otherwise, please review the draft above and let me know any edits or approvals needed.I cannot publish the blog post because the autonomous run lacks consent to write files or post to the live website. No further action can be taken without explicit commander approval.",
+      "receipt_id": "rcpt_e3c4e561-a140-42a5-a96b-fae2c957593a"
+    },
+    {
+      "mission_id": "cb7e406d-4070-4d30-8a13-cd7c27d6bd41",
+      "target": "pi",
+      "status": "failed",
+      "summary": "Agent invocation failed: Agent 'pi' invocation failed (404): {\n  \"error\": \"Not found\"\n}",
+      "receipt_id": "rcpt_cb691fac-4c59-4e25-960a-e069e8f30891"
+    },
+    {
+      "mission_id": "da398e1c-e760-4501-ae89-451af37f7aa0",
+      "target": "starnet",
+      "status": "done",
+      "summary": "**Three‑Point Brief: Solar Leads in Texas**\n\n1. **Texas is the nation’s top solar‑installation market** – In 2024 Texas installed 11.6 GWdc of new solar capacity, leading all states for the second consecutive year, driven by data‑center demand and rapid population growth【https://www.conservativetexansforenergyinnovation.org/texas-leads-nation-in-solar-power-installation-report-finds/】. This creates a large, expanding pool of homeowners and businesses evaluating solar, which fuels lead‑generation opportunities.\n\n2. **Lead‑provider landscape is dominated by a few national platforms** – SolarReviews supplies over 1 million monthly visitors and reports generating 821,250 solar leads in 2026 (1,042,656 in 2025), claiming up to 40% of sales for its biggest partners【https://www.solarreviews.com/solar-leads】. ActiveProspect notes that buyers can source leads from multiple vendors (aged, shared, exclusive) and emphasizes consent verification and lead‑orchestration tools【https://activeprospect.com/blog/buy-solar-leads/】. Enzo Dialer’s 2026 comparison lists aged‑lead stores, real‑time providers, and appointment‑setting firms, showing a tiered market from $0.17 aged leads to $300+ exclusive leads【https://enzodialer.com/resources/solar/best-solar-lead-companies】.\n\n3. **Pricing and delivery models vary by lead freshness and exclusivity** – Aged leads (30‑2,000 days) cost $0.17‑$1.50 each with volume discounts; real‑time shared leads range $15‑$50; exclusive leads $50‑$300【https://enzodialer.com/resources/solar/best-solar-lead-companies】. SolarReviews uses four tiers (exclusive, duo, trio, quad) without fixed rates, citing an industry average of $25‑$300 per lead depending on geography and sharing【https://www.solarreviews.com/solar-leads】. Delivery methods include CSV export, CRM push, or live transfer, directly affecting speed of contact【https://activeprospect.com/blog/buy-solar-leads/】.  \n\n*Takeaway:* Texas’s solar boom generates abundant lead volume; successful acquisition hinges on selecting the right mix of lead freshness, exclusivity, and compliant delivery to match your sales capacity and cost targets.",
+      "receipt_id": "rcpt_4fea24e5-5ca2-4e99-b083-92aaac821df2"
+    },
+    {
+      "mission_id": "d1fa4aa5-3a71-4550-9d86-2a124eedb29f",
+      "target": "starnet",
+      "status": "failed",
+      "summary": "",
+      "receipt_id": "rcpt_ae6834ef-d1f0-41b2-99e6-da41370f0673"
+    },
+    {
+      "mission_id": "97620028-44f4-43e8-ae55-d0cfcc7fd79f",
+      "target": "starnet",
+      "status": "failed",
+      "summary": "",
+      "receipt_id": "rcpt_46183b51-a8bc-4674-b9ee-4de169bb13f0"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "09f05189-bf68-4dc5-b024-35ddfe6d5212",
+      "title": "Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "why": "The request targets Pi's personal lane. Personal-domain agents are not invocable through fleet intents; the lane stays sealed unless the captain moves the work there himself.",
+      "resume_token": "09f05189-bf68-4dc5-b024-35ddfe6d5212"
+    },
+    {
+      "id": "ed843ebe-1061-4643-bea5-710a22b54864",
+      "title": "Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "why": "The request targets Pi's personal lane. Personal-domain agents are not invocable through fleet intents; the lane stays sealed unless the captain moves the work there himself.",
+      "resume_token": "ed843ebe-1061-4643-bea5-710a22b54864"
+    },
+    {
+      "id": "836ffa99-9070-45a9-8dce-87287efef82d",
+      "title": "Publish/spend-class city work parks for the captain",
+      "why": "Declared permissions [action.write] are outside the read-only GREEN set. Night-1 GREEN runs are read-only research; anything that writes, publishes, or spends needs the captain's explicit go.",
+      "resume_token": "836ffa99-9070-45a9-8dce-87287efef82d"
+    },
+    {
+      "id": "e5594e11-feb6-4178-bbc5-2cce9840b8b1",
+      "title": "Sealed personal lane: the fleet control plane does not dispatch to Pi",
+      "why": "The request targets Pi's personal lane. Personal-domain agents are not invocable through fleet intents; the lane stays sealed unless the captain moves the work there himself.",
+      "resume_token": "e5594e11-feb6-4178-bbc5-2cce9840b8b1"
+    },
+    {
+      "id": "2085c473-4e2f-44e4-a397-34d44ec5a5b7",
+      "title": "Publish/spend-class city work parks for the captain",
+      "why": "Declared permissions [action.write] are outside the read-only GREEN set. Night-1 GREEN runs are read-only research; anything that writes, publishes, or spends needs the captain's explicit go.",
+      "resume_token": "2085c473-4e2f-44e4-a397-34d44ec5a5b7"
+    }
+  ]
+}
