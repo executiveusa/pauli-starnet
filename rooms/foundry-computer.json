@@ -1,0 +1,16 @@
+{
+  "room": {
+    "project": "foundry-computer",
+    "district": "production",
+    "thread_id": null,
+    "chair": "hermes",
+    "members": ["hermes", "reviewer"],
+    "approver": "owner",
+    "files": [
+      "program/factory-v1/CONTEXT.md",
+      "registry/district-lanes.json"
+    ],
+    "schedule": "loops/adversarial-reviewer.md",
+    "status": "active"
+  }
+}
