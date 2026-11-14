@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha384-sG0Hv1tP1lZCk9KQmrIbY/XNwi+OY84GQqhMscbnsoBFqAz8KNCil1kvfL3Hbbk2" crossorigin="anonymous"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: __BG__; }
+      #root { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+      #stage { position: relative; text-align: center; }
+      #bloom { position: absolute; left: 50%; top: 38%; width: 900px; height: 900px; transform: translate(-50%,-50%); border-radius: 50%; opacity: 0;
+               filter: blur(10px); pointer-events: none; }
+      /* The glow is a 20% opacity layer under the animated #bloom opacity. The accent is used as-is,
+         so any validated color form (hex 3/6/8, named, rgb(), hsl()) works on every Chrome version;
+         appending an alpha suffix like "33" only ever worked for 6-digit hex. */
+      #bloom::before { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: 0.2;
+                       background: radial-gradient(circle, __ACCENT__ 0%, transparent 60%); }
+      #mark { display: inline-block; position: relative; }
+      #mark svg { display: block; overflow: visible; }
+      #wordmark { margin-top: 48px; font-family: __DISPLAY_FONT__, serif; color: __INK__; font-size: 92px; font-weight: 400;
+                  letter-spacing: 0.30em; opacity: 0; }
+      #wordmark .w2 { color: __ACCENT2__; }
+      #rule { width: 220px; height: 2px; background: __ACCENT__; margin: 26px auto 0; transform: scaleX(0); transform-origin: center; }
+      #tagline { margin-top: 30px; font-family: "Cormorant Garamond", serif; font-style: italic; color: __INK__; opacity: 0; font-size: 34px; }
+      #credits { margin-top: 22px; font-family: Montserrat, sans-serif; font-weight: 300; color: __ACCENT__; letter-spacing: 0.42em;
+                 font-size: 17px; text-transform: uppercase; opacity: 0; }
+      .bead { position: absolute; border-radius: 50%; transform: scale(0); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="__DURATION__" data-width="1920" data-height="1080">
+      <div id="stage" data-start="0" data-duration="__DURATION__" data-track-index="0">
+        <div id="bloom"></div>
+        <div id="mark"></div>
+        <div id="wordmark">__WORDMARK_HTML__</div>
+        <div id="rule"></div>
+        <div id="tagline">__TAGLINE__</div>
+        <div id="credits">__CREDITS__</div>
+      </div>
+    </div>
+    <script>
+      const BRAND = __BRAND_JSON__;
+      const D = BRAND.duration || 12;
+      const tl = gsap.timeline({ paused: true });
+      const mark = document.getElementById("mark");
+
+      if (BRAND.logo.mode === "beads") {
+        // Raster/beadwork logos (chaquira, dotted marks): beads pop in radial
+        // order from the mark center, like the craft itself - bead by bead.
+        const beads = BRAND.logo.beads;
+        const W = BRAND.logo.srcW, H = BRAND.logo.srcH, scale = BRAND.logo.scale || 0.72;
+        mark.style.width = W * scale + "px"; mark.style.height = H * scale + "px";
+        const cx = W / 2, cy = H / 2;
+        const withDist = beads.map(b => ({ ...b, d: Math.hypot(b.x - cx, b.y - cy) }));
+        withDist.sort((a, b) => a.d - b.d);
+        const els = withDist.map(b => {
+          const e = document.createElement("div");
+          e.className = "bead";
+          const r = b.r * scale;
+          e.style.width = e.style.height = r * 2 + "px";
+          e.style.left = (b.x * scale - r) + "px";
+          e.style.top = (b.y * scale - r) + "px";
+          e.style.background = b.c;
+          mark.appendChild(e);
+          return e;
+        });
+        tl.to(els, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2.2)",
+                     stagger: { each: 1.9 / els.length } }, 0.45);
+        tl.to("#bloom", { opacity: 0.85, duration: 1.6, ease: "sine.out" }, 2.2);
+      } else {
+        // Vector logos (Crown pattern): stroke-draw every path, then fill fades in.
+        mark.innerHTML = BRAND.logo.markup;
+        const svg = mark.querySelector("svg");
+        const target = (BRAND.logo.scale || 420) + "px";
+        svg.setAttribute("width", target); svg.removeAttribute("height");
+        const shapes = svg.querySelectorAll("path, circle, polyline, polygon, line, ellipse, rect");
+        shapes.forEach(s => {
+          let len = 300;
+          try { len = s.getTotalLength(); } catch (e) {}
+          s.style.strokeDasharray = len;
+          s.style.strokeDashoffset = len;
+          s.style.fillOpacity = 0;
+        });
+        tl.to(shapes, { strokeDashoffset: 0, duration: 2.1, ease: "power2.inOut", stagger: 0.06 }, 0.4);
+        tl.to(shapes, { fillOpacity: 1, duration: 1.1, ease: "sine.inOut", stagger: 0.04 }, 2.4);
+        tl.to("#bloom", { opacity: 0.9, duration: 1.4, ease: "sine.out" }, 2.4);
+      }
+
+      // Shared reveal: wordmark -> gold rule -> tagline -> credits -> hold with pulse.
+      tl.fromTo("#wordmark", { opacity: 0, y: 26, letterSpacing: "0.44em" },
+                             { opacity: 1, y: 0, letterSpacing: "0.30em", duration: 1.15, ease: "power2.out" }, 3.3);
+      tl.to("#rule", { scaleX: 1, duration: 0.85, ease: "power2.inOut" }, 4.3);
+      tl.fromTo("#tagline", { opacity: 0, y: 12 }, { opacity: 0.92, y: 0, duration: 0.9, ease: "sine.out" }, 5.1);
+      if (BRAND.credits) tl.fromTo("#credits", { opacity: 0 }, { opacity: 0.85, duration: 0.9 }, 6.1);
+      tl.to("#bloom", { opacity: 0.65, duration: 2.4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 7.2);
+      tl.set({}, {}, D); // hold to duration
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

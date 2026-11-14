@@ -17,6 +17,8 @@ The video team's brain for AI video production: a knowledge graph mined from the
 5. MODEL-SPECIFIC FORMULAS? `playbooks/model-formulas.md` (Veo 3.1, Kling 3.0, Nano Banana JSON).
 6. PRE-FLIGHT: `moderation-playbook` node - filmmaker language only, no real identifiable faces, no trademarked IP in client work.
 
+7. SCROLL-DRIVEN 3D PAGE, EXPLAINER VIDEO WITH A PERSISTENT SUBJECT, OR A PROGRESS-DRIVEN GAME SCENE? `playbooks/scroll-3d-persistent-subject.md` - layer stack, three-driver model, timeline contract, template work package, acceptance gates. Technique only, no copied assets.
+
 ## Evidence rule (hard)
 
 The graph separates VERBATIM (exact transcript words with video_id, or site-prompt text with URL) from INTERPRETATION (our synthesis). ASR mangles product names: "C Dance"/"Cance" = Seedance, "Higsfield" = Higgsfield, "Cinema Studio 2.5" naming is his. Transcripts are training evidence, never client-facing copy.
@@ -26,6 +28,8 @@ The graph separates VERBATIM (exact transcript words with video_id, or site-prom
 Overlap mapped in node `watcher-visual-patterns`. Visual-only adds (not in transcripts): real+AI composites, overlay system, props/sets. Transcript-only adds (not visible in frames): prompt-generator meta-workflow, moderation playbook, realism meta-token doctrine, model formulas, reverse-engineering workflow, preset/monetization intel. Nothing duplicated; each cites the other.
 
 ## Files
+
+- `playbooks/scroll-3d-persistent-subject.md` - wasp teardown logic (2026-10-06).
 
 - `knowledge/metricsmule-knowledge-graph.json` - 15 doctrine/framework/pattern nodes, evidence-anchored, workflow-stage tagged
 - `knowledge/video-index.json` - per-video metadata + topic tags, 150 videos

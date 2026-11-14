@@ -26,11 +26,11 @@
     },
     "email-copywriter": {
       "status": "indexed",
-      "documents": 143,
-      "chunks": 913,
-      "chars": 1270540,
+      "documents": 147,
+      "chunks": 917,
+      "chars": 1273656,
       "insights": 0,
-      "content_sha256": "50f9ad51fd3185194206356e1cafdd4fae4b4bc28e92511aab32139c67012fde"
+      "content_sha256": "a44933f2ae0b28a206740de1f0aaa5238f108123a6dcb19bca1a6aab45f339a1"
     },
     "jake-trinder-20": {
       "status": "indexed",

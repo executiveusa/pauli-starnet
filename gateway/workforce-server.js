@@ -22,6 +22,10 @@ const plane = makeWorkforceControlPlane({
   id: () => 'mission-' + crypto.randomUUID()
 });
 const missions = new Map();
+// STARFACTORY-001: when PAPERCLIP_URL is set, Paperclip is the ONE mission authority and the process-local
+// `missions` Map below is not used for missions (known issue A). Unset, behaviour is exactly as before.
+const { makeFactory } = require('./factory/index.js');
+const factory = makeFactory({ env: process.env, log: (e, d) => process.stdout.write('[FACTORY] ' + e + ' ' + JSON.stringify(d || {}) + '\n') });
 
 function authorized(req) {
   const raw = String(req.headers.authorization || '');
@@ -119,7 +123,14 @@ async function handle(req, res) {
   // A2A Agent Card discovery: proxied to the legacy gateway BEFORE the workforce auth gate.
   // The legacy server enforces the dedicated A2A bearer itself and fails closed when unconfigured.
   if (path === '/.well-known/agent-card.json' || path === '/.well-known/agent.json') return proxyLegacy(req, res);
+  // Paperclip's http adapter wakes a worker here with the dedicated worker token, so this route authenticates itself.
+  if (factory && (path.startsWith('/v1/factory/wake/') || path === '/v1/factory/ui' || path.startsWith('/v1/factory/ui/'))) {
+    if (await factory.handle(req, res, path, { readBody, send, preAuth: true })) return;
+  }
   if (!authorized(req)) return send(res, 401, { error: 'UNAUTHORIZED' });
+  if (factory && path.startsWith('/v1/factory/')) {
+    if (await factory.handle(req, res, path, { readBody, send })) return;
+  }
 
   try {
     if (req.method === 'GET' && path === '/v1/workforce/status') {
@@ -172,6 +183,15 @@ async function handle(req, res) {
       if (!planned.plan.ok) return send(res, 409, { error: planned.plan.computer.blocker || 'MISSION_BLOCKED', planned });
       if (planned.plan.approvalRequired) return send(res, 409, { error: 'HUMAN_APPROVAL_REQUIRED', planned });
 
+      if (factory) {
+        // Factory mode: the mission is created in Paperclip, not in this process. Undeclared permissions park for the owner.
+        const r = await factory.heisenberg.submitMission({
+          mission_id: planned.mission.id, user_intent: planned.mission.objective, project_id: planned.mission.projectId,
+          budget_usd: body.budgetUsd, permissions: body.permissions, repositories: body.repositories, acceptance_criteria: body.acceptanceCriteria
+        });
+        return send(res, r.code, Object.assign({ authority: 'paperclip' }, r.body));
+      }
+
       const id = planned.mission.id;
       const record = {
         id,
@@ -208,6 +228,10 @@ async function handle(req, res) {
     const missionMatch = path.match(/^\/v1\/workforce\/missions\/([^/]+)$/);
     if (req.method === 'GET' && missionMatch) {
       const id = decodeURIComponent(missionMatch[1]);
+      if (factory) {
+        const s = await factory.heisenberg.status(id);
+        return s ? send(res, 200, Object.assign({ authority: 'paperclip' }, s)) : send(res, 404, { error: 'MISSION_NOT_FOUND', id });
+      }
       const record = missions.get(id);
       if (!record) return send(res, 404, { error: 'MISSION_NOT_FOUND', id });
       return send(res, 200, record);
@@ -222,6 +246,7 @@ async function handle(req, res) {
 const server = http.createServer(handle);
 server.listen(PORT, HOST, () => {
   process.stdout.write('PAULI WORKFORCE GATEWAY: http://' + HOST + ':' + PORT + '\n');
+  if (factory) factory.start().then(r => process.stdout.write('[FACTORY] started; recovered=' + JSON.stringify(r.recovered) + '\n')).catch(e => process.stderr.write('[FACTORY][START] ' + e.message + '\n'));
 });
 server.on('error', e => {
   process.stderr.write('[WORKFORCE][SERVER] ' + e.message + '\n');

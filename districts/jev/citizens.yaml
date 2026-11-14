@@ -15,12 +15,18 @@ citizens:
     ledger: registry/jev-shadow-ledger.jsonl
     role: shadow-decision-plane
     mode: recommend-only
-    providers: [typesafe-gateway (real Jev, primary), openrouter-free (fallback)]
+    providers: [typesafe-gateway (real Jev, primary), openrouter-free (fallback: space-bunny-alpha primary, deepseek/glm/gemma backups)]
     status: LIVE
   - id: allowance-governor
     kind: skill
     path: sidecar/skills/library/allowance-governor.md
     role: token-window-economy
+    status: LIVE
+  - id: jev-question-packs
+    kind: data
+    path: sidecar/jev-question-packs.json
+    role: citizen-typed-question-templates
+    packs: [ad-gap-analyzer, brand-quality-gate, inbox-triage]
     status: LIVE
   - id: jev-researcher
     kind: agent

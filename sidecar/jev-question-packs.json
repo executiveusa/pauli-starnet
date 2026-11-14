@@ -1,0 +1,50 @@
+{
+  "ad-gap-analyzer": {
+    "has_hook": { "type": "boolean", "instructions": "The ad stops the scroll in the first 3 seconds: pattern interrupt, bold claim, or visual surprise." },
+    "has_proof": { "type": "boolean", "instructions": "The ad shows credible proof: demo, result, testimonial, number, or guarantee." },
+    "has_offer": { "type": "boolean", "instructions": "The ad states a clear offer: what you get, a price or value anchor, and a reason to act now." },
+    "has_cta": { "type": "boolean", "instructions": "The ad tells the viewer exactly what to do next." },
+    "primary_gap": { "type": "choice", "criteria": {
+      "hook": "missing or weak scroll-stopper",
+      "proof": "claims without evidence",
+      "offer": "unclear what is being sold or why act now",
+      "cta": "no clear next step",
+      "none": "all four elements present" } },
+    "fix_priority": { "type": "choice", "criteria": {
+      "low": "minor polish only",
+      "medium": "one element missing",
+      "high": "two or more elements missing or an unclear offer" } }
+  },
+  "brand-quality-gate": {
+    "on_brand_voice": { "type": "boolean", "instructions": "Matches the brand voice and tone guidelines supplied in the state." },
+    "on_brand_visual": { "type": "boolean", "instructions": "Visuals, colors, and layout match the brand kit described in the state. Answer no if no visual evidence is provided." },
+    "has_unapproved_claims": { "type": "boolean", "instructions": "Contains earnings, health, or guarantee claims not present in the approved claims list." },
+    "risk": { "type": "choice", "criteria": {
+      "low": "fully compliant, publish-ready",
+      "medium": "minor voice or style drift",
+      "high": "off-brand message or weak compliance",
+      "critical": "unapproved claim, legal, or platform-policy risk" } },
+    "action": { "type": "choice", "criteria": {
+      "approve": "publish as-is",
+      "revise": "send back with notes",
+      "escalate": "human brand owner must review" } }
+  },
+  "inbox-triage": {
+    "anger_level": { "type": "choice", "criteria": {
+      "calm": "neutral or positive",
+      "annoyed": "mild frustration",
+      "angry": "strong frustration, caps or exclamation",
+      "furious": "threatens churn, chargeback, or public complaint" } },
+    "buy_readiness": { "type": "choice", "criteria": {
+      "cold": "no buying signal",
+      "warm": "asks about product, price, or availability",
+      "hot": "ready to purchase or asking how to pay" } },
+    "needs_human": { "type": "boolean", "instructions": "Requires a human: refund, legal, abuse, partnership, or anything outside the listed macros." },
+    "route": { "type": "choice", "criteria": {
+      "support": "existing customer help",
+      "sales": "pre-purchase question",
+      "billing": "payment, refund, invoice",
+      "spam": "unsolicited pitch or junk",
+      "ignore": "no response needed" } }
+  }
+}
