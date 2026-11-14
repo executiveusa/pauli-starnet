@@ -1,0 +1,3 @@
+# Email copywriting skill
+
+Input: client brief, reader evidence, offer/proof, send trigger, voice samples. Output: draft only, evidence ledger, test plan. Start with audience and offer, not clever copy (T-O-C). For daily editorial email, SLO: story -> lesson -> congruent offer. For opt-in: improve conversion before buying more traffic, make the bribe fit the immediate context, deliver what was promised. For an automation: deliver the gift first; an optional later offer must be congruent, not hidden or deceptive. For subject lines, vary a relevant hook and ensure the body pays it off. Check mobile readability. Verify each claim, actual deadline and permission to use a personal story or testimonial. Ask for a send decision separately.

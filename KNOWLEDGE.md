@@ -18,6 +18,8 @@ Machine-readable index: `knowledge-index.json` (same directory as this file). It
 | mozi-sales | sales | repo | Hormozi doctrine graph (33 nodes), 5 playbooks, 43 transcripts | districts/sales/mozi/README.md |
 | metricsmule-video | creative | repo (+ r2 mirror) | 150-video prompt-engineering mine: 15-node graph, 5 playbooks, 150 transcripts | districts/creative/video/README.md |
 | closer-sales-call-stages | sales | external repo (pauli-command-center @ 93da3853f6) | CLOSER call-stage doc + verbatim evidence (video ZMW8AfQeGqQ) | pcc:docs/CLOSER-SALES-CALL-STAGES.md |
+| middleton-method | middleton | repo | JP Middleton local-business method: service sequence, scripts, metrics. His numbers are unverified claims; the 4+ review gate and raffle scripts are quoted source, not approved practice | districts/middleton/README.md |
+| email-copywriter | creative | repo | Email copy knowledge base (@dragualin, 149 transcripts). Creator claims unverified; install candidate, drafting and review only | districts/creative/email-copywriter/CONTEXT.md |
 
 ## Rules
 

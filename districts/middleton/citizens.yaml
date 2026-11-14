@@ -1,0 +1,36 @@
+version: 1
+district: middleton
+citizens:
+  - id: method-librarian
+    kind: docs
+    path: districts/middleton/canon/
+    role: canon-keeper
+    status: LIVE
+  - id: gap-auditor
+    kind: job
+    path: districts/middleton/experiments/
+    role: market-gap-audit-served-partial-unserved
+    status: PLANNED
+  - id: reactivation-drafter
+    kind: job
+    role: sms-reactivation-campaigns-from-canon
+    status: PLANNED
+  - id: review-engine
+    kind: job
+    role: review-referral-flow-runner
+    status: PLANNED
+  - id: nurture-drafter
+    kind: job
+    role: instant-lead-follow-up-flows
+    # Candidate project workflow, not a citizen ID; PLANNED jobs do not dispatch.
+    first_candidate: dispatchhelper-spatchy-intake
+    status: PLANNED
+  - id: sales-coach-grader
+    kind: job
+    role: call-grading-vs-canon-script
+    status: PLANNED
+  - id: experiment-runner
+    kind: job
+    path: districts/middleton/experiments/loop.md
+    role: bounded-experiment-loop
+    status: PLANNED

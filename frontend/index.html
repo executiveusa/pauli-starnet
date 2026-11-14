@@ -879,7 +879,7 @@ document.write('<script src="' + ((window.__STARNET_API__ || '') + '/shared/spec
 <!-- Present before the first notification: assistive technology only observes changes to an
      already-registered live region, so stationui.js appends transient cards here. -->
 <div id="toast-stack" role="status" aria-live="polite" aria-atomic="false" aria-relevant="additions text"></div>
-<script src="app/app.js"></script>
+<script src="app/app.js"></script>\n<script src="app/jev-control.js"></script><!-- optional Jev System-One control: persistent OFF/ON switch; OFF makes zero requests -->
 <script src="app/keycta.js"></script><!-- cold-start honesty: after a KEYLESS awakening, one standing world banner "agent is awake but has no key" → SETTINGS; pure projection of Harness.hasStoredCredential, vanishes the instant a key lands (after app.js so App/Harness/StationUI exist) -->
 <script src="app/topbar.js"></script><!-- topbar instrument cluster: read-only STATION-XP + live SPEND-TODAY wiring (after app.js so Harness/Xp/XpStore/U exist) -->
 <script src="app/widgets.js"></script><!-- widget rails: pinnable read-only telemetry instruments (insights/cron polls + run.end/queue.status/cron.fire folds); own localStorage key, never emits -->

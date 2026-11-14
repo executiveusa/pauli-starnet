@@ -115,8 +115,11 @@ async function parseJsonBody(req, res) {
 }
 
 async function handle(req, res) {
-  if (!authorized(req)) return send(res, 401, { error: 'UNAUTHORIZED' });
   const path = String(req.url || '').split('?')[0];
+  // A2A Agent Card discovery: proxied to the legacy gateway BEFORE the workforce auth gate.
+  // The legacy server enforces the dedicated A2A bearer itself and fails closed when unconfigured.
+  if (path === '/.well-known/agent-card.json' || path === '/.well-known/agent.json') return proxyLegacy(req, res);
+  if (!authorized(req)) return send(res, 401, { error: 'UNAUTHORIZED' });
 
   try {
     if (req.method === 'GET' && path === '/v1/workforce/status') {
