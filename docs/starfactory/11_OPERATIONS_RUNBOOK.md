@@ -8,7 +8,7 @@ Every command below is for the **gateway** (`gateway/workforce-server.js`). Pape
 | Variable | Purpose |
 |---|---|
 | `PAPERCLIP_URL`, `PAPERCLIP_TOKEN`, `PAPERCLIP_COMPANY_ID` | The one mission authority and a service credential for Heisenberg. Unset `PAPERCLIP_URL` = factory off, gateway behaves exactly as before. |
-| `FACTORY_ROLES` | JSON: agent id per role; each worker may carry its **own** `apiKey` and an `executor` (`sidecar` or `http`, with `idempotent`). `heisenberg`, `pi`, `qa` are required; `hermes` is optional. |
+| `FACTORY_ROLES` | JSON: agent id per role; each worker may carry its **own** `apiKey` and an `executor` (`sidecar` or `http`, with `idempotent`). `heisenberg`, `pi`, `qa` are required; `hermes` is optional. **`qa.apiKey` is mandatory** and must differ from `PAPERCLIP_TOKEN` and from every other role's key; otherwise the gateway exits at startup with an explicit error (QA never falls back to the service credential). |
 | `FACTORY_WORKER_TOKEN` | Bearer Paperclip's `http` adapter presents when waking a worker. Different from the owner token. |
 | `GATEWAY_BEARER_TOKEN` | Owner bearer for every other `/v1/factory/*` route (existing gateway setting). |
 | `FACTORY_STATE_DIR` | Receipts, checkpoints, stop flag. Back this directory up with the gateway. Default `./.starfactory-state`. |
@@ -67,7 +67,8 @@ static and carries no data; everything shown comes from the authenticated `/v1/f
 |---|---|
 | A task sits `todo` and nothing runs | The agent is paused or Paperclip cannot reach the gateway wake URL. Check `/v1/factory/state` (agent shows `blocked: agent is paused`) and the worker token. |
 | Task `blocked` with "not safe to resume" | A non-idempotent worker was interrupted. The bridge refused to repeat a possible side effect. Inspect the artifact, then re-queue deliberately. |
-| Mission `blocked`, "verdict was not authored by the QA agent" | The QA agent's comment was posted with the wrong credential. Give the QA role its own `apiKey`. |
+| Wake answers 403/409 with `MISSION_NOT_AUTHORIZED`, `NOT_ASSIGNED_TO_WORKER`, `STAGE_WORKER_MISMATCH`, `COMPANY_MISMATCH`, `TASK_NOT_RUNNABLE`, `TASK_IN_FLIGHT` | The bridge refused the wake on purpose; nothing ran. The response `error` says which check failed. `MISSION_NOT_AUTHORIZED` on a restricted mission means the owner has not run `authorize` through the gateway. |
+| Gateway exits at start: `FACTORY_ROLES.qa.apiKey ...` | QA has no credential of its own, or it equals the service/another role's key. Issue QA its own Paperclip API key. |
 | Everything `blocked: emergency stop` | `POST /v1/factory/resume` after fixing the cause. |
 | StarNet panel shows `offline` / `unknown` | The stream is down. That is intentional: no stale data is displayed as live. |
 

@@ -98,6 +98,9 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
     if (!want.length) return { code: 409, body: { error: 'NOTHING_TO_AUTHORIZE' } };
     if (JSON.stringify(got) !== JSON.stringify([...want].sort())) return { code: 409, body: { error: 'SCOPE_MISMATCH', required: want } };
     if (want.includes('undeclared')) return { code: 409, body: { error: 'DECLARE_PERMISSIONS_FIRST' } };
+    // The authorization of record lives HERE, in the gateway's own durable state, written only by this owner-gated path.
+    // The worker bridge refuses tasks of a restricted mission without it, so flipping a status inside Paperclip is not enough.
+    if (store) store.putReceipt('auth:' + mid, { phase: 'authorized', permissions: want, approver: approver || 'owner' });
     await client.addComment(m.id, { body: 'Owner authorized exactly: ' + want.join(', ') + ' (by ' + (approver || 'owner') + ').' });
     await client.patchIssue(m.id, { status: 'todo', title: String(m.title).replace(AUTH_TAG + ' ', '') });
     const r = await reconcile(mid);
@@ -221,4 +224,10 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
   return { submitMission, authorize, reconcile, reconcileAll, accept, status, listMissions, emergencyStop, resumeAll, _readSpec: readSpec };
 }
 
-module.exports = { makeHeisenberg, restrictedOf, parseVerdict, AUTONOMOUS_PERMISSIONS, COMMENT_PREFIX };
+function readSpec(issue) {
+  const m = /```starfactory-spec\n([\s\S]*?)\n```/.exec(String((issue && issue.description) || ''));
+  if (!m) return null;
+  try { return JSON.parse(m[1]); } catch { return null; }
+}
+
+module.exports = { makeHeisenberg, restrictedOf, parseVerdict, readSpec, AUTONOMOUS_PERMISSIONS, COMMENT_PREFIX, AUTH_TAG };

@@ -92,7 +92,7 @@ async function main() {
   async function startGateway() {
     gwLog = '';
     gw = spawn(process.execPath, [path.join(__dirname, '..', 'gateway', 'workforce-server.js')], {
-      env: Object.assign({}, process.env, { GATEWAY_BEARER_TOKEN: OWNER, GATEWAY_PORT: String(gwPort), GATEWAY_HOST: '127.0.0.1', PAPERCLIP_URL: pcUrl, PAPERCLIP_TOKEN: 'svc', PAPERCLIP_COMPANY_ID: 'co-1', FACTORY_ROLES: JSON.stringify(roles), FACTORY_WORKER_TOKEN: WORKER, FACTORY_STATE_DIR: stateDir, FACTORY_POLL_MS: '150', FACTORY_RECONCILE_MS: '60000' }),
+      env: Object.assign({}, process.env, { GATEWAY_BEARER_TOKEN: OWNER, GATEWAY_PORT: String(gwPort), GATEWAY_HOST: '127.0.0.1', PAPERCLIP_URL: pcUrl, PAPERCLIP_TOKEN: 'svc', PAPERCLIP_COMPANY_ID: 'co-1', FACTORY_ROLES: JSON.stringify(roles), FACTORY_WORKER_TOKEN: WORKER, FACTORY_STATE_DIR: stateDir, FACTORY_POLL_MS: '150', FACTORY_RECONCILE_MS: '3600000' }),
       stdio: ['ignore', 'pipe', 'pipe']
     });
     gw.stdout.on('data', d => { gwLog += d; }); gw.stderr.on('data', d => { gwLog += d; });
@@ -104,6 +104,9 @@ async function main() {
     const t = await res.text(); let j = null; try { j = JSON.parse(t); } catch { /* non-json */ }
     return { code: res.status, body: j };
   }
+  const pcPost = (p, body) => fetch(pcUrl + p, { method: 'POST', headers: { Authorization: 'Bearer svc', 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json());
+  const pcPatch = (id, body) => fetch(pcUrl + '/api/issues/' + id, { method: 'PATCH', headers: { Authorization: 'Bearer svc', 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json());
+  const wakeOf = (worker, agentId, taskId, runId, extra) => api('POST', '/v1/factory/wake/' + worker, Object.assign({ runId, agentId, context: { taskId } }, extra || {}), WORKER);
   const issues = () => [...pc.state.issues.values()];
   const missionStatus = async (mid) => (await api('GET', '/v1/factory/missions/' + mid)).body;
   const callsFor = (mid, worker) => ex.calls.filter(c => c.mission === mid && (!worker || c.worker === worker));
@@ -234,7 +237,8 @@ async function main() {
 
     // ---- T06/T07: a NON-idempotent worker is never silently repeated ----
     ex.hang.add('M-herm:hermes');
-    const hi = await fetch(pcUrl + '/api/companies/co-1/issues', { method: 'POST', headers: { Authorization: 'Bearer svc', 'Content-Type': 'application/json' }, body: JSON.stringify({ title: '[sf:M-herm:implement:1] publish release notes', description: 'external publish', status: 'todo', assigneeAgentId: IDS.hermes }) }).then(r => r.json());
+    const hermMission = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-herm] publish release notes', description: 'external publish\n\n```starfactory-spec\n' + JSON.stringify({ v: 1, mission_id: 'M-herm', restricted: [], budget_usd: 0 }) + '\n```', status: 'todo', assigneeAgentId: IDS.heisenberg });
+    const hi = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-herm:implement:1] publish release notes', description: 'external publish', status: 'todo', assigneeAgentId: IDS.hermes, parentId: hermMission.id });
     await until(() => callsFor('M-herm', 'hermes').length === 1, 10000, 'Hermes to start');
     await killGateway();
     ex.released.add('M-herm:hermes');
@@ -244,6 +248,127 @@ async function main() {
     eq(callsFor('M-herm', 'hermes').length, 1, 'T06/T07 the non-idempotent worker was NOT re-run after the crash');
     ok([...pc.state.comments.get(hi.id)].some(c => /not safe to resume/.test(c.body)), 'T06 the interruption is stated in Paperclip, not hidden');
     ok(pc.state.issues.get(hi.id).status !== 'done', 'a task that died mid-run is never reported done');
+
+    // ---- ADVERSARIAL WAKES: a wake is a request, never an authority ----
+    // Every rejected wake must (a) return its specific code, (b) run NO executor, (c) leave NO receipt/checkpoint, (d) leave the task untouched.
+    pc.state.autoWake = false;   // fixtures below must not be woken by the double; only the explicit wakes under test happen
+    {
+      const specOf = (mid, restricted) => '\n\n```starfactory-spec\n' + JSON.stringify({ v: 1, mission_id: mid, restricted: restricted || [], budget_usd: 0 }) + '\n```';
+      const dirCount = (d) => fs.readdirSync(path.join(stateDir, d)).filter(f => f.endsWith('.json')).length;
+      const quiet = { calls: ex.calls.length, receipts: dirCount('receipts'), checkpoints: dirCount('checkpoints') };
+      const expectRejected = (r, code, error, why) => { eq(r.code, code, why + ' -> HTTP ' + code + ' (got body ' + JSON.stringify(r.body) + ')'); eq(r.body && r.body.error, error, why + ' -> ' + error); };
+      const advMission = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-adv] adversarial fixture', description: 'fixture' + specOf('M-adv'), status: 'todo', assigneeAgentId: IDS.heisenberg });
+      const mk = (title, extra) => pcPost('/api/companies/co-1/issues', Object.assign({ title, description: 'fixture', status: 'todo', assigneeAgentId: IDS.pi, parentId: advMission.id }, extra || {}));
+
+      // 1) arbitrary / unknown task ids
+      const plain = await pcPost('/api/companies/co-1/issues', { title: 'Buy milk (not a factory task)', description: 'x', status: 'todo', assigneeAgentId: IDS.pi });
+      expectRejected(await wakeOf('pi', IDS.pi, plain.id, 'adv-r1'), 403, 'NOT_A_FACTORY_TASK', 'an arbitrary non-factory task');
+      eq((await wakeOf('pi', IDS.pi, 'iss-does-not-exist', 'adv-r2')).code, 404, 'an unknown task id is 404');
+      eq((await wakeOf('pi', IDS.pi, '../../etc/passwd', 'adv-r3')).code, 400, 'a path-shaped task id is rejected as malformed');
+
+      // 2) tasks that are blocked, finished, cancelled, parked, or backlogged are never runnable
+      const nonRunnable = ['blocked', 'done', 'cancelled', 'in_review', 'backlog'];
+      for (let i = 0; i < nonRunnable.length; i++) {
+        const t = await mk('[sf:M-adv:implement:' + (i + 1) + '] fixture ' + nonRunnable[i], { status: nonRunnable[i] });
+        expectRejected(await wakeOf('pi', IDS.pi, t.id, 'adv-s' + i), 409, 'TASK_NOT_RUNNABLE', 'a ' + nonRunnable[i] + ' task');
+        eq(pc.state.issues.get(t.id).status, nonRunnable[i], 'the ' + nonRunnable[i] + ' task was not checked out or changed');
+      }
+      const budgetBlocked = issues().find(i => /^\[sf:M-budget:review:2\]/.test(i.title) && i.status === 'blocked');
+      expectRejected(await wakeOf('qa', IDS.qa, budgetBlocked.id, 'adv-budget'), 409, 'TASK_NOT_RUNNABLE', 'a budget-blocked review task');
+
+      // 3) wrong worker / wrong stage
+      const forPi = await mk('[sf:M-adv:implement:11] assigned to pi');
+      expectRejected(await wakeOf('qa', IDS.qa, forPi.id, 'adv-w1'), 403, 'NOT_ASSIGNED_TO_WORKER', 'QA waking a task assigned to Pi');
+      expectRejected(await wakeOf('hermes', IDS.hermes, forPi.id, 'adv-w2'), 403, 'NOT_ASSIGNED_TO_WORKER', 'Hermes waking a task assigned to Pi');
+      const reviewByPi = await mk('[sf:M-adv:review:12] review assigned to the builder');
+      expectRejected(await wakeOf('pi', IDS.pi, reviewByPi.id, 'adv-w3'), 403, 'STAGE_WORKER_MISMATCH', 'a review task given to the builder (no self-review)');
+      const buildByQa = await mk('[sf:M-adv:implement:13] build assigned to QA', { assigneeAgentId: IDS.qa });
+      expectRejected(await wakeOf('qa', IDS.qa, buildByQa.id, 'adv-w4'), 403, 'STAGE_WORKER_MISMATCH', 'a build task given to QA');
+
+      // 4) wrong company
+      expectRejected(await wakeOf('pi', IDS.pi, forPi.id, 'adv-c1', { companyId: 'co-2' }), 403, 'COMPANY_MISMATCH', 'a wake naming another company');
+      const foreign = await mk('[sf:M-adv:implement:14] other company', { companyId: 'co-2' });
+      expectRejected(await wakeOf('pi', IDS.pi, foreign.id, 'adv-c2'), 403, 'COMPANY_MISMATCH', 'a task that belongs to another company');
+
+      // 5) unauthorized missions: a parked restricted mission, a forged child, and Paperclip-side tampering
+      const parked = await api('POST', '/v1/factory/missions', { mission_id: 'M-adv-r', user_intent: 'Restricted adversarial mission', permissions: ['repo.edit', 'deploy'] });
+      ok(parked.code === 202 && parked.body.status === 'blocked', 'the restricted mission is parked');
+      const parkedParent = issues().find(i => /^\[sf:M-adv-r\]/.test(i.title));
+      const forged = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-adv-r:implement:1] forged child of a parked mission', description: 'forged', status: 'todo', assigneeAgentId: IDS.pi, parentId: parkedParent.id });
+      expectRejected(await wakeOf('pi', IDS.pi, forged.id, 'adv-m1'), 403, 'MISSION_NOT_AUTHORIZED', 'a forged task under a parked mission');
+      await pcPatch(parkedParent.id, { status: 'todo', title: parkedParent.title.replace('(authorization required) ', '') });   // someone flips the mission inside Paperclip
+      expectRejected(await wakeOf('pi', IDS.pi, forged.id, 'adv-m2'), 403, 'MISSION_NOT_AUTHORIZED', 'the same task after the mission status was tampered with in Paperclip (no owner authorization of record)');
+      const orphan = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-adv:implement:15] no parent', description: 'orphan', status: 'todo', assigneeAgentId: IDS.pi });
+      expectRejected(await wakeOf('pi', IDS.pi, orphan.id, 'adv-m3'), 403, 'MISSION_NOT_AUTHORIZED', 'a stage task with no parent mission');
+      const wrongParent = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-other:implement:1] parent is a different mission', description: 'x', status: 'todo', assigneeAgentId: IDS.pi, parentId: advMission.id });
+      expectRejected(await wakeOf('pi', IDS.pi, wrongParent.id, 'adv-m4'), 403, 'MISSION_NOT_AUTHORIZED', 'a task whose parent is a different mission');
+
+      eq(ex.calls.length, quiet.calls, 'NO executor ran for any adversarial wake');
+      eq(dirCount('receipts'), quiet.receipts, 'no receipt was written by any rejected wake');
+      eq(dirCount('checkpoints'), quiet.checkpoints, 'no checkpoint was written by any rejected wake');
+      eq(pc.state.issues.get(forPi.id).status, 'todo', 'a rejected wake never checks the task out');
+      eq(pc.state.issues.get(forged.id).status, 'todo', 'the forged task was never claimed');
+    }
+
+    pc.state.autoWake = true;
+    // ---- two DIFFERENT run ids can never execute the same task ----
+    ex.qaQueue['M-dup'] = ['PASS']; ex.hang.add('M-dup:pi');
+    await api('POST', '/v1/factory/missions', { mission_id: 'M-dup', user_intent: 'Concurrent-run probe', permissions: ['read', 'repo.edit'] });
+    await until(() => callsFor('M-dup', 'pi').length === 1, 10000, 'Pi to start M-dup');
+    const dupTask = callsFor('M-dup', 'pi')[0];
+    const second = await wakeOf('pi', IDS.pi, dupTask.taskId, 'adv-dup-second');
+    eq(second.code, 409, 'a second run id for a task already executing is refused');
+    eq(second.body.error, 'TASK_IN_FLIGHT', 'the refusal says why');
+    const third = await wakeOf('pi', IDS.pi, dupTask.taskId, 'adv-dup-third');
+    eq(third.body.error, 'TASK_IN_FLIGHT', 'and so is a third');
+    const lockFile = path.join(stateDir, 'locks', dupTask.taskId + '.lock');
+    ok(fs.existsSync(lockFile) && JSON.parse(fs.readFileSync(lockFile, 'utf8')).runId === dupTask.runId, 'the durable task lock names the run that holds it');
+    await sleep(300);
+    eq(callsFor('M-dup', 'pi').length, 1, 'the task executed exactly once while two other run ids were refused');
+    ex.released.add('M-dup:pi');
+    await until(async () => (await missionStatus('M-dup')).status === 'in_review', 20000, 'M-dup to complete');
+    eq(callsFor('M-dup', 'pi').length, 1, 'still exactly one execution after completion');
+    ok(!fs.existsSync(lockFile), 'the task lock is released when the run ends');
+    const afterDone = await wakeOf('pi', IDS.pi, dupTask.taskId, 'adv-dup-after');
+    eq(afterDone.code, 409, 'a completed task cannot be woken again under a new run id');
+    eq(callsFor('M-dup', 'pi').length, 1, 'the completed task was not executed again');
+
+    // ---- a non-idempotent task that a crash left unresolved is never repeated under a new run id ----
+    ok(pc.state.issues.get(hi.id).status === 'blocked', 'precondition: the interrupted Hermes task is blocked');
+    const hermesBefore = callsFor('M-herm', 'hermes').length;
+    eq((await wakeOf('hermes', IDS.hermes, hi.id, 'adv-herm-new-run')).code, 409, 'a new run id for the failed non-idempotent task is refused');
+    await pcPatch(hi.id, { status: 'in_progress' });             // tampering: someone flips it back to "running" in Paperclip
+    eq((await wakeOf('hermes', IDS.hermes, hi.id, 'adv-herm-new-run-2')).code, 409, 'flipping the status back to in_progress does not let a new run id repeat it');
+    eq(callsFor('M-herm', 'hermes').length, hermesBefore, 'the non-idempotent worker was never executed again');
+    // and the unresolved-run guard itself: the bridge's own record says a run started and never finished
+    const unresolved = await pcPost('/api/companies/co-1/issues', { title: '[sf:M-herm:implement:2] unresolved started run', description: 'x', status: 'in_progress', assigneeAgentId: IDS.hermes, parentId: hermMission.id });
+    fs.writeFileSync(path.join(stateDir, 'receipts', 'task~' + unresolved.id + '.json'), JSON.stringify({ runId: 'ghost-run', phase: 'started', workerKey: 'hermes', mission: 'M-herm' }));
+    const unresolvedWake = await wakeOf('hermes', IDS.hermes, unresolved.id, 'adv-herm-unresolved');
+    ok(unresolvedWake.code === 409 && unresolvedWake.body.error === 'TASK_RUN_UNRESOLVED', 'a started-but-unfinished run under a non-idempotent executor is never repeated by another run id');
+    eq(callsFor('M-herm', 'hermes').length, hermesBefore, 'and still no second execution');
+
+    // ---- QA must have its own credential: the factory refuses to start without one ----
+    async function startExpectingFailure(label, mutate) {
+      const r = JSON.parse(JSON.stringify(roles)); mutate(r);
+      const port = await freePort();
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'starfactory-bad-'));
+      const child = spawn(process.execPath, [path.join(__dirname, '..', 'gateway', 'workforce-server.js')], {
+        env: Object.assign({}, process.env, { GATEWAY_BEARER_TOKEN: OWNER, GATEWAY_PORT: String(port), GATEWAY_HOST: '127.0.0.1', PAPERCLIP_URL: pcUrl, PAPERCLIP_TOKEN: 'svc', PAPERCLIP_COMPANY_ID: 'co-1', FACTORY_ROLES: JSON.stringify(r), FACTORY_WORKER_TOKEN: WORKER, FACTORY_STATE_DIR: dir }),
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      let out = ''; child.stdout.on('data', d => { out += d; }); child.stderr.on('data', d => { out += d; });
+      const code = await new Promise(res => { const t = setTimeout(() => { child.kill('SIGKILL'); res('STILL_RUNNING'); }, 8000); child.on('exit', c => { clearTimeout(t); res(c); }); });
+      fs.rmSync(dir, { recursive: true, force: true });
+      return { code, out, label };
+    }
+    const noKey = await startExpectingFailure('no qa key', r => { delete r.qa.apiKey; });
+    ok(noKey.code !== 0 && noKey.code !== 'STILL_RUNNING' && /qa\.apiKey is required/.test(noKey.out), 'a QA role with no credential of its own stops the factory from starting (service credential is NOT a fallback)');
+    const svcKey = await startExpectingFailure('qa uses service credential', r => { r.qa.apiKey = 'svc'; });
+    ok(svcKey.code !== 0 && svcKey.code !== 'STILL_RUNNING' && /must differ from PAPERCLIP_TOKEN/.test(svcKey.out), 'QA configured with the service credential is refused');
+    const sharedKey = await startExpectingFailure('qa shares the builder key', r => { r.qa.apiKey = r.pi.apiKey; });
+    ok(sharedKey.code !== 0 && sharedKey.code !== 'STILL_RUNNING' && /must differ from the credential of role pi/.test(sharedKey.out), 'QA sharing the builder\'s credential is refused');
+    const noQaRole = await startExpectingFailure('no qa role', r => { delete r.qa; });
+    ok(noQaRole.code !== 0 && noQaRole.code !== 'STILL_RUNNING' && /qa\.agentId is required/.test(noQaRole.out), 'a factory with no QA role at all is refused');
 
     // ---- T11/T20: the read model and its event stream ----
     // One more mission AFTER the last restart, so the replay below is checked against work this process actually did.

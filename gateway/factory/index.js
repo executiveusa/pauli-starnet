@@ -38,6 +38,17 @@ function makeExecutor(spec) {
 function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides = {} } = {}) {
   if (!env.PAPERCLIP_URL && !overrides.client) return null;
   const roles = overrides.roles || JSON.parse(env.FACTORY_ROLES || '{}');
+  // Independent QA is only independent if its Paperclip identity is its own. Fail closed at startup, loudly, rather than
+  // let the service credential (or a builder's) stand in for QA authorship.
+  if (!overrides.clientFor) {
+    const qa = roles.qa;
+    if (!qa || !qa.agentId) throw new Error('FACTORY_ROLES.qa.agentId is required');
+    if (!qa.apiKey) throw new Error('FACTORY_ROLES.qa.apiKey is required: independent QA must authenticate to Paperclip with its own credential, never the service credential');
+    if (qa.apiKey === env.PAPERCLIP_TOKEN) throw new Error('FACTORY_ROLES.qa.apiKey must differ from PAPERCLIP_TOKEN (the service credential)');
+    for (const [k, r] of Object.entries(roles)) {
+      if (k !== 'qa' && r && r.apiKey && r.apiKey === qa.apiKey) throw new Error('FACTORY_ROLES.qa.apiKey must differ from the credential of role ' + k);
+    }
+  }
   const client = overrides.client || makePaperclipClient({ baseUrl: env.PAPERCLIP_URL, token: env.PAPERCLIP_TOKEN, companyId: env.PAPERCLIP_COMPANY_ID, fetchImpl });
   const store = overrides.store || makeStateStore(env.FACTORY_STATE_DIR || path.join(process.cwd(), '.starfactory-state'));
   let projection; // created below; Heisenberg reports handoffs to it as he creates them
@@ -45,7 +56,8 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   const clientCache = new Map();
   const clientFor = overrides.clientFor || ((key) => {
     const r = roles[key];
-    if (!r || !r.apiKey) return client;                  // no per-agent credential: falls back to the service credential
+    if (key === 'qa' && (!r || !r.apiKey)) return null;  // QA NEVER falls back to the service credential
+    if (!r || !r.apiKey) return client;                  // other workers without a credential of their own use the service credential
     if (!clientCache.has(key)) clientCache.set(key, makePaperclipClient({ baseUrl: env.PAPERCLIP_URL, token: r.apiKey, companyId: env.PAPERCLIP_COMPANY_ID, fetchImpl }));
     return clientCache.get(key);
   });
@@ -80,7 +92,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     if (wake && req.method === 'POST') {
       if (!tokenOk(req, workerToken)) { send(401, { error: 'UNAUTHORIZED' }); return true; }
       let body; try { body = JSON.parse((await helpers.readBody(req)) || '{}'); } catch { send(400, { error: 'INVALID_JSON' }); return true; }
-      const r = bridge.accept(wake[1], body);
+      const r = await bridge.accept(wake[1], body);
       if (r.done) r.done.catch(e => log('bridge_error', { error: e && e.message }));
       send(r.code, r.body);
       return true;

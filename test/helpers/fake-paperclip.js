@@ -33,7 +33,8 @@ function makeFakePaperclip({ companyId = 'co-1', tokens, agents }) {
     req.end(body);
     return rid;
   }
-  const maybeWake = (i) => { if (i.status === 'todo' && i.assigneeAgentId) wake(i.assigneeAgentId, i.id); };
+  // state.autoWake = false lets a test create fixtures without the double waking them (it otherwise wakes every todo task it assigns).
+  const maybeWake = (i) => { if (state.autoWake !== false && i.status === 'todo' && i.assigneeAgentId) wake(i.assigneeAgentId, i.id); };
 
   async function route(req, res) {
     const url = new URL(req.url, 'http://x');
@@ -62,7 +63,7 @@ function makeFakePaperclip({ companyId = 'co-1', tokens, agents }) {
     }
     if (req.method === 'POST' && (m = /^\/api\/companies\/([^/]+)\/issues$/.exec(p))) {
       const b = await readBody(req);
-      const i = { id: nextId('iss'), companyId, title: b.title, description: b.description || '', status: b.status || 'todo', priority: b.priority || 'medium', assigneeAgentId: b.assigneeAgentId || null, parentId: b.parentId || null, projectId: b.projectId || null, createdAt: new Date().toISOString() };
+      const i = { id: nextId('iss'), companyId: b.companyId || companyId, title: b.title, description: b.description || '', status: b.status || 'todo', priority: b.priority || 'medium', assigneeAgentId: b.assigneeAgentId || null, parentId: b.parentId || null, projectId: b.projectId || null, createdAt: new Date().toISOString() };
       state.issues.set(i.id, i); state.comments.set(i.id, []);
       json(res, 201, i); maybeWake(i); return;
     }

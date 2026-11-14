@@ -5,8 +5,8 @@
 **Not production-ready. The repository-side vertical slice is built and verified against a Paperclip *contract double*;
 nothing has been verified against a live Paperclip, live Hermes/Pi workers, a phone, or the owner's servers.**
 
-What works and is tested (66 assertions, `test/factory.integration.test.js`, repeated 3 times with identical results,
-plus 11 in `test/factory-status.test.js`): the real `gateway/workforce-server.js` process, driven over HTTP, delegates
+What works and is tested (137 assertions in `test/factory.integration.test.js`, including an adversarial wake section that was
+mutation-checked against the pre-fix bridge, plus 11 in `test/factory-status.test.js`): the real `gateway/workforce-server.js` process, driven over HTTP, delegates
 a mission through Heisenberg to Pi, hands off to an independent QA agent, returns a failed review to the builder, passes
 on the repair, and holds for owner acceptance, with no human relaying; it survives a SIGKILL mid-run; it refuses
 unauthorized, paused, stopped, over-budget and restricted-permission work.
