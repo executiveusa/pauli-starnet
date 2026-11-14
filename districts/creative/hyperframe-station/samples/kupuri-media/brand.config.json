@@ -1,0 +1,20 @@
+{
+  "brand": "Kupuri Media",
+  "bg": "#0b0f1a",
+  "ink": "#f0f9ff",
+  "accent": "#29abe2",
+  "accent2": "#7b5ea7",
+  "display_font": "Montserrat",
+  "wordmark": "KUPURI",
+  "wordmark2": "MEDIA",
+  "tagline": "TU ESLOGAN AQUI",
+  "credits": "",
+  "duration": 12,
+  "logo": {
+    "mode": "beads",
+    "src": "logo.beads.json",
+    "srcW": 500,
+    "srcH": 500,
+    "scale": 0.72
+  }
+}
