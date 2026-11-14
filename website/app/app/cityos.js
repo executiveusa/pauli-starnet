@@ -111,6 +111,7 @@ const CityOS = (() => {
     accounting_close: { label: 'ACCOUNTING + CLOSE', kind: 'hab', floorStyle: 'sterile', floorMat: 'panel', slots: ['controller', 'accountant'], caps: ['files', 'memory'], decor: ['whiteboard'], dressing: ['bookstack', 'chartwall'] },
     tax_office: { label: 'TAX OFFICE', kind: 'hab', floorStyle: 'amber', floorMat: 'panel', slots: ['taxreviewer'], caps: ['files', 'memory'], decor: ['whiteboard'], dressing: ['bookstack', 'crate'] },
     executive_finance: { label: 'EXECUTIVE FINANCE', kind: 'bridge', floorStyle: 'onyx', floorMat: 'panel', slots: ['controller'], caps: ['files', 'memory'], decor: ['bigscreen'], dressing: ['ticker', 'chartwall', 'arc_floorlight'] },
+    security_lab: { label: 'SECURITY LAB', kind: 'lab', floorStyle: 'onyx', floorMat: 'grate', slots: ['auditor', 'redteam'], caps: ['files', 'memory', 'terminal'], decor: ['bigscreen'], dressing: ['cablerun', 'hazardpad', 'chartwall'] },
     night_ops: {
       label: 'NIGHT OPERATIONS', kind: 'bridge', floorStyle: 'crimson', floorMat: 'panel',
       slots: ['nightwatch', 'foreman', 'operator', 'scout'], caps: ['files', 'web', 'memory', 'terminal'], decor: ['missionboard'],
@@ -152,6 +153,7 @@ const CityOS = (() => {
       { id: 'intelligence', label: 'INTELLIGENCE DISTRICT', buildings: [{ template: 'intelligence_center' }, { template: 'memory_archive' }] },
       { id: 'experiment', label: 'EXPERIMENT DISTRICT', buildings: [{ template: 'experiment_lab' }] },
       { id: 'financial', label: 'FINANCIAL DISTRICT', buildings: [{ template: 'revenue_hall' }, { template: 'treasury_payments' }, { template: 'cost_tokenomics' }, { template: 'accounting_close' }, { template: 'tax_office' }, { template: 'executive_finance' }] },
+      { id: 'security', label: 'SECURITY DISTRICT', buildings: [{ template: 'security_lab' }] },
       { id: 'operations', label: 'OPERATIONS DISTRICT', buildings: [{ template: 'night_ops' }] }
     ]
   });

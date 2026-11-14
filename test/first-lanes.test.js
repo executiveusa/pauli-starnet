@@ -17,11 +17,13 @@ const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'registry', 'distric
 (async () => {
   // ---- the seeded queue ----
   const active = new Set(registry.districts.filter(d => d.active).map(d => d.id));
+  // The captain paused commerce (the store) on 2026-10-25 (starnet-v2 Q15): its seeds stay queued, the lane just doesn't run.
+  const PAUSED = new Set(['commerce']);
   const labelNames = new Set(spec.labels.map(l => l.name));
   A.eq(spec.repo, registry.districts.find(d => d.id === 'impact').queue.repo, 'seeds go to the queue repo the registry names');
   for (const it of spec.issues) {
     const d = it.labels.find(l => l.startsWith('district:'));
-    A.ok(d && active.has(d.slice(9)), it.title + ': belongs to an active lane');
+    A.ok(d && (active.has(d.slice(9)) || PAUSED.has(d.slice(9))), it.title + ': belongs to an active or captain-paused lane');
     A.ok(!it.labels.includes('approved'), it.title + ': is not pre-approved (a person approves)');
     A.ok(it.labels.every(l => labelNames.has(l)), it.title + ': uses only labels the seed creates');
     A.ok(it.labels.includes('blocked') ? /^Question: /m.test(it.body) : /Deliver: /.test(it.body), it.title + ': says what it delivers, or asks its question');
@@ -35,7 +37,7 @@ const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'registry', 'distric
   const board = Object.fromEntries(F.decide({ districts: registry.districts, items, state: {}, now: Date.parse('2026-10-15T12:00:00Z') }).map(d => [d.district, d]));
   A.ok(board.impact.action === 'BLOCKED' && /^Approve #101 "Verify the Google programs/.test(board.impact.question), 'Impact asks the owner to approve its first item');
   A.ok(board.production.action === 'BLOCKED' && /Approve #/.test(board.production.question), 'Production asks for approval');
-  A.ok(board.commerce.action === 'BLOCKED' && /decide 0002, 0004 and 0009/.test(board.commerce.question), 'Commerce surfaces the store decisions it is blocked on');
+  A.ok(board.commerce.action === 'IDLE' && /not active/.test(board.commerce.reason), 'Commerce is paused by the captain: IDLE, not faked busy, while its store decisions wait');
   items[0].approved = true;
   A.eq(F.decide({ districts: registry.districts, items, state: {}, now: Date.parse('2026-10-15T12:00:00Z') }).find(d => d.district === 'impact').action, 'DISPATCH', 'once approved, Impact runs it');
 

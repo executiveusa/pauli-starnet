@@ -33,9 +33,9 @@ function req(method, port, p, headers) {
 (async () => {
   // ---- one district list ----
   const reg = buildRegistry();
-  A.eq(reg.districts.length, 12, 'the registry has the 12 CitySpec districts');
+  A.eq(reg.districts.length, 13, 'the registry has the 13 CitySpec districts');
   A.eq(render(reg), fs.readFileSync(path.join(ROOT, 'registry', 'districts.json'), 'utf8'), 'registry/districts.json is current (run scripts/city/build-registry.js)');
-  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'commerce', 'impact', 'production'], 'the active lanes are command (owner, 2026-10-16), commerce, impact and production; the rest are honest IDLE');
+  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'creative', 'impact', 'production', 'revenue', 'security'], 'the active lanes are the captain\'s v1 set (starnet-v2 Q15, 2026-10-25): command, production, security, creative, revenue, impact; commerce is paused and the rest are honest IDLE');
   A.ok(reg.districts.every(d => d.queue.label === 'district:' + d.id && d.foreman === 'heisenberg'), 'every district has a queue label and Heisenberg as foreman');
   A.ok(reg.districts.find(d => d.id === 'impact').knowledge.includes('cause-specialist'), 'districts carry their knowledge sources');
   A.ok(reg.districts.find(d => d.id === 'production').aliases.includes('factory'), 'old ids map by alias (factory -> production)');
@@ -108,7 +108,7 @@ function req(method, port, p, headers) {
     const ghCalls = [];
     const queue = [
       issue(21, 'impact', ['approved'], { title: 'Grant readiness checklist for Google Ad Grants', body: 'Draft only. Nothing is submitted.' }),
-      issue(22, 'commerce', [], { title: 'Top 20 free speech designs research' }),
+      issue(22, 'revenue', [], { title: 'Kindle offer: research the top 20 nonfiction categories' }),
       issue(23, 'production', ['approved', 'perm:repo.write'], { title: 'Ship the smart-site form' })
     ];
     const fetchImpl = async (url, init = {}) => {
@@ -127,9 +127,9 @@ function req(method, port, p, headers) {
     const by1 = Object.fromEntries(b1.districts.map(d => [d.district, d]));
     A.eq(b1.errors, [], 'tick 1 ran without errors');
     A.ok(by1.impact.action === 'DISPATCH' && by1.impact.mission_id === 'd-impact-21-a1', 'tick 1: Impact dispatched the approved issue as a city mission');
-    A.ok(by1.commerce.action === 'BLOCKED' && /Approve #22/.test(by1.commerce.question), 'tick 1: Commerce asks for approval of its unapproved issue');
+    A.ok(by1.revenue.action === 'BLOCKED' && /Approve #22/.test(by1.revenue.question), 'tick 1: Revenue asks for approval of its unapproved issue');
     A.ok(by1.production.action === 'BLOCKED' && /repo.write/.test(by1.production.question), 'tick 1: Production will not run repo.write unattended');
-    A.ok(by1.revenue.action === 'IDLE' && /not active/.test(by1.revenue.reason), 'tick 1: inactive districts are IDLE, not faked busy');
+    A.ok(by1.commerce.action === 'IDLE' && /not active/.test(by1.commerce.reason), 'tick 1: a paused district (commerce) is IDLE, not faked busy');
 
     let missionStatus = null;
     for (let i = 0; i < 40; i++) { missionStatus = JSON.parse((await req('GET', GW, '/v1/missions/d-impact-21-a1', auth)).body).status; if (missionStatus !== 'working') break; await new Promise(r => setTimeout(r, 100)); }
@@ -147,7 +147,7 @@ function req(method, port, p, headers) {
     A.ok(posted.some(c => /issues\/21\/labels/.test(c.url) && /needs-review/.test(c.body)), 'finished work is labeled needs-review for the independent reviewer');
 
     const board = JSON.parse((await req('GET', GW, '/v1/districts', auth)).body);
-    A.ok(board.districts.length === 12 && board.stale === false && typeof board.age_seconds === 'number', 'GET /v1/districts serves the latest board with its age');
+    A.ok(board.districts.length === 13 && board.stale === false && typeof board.age_seconds === 'number', 'GET /v1/districts serves the latest board with its age');
     A.eq((await req('GET', GW, '/v1/districts')).status, 401, 'the board needs the gateway bearer');
 
     const off = makeForeman({ env: { ...env, STARNET_DISTRICT_STATE: path.join(tmp, 'off.json') }, fetchImpl: async (url, init) => url.startsWith('https://api.github.com/repos/') && !/issues/.test(url)

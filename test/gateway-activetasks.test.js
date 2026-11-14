@@ -53,6 +53,7 @@ async function main() {
       STARNET_REVISION: 'da861f25b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5',
       STARNET_PORT: String(SC_PORT),
       STARNET_WORKSPACE_PATH: path.join(__dirname, 'fixtures-no-such-dir'),
+      STARNET_MISSION_DIR: require('fs').mkdtempSync(path.join(require('os').tmpdir(), 'gw-at-missions-')),   // no desk missions: only the posted task shows
       LOG_LEVEL: 'error'
     }),
     stdio: 'ignore'
