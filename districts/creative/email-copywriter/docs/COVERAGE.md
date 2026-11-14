@@ -1,6 +1,6 @@
 # Channel coverage
 
-66 videos + 98 Shorts = 164 unique IDs. Captions retrieved for 65 videos and 84 Shorts = 149. Missing 1 video + 14 Shorts:
+66 videos + 98 Shorts = 164 unique IDs. Captions retrieved for 65 videos and 88 Shorts = 153. Addendum 2026-09-28: 4 Shorts recovered (en/asr via web_fetch after timedtext returned empty). Remaining 1 video + 10 Shorts verified to have NO caption track (signed-in player, playability OK) - visual/ASMR-style content, captions unavailable from creator:
 
 - video: `eaK_AGRx7NA` [Watch Me Write Email Copy Live (ASMR)](https://www.youtube.com/watch?v=eaK_AGRx7NA)
 - short: `kdlm-hVtbgc` [I've never had a problem writing didn't solve.](https://www.youtube.com/watch?v=kdlm-hVtbgc)
