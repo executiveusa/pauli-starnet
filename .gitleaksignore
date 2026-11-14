@@ -44,7 +44,10 @@ a5d72b7232f29e7c2d3ccf81a91d27217bc69559:test/openai-compat.e2e.test.js:generic-
 # Historical false positive: synthetic localhost-only mock token, never a real credential.
 453be7fa0025c955c0efbd0c608a298ed4fd404a:dev/seed-mock-reliability.js:generic-api-key:91
 
-# Reviewed non-secret proof output: idempotency UUIDs and resume mission IDs, not credentials.
+# Proof-run packet identifiers, not credentials: resume_token is the mission UUID
+# (gateway/missions.js) and approval requires owner login + GATEWAY_BEARER_TOKEN;
+# idempotency_key is a client dedup UUID. Reviewed 2026-10-11, independent reviewer,
+# exact fingerprints only.
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:150
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:156
 bd80c7b53529aec7a034d10f753693e7727bbaba:program/starnet-v1/06_proof-run/output/crew2-board-get.json:generic-api-key:162
