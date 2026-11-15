@@ -203,3 +203,6 @@ gateway/data/
 
 # knowledge loader output (generated SQL; regenerate with scripts/knowledge/ingest.js)
 /build/
+
+# STARFACTORY-001 bridge state (receipts/checkpoints)
+.starfactory-state/
