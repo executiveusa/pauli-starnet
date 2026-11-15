@@ -38,10 +38,15 @@
   }
 
   // Link lost: we no longer know anything. Say so.
+  // `lastEventId` is deliberately cleared: we just discarded every agent state, so resuming from a
+  // retained cursor would let the server replay only events NEWER than it (projection.subscribe),
+  // leaving every agent stuck at 'unknown' until it happens to emit again. With no cursor the
+  // server treats us as a fresh client and sends factory.resync with a full snapshot, which
+  // applyEvent uses to rebuild all agent state.
   function markDisconnected(model) {
     const agents = {};
     for (const [k, a] of Object.entries(model.agents)) agents[k] = Object.assign({}, a, { state: 'unknown', evidence: null, reason: 'factory link offline' });
-    return Object.assign({}, model, { connected: false, agents });
+    return Object.assign({}, model, { connected: false, lastEventId: null, agents });
   }
 
   // Minimal SSE frame parser (EventSource cannot send an Authorization header).

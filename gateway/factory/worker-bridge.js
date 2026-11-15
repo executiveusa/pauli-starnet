@@ -61,23 +61,27 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
 
       // 1) defenses before any work
       let agent = null;
-      try { agent = await client.getAgent(agentId); } catch (e) { return fail(client, runId, taskId, workerKey, 'could not read agent state: ' + e.message, payload, retry); }
+      try { agent = await client.getAgent(agentId); } catch (e) { return fail(client, runId, taskId, workerKey, null, 'could not read agent state: ' + e.message, payload, retry); }
       if (agent && (agent.status === 'paused' || agent.status === 'terminated')) {
         store.putCheckpoint(taskId, { phase: 'skipped', reason: 'agent ' + agent.status, runId, agentId, workerKey, retry });
         return { skipped: 'agent ' + agent.status };
       }
-      store.putCheckpoint(taskId, { phase: 'running', runId, agentId, workerKey, retry, payload, startedAt: new Date().toISOString() });
+      const runningCp = { phase: 'running', runId, agentId, workerKey, retry, payload, startedAt: new Date().toISOString() };
+      store.putCheckpoint(taskId, runningCp);
 
       // 2) claim (re-claim is allowed only when this task has a checkpoint from a crashed run)
       const expected = ['todo', 'backlog', 'blocked', 'in_review'].concat(prev && prev.phase === 'running' ? ['in_progress'] : []);
       try { await client.checkout(taskId, { agentId, expectedStatuses: expected }, runId); } catch (e) {
         if (e.status === 409) { store.putCheckpoint(taskId, { phase: 'skipped', reason: 'claimed elsewhere', runId, agentId, workerKey, retry }); return { skipped: 'conflict' }; }
-        return fail(client, runId, taskId, workerKey, 'checkout failed: ' + e.message, payload, retry);
+        return fail(client, runId, taskId, workerKey, null, 'checkout failed: ' + e.message, payload, retry);
       }
       const issue = await client.getIssue(taskId);
       const stage = parseStageTitle(issue.title);
       const mission = stage ? stage.mission : parseMissionTitle(issue.title);
       const role = stage ? (stage.stage === 'review' ? 'qa' : workerKey) : workerKey;
+      // Record the mission on the running checkpoint as soon as it is known, so a crash that is
+      // later failed-visibly in recover() can still attribute its spend to the right mission.
+      if (mission && mission !== runningCp.mission) store.putCheckpoint(taskId, Object.assign({}, runningCp, { mission }));
 
       // 3) budget gate
       const cap = readBudget(issue);
@@ -90,11 +94,11 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
 
       // 4) execute
       const executor = executors[workerKey];
-      if (!executor) return fail(client, runId, taskId, workerKey, 'no executor configured for ' + workerKey, payload, retry);
+      if (!executor) return fail(client, runId, taskId, workerKey, mission, 'no executor configured for ' + workerKey, payload, retry);
       let result;
       try { result = await executor.run({ issue, role, mission, runId, checkpoint: prev || null }); }
       catch (e) { result = { ok: false, summary: 'executor error: ' + (e && e.message), artifacts: [], usd: 0 }; }
-      if (!result || !result.ok) return fail(client, runId, taskId, workerKey, (result && result.summary) || 'executor failed', payload, retry, result);
+      if (!result || !result.ok) return fail(client, runId, taskId, workerKey, mission, (result && result.summary) || 'executor failed', payload, retry, result);
 
       // 5) persist BEFORE reporting
       const rec = store.putReceipt(runId, { phase: 'executed', status: 'completed', taskId, workerKey, mission, role, summary: result.summary, artifacts: result.artifacts || [], usd: Number(result.usd) || 0, verdict: result.verdict || null, findings: result.findings || [] });
@@ -105,7 +109,7 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
   async function report(workerKey, client, runId, taskId, rec, payload) {
     if (rec.role === 'qa') {
       const v = rec.verdict === 'PASS' || rec.verdict === 'FAIL' ? rec.verdict : null;
-      if (!v) return fail(client, runId, taskId, workerKey, 'reviewer produced no verdict', payload, 0);
+      if (!v) return fail(client, runId, taskId, workerKey, rec.mission, 'reviewer produced no verdict', payload, 0);
       // Posted with the QA agent's OWN credential, so Paperclip records who wrote it. Heisenberg checks the author.
       await client.addComment(taskId, { body: COMMENT_PREFIX + ' ' + JSON.stringify({ verdict: v, findings: rec.findings || [], runId }) }, runId);
     }
@@ -119,9 +123,13 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
     return { completed: true, next };
   }
 
-  async function fail(client, runId, taskId, workerKey, reason, payload, retry, result) {
+  // `mission` is recorded on the failed receipt as well as on success: missionSpend() sums every
+  // receipt whose mission matches, so a run that spent money before failing must be attributed or
+  // its cost escapes the budget gate (re-queuing a blocked task could spend indefinitely).
+  // Callers that fail before the mission is parsed pass null.
+  async function fail(client, runId, taskId, workerKey, mission, reason, payload, retry, result) {
     try { await client.patchIssue(taskId, { status: 'blocked', comment: 'Worker run failed: ' + reason }, runId); } catch (e) { log('fail_report_error', { error: e.message }); }
-    store.putReceipt(runId, { phase: 'reported', status: 'failed', taskId, workerKey, usd: Number(result && result.usd) || 0, summary: reason });
+    store.putReceipt(runId, { phase: 'reported', status: 'failed', taskId, workerKey, mission: mission || null, usd: Number(result && result.usd) || 0, summary: reason });
     store.putCheckpoint(taskId, { phase: 'failed', reason, runId, agentId: roles[workerKey].agentId, workerKey, retry, payload });
     return { failed: reason };
   }
@@ -142,7 +150,7 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
       if (ex && ex.idempotent === true && (cp.retry || 0) < maxRetries && cp.payload) {
         results.push({ taskId: cp.taskId, action: 'resume', out: await process_(workerKey, cp.payload) });
       } else {
-        await fail(client, cp.runId, cp.taskId, workerKey, 'interrupted by a restart and not safe to resume automatically (executor not idempotent or retry budget spent)', cp.payload, cp.retry || 0);
+        await fail(client, cp.runId, cp.taskId, workerKey, cp.mission || null, 'interrupted by a restart and not safe to resume automatically (executor not idempotent or retry budget spent)', cp.payload, cp.retry || 0);
         results.push({ taskId: cp.taskId, action: 'failed-visibly' });
       }
     }

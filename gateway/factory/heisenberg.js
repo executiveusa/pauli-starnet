@@ -15,6 +15,30 @@ function restrictedOf(permissions) {
   return permissions.filter(p => !AUTONOMOUS_PERMISSIONS.has(p));
 }
 
+// The mission ISSUE title is shortened by missionTitle() to 100 chars for display and for the
+// stage-title round-trip, so it must never be the source of worker instructions. The full intent
+// and the machine-readable spec (acceptance_criteria, repositories, budget_usd) are written into
+// the mission issue's description at submitMission time. Read them back from there.
+function missionSpec(m) {
+  const desc = String((m && m.description) || '');
+  const found = /```starfactory-spec\n([\s\S]*?)\n```/.exec(desc);
+  let spec = null;
+  if (found) { try { spec = JSON.parse(found[1]); } catch { spec = null; } }
+  const plain = desc.split('```starfactory-spec')[0].trim();
+  const intent = plain || String((m && m.title) || '').replace(/^\[sf:[^\]]+\]\s*/, '');
+  return { intent, spec };
+}
+
+// Rendered once and appended to every stage body so no worker has to guess the contract.
+function specBrief(spec) {
+  if (!spec) return '';
+  const ac = Array.isArray(spec.acceptance_criteria) && spec.acceptance_criteria.length
+    ? spec.acceptance_criteria.map(c => '- ' + c).join('\n') : '(none given)';
+  const repos = Array.isArray(spec.repositories) && spec.repositories.length
+    ? spec.repositories.join(', ') : '(none given)';
+  return '\n\nAcceptance criteria:\n' + ac + '\nRepositories: ' + repos;
+}
+
 function authorOf(c) { return c && (c.authorAgentId || (c.author && c.author.agentId) || c.agentId || null); }
 
 function parseVerdict(comments) {
@@ -127,12 +151,14 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
         const fresh = await childrenOf(m);
         if (fresh.some(c => { const p = parseStageTitle(c.title); return p && p.seq === plan.seq; })) return { type: 'wait', on: 'concurrent-create' };
         const agentId = roles[plan.role].agentId;
-        const intent = String(m.title).replace(/^\[sf:[^\]]+\]\s*/, '');
-        const body = plan.stage === 'review'
+        // Full intent + spec from the description, never the 100-char title.
+        const { intent, spec } = missionSpec(m);
+        const brief = specBrief(spec);
+        const body = (plan.stage === 'review'
           ? 'Independently review the previous stage for mission ' + mid + '. Record a verdict comment: ' + COMMENT_PREFIX + ' {"verdict":"PASS|FAIL","findings":[...]}. You must not be the builder.\n\nOriginal request: ' + intent
           : plan.stage === 'repair'
             ? 'Repair the defects the independent reviewer found for mission ' + mid + ':\n' + (plan.findings || []).map(f => '- ' + f).join('\n') + '\n\nOriginal request: ' + intent
-            : 'Implement mission ' + mid + ' on an isolated branch. Do not merge or deploy.\n\nOriginal request: ' + intent;
+            : 'Implement mission ' + mid + ' on an isolated branch. Do not merge or deploy.\n\nOriginal request: ' + intent) + brief;
         const child = await client.createIssue({
           title: stageTitle(mid, plan.stage, plan.seq, plan.stage + ': ' + intent.slice(0, 60)),
           description: body, status: 'todo', priority: m.priority || 'medium', parentId: m.id, assigneeAgentId: agentId
