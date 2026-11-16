@@ -1,15 +1,23 @@
 {
-  "_contract": "program/one-system/CONTEXT.md D5 and D7. One home for model choices. A lane whose model is still VERIFY_* is refused, never guessed: whoever checks the live catalog writes the exact id here.",
+  "_contract": "program/one-system/CONTEXT.md D5 and D7. One home for model choices. A lane whose model is still VERIFY_* is refused or uses its fallback, never guessed: whoever checks the live catalog writes the exact id here. How to change models: program/one-system/05_models/MODELS.md.",
   "monthly_budget_usd": 100,
   "warn_at": 0.8,
   "revenue_districts": ["revenue"],
   "lanes": {
     "deepseek-default": {
       "provider": "openrouter",
-      "model": "VERIFY_IN_OPENROUTER_CATALOG",
-      "owner_name": "DeepSeek 1017 uncensored",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "owner_name": "DeepSeek 1017 (OpenRouter, standard version; the uncensored build is on the uncensored lane)",
+      "verified": "owner, 2026-11-16, OpenRouter catalog",
       "reasoning": "high",
       "use_for": "most work: research, drafts, code, triage, standing jobs"
+    },
+    "uncensored": {
+      "provider": "venice",
+      "model": "VERIFY_IN_VENICE_OR_HERMES",
+      "owner_name": "DeepSeek 1017 uncensored (Venice, or through the owner's Hermes agent)",
+      "fallback_lane": "deepseek-default",
+      "use_for": "work the standard model refuses. Not wired yet: the sidecar has no Venice provider; add it as a custom OpenAI-compatible provider, then write the model id here."
     },
     "subscription-review": {
       "provider": "claude-code-cli",
@@ -23,5 +31,17 @@
       "provider": "external",
       "use_for": "Instinct runs on its own platform; StarNet never calls a model for it"
     }
+  },
+  "free_pool": {
+    "_source": "github.com/open-free-llm-api/awesome-freellm-apis (MIT), list of 2026-11-16. Re-check with: node scripts/models/free-pool.js",
+    "use_for": "tests, light work (weight light or test), agents on the free-pool lane, and non-revenue work once the budget reaches WARN or STOP",
+    "never_for_districts": ["financial", "pauli"],
+    "never_for": "missions marked private, and anything with client personal data: free tiers may log prompts or train on them",
+    "candidates": [
+      { "provider": "openrouter", "model": "nvidia/nemotron-3-ultra-550b-a55b:free", "key_env": ["OPENROUTER_KEY", "OPENROUTER_API_KEY", "OPEN_ROUTER_API"], "limits": "OpenRouter free models: low daily cap until $10 of credit is on the account, then 1,000 requests a day" },
+      { "provider": "groq", "model": "qwen/qwen3.8-27b", "key_env": ["GROQ_API_TOKEN", "GROQ_API_KEY"], "limits": "30 requests a minute, 1,000 a day" },
+      { "provider": "gemini", "model": "gemini-3.6-flash", "key_env": ["GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_AI_API_KEY"], "limits": "free tier; Google may use free-tier prompts to improve its models" },
+      { "provider": "mistral", "model": "mistral-medium-3-5-128b", "key_env": ["MISTRAL_API_KEY"], "limits": "about 1 request a second" }
+    ]
   }
 }

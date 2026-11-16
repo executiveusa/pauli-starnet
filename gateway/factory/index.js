@@ -15,6 +15,7 @@ const path = require('path');
 const { makePaperclipClient } = require('./paperclip-client.js');
 const { makeStateStore } = require('./state-store.js');
 const { makeHeisenberg } = require('./heisenberg.js');
+const { freeKeys } = require('./model-routing.js');
 const { makeWorkerBridge } = require('./worker-bridge.js');
 const { makeProjection } = require('./projection.js');
 const { makeSidecarExecutor, makeHttpExecutor } = require('./executors.js');
@@ -58,7 +59,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   // Role keys pi/qa map to their roster names (pi-foundry, qa-judge) for lane lookup.
   const laneOf = (k) => lanes.get(k) || lanes.get({ pi: 'pi-foundry', qa: 'qa-judge' }[k]) || null;
   const modelRegistry = overrides.modelRegistry || (() => { try { return require('../../registry/models.json'); } catch { return null; } })();
-  const bridge = makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, log, routing: modelRegistry ? { registry: modelRegistry, laneOf } : null });
+  const bridge = makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, log, routing: modelRegistry ? { registry: modelRegistry, laneOf, keys: freeKeys(modelRegistry, env) } : null });
   projection = makeProjection({ client, roles, store });
   const workerToken = env.FACTORY_WORKER_TOKEN || '';
   let timers = [];

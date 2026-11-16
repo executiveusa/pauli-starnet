@@ -28,13 +28,14 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
     }
     return 0;
   }
-  function readDistrict(issue) {
+  function readSpec(issue) {
     for (const a of (issue.ancestors || [])) {
       const m = /```starfactory-spec\n([\s\S]*?)\n```/.exec(String(a.description || ''));
-      if (m) { try { return JSON.parse(m[1]).district || 'command'; } catch { /* none */ } }
+      if (m) { try { return JSON.parse(m[1]) || {}; } catch { /* none */ } }
     }
-    return 'command';
+    return {};
   }
+  function readDistrict(issue) { return readSpec(issue).district || 'command'; }
   function missionSpend(mid) {
     return store.allReceipts().filter(r => r.mission === mid).reduce((s, r) => s + (Number(r.usd) || 0), 0);
   }
@@ -108,7 +109,8 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
         const now = new Date().toISOString();
         const receipts = store.allReceipts();
         const usedToday = receipts.filter(r => r.lane === 'subscription-review' && String(r.at || '').slice(0, 10) === now.slice(0, 10)).length;
-        const r = routeModel({ registry: routing.registry, lane: routing.laneOf ? routing.laneOf(workerKey) : null, district: readDistrict(issue), spent: monthSpend(receipts, now), subscriptionUsedToday: usedToday });
+        const spec = readSpec(issue);
+        const r = routeModel({ registry: routing.registry, lane: routing.laneOf ? routing.laneOf(workerKey) : null, district: spec.district || 'command', weight: spec.weight, private: spec.private === true, keys: routing.keys, spent: monthSpend(receipts, now), subscriptionUsedToday: usedToday });
         if (!r.ok && /monthly budget/.test(r.reason)) {
           await client.patchIssue(taskId, { status: 'blocked', comment: r.reason + '. No work started.' }, runId);
           store.putCheckpoint(taskId, { phase: 'blocked', reason: 'monthly_budget', runId, agentId, workerKey, mission, retry });

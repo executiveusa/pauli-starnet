@@ -22,8 +22,9 @@ with swap nearly full; .212 is legacy. Decide placement by measured free memory,
    name printed by `node scripts/one-system/roles-template.mjs`, each with its own API key.
 4. **Roles file.** Save the filled template as `/etc/starnet/factory-roles.json` (root-owned, 0600). It must pass
    `node scripts/one-system/roles-template.mjs --check /etc/starnet/factory-roles.json`.
-5. **Model id.** Find the exact OpenRouter id of the owner's DeepSeek model in the live catalog; write it into
-   `registry/models.json` (`lanes.deepseek-default.model`) in a small PR. Until then runs use each executor's model.
+5. **Models.** The default id is set (`deepseek/deepseek-v4.1-flash-1017`). Add at least one free key (Groq, Gemini or
+   Mistral) to turn on free models for tests and light work, then run `node scripts/models/free-pool.js`
+   (program/one-system/05_models/CONTEXT.md). The uncensored lane waits on Venice or Hermes.
 6. **Workforce gateway.** `/etc/starnet/workforce.env` from `deploy/one-system/env.example`; install
    `deploy/one-system/starnet-workforce.service`; start it. Do not enable `deploy/systemd/starnet-foreman.timer`
    (the GitHub-label queue is superseded).

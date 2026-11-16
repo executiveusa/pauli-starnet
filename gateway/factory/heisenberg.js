@@ -100,7 +100,9 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
       v: 1, mission_id: mid, owner: env.owner || 'owner', project_id: env.project_id || null, repositories: env.repositories || [],
       acceptance_criteria: env.acceptance_criteria || [], budget_usd: Number(env.budget_usd) || 0, priority: env.priority || 'medium',
       permissions: Array.isArray(env.permissions) ? env.permissions : null, restricted: restricted === null ? ['undeclared'] : restricted,
-      max_repairs: maxRepairs, district, builder, judge, standing: env.standing || null, pipeline: env.pipeline || null, pipeline_run: env.pipeline_run || null, stage_name: env.stage_name || null
+      max_repairs: maxRepairs, district, builder, judge, standing: env.standing || null, pipeline: env.pipeline || null, pipeline_run: env.pipeline_run || null, stage_name: env.stage_name || null,
+      // model routing (registry/models.json free_pool): light/test work may run on free models; private work never does.
+      weight: ['light', 'test'].includes(env.weight) ? env.weight : 'normal', private: env.private === true
     };
     const issue = await client.createIssue({
       title: missionTitle(mid, (needsApproval ? AUTH_TAG + ' ' : '') + env.user_intent),
