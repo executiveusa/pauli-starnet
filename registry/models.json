@@ -1,0 +1,27 @@
+{
+  "_contract": "program/one-system/CONTEXT.md D5 and D7. One home for model choices. A lane whose model is still VERIFY_* is refused, never guessed: whoever checks the live catalog writes the exact id here.",
+  "monthly_budget_usd": 100,
+  "warn_at": 0.8,
+  "revenue_districts": ["revenue"],
+  "lanes": {
+    "deepseek-default": {
+      "provider": "openrouter",
+      "model": "VERIFY_IN_OPENROUTER_CATALOG",
+      "owner_name": "DeepSeek 1017 uncensored",
+      "reasoning": "high",
+      "use_for": "most work: research, drafts, code, triage, standing jobs"
+    },
+    "subscription-review": {
+      "provider": "claude-code-cli",
+      "model": "claude-opus-5-5",
+      "plan": "owner's $20 Claude plan, signed in through the official CLI; Codex on the $20 ChatGPT plan is the alternate",
+      "daily_cap": 6,
+      "fallback_lane": "deepseek-default",
+      "use_for": "big reviews and big design documents only"
+    },
+    "instinct-own": {
+      "provider": "external",
+      "use_for": "Instinct runs on its own platform; StarNet never calls a model for it"
+    }
+  }
+}

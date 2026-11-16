@@ -52,7 +52,12 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   });
   const executors = overrides.executors || {};
   if (!overrides.executors) for (const [k, r] of Object.entries(roles)) { const e = makeExecutor(r.executor); if (e) executors[k] = e; }
-  const bridge = makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, log });
+  const lanes = new Map();
+  try { for (const d of (overrides.city || loadCity())) for (const c of d.citizens) if (c.model_lane) lanes.set(c.id, c.model_lane); } catch { /* no city */ }
+  // Role keys pi/qa map to their roster names (pi-foundry, qa-judge) for lane lookup.
+  const laneOf = (k) => lanes.get(k) || lanes.get({ pi: 'pi-foundry', qa: 'qa-judge' }[k]) || null;
+  const modelRegistry = overrides.modelRegistry || (() => { try { return require('../../registry/models.json'); } catch { return null; } })();
+  const bridge = makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, log, routing: modelRegistry ? { registry: modelRegistry, laneOf } : null });
   projection = makeProjection({ client, roles, store });
   const workerToken = env.FACTORY_WORKER_TOKEN || '';
   let timers = [];

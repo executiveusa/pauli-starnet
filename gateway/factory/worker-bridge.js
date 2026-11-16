@@ -15,7 +15,9 @@ const { COMMENT_PREFIX } = require('./heisenberg.js');
 
 const SAFE_ID = /^[A-Za-z0-9_.:-]{1,160}$/;
 
-function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxRetries = 2, log = () => {} }) {
+const { route: routeModel, monthSpend } = require('./model-routing.js');
+
+function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxRetries = 2, log = () => {}, routing = null }) {
   const inflight = new Set();
   const byAgent = new Map(Object.entries(roles).filter(([, r]) => r && r.agentId).map(([k, r]) => [r.agentId, k]));
 
@@ -25,6 +27,13 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
       if (m) { try { return Number(JSON.parse(m[1]).budget_usd) || 0; } catch { /* no cap */ } }
     }
     return 0;
+  }
+  function readDistrict(issue) {
+    for (const a of (issue.ancestors || [])) {
+      const m = /```starfactory-spec\n([\s\S]*?)\n```/.exec(String(a.description || ''));
+      if (m) { try { return JSON.parse(m[1]).district || 'command'; } catch { /* none */ } }
+    }
+    return 'command';
   }
   function missionSpend(mid) {
     return store.allReceipts().filter(r => r.mission === mid).reduce((s, r) => s + (Number(r.usd) || 0), 0);
@@ -92,16 +101,33 @@ function makeWorkerBridge({ roles, clientFor, executors, store, heisenberg, maxR
         return { blocked: 'budget' };
       }
 
+      // 3b) one-system: model lane and the monthly budget. Over the cap only revenue work continues. An unverified
+      // lane falls back to the executor's own configured model, and says so on the receipt.
+      let modelRoute = null;
+      if (routing && routing.registry) {
+        const now = new Date().toISOString();
+        const receipts = store.allReceipts();
+        const usedToday = receipts.filter(r => r.lane === 'subscription-review' && String(r.at || '').slice(0, 10) === now.slice(0, 10)).length;
+        const r = routeModel({ registry: routing.registry, lane: routing.laneOf ? routing.laneOf(workerKey) : null, district: readDistrict(issue), spent: monthSpend(receipts, now), subscriptionUsedToday: usedToday });
+        if (!r.ok && /monthly budget/.test(r.reason)) {
+          await client.patchIssue(taskId, { status: 'blocked', comment: r.reason + '. No work started.' }, runId);
+          store.putCheckpoint(taskId, { phase: 'blocked', reason: 'monthly_budget', runId, agentId, workerKey, mission, retry });
+          store.putReceipt(runId, { phase: 'reported', status: 'blocked_monthly_budget', taskId, workerKey, mission, usd: 0 });
+          return { blocked: 'monthly_budget' };
+        }
+        modelRoute = r.ok ? r : { ok: true, lane: 'executor-configured', provider: null, model: null, note: r.reason };
+      }
+
       // 4) execute
       const executor = executors[workerKey];
       if (!executor) return fail(client, runId, taskId, workerKey, mission, 'no executor configured for ' + workerKey, payload, retry);
       let result;
-      try { result = await executor.run({ issue, role, mission, runId, checkpoint: prev || null }); }
+      try { result = await executor.run({ issue, role, mission, runId, checkpoint: prev || null, route: modelRoute }); }
       catch (e) { result = { ok: false, summary: 'executor error: ' + (e && e.message), artifacts: [], usd: 0 }; }
       if (!result || !result.ok) return fail(client, runId, taskId, workerKey, mission, (result && result.summary) || 'executor failed', payload, retry, result);
 
       // 5) persist BEFORE reporting
-      const rec = store.putReceipt(runId, { phase: 'executed', status: 'completed', taskId, workerKey, mission, role, summary: result.summary, artifacts: result.artifacts || [], usd: Number(result.usd) || 0, verdict: result.verdict || null, findings: result.findings || [] });
+      const rec = store.putReceipt(runId, { phase: 'executed', status: 'completed', taskId, workerKey, mission, role, lane: modelRoute && modelRoute.lane || null, route_note: modelRoute && modelRoute.note || null, summary: result.summary, artifacts: result.artifacts || [], usd: Number(result.usd) || 0, verdict: result.verdict || null, findings: result.findings || [] });
       return await report(workerKey, client, runId, taskId, rec, payload);
     } finally { inflight.delete(runId); }
   }
