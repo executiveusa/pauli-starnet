@@ -14,8 +14,11 @@ const unverified = JSON.parse(JSON.stringify(shipped)); unverified.lanes['deepse
 eq(route({ registry: unverified, lane: 'deepseek-default', district: 'revenue' }).ok, false, 'an unverified model id is refused instead of guessed');
 eq(route({ registry: reg, lane: 'deepseek-default', district: 'revenue' }).model, 'deepseek/verified-id', 'default lane once verified');
 eq(route({ registry: reg, lane: null, district: 'revenue' }).lane, 'deepseek-default', 'no lane means the default lane');
-eq(route({ registry: reg, lane: 'subscription-review', district: 'production', subscriptionUsedToday: 2 }).lane, 'subscription-review', 'reviews use the subscription lane under its cap');
-const capped = route({ registry: reg, lane: 'subscription-review', district: 'production', subscriptionUsedToday: 6 });
+const unwired = route({ registry: reg, lane: 'subscription-review', district: 'production' });
+eq([unwired.lane, unwired.model, /not wired/.test(unwired.note)], ['deepseek-default', 'deepseek/verified-id', true], 'the unwired subscription lane uses the default and says why; its model id never reaches OpenRouter');
+const wired = JSON.parse(JSON.stringify(reg)); wired.lanes['subscription-review'].wired = true;
+eq(route({ registry: wired, lane: 'subscription-review', district: 'production', subscriptionUsedToday: 2 }).lane, 'subscription-review', 'once wired, reviews use the subscription lane under its cap');
+const capped = route({ registry: wired, lane: 'subscription-review', district: 'production', subscriptionUsedToday: 6 });
 eq([capped.lane, /cap 6/.test(capped.note)], ['deepseek-default', true], 'over the daily cap it falls back, and says so');
 eq(route({ registry: reg, lane: 'instinct-own', district: 'command' }).ok, false, 'Instinct runs outside StarNet');
 eq(budgetState(reg, 79).state, 'OK', 'under 80%');
@@ -61,7 +64,9 @@ eq([c.rows[0].ok, c.rows[1].ok, c.rows[3].ok, c.ok], [false, true, false, false]
   const issue = { id: 'i1', title: 't' };
   await ex.run({ issue, role: 'pi', mission: 'm', runId: 'r1', route: route({ registry: shipped, lane: null, district: 'revenue' }) });
   await ex.run({ issue, role: 'pi', mission: 'm', runId: 'r2', route: fr });
+  const cli = await ex.run({ issue, role: 'qa', mission: 'm', runId: 'r3', route: route({ registry: wired, lane: 'subscription-review', district: 'production' }) });
   srv.close();
+  eq([cli.ok, bodies.length], [false, 2], 'a CLI-only lane is refused by the sidecar executor; nothing is sent');
   eq([bodies[0].model, bodies[0].routerModels, bodies[0].fallbackProviders], ['deepseek/deepseek-v4.1-flash-1017', ['deepseek/deepseek-v4.1-flash', 'deepseek/deepseek-v4-flash'], undefined], 'paid run: OpenRouter fallbacks only, never another provider');
   eq([bodies[1].routerModels.length, bodies[1].fallbackProviders.length], [2, 3], 'free run: free OpenRouter fallbacks, then the other free providers');
   console.log('model-routing.test.js: ' + n + ' assertions passed');

@@ -14,7 +14,7 @@ and the $100 monthly budget holds.
    |---|---|---|
    | `deepseek-default` | `deepseek/deepseek-v4.1-flash-1017` on OpenRouter ($0.15 in / $0.60 out per million tokens) | most work |
    | `uncensored` | DeepSeek 1017 uncensored on Venice or through Hermes; not wired yet, so it falls back to the default | work the standard model refuses |
-   | `subscription-review` | Claude on the owner's $20 plan, 6 runs a day, then the default | big reviews and design documents |
+   | `subscription-review` | **Not wired yet** (`wired: false`): there is no Claude Code CLI executor, so these runs use `deepseek-default` (metered) and the receipt says why. Once a CLI executor exists: Claude on the owner's $20 plan, 6 runs a day, then the default | big reviews and design documents |
    | `free-pool` | the first free model whose provider has a key (list in `free_pool`) | tests and light jobs |
    | `instinct-own` | Instinct's own platform | Instinct only |
 2. A mission picks free models by saying how heavy it is: `"weight": "light"` or `"weight": "test"` when it is

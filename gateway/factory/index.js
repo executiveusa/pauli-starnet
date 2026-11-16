@@ -170,8 +170,18 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
 
   // Standing jobs from each district's contract: one mission per period for the named agent, judged by its roster
   // judge. Recorded once per period, so a restart never repeats one. Unready or unregistered agents are reported.
+  // Off by default (owner decision pending). STANDING_AUTOMATION names the districts whose standing jobs may run:
+  // "off" (default), a list such as "revenue", or "all" for every active district. District registries, explicit
+  // missions and pipelines are unaffected either way.
+  function standingScope() {
+    const v = String(env.STANDING_AUTOMATION || 'off').trim().toLowerCase();
+    if (!v || v === 'off') return null;
+    return v === 'all' ? 'all' : new Set(v.split(',').map(s => s.trim()).filter(Boolean));
+  }
   async function runStanding(now = new Date().toISOString()) {
-    const city = overrides.city || loadCity();
+    const scope = standingScope();
+    if (!scope) return [];
+    const city = (overrides.city || loadCity()).filter(d => scope === 'all' || scope.has(d.id));
     const ran = new Set();
     const due = dueStanding(city, now, { has: (k) => ran.has(k) || !!store.getControl(standingKey(k)) });
     const out = [];

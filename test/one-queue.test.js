@@ -49,7 +49,12 @@ async function main() {
     { id: 'command', active: true, citizens: [], standing: [] }
   ];
   const store = makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-')));
-  const f = makeFactory({ env: {}, overrides: { client, roles, store, executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  const off = makeFactory({ env: {}, overrides: { client: memoryPaperclip(), roles, store: makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-off-'))), executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  eq(await off.runStanding('2026-11-16T10:00:00Z'), [], 'standing automation is off by default: nothing is scheduled');
+  const scoped = makeFactory({ env: { STANDING_AUTOMATION: 'command' }, overrides: { client: memoryPaperclip(), roles, store: makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-sc-'))), executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  eq(await scoped.runStanding('2026-11-16T10:00:00Z'), [], 'standing automation runs only the districts it names');
+
+  const f = makeFactory({ env: { STANDING_AUTOMATION: 'revenue' }, overrides: { client, roles, store, executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
 
   const t = '2026-11-16T10:00:00Z';
   const first = await f.runStanding(t);

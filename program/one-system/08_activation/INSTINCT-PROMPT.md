@@ -1,5 +1,8 @@
 # Prompt for Instinct: take the one system live and bring back the proof
 
+> Corrected 2026-11-16 after Instinct's activation review. Where this file and `HANDOFF.md` differ, `HANDOFF.md` wins.
+> Standing automation stays off; merges wait for one approval request after the gates in HANDOFF "Before anything".
+
 Paste everything below the line to Instinct.
 
 ---

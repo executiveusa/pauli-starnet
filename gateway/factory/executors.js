@@ -42,6 +42,9 @@ function makeSidecarExecutor({ port = 8787, host = '127.0.0.1', token = '', agen
     idempotent,
     async run({ issue, role, mission, runId, route }) {
       // one-system 05: the routed lane's model wins over the configured one; an unverified lane keeps the configured model.
+      // A CLI-only lane (claude-code-cli) can't run through the sidecar: refuse rather than send its model id to
+      // another provider.
+      if (route && route.provider === 'claude-code-cli') return { ok: false, summary: 'lane ' + route.lane + ' needs a CLI executor, which does not exist yet', artifacts: [], usd: 0 };
       const useModel = (route && route.model) || model;
       const useProvider = (route && route.provider && route.provider !== 'claude-code-cli') ? route.provider : provider;
       if (!useModel) return { ok: false, summary: 'sidecar executor misconfigured: FACTORY_ROLES[*].executor.model is required by /api/run', artifacts: [], usd: 0 };

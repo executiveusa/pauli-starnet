@@ -34,3 +34,10 @@ built_by: Claude (build session, 2026-11-16) · verified_by: (pending an indepen
   the executor hand-off over HTTP). Factory integration 66, one-queue 34, orchestration 257, e2e.run 49 pass.
 - `node scripts/models/free-pool.js` run live: all 9 rows OK (every OpenRouter id and fallback listed; free fallbacks
   still free).
+
+## 2026-11-16 correction after Instinct's activation review
+- Finding confirmed: `subscription-review` named provider `claude-code-cli`, which has no executor; the sidecar executor
+  sent its model id to the configured provider. Now the lane is `wired: false` and routes to `deepseek-default` with
+  the reason on the receipt, and the executor refuses any `claude-code-cli` route without sending anything.
+- `node test/model-routing.test.js` → 29 passed (adds: unwired lane falls back and says why; a wired copy keeps the
+  daily cap; the executor refuses a CLI-only lane and sends nothing).

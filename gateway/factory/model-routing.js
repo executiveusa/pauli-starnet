@@ -76,9 +76,10 @@ function route({ registry, lane, district, weight = 'normal', private: priv = fa
     note = 'subscription lane used ' + subscriptionUsedToday + ' times today (cap ' + l.daily_cap + '); using ' + l.fallback_lane;
     name = l.fallback_lane; l = registry.lanes[name];
   }
-  // A lane not wired yet (for example the uncensored lane before Venice or Hermes is connected) uses its fallback.
-  if ((!l.model || VERIFY.test(l.model)) && l.fallback_lane && registry.lanes[l.fallback_lane]) {
-    note = 'lane ' + name + ' has no verified model yet; using ' + l.fallback_lane;
+  // A lane not wired yet uses its fallback and says why: the uncensored lane before Venice or Hermes is connected, and
+  // the subscription lane until a CLI executor exists (its model id would otherwise reach OpenRouter as a bare id).
+  if ((l.wired === false || !l.model || VERIFY.test(l.model)) && l.fallback_lane && registry.lanes[l.fallback_lane]) {
+    note = 'lane ' + name + (l.wired === false ? ' is not wired (' + (l.unwired_reason || 'no executor') + ')' : ' has no verified model yet') + '; using ' + l.fallback_lane;
     name = l.fallback_lane; l = registry.lanes[name];
   }
   if (l.provider === 'external') return { ok: false, reason: 'this agent runs outside StarNet (' + name + ')', budget };
