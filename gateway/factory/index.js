@@ -115,6 +115,12 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
         if (req.method === 'POST' && pa[3] === 'advance') { const r = await advancePipeline(pa[1], pa[2], { owner: true }); send(r.code, r.body); return true; }
         if (req.method === 'GET' && pa[3] === 'status') { const r = await advancePipeline(pa[1], pa[2], { dryRun: true }); send(r.code, r.body); return true; }
       }
+      if (req.method === 'GET' && urlPath === '/v1/factory/agents') { send(200, { agents: agentsNow() }); return true; }
+      const at = /^\/v1\/factory\/agents\/([a-z0-9_-]{1,40})\/task$/.exec(urlPath);
+      if (req.method === 'POST' && at) {
+        const body = await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) })); if (body === undefined) return true;
+        const r = await directTask(at[1], body); send(r.code, r.body); return true;
+      }
       if (req.method === 'GET' && urlPath === '/v1/factory/districts') { send(200, { districts: await boardNow(), chief: chiefNow() }); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/chief/heartbeat') {
         const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
@@ -183,6 +189,30 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     return out;
   }
   function standingKey(k) { return 'standing-' + require('crypto').createHash('sha256').update(k).digest('hex').slice(0, 32); }
+
+  // The roster as the owner sees it: every agent, its district, status, judge and lane, and whether Paperclip knows it.
+  function agentsNow() {
+    const city = overrides.city || loadCity();
+    const out = [];
+    for (const d of city) for (const c of d.citizens) {
+      const key = roles[c.id] ? c.id : ({ 'pi-foundry': 'pi', 'qa-judge': 'qa' }[c.id] || c.id);
+      out.push({ id: c.id, district: d.id, role: c.role || null, status: c.status || null, judged_by: c.judged_by || null,
+        model_lane: c.model_lane || null, registered: !!(roles[key] && roles[key].agentId), control_key: roles[key] ? key : null });
+    }
+    return out;
+  }
+  // Owner talks to one agent directly: one mission in the agent's district, judged by its roster judge.
+  async function directTask(agentId, body) {
+    const a = agentsNow().find(x => x.id === agentId || x.control_key === agentId);
+    if (!a) return { code: 404, body: { error: 'UNKNOWN_AGENT' } };
+    if (!a.registered) return { code: 409, body: { error: 'AGENT_NOT_REGISTERED', agent: a.id } };
+    if (!body || typeof body.intent !== 'string' || !body.intent.trim()) return { code: 400, body: { error: 'intent is required' } };
+    const judgeKey = roles[a.judged_by] ? a.judged_by : ({ 'qa-judge': 'qa' }[a.judged_by] || 'qa');
+    const mid = (a.district + '.direct.' + a.control_key + '.' + Date.now().toString(36)).slice(0, 100);
+    return heisenberg.submitMission({ mission_id: mid, user_intent: body.intent.slice(0, 8000), district: a.district, builder: a.control_key,
+      judge: judgeKey === a.control_key ? 'qa' : judgeKey, permissions: Array.isArray(body.permissions) ? body.permissions : ['research'],
+      budget_usd: Number(body.budget_usd) || 0.5, acceptance_criteria: body.done_means ? [String(body.done_means).slice(0, 500)] : [] });
+  }
 
   // Pipelines (registry/pipelines.json): start a run, and advance it when a stage is done. Owner gates wait for
   // POST .../advance; the owner's release is recorded so a restart never forgets it.
@@ -253,7 +283,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   }
   function stop() { timers.forEach(clearInterval); timers = []; }
 
-  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow, startPipeline, advancePipeline, advanceAllPipelines };
+  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow, startPipeline, advancePipeline, advanceAllPipelines, agentsNow, directTask };
 }
 
 module.exports = { makeFactory, tokenOk };

@@ -758,3 +758,4 @@ test/one-queue.test.js
 test/model-routing.test.js
 test/pipelines.test.js
 test/tools-policy.test.js
+test/control-routes.test.js
