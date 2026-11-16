@@ -216,8 +216,12 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
     const children = await childrenOf(m);
     const verdicts = await verdictsFor(children);
     const plan = planNext({ children, verdicts, qaAgentId: (await crewOf(m)).judgeId, maxRepairs });
+    const full = client.getIssue ? await client.getIssue(m.id).catch(() => null) : null;
+    const spec = readSpec(full) || {};
     return {
       mission_id: mid, issueId: m.id, status: m.status, next: plan,
+      intent: full ? missionSpec(full).intent : null, district: spec.district || 'command', builder: spec.builder || 'pi', judge: spec.judge || 'qa',
+      needs_authorization: m.status === 'blocked' && Array.isArray(spec.restricted) ? spec.restricted : [],
       tasks: children.map(c => Object.assign({ id: c.id, status: c.status, assigneeAgentId: c.assigneeAgentId || null }, parseStageTitle(c.title))),
       verdicts
     };
