@@ -55,3 +55,10 @@ unset `STARNET_FACTORY_URL` on the Command Center (the control page shows "Not c
 
 ## Report back
 Box chosen and memory before/after, each step's result, L1 to L10 with evidence, and anything that needs Bambú.
+
+## Repository gate at hand-off (build session, 2026-11-16)
+`test/fast.list`, all 758 tests run one by one: **754 pass.** The 4 that fail also fail on the untouched base commit
+`eb1f24c` in the same environment, so they are not caused by this program: `crt-context-loss.e2e.test.mjs` (browser),
+`website-app-sync.test.js`, `qa-product-perfect-claims.test.js` (needs full git history; the build clone is shallow)
+and `lsp-live-installed.test.js` (needs installed language servers). Re-run `npm run test:fast` on the server's full
+checkout and record the result before merging.
