@@ -25,7 +25,14 @@ and the $100 monthly budget holds.
    - budget at 100% (STOP): non-revenue work runs only on the free pool; if no free key, it stops
    - otherwise the agent's lane (subscription over its cap and unwired lanes use their fallback)
    Revenue work, private missions and the `financial` and `pauli` districts never run on free models.
-4. Every receipt records the lane and why (`route_note`), so the board shows which model did what.
+4. Fallbacks, so a run doesn't die when a model is down, rate-limited or refuses:
+   - OpenRouter lanes send OpenRouter's own `models` list (openrouter.ai/docs/guides/routing/model-fallbacks):
+     OpenRouter tries each model in order within one request and bills the one that answered. The default lane falls
+     back from DeepSeek 1017 to `deepseek/deepseek-v4.1-flash`, then `deepseek/deepseek-v4-flash`.
+   - Free work falls back to other free OpenRouter models, then to the other free providers (any without a key is
+     skipped). Paid work never falls back to a free model, and free work never falls back to a paid one.
+   - Edit the lists in `registry/models.json` (`fallback_models`). `node scripts/models/free-pool.js` checks every id.
+5. Every receipt records the lane and why (`route_note`), so the board shows which model did what.
 
 ## Turning the free pool on
 1. Get a free key from one or more providers (no card needed): Groq (console.groq.com/keys), Google AI Studio

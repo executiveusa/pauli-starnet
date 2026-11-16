@@ -29,6 +29,19 @@ async function collect(provider, req) { const out = []; for await (const e of pr
     A.eq(evs.find(e => e.type === 'done').finishReason, 'stop', 'finishReason normalized');
   }
 
+  // A2. model fallbacks: with a fallback list the request carries OpenRouter's `models` array, primary first, at
+  //     most 3 alternates, never the primary twice; without one, no `models` field is sent.
+  {
+    const sse = [line({ choices: [{ finish_reason: 'stop', delta: { content: 'ok' } }] }), 'data: [DONE]', ''].join('\n');
+    const sent = [];
+    const capture = async (url, init) => { sent.push(JSON.parse(init.body)); return new Response(sse, { status: 200, headers: { 'Content-Type': 'text/event-stream' } }); };
+    await collect(makeOpenRouterProvider({ fetch: capture, key: 'k', models: ['a', 'm', 'b', 'c', 'd'] }), { model: 'm', messages: [] });
+    await collect(makeOpenRouterProvider({ fetch: capture, key: 'k' }), { model: 'm', messages: [] });
+    A.eq(JSON.stringify(sent[0].models), JSON.stringify(['m', 'a', 'b', 'c']), 'fallback list sent as models, primary first, 3 alternates max');
+    A.eq(sent[0].model, 'm', 'model stays the primary');
+    A.ok(!('models' in sent[1]), 'no fallback list, no models field');
+  }
+
   // B. tool call: id+name on first fragment, args split across chunks, concatenated to valid JSON
   {
     const sse = [

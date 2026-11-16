@@ -23,3 +23,14 @@ built_by: Claude (build session, 2026-11-16) · verified_by: (pending an indepen
 - `node test/model-routing.test.js` → 23 passed (adds: light/test work to free, no free key keeps default, private
   and protected districts never free, WARN and STOP move non-revenue work to free, revenue stays paid, key names only,
   the checker flags a removed id and a degraded provider). Factory integration 66, one-queue 34 still pass.
+
+## 2026-11-16 update: OpenRouter model fallbacks
+- Source: openrouter.ai/docs/guides/routing/model-fallbacks (a `models` array in priority order; OpenRouter tries the
+  next model on any error, including rate limits and moderation refusals).
+- Sidecar OpenRouter provider sends `models` = primary plus up to 3 alternates when `/api/run` carries `routerModels`;
+  without it, the request is unchanged. The factory executor passes each route's `fallback_models` as `routerModels`,
+  and the free route's other providers as `fallbackProviders` (the sidecar's existing cross-provider fallback).
+- Tests: `provider.openrouter` 59 (adds the `models` body), `model-routing` 27 (lane fallbacks, free-only fallbacks,
+  the executor hand-off over HTTP). Factory integration 66, one-queue 34, orchestration 257, e2e.run 49 pass.
+- `node scripts/models/free-pool.js` run live: all 9 rows OK (every OpenRouter id and fallback listed; free fallbacks
+  still free).

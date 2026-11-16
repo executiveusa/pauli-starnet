@@ -170,6 +170,10 @@
     const baseUrl = opts.baseUrl || BASE;
     const referer = opts.referer || 'http://127.0.0.1';
     const reasoningEffort = normalizeReasoningEffort(opts.reasoningEffort || 'medium');
+    // OpenRouter model fallbacks (openrouter.ai/docs/guides/routing/model-fallbacks): with `models`, OpenRouter
+    // itself tries the next model when one is down, rate-limited or refuses, in one request. Billing follows the
+    // model that answered (usage.cost). Capped at 3 alternates.
+    const routerModels = (Array.isArray(opts.models) ? opts.models : []).map(m => String(m || '').trim()).filter(Boolean);
     const clock = (opts.clock && typeof opts.clock.now === 'function') ? opts.clock : null;   // injected wall clock (re-warm throttle); absent -> per-instance kick
     let rewarmKicked = false;   // fallback throttle when no clock: kick at most once per instance (= once per run)
 
@@ -200,6 +204,8 @@
       const effort = clampReasoningEffortForModel(req.model, req.reasoningEffort || reasoningEffort, meta);
       const body = { model: req.model, messages: applyCacheControl(req.messages, req.model), stream: true, usage: { include: true } };
       if (effort !== 'none' || allowed.length > 1) body.reasoning = { effort };
+      const alternates = routerModels.filter(m => m !== req.model).slice(0, 3);
+      if (alternates.length) body.models = [req.model].concat(alternates);
       if (req.tools && req.tools.length) {
         body.tools = req.tools;
         body.tool_choice = 'auto';

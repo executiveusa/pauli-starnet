@@ -27,6 +27,18 @@ function check(registry, status, openrouter) {
     if (c.provider === 'openrouter' && openrouter) model = orFree.has(c.model) ? 'free on OpenRouter' : 'NOT FOUND as a free OpenRouter model';
     rows.push({ provider: c.provider, model: c.model, health, model_check: model, ok: health === 'Operational' && !/NOT FOUND/.test(model) });
   }
+  // OpenRouter fallback lists (openrouter.ai/docs/guides/routing/model-fallbacks): every id must still exist, and free
+  // candidates' fallbacks must still be free.
+  if (openrouter) {
+    const all = new Set(((openrouter && openrouter.data) || []).map(m => m.id));
+    const lists = [];
+    for (const [name, l] of Object.entries(registry.lanes || {})) if (l.provider === 'openrouter') lists.push([name, [l.model].concat(l.fallback_models || []), all]);
+    for (const c of (registry.free_pool && registry.free_pool.candidates) || []) if (c.provider === 'openrouter') lists.push(['free ' + c.model, c.fallback_models || [], orFree]);
+    for (const [name, ids, set] of lists) for (const id of ids) {
+      const ok = set.has(id);
+      rows.push({ provider: 'openrouter', model: id, health: name, model_check: ok ? 'listed' : 'NOT FOUND' + (set === orFree ? ' as free' : ''), ok });
+    }
+  }
   const suggestions = [...orFree].filter(id => /:free$/.test(id)).sort().slice(0, 15);
   return { rows, ok: rows.every(r => r.ok), openrouter_free_count: orFree.size, openrouter_free_sample: suggestions };
 }

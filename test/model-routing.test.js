@@ -39,9 +39,30 @@ eq(route({ registry: reg, lane: null, district: 'revenue', spent: 85, keys }).la
 eq(route({ registry: reg, lane: null, district: 'creative', spent: 100, keys }).lane, 'free-pool', 'at STOP, non-revenue work continues on free models instead of stopping');
 eq(freeKeys(reg, { GROQ_API_KEY: 'x', FREE_POOL_PROVIDERS: 'mistral' }).sort(), ['groq', 'mistral'], 'free providers come from key names or FREE_POOL_PROVIDERS, never key values');
 
+// Fallbacks: the default lane carries OpenRouter's fallback list; free work falls back only to other free models.
+eq(route({ registry: shipped, lane: null, district: 'revenue' }).fallback_models, ['deepseek/deepseek-v4.1-flash', 'deepseek/deepseek-v4-flash'], 'the default lane names its OpenRouter fallbacks');
+const fr = route({ registry: reg, lane: null, district: 'creative', weight: 'test', keys: ['openrouter'] });
+eq([fr.fallback_models.every(m => /:free$/.test(m)), fr.fallback_providers.map(x => x.provider)], [true, ['groq', 'gemini', 'mistral']], 'free work falls back to free models, then the rest of the free pool');
+
 // The checker reads today's sources and flags a missing OpenRouter id.
 const { check } = require('../scripts/models/free-pool.js');
 const status = { providers: [{ provider: 'OpenRouter', status: 'Operational' }, { provider: 'Groq', status: 'Operational' }, { provider: 'Google Gemini', status: 'Operational' }, { provider: 'Mistral AI', status: 'Degraded' }] };
 const c = check(shipped, status, { data: [{ id: 'other/model:free', pricing: { prompt: '0', completion: '0' } }] });
 eq([c.rows[0].ok, c.rows[1].ok, c.rows[3].ok, c.ok], [false, true, false, false], 'the checker flags a gone OpenRouter id and a degraded provider');
-console.log('model-routing.test.js: ' + n + ' assertions passed');
+// The executor hands the route's fallbacks to the sidecar: OpenRouter's list as routerModels, other providers as
+// fallbackProviders.
+(async () => {
+  const http = require('http');
+  const { makeSidecarExecutor } = require('../gateway/factory/executors.js');
+  const bodies = [];
+  const srv = http.createServer((req, res) => { let b = ''; req.on('data', c => b += c); req.on('end', () => { bodies.push(JSON.parse(b)); res.end(JSON.stringify({ name: 'agent.token', payload: { delta: 'done' } }) + '\n' + JSON.stringify({ name: 'agent.run.end', payload: { usd: 0 } }) + '\n'); }); });
+  await new Promise(r => srv.listen(0, '127.0.0.1', r));
+  const ex = makeSidecarExecutor({ port: srv.address().port, model: 'configured' });
+  const issue = { id: 'i1', title: 't' };
+  await ex.run({ issue, role: 'pi', mission: 'm', runId: 'r1', route: route({ registry: shipped, lane: null, district: 'revenue' }) });
+  await ex.run({ issue, role: 'pi', mission: 'm', runId: 'r2', route: fr });
+  srv.close();
+  eq([bodies[0].model, bodies[0].routerModels, bodies[0].fallbackProviders], ['deepseek/deepseek-v4.1-flash-1017', ['deepseek/deepseek-v4.1-flash', 'deepseek/deepseek-v4-flash'], undefined], 'paid run: OpenRouter fallbacks only, never another provider');
+  eq([bodies[1].routerModels.length, bodies[1].fallbackProviders.length], [2, 3], 'free run: free OpenRouter fallbacks, then the other free providers');
+  console.log('model-routing.test.js: ' + n + ' assertions passed');
+})().catch(e => { console.error(e); process.exit(1); });

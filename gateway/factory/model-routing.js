@@ -39,8 +39,12 @@ function freePick(registry, { district, private: priv, keys }) {
   return (pool.candidates || []).find(c => have.has(c.provider) && c.model && !VERIFY.test(c.model)) || null;
 }
 
-function freeRoute(c, why, budget) {
-  return { ok: true, lane: 'free-pool', provider: c.provider, model: c.model, reasoning: null, free: true, note: why + ': ' + c.provider + ' ' + c.model, budget };
+// Free route: OpenRouter's own fallback list for the first model, then the rest of the pool (other providers) for the
+// sidecar to try in order. Free work only ever falls back to other free models.
+function freeRoute(registry, c, why, budget) {
+  const rest = (registry.free_pool.candidates || []).filter(x => x !== c && x.model && !VERIFY.test(x.model)).map(x => ({ provider: x.provider, model: x.model }));
+  return { ok: true, lane: 'free-pool', provider: c.provider, model: c.model, reasoning: null, free: true,
+    fallback_models: c.fallback_models || [], fallback_providers: rest, note: why + ': ' + c.provider + ' ' + c.model, budget };
 }
 
 // The route for one run. `lane` comes from the agent's roster entry (model_lane); `weight` from the mission spec
@@ -55,14 +59,14 @@ function route({ registry, lane, district, weight = 'normal', private: priv = fa
   const free = freePick(registry, { district, private: priv, keys });
 
   if (lane === 'free-pool' || weight === 'light' || weight === 'test') {
-    if (free) return freeRoute(free, lane === 'free-pool' ? 'free-pool agent' : weight + ' work', budget);
+    if (free) return freeRoute(registry, free, lane === 'free-pool' ? 'free-pool agent' : weight + ' work', budget);
   }
   if (budget.state === 'STOP' && !revenue) {
-    if (free) return freeRoute(free, 'monthly budget of $' + budget.cap + ' reached, non-revenue work moved to free models', budget);
+    if (free) return freeRoute(registry, free, 'monthly budget of $' + budget.cap + ' reached, non-revenue work moved to free models', budget);
     return { ok: false, reason: 'monthly budget of $' + budget.cap + ' reached; only revenue work continues', budget };
   }
   if (budget.state === 'WARN' && !revenue && free) {
-    return freeRoute(free, 'budget at ' + Math.round(budget.spent / budget.cap * 100) + '%, non-revenue work moved to free models', budget);
+    return freeRoute(registry, free, 'budget at ' + Math.round(budget.spent / budget.cap * 100) + '%, non-revenue work moved to free models', budget);
   }
 
   let name = lane && registry.lanes[lane] ? lane : 'deepseek-default';
@@ -79,7 +83,7 @@ function route({ registry, lane, district, weight = 'normal', private: priv = fa
   }
   if (l.provider === 'external') return { ok: false, reason: 'this agent runs outside StarNet (' + name + ')', budget };
   if (!l.model || VERIFY.test(l.model)) return { ok: false, reason: 'lane ' + name + ' has no verified model id in registry/models.json', budget };
-  return { ok: true, lane: name, provider: l.provider, model: l.model, reasoning: l.reasoning || null, note, budget };
+  return { ok: true, lane: name, provider: l.provider, model: l.model, reasoning: l.reasoning || null, fallback_models: l.fallback_models || [], note, budget };
 }
 
 module.exports = { monthSpend, budgetState, freeKeys, route };

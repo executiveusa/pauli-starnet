@@ -55,6 +55,10 @@ function makeSidecarExecutor({ port = 8787, host = '127.0.0.1', token = '', agen
       if (route && route.reasoning) body.reasoning = { effort: route.reasoning };
       if (system) body.system = system;
       if (useProvider) body.provider = useProvider;
+      // Fallbacks from registry/models.json: OpenRouter tries its list itself in one request (routerModels); other
+      // providers are tried by the sidecar in order, and any without a key are skipped (fallbackProviders).
+      if (route && route.model && useProvider === 'openrouter' && Array.isArray(route.fallback_models) && route.fallback_models.length) body.routerModels = route.fallback_models;
+      if (route && route.model && Array.isArray(route.fallback_providers) && route.fallback_providers.length) body.fallbackProviders = route.fallback_providers;
       const r = await postJson({ host, port, path: '/api/run', headers, timeoutMs, body });
       if (r.status >= 400) return { ok: false, summary: 'sidecar returned ' + r.status + ': ' + String(r.text || '').slice(0, 200), artifacts: [], usd: 0 };
       let text = ''; let usd = 0; let error = null; let ended = false;
