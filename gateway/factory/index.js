@@ -18,6 +18,7 @@ const { makeHeisenberg } = require('./heisenberg.js');
 const { makeWorkerBridge } = require('./worker-bridge.js');
 const { makeProjection } = require('./projection.js');
 const { makeSidecarExecutor, makeHttpExecutor } = require('./executors.js');
+const { actingChief, findStalls, DEFAULT_STALE_MS } = require('./command-chain.js');
 
 function tokenOk(req, expected) {
   if (!expected) return false; // fail closed when unconfigured
@@ -97,6 +98,13 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       }
       if (req.method === 'POST' && urlPath === '/v1/factory/stop') { const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {}; send(200, await heisenberg.emergencyStop(body)); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/resume') { send(200, await heisenberg.resumeAll()); return true; }
+      if (req.method === 'GET' && urlPath === '/v1/factory/chief') { send(200, chiefNow()); return true; }
+      if (req.method === 'POST' && urlPath === '/v1/factory/chief/heartbeat') {
+        const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
+        if (body.by !== 'instinct') { send(400, { error: 'ONLY_INSTINCT_HEARTBEATS' }); return true; }
+        store.putControl('chief', { instinctLastSeen: new Date().toISOString(), note: typeof body.note === 'string' ? body.note.slice(0, 200) : null });
+        send(200, chiefNow()); return true;
+      }
       const ag = /^\/v1\/factory\/agents\/([a-z0-9_-]{1,32})\/(pause|resume)$/.exec(urlPath);
       if (req.method === 'POST' && ag) {
         const r = roles[ag[1]]; if (!r || !r.agentId) { send(404, { error: 'UNKNOWN_AGENT' }); return true; }
@@ -108,16 +116,43 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     }
   }
 
+  const staleAfterMs = Number(env.CHIEF_STALE_MS) || DEFAULT_STALE_MS;
+  function chiefNow() {
+    const rec = store.getControl ? store.getControl('chief') : null;
+    return actingChief({ now: new Date().toISOString(), instinctLastSeen: rec && rec.instinctLastSeen, staleAfterMs });
+  }
+
+  // Heisenberg's foreman sweep: assigned work that is not moving gets one nudge (re-wake), then an escalation to the
+  // acting chief. Each step is recorded once so a restart never repeats it.
+  async function foremanSweep() {
+    if (store.isStopped()) return { skipped: 'stopped' };
+    const open = await client.listIssues({ status: 'todo,in_progress' });
+    const rows = Array.isArray(open) ? open : (open && (open.issues || open.items)) || [];
+    const stalls = findStalls(rows, { now: new Date().toISOString(), ackMs: Number(env.STALL_ACK_MS) || undefined, escalateMs: Number(env.STALL_ESCALATE_MS) || undefined });
+    const chief = chiefNow();
+    const done = [];
+    for (const s of stalls) {
+      const key = 'stall-' + s.action + '-' + s.issueId;
+      if (store.getControl(key)) continue;
+      if (s.action === 'nudge') await client.invokeHeartbeat(s.agentId).catch(() => null);
+      await client.addComment(s.issueId, { body: 'heisenberg-' + s.action + ': no movement for ' + s.idleMin + ' min' + (s.action === 'escalate' ? '; escalated to ' + chief.acting : '; re-woke the assignee') }).catch(() => null);
+      store.putControl(key, { issueId: s.issueId, agentId: s.agentId });
+      log('foreman_' + s.action, s); done.push(s);
+    }
+    return { stalls: done, acting: chief.acting };
+  }
+
   async function start({ reconcileMs = Number(env.FACTORY_RECONCILE_MS) || 60000, pollMs = Number(env.FACTORY_POLL_MS) || 3000 } = {}) {
     const recovered = await bridge.recover().catch(e => { log('recover_failed', { error: e.message }); return []; });
     timers.push(setInterval(() => heisenberg.reconcileAll().catch(e => log('reconcile_failed', { error: e.message })), reconcileMs));
+    timers.push(setInterval(() => foremanSweep().catch(e => log('sweep_failed', { error: e.message })), Number(env.FOREMAN_SWEEP_MS) || 5 * 60 * 1000));
     timers.push(setInterval(() => projection.poll().catch(e => log('poll_failed', { error: e.message })), pollMs));
     timers.forEach(t => t.unref && t.unref());
     return { recovered };
   }
   function stop() { timers.forEach(clearInterval); timers = []; }
 
-  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles };
+  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep };
 }
 
 module.exports = { makeFactory, tokenOk };

@@ -3,7 +3,7 @@
 // It holds only what the bridge needs to be safe across restarts:
 //   receipts    - one per (runId): the executor result, so a duplicate wake or a replay never repeats a side effect
 //   checkpoints - one per (taskId): where a worker run was, so recovery resumes or fails visibly
-//   control     - the emergency-stop flag
+//   control     - the emergency-stop flag, Instinct's last heartbeat and stall notes
 // One JSON file per record, written atomically (tmp + rename), mode 0600.
 const fs = require('fs');
 const path = require('path');
@@ -46,7 +46,10 @@ function makeStateStore(dir, { now = () => new Date().toISOString() } = {}) {
     isStopped: () => !!read('control', 'stop'),
     stopInfo: () => read('control', 'stop'),
     setStopped: (info) => write('control', 'stop', Object.assign({ at: now() }, info)),
-    clearStopped: () => { try { fs.unlinkSync(path.join(dirs.control, 'stop.json')); } catch { /* not set */ } }
+    clearStopped: () => { try { fs.unlinkSync(path.join(dirs.control, 'stop.json')); } catch { /* not set */ } },
+    // one-system: small named control records (chief heartbeat, stall notes). Same atomic write.
+    getControl: (id) => read('control', id),
+    putControl: (id, value) => write('control', id, Object.assign({ at: now() }, value))
   };
 }
 

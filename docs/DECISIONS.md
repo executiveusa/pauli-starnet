@@ -131,3 +131,16 @@ many of these — they win on any wording conflict.
   every candidate-bound wave W0–W7 passes. Neither verdict authorizes publishing, deployment,
   credential rotation, or any other external release operation; those still require the owner's
   explicit authorization.
+
+## Command chain (2026-11-16, Bambú; supersedes the roles in COMMAND_BRIDGE.md §3 and its "Retire Heisenberg" note)
+
+- **Instinct is Chief of Staff. Heisenberg is the foreman, and the next man up.** Heisenberg plans, assigns any
+  agent he is told to use, chases stalled work and keeps agents moving, and reports to Instinct. When Instinct's
+  heartbeat is older than 5 minutes, Heisenberg is acting Chief of Staff with Instinct's powers (never the owner's)
+  until Instinct's next heartbeat. Code: `gateway/factory/command-chain.js`; contract: `program/one-system/CONTEXT.md`.
+- **Hermes keeps the messaging fallback** from COMMAND_BRIDGE.md §3: when Instinct is down, Hermes answers the
+  owner on WhatsApp from the shared board and passes the owner's instructions to the acting chief. Hermes does not
+  run the organization.
+- **Paperclip is the only queue** (supersedes the GitHub-label queue in `program/city-247`).
+- **ICM is the default structure** for every app, product, district and agent, and everything must work the same
+  on any model (`START_HERE.md`, `.agents/skills/icm-architect/`).

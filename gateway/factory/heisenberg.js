@@ -1,5 +1,5 @@
 'use strict';
-// STARFACTORY-001: Heisenberg, Chief of Staff. A thin adapter: every mission, task, dependency and
+// STARFACTORY-001: Heisenberg, the foreman (one-system D2; Instinct is Chief of Staff). A thin adapter: every mission, task, dependency and
 // approval lives in Paperclip. Heisenberg keeps NO mission database - he reads Paperclip, decides with
 // the pure planner, and writes the result back. A restart loses nothing because nothing is held here.
 const { planNext, missionTitle, stageTitle, parseMissionTitle, parseStageTitle } = require('./planner.js');
