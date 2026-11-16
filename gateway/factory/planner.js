@@ -5,7 +5,7 @@
 // Nothing here remembers anything: restart-safe by construction, and idempotent because the caller
 // re-reads Paperclip before creating the next child.
 
-const TITLE_RE = /^\[sf:([A-Za-z0-9_.-]{1,100}):(implement|review|repair):(\d{1,3})\]/;
+const TITLE_RE = /^\[sf:([A-Za-z0-9_.-]{1,100}):(spec|implement|review|repair):(\d{1,3})\]/;
 const MISSION_RE = /^\[sf:([A-Za-z0-9_.-]{1,100})\]/;
 const BUILD_STAGES = new Set(['implement', 'repair']);
 
@@ -15,15 +15,21 @@ function parseMissionTitle(t) { const m = MISSION_RE.exec(String(t || '')); retu
 function parseStageTitle(t) { const m = TITLE_RE.exec(String(t || '')); return m ? { mission: m[1], stage: m[2], seq: Number(m[3]) } : null; }
 
 // children: [{ id, title, status, assigneeAgentId }]   verdicts: { [reviewIssueId]: { verdict, authorAgentId } }
-function planNext({ children, verdicts, qaAgentId, maxRepairs = 2 }) {
+// one-system 06: software missions (spec.pipeline === 'software') start with a written spec; the build starts when the
+// spec stage is done. Everything after that is unchanged.
+function planNext({ children, verdicts, qaAgentId, maxRepairs = 2, firstStage = 'implement' }) {
   const parsed = (children || [])
     .map(c => Object.assign({}, c, parseStageTitle(c.title)))
     .filter(c => c.stage)
     .sort((a, b) => a.seq - b.seq);
-  if (!parsed.length) return { type: 'create', stage: 'implement', seq: 1, role: 'pi' };
+  if (!parsed.length) return { type: 'create', stage: firstStage === 'spec' ? 'spec' : 'implement', seq: 1, role: 'pi' };
 
   const last = parsed[parsed.length - 1];
   if (last.status === 'cancelled') return { type: 'escalate', reason: last.stage + ' #' + last.seq + ' was cancelled' };
+  if (last.stage === 'spec') {
+    if (last.status !== 'done') return { type: 'wait', on: last.id, stage: 'spec' };
+    return { type: 'create', stage: 'implement', seq: last.seq + 1, role: 'pi' };
+  }
 
   if (BUILD_STAGES.has(last.stage)) {
     if (last.status !== 'done') return { type: 'wait', on: last.id, stage: last.stage };

@@ -1,0 +1,25 @@
+{
+  "_contract": "program/one-system 06_pipelines. Limits for bot tools (Nick's Stack parts on OpenMausBot bots). StarNet enforces the permission gate: any mission needing send_email, send_sms, spend, publish or deploy parks for owner authorization. Each bot runtime must also enforce the per-bot limits below; a tool whose limits it cannot enforce stays off.",
+  "never_unattended": ["send_email", "send_sms", "spend", "publish", "deploy", "grant_access", "destructive"],
+  "tools": {
+    "agentmail": {
+      "allowed_without_approval": ["receive", "read", "draft"],
+      "send": "only after the owner approves that message, or a named batch or template, recorded in Found First Approvals",
+      "limits": { "sends_per_bot_per_day": 20, "recipients": "people who wrote first, opted in, or are on an owner-approved list", "cold_outreach_domain": "separate approved sending domain, never the main agency domains" },
+      "client_engagements": "no email automation for a client unless the client grants it in writing"
+    },
+    "agentcard": {
+      "default": "off",
+      "limits": { "max_per_transaction_usd": 9.99, "max_per_month_all_bots_usd": 50, "recurring": false, "subscriptions": false, "domains": false, "split_purchases": false },
+      "requires": "card-level enforcement of these limits and a merchant allowlist per card; every charge logged on its Paperclip mission",
+      "otherwise": "owner approval in Found First first"
+    },
+    "agentphone": {
+      "allowed_without_approval": ["receive"],
+      "send": "only to people who consented, from owner-approved templates, 08:00 to 21:00 in the recipient's time, STOP honored immediately",
+      "limits": { "texts_per_bot_per_day": 50 },
+      "prerequisite": "US business texting registration (A2P 10DLC) complete; Mexico rules checked separately; no sending before",
+      "client_texting": "uses the client's own number and consent records, approved by the client"
+    }
+  }
+}

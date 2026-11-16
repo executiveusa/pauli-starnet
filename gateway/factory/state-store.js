@@ -49,7 +49,8 @@ function makeStateStore(dir, { now = () => new Date().toISOString() } = {}) {
     clearStopped: () => { try { fs.unlinkSync(path.join(dirs.control, 'stop.json')); } catch { /* not set */ } },
     // one-system: small named control records (chief heartbeat, stall notes). Same atomic write.
     getControl: (id) => read('control', id),
-    putControl: (id, value) => write('control', id, Object.assign({ at: now() }, value))
+    putControl: (id, value) => write('control', id, Object.assign({ at: now() }, value)),
+    listControl: (prefix) => fs.readdirSync(dirs.control).filter(f => f.startsWith(prefix) && f.endsWith('.json')).map(f => { try { return JSON.parse(fs.readFileSync(path.join(dirs.control, f), 'utf8')); } catch { return null; } }).filter(Boolean)
   };
 }
 

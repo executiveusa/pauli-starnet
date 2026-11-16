@@ -756,3 +756,5 @@ test/command-chain.test.js
 test/icm-walk.test.js
 test/one-queue.test.js
 test/model-routing.test.js
+test/pipelines.test.js
+test/tools-policy.test.js

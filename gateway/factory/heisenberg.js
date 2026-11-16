@@ -100,7 +100,7 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
       v: 1, mission_id: mid, owner: env.owner || 'owner', project_id: env.project_id || null, repositories: env.repositories || [],
       acceptance_criteria: env.acceptance_criteria || [], budget_usd: Number(env.budget_usd) || 0, priority: env.priority || 'medium',
       permissions: Array.isArray(env.permissions) ? env.permissions : null, restricted: restricted === null ? ['undeclared'] : restricted,
-      max_repairs: maxRepairs, district, builder, judge, standing: env.standing || null
+      max_repairs: maxRepairs, district, builder, judge, standing: env.standing || null, pipeline: env.pipeline || null, pipeline_run: env.pipeline_run || null, stage_name: env.stage_name || null
     };
     const issue = await client.createIssue({
       title: missionTitle(mid, (needsApproval ? AUTH_TAG + ' ' : '') + env.user_intent),
@@ -141,7 +141,7 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
     if (!spec && m && m.id && client.getIssue) spec = readSpec(await client.getIssue(m.id).catch(() => null));
     const b = (spec && spec.builder && roles[spec.builder]) ? spec.builder : 'pi';
     const j = (spec && spec.judge && roles[spec.judge]) ? spec.judge : 'qa';
-    return { builder: b, judge: j, builderId: roles[b].agentId, judgeId: roles[j].agentId, district: (spec && spec.district) || 'command' };
+    return { builder: b, judge: j, builderId: roles[b].agentId, judgeId: roles[j].agentId, district: (spec && spec.district) || 'command', pipeline: (spec && spec.pipeline) || null };
   }
 
   function readSpec(issue) {
@@ -162,7 +162,7 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
       const children = await childrenOf(m);
       const verdicts = await verdictsFor(children);
       const who = await crewOf(m);
-      const plan = planNext({ children, verdicts, qaAgentId: who.judgeId, maxRepairs });
+      const plan = planNext({ children, verdicts, qaAgentId: who.judgeId, maxRepairs, firstStage: who.pipeline === 'software' ? 'spec' : 'implement' });
       if (plan.type === 'create') {
         // Re-read right before writing: two reconcilers must never create the same stage twice.
         const fresh = await childrenOf(m);
@@ -173,6 +173,8 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, 
         const brief = specBrief(spec);
         const body = (plan.stage === 'review'
           ? 'Independently review the previous stage for mission ' + mid + '. Record a verdict comment: ' + COMMENT_PREFIX + ' {"verdict":"PASS|FAIL","findings":[...]}. You must not be the builder.\n\nOriginal request: ' + intent
+          : plan.stage === 'spec'
+            ? 'Write the spec for mission ' + mid + ': goal, acceptance criteria as runnable checks, the smallest slice, the files it touches, the rollback, and what you will NOT do. Do not write code yet.\n\nOriginal request: ' + intent
           : plan.stage === 'repair'
             ? 'Repair the defects the independent reviewer found for mission ' + mid + ':\n' + (plan.findings || []).map(f => '- ' + f).join('\n') + '\n\nOriginal request: ' + intent
             : 'Implement mission ' + mid + ' on an isolated branch. Do not merge or deploy.\n\nOriginal request: ' + intent) + brief;

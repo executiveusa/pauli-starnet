@@ -20,6 +20,7 @@ const { makeProjection } = require('./projection.js');
 const { makeSidecarExecutor, makeHttpExecutor } = require('./executors.js');
 const { actingChief, findStalls, DEFAULT_STALE_MS } = require('./command-chain.js');
 const { loadCity, dueStanding, districtBoard } = require('./districts.js');
+const { nextStep } = require('./pipelines.js');
 
 function tokenOk(req, expected) {
   if (!expected) return false; // fail closed when unconfigured
@@ -105,6 +106,15 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       if (req.method === 'POST' && urlPath === '/v1/factory/stop') { const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {}; send(200, await heisenberg.emergencyStop(body)); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/resume') { send(200, await heisenberg.resumeAll()); return true; }
       if (req.method === 'GET' && urlPath === '/v1/factory/chief') { send(200, chiefNow()); return true; }
+      if (req.method === 'POST' && urlPath === '/v1/factory/pipelines') {
+        const body = await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) })); if (body === undefined) return true;
+        const r = await startPipeline(body); send(r.code, r.body); return true;
+      }
+      const pa = /^\/v1\/factory\/pipelines\/([a-z0-9-]{1,40})\/([a-z0-9-]{1,40})\/(advance|status)$/.exec(urlPath);
+      if (pa) {
+        if (req.method === 'POST' && pa[3] === 'advance') { const r = await advancePipeline(pa[1], pa[2], { owner: true }); send(r.code, r.body); return true; }
+        if (req.method === 'GET' && pa[3] === 'status') { const r = await advancePipeline(pa[1], pa[2], { dryRun: true }); send(r.code, r.body); return true; }
+      }
       if (req.method === 'GET' && urlPath === '/v1/factory/districts') { send(200, { districts: await boardNow(), chief: chiefNow() }); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/chief/heartbeat') {
         const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
@@ -147,7 +157,8 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       log('foreman_' + s.action, s); done.push(s);
     }
     const standing = await runStanding();
-    return { stalls: done, acting: chief.acting, standing };
+    const pipelines = await advanceAllPipelines();
+    return { stalls: done, acting: chief.acting, standing, pipelines };
   }
 
   // Standing jobs from each district's contract: one mission per period for the named agent, judged by its roster
@@ -172,6 +183,49 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     return out;
   }
   function standingKey(k) { return 'standing-' + require('crypto').createHash('sha256').update(k).digest('hex').slice(0, 32); }
+
+  // Pipelines (registry/pipelines.json): start a run, and advance it when a stage is done. Owner gates wait for
+  // POST .../advance; the owner's release is recorded so a restart never forgets it.
+  const pipelineDefs = overrides.pipelines || (() => { try { return require('../../registry/pipelines.json').pipelines; } catch { return {}; } })();
+  async function startPipeline(body) {
+    const def = pipelineDefs[body && body.pipeline];
+    if (!def) return { code: 404, body: { error: 'UNKNOWN_PIPELINE', pipelines: Object.keys(pipelineDefs) } };
+    if (!body.run || !/^[a-z0-9-]{1,40}$/.test(body.run)) return { code: 400, body: { error: 'run is required (lowercase, digits, dashes)' } };
+    if (typeof body.subject !== 'string' || !body.subject.trim()) return { code: 400, body: { error: 'subject is required (what this run is for)' } };
+    store.putControl('pipeline-' + body.pipeline + '-' + body.run, { pipeline: body.pipeline, run: body.run, subject: body.subject.slice(0, 2000), owner_advanced: [] });
+    return advancePipeline(body.pipeline, body.run, {});
+  }
+  async function advancePipeline(pipelineId, run, { owner = false, dryRun = false } = {}) {
+    const def = pipelineDefs[pipelineId];
+    const rec = store.getControl('pipeline-' + pipelineId + '-' + run);
+    if (!def || !rec) return { code: 404, body: { error: 'UNKNOWN_RUN' } };
+    const missions = await heisenberg.listMissions();
+    const advanced = new Set(rec.owner_advanced || []);
+    let step = nextStep(pipelineId, def, run, missions, advanced);
+    if (owner && step.action === 'owner_gate') {
+      advanced.add(step.index);
+      store.putControl('pipeline-' + pipelineId + '-' + run, Object.assign({}, rec, { owner_advanced: [...advanced] }));
+      step = nextStep(pipelineId, def, run, missions, advanced);
+    }
+    if (dryRun || step.action !== 'submit') return { code: 200, body: { pipeline: pipelineId, run, step } };
+    const st = step.stage;
+    const r = await heisenberg.submitMission({ mission_id: step.mission_id, user_intent: st.name + ' for ' + rec.subject + '. Done means: ' + st.done_means + '.',
+      district: st.district, builder: st.builder, judge: st.judge, permissions: st.permissions, pipeline: st.pipeline || null,
+      pipeline_run: pipelineId + '/' + run, stage_name: st.name, acceptance_criteria: [st.done_means], budget_usd: Number(env.PIPELINE_STAGE_BUDGET_USD) || 1 });
+    log('pipeline_stage', { pipeline: pipelineId, run, stage: st.name, code: r.code });
+    return { code: r.code >= 400 ? r.code : 202, body: { pipeline: pipelineId, run, step: { action: 'submitted', index: step.index, mission_id: step.mission_id }, result: r.body } };
+  }
+  async function advanceAllPipelines() {
+    const out = [];
+    for (const [id] of Object.entries(pipelineDefs)) {
+      // runs are recorded by startPipeline; advance each that is not finished
+      for (const k of (store.listControl ? store.listControl('pipeline-' + id + '-') : [])) {
+        const r = await advancePipeline(id, k.run, {}).catch(e => ({ code: 500, body: { error: e.message } }));
+        out.push({ pipeline: id, run: k.run, step: r.body && r.body.step });
+      }
+    }
+    return out;
+  }
 
   // District board from Paperclip: the mission id prefix names the district; otherwise the spec does.
   async function boardNow() {
@@ -199,7 +253,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   }
   function stop() { timers.forEach(clearInterval); timers = []; }
 
-  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow };
+  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow, startPipeline, advancePipeline, advanceAllPipelines };
 }
 
 module.exports = { makeFactory, tokenOk };

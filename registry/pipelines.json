@@ -1,0 +1,28 @@
+{
+  "_contract": "program/one-system 06_pipelines. Each stage becomes one Paperclip mission for its builder, judged by its judge. A stage with gate 'owner' waits for the owner to advance the run (for example: the client paid). Permissions outside the unattended set park the mission for owner authorization (publishing, sending, spending).",
+  "pipelines": {
+    "found-first-launch": {
+      "label": "Found First: scorecard to Launch handoff",
+      "offer": "executiveusa/found-first business/offer/FOUND-FIRST-OFFER.md",
+      "stages": [
+        { "name": "scorecard", "district": "revenue", "builder": "boring-marketer", "judge": "skeptic", "permissions": ["research"], "done_means": "Lead-Leak Scorecard with lost-revenue math in the prospect's numbers, checked against the live site" },
+        { "name": "pricing", "district": "revenue", "builder": "michele-torti", "judge": "king-doe", "permissions": ["research"], "done_means": "price and terms for this prospect from the offer ladder" },
+        { "name": "outreach-draft", "district": "revenue", "builder": "king-doe", "judge": "skeptic", "permissions": ["research"], "done_means": "outreach message and call plan drafted; the owner sends it", "gate": "owner" },
+        { "name": "intake", "district": "revenue", "builder": "king-doe", "judge": "jake-van-clief", "permissions": ["research"], "done_means": "client-intake answers saved to the client's Found First project" },
+        { "name": "lead-path", "district": "production", "builder": "pi", "judge": "qa", "pipeline": "software", "permissions": ["research", "repo.edit", "pr.create"], "done_means": "request form saves every inquiry and alerts the owner's phone; one live test inquiry received" },
+        { "name": "technical-fixes", "district": "production", "builder": "pi", "judge": "qa", "pipeline": "software", "permissions": ["research", "repo.edit", "pr.create"], "done_means": "indexing, titles, descriptions, speed basics and business structured data fixed on a preview" },
+        { "name": "answer-pages", "district": "intelligence", "builder": "cody-schneider", "judge": "skeptic", "permissions": ["research"], "done_means": "up to 5 service-and-area pages and an FAQ from real customer questions, drafted for approval" },
+        { "name": "first-month-posts", "district": "creative", "builder": "kallaway", "judge": "skeptic", "permissions": ["research"], "done_means": "8 to 12 posts with images drafted for approval" },
+        { "name": "publish", "district": "revenue", "builder": "phlash", "judge": "qa", "permissions": ["research", "publish"], "done_means": "approved changes live; before-and-after scorecard" },
+        { "name": "handoff", "district": "revenue", "builder": "king-doe", "judge": "skeptic", "permissions": ["research"], "done_means": "signed checklist, lead list and scorecard handed to the client; second payment requested by the owner", "gate": "owner" }
+      ]
+    },
+    "software-product": {
+      "label": "Software factory: one product slice to an owner-approved release",
+      "stages": [
+        { "name": "build", "district": "production", "builder": "pi", "judge": "qa", "pipeline": "software", "permissions": ["research", "repo.edit", "pr.create"], "done_means": "spec, branch with passing tests, independent PASS on the exact commit, preview link" },
+        { "name": "release", "district": "production", "builder": "pi", "judge": "qa", "permissions": ["research", "deploy"], "done_means": "owner-approved production release with rollback written", "gate": "owner" }
+      ]
+    }
+  }
+}
