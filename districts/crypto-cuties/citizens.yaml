@@ -1,0 +1,15 @@
+version: 1
+district: crypto-cuties
+citizens:
+  - id: mila
+    role: Crypto Cutie CC-001
+    status: PARKED
+    path: districts/crypto-cuties/characters
+    done_means: drafts pass her identity lock
+    judged_by: owner
+  - id: fanni
+    role: Crypto Cutie CC-003
+    status: PARKED
+    path: districts/crypto-cuties/characters
+    done_means: drafts pass her identity lock
+    judged_by: owner

@@ -6,6 +6,8 @@ citizens:
     path: netlify/functions/jev-decision.mts
     role: typed-question-seam
     status: LIVE
+    done_means: typed question answered or refused with a reason
+    judged_by: qa-judge
   - id: jev-shadow
     kind: service
     path: sidecar/jev-shadow-openrouter.js
@@ -17,11 +19,15 @@ citizens:
     mode: recommend-only
     providers: [typesafe-gateway (real Jev, primary), openrouter-free (fallback)]
     status: LIVE
+    done_means: shadow decision logged beside the real one, never acted on
+    judged_by: skeptic
   - id: allowance-governor
     kind: skill
     path: sidecar/skills/library/allowance-governor.md
     role: token-window-economy
     status: LIVE
+    done_means: token window spend within allowance, overages reported
+    judged_by: financial-controller
   - id: jev-researcher
     kind: agent
     path: districts/jev/research/
@@ -29,3 +35,5 @@ citizens:
     floor: free-tier-only
     role: application-research
     status: LIVE
+    done_means: application research brief with sources
+    judged_by: skeptic

@@ -1,0 +1,16 @@
+version: 1
+district: pauli
+citizens:
+  - id: pauli
+    role: Pauli (runs only with owner permission)
+    status: PARKED
+    path: districts/pauli/canon
+    done_means: canon answers with sources
+    judged_by: owner
+  - id: icm-architect
+    role: permanent ICM architect
+    status: READY
+    path: districts/pauli/icm-architect
+    done_means: every district and agent passes the walk test
+    judged_by: skeptic
+    model_lane: deepseek-default

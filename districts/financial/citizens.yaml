@@ -1,0 +1,16 @@
+version: 1
+district: financial
+citizens:
+  - id: financial-controller
+    role: cost normalization, reconciliation and summaries
+    status: READY
+    path: departments/financial/README.md
+    done_means: daily cost roll-up; unknown cost never shown as zero
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: budget-guard
+    role: enforces the $100/month API budget
+    status: PLANNED
+    done_means: warning at 80%, non-revenue stop at 100%
+    judged_by: owner
+    model_lane: deepseek-default

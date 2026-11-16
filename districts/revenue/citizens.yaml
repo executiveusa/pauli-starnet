@@ -1,0 +1,80 @@
+version: 1
+district: revenue
+includes: [districts/middleton/citizens.yaml]
+citizens:
+  - id: king-doe
+    role: sales lead and council chair (council seat, inspired by Chris Do)
+    status: READY
+    seat: districts/pauli/board/seats/king-doe.md
+    done_means: discovery script and proposal for each qualified prospect
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: michele-torti
+    role: offer and pricing (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/michele-torti.md
+    done_means: lost-revenue math and price for each prospect
+    judged_by: king-doe
+    model_lane: deepseek-default
+  - id: phlash
+    role: home-service delivery lead for Launch installs (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/phlash.md
+    done_means: Launch checklist delivered with live test inquiry
+    judged_by: qa-judge
+    model_lane: deepseek-default
+  - id: boring-marketer
+    role: prospect audits and private demos (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/boring-marketer.md
+    done_means: scorecard and demo for each new prospect
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: hormozi
+    role: offer reviewer (council seat)
+    status: PARKED
+    seat: districts/pauli/board/seats/hormozi.md
+    done_means: parked until his corpus has a semantic graph; then offer reviews with citations
+    judged_by: skeptic
+  - id: kenezzer
+    role: sales training seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: training notes cited to mozi nodes
+    judged_by: king-doe
+    model_lane: deepseek-default
+  - id: owl
+    role: call QA seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: call graded against the script with cited nodes
+    judged_by: king-doe
+    model_lane: deepseek-default
+  - id: capitan-cubano
+    role: objections and closing seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: objection responses cited to mozi nodes
+    judged_by: king-doe
+    model_lane: deepseek-default
+  - id: stackman
+    role: offer architecture seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: offer stack reviewed against the value equation
+    judged_by: michele-torti
+    model_lane: deepseek-default
+  - id: el-papo
+    role: pipeline operations seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: pipeline stages current with next step and date
+    judged_by: king-doe
+    model_lane: deepseek-default
+  - id: kaffa
+    role: referral partners seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: partner list with nurture dates
+    judged_by: king-doe
+    model_lane: deepseek-default

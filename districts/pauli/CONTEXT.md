@@ -1,5 +1,7 @@
 # Pauli District (PAULI'S PENTHOUSE) - context routing (Layer 1)
 
+One job: keep Pauli's canon and the Hall of Canon, and hold the permanent ICM architect.
+
 Where do I go? Work about Pauli himself - the one super-agent, his home, his council venue, and his canon - routes through this file. Read on entry to any pauli-district seat or task.
 
 Owner decisions (2026-09-13, owner's own WhatsApp channel, verified observation wamid.HBgLMTMyMzQ4NDI5MTQVAgASGBYzRUIwNkVBMkIyMDcwNjYwNDFEOUJBAA== at 4:18:28 PM PDT, verbatim: "yes that works for the pauli logic . always get permission to run pauli since hes expensive. all other is approved. build it all"):
@@ -39,3 +41,40 @@ Owner decisions (2026-09-13, owner's own WhatsApp channel, verified observation 
 ## Permanent ICM architect
 
 Pauli's observe-and-propose watcher architecture lives at `icm-architect/CLAUDE.md`. Terabithia remains separate infrastructure at `../../infrastructure/terabithia/CONTEXT.md`; this district receives only sanitized read-only event records.
+
+## Agents
+
+Roster: `districts/pauli/citizens.yaml` (one home per agent; role, status, done-means and judge for each). The council board and its seats live in `districts/pauli/board/`; council members are assigned to the districts where they work.
+
+## Jobs and done-means
+
+| Job | Done means | Judged by |
+|---|---|---|
+| Canon keeping | canon files current with sources | owner |
+| ICM restructure | proposal approved before anything moves | owner |
+
+## Rules
+
+- Paperclip is the only queue: work starts only from an issue in this district with an owner, done-means, budget and stop condition.
+- No agent theatre: an agent with no assigned work sleeps until its heartbeat or schedule finds work.
+- The builder never judges its own work; the judge named in `citizens.yaml` decides.
+- Owner gates (`gateway/factory/command-chain.js`): production releases, spending over the delegation, outbound email, texts and posts, destructive changes.
+- Pauli runs only with owner permission (expensive).
+
+## Knowledge
+
+- `districts/pauli/canon/`
+- `districts/pauli/icm-architect/CONTEXT.md`
+- `.agents/skills/icm-architect/SKILL.md`
+
+## Standing jobs
+
+Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+
+| When | Job | Outcome |
+|---|---|---|
+| weekly Sun 18:00 | ICM walk-test review | failures listed with the fix |
+
+## Human check
+
+Bambú approves any canon change.

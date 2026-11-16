@@ -1,0 +1,26 @@
+version: 1
+district: operations
+citizens:
+  - id: indydevdan
+    role: agent operations and reliability (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/indydevdan.md
+    done_means: failed runs triaged with cause and cost
+    judged_by: qa-judge
+    model_lane: deepseek-default
+  - id: green-guardian
+    role: health and gate loop
+    status: READY
+    path: loops/green-guardian.md
+    done_means: fresh GREEN or a named RED finding
+    judged_by: qa-judge
+    model_lane: deepseek-default
+    schedule: every 15 min
+  - id: janitor
+    role: hygiene loop
+    status: READY
+    path: loops/janitor.md
+    done_means: cleanup log with before and after
+    judged_by: qa-judge
+    model_lane: deepseek-default
+    schedule: nightly

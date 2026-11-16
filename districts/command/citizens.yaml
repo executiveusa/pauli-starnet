@@ -1,0 +1,37 @@
+version: 1
+district: command
+citizens:
+  - id: instinct
+    role: chief-of-staff (external, talks to Paperclip)
+    status: READY
+    done_means: priorities set daily; scoreboard sent; approvals routed
+    judged_by: owner
+    model_lane: instinct-own
+  - id: heisenberg
+    role: foreman; acting chief when Instinct is silent
+    status: READY
+    path: gateway/factory/heisenberg.js
+    done_means: every assigned issue moves or is escalated
+    judged_by: instinct
+    model_lane: deepseek-default
+    schedule: every 5 min
+  - id: hermes
+    role: bounded technical operator and WhatsApp fallback
+    status: READY
+    done_means: tasks closed with receipts; owner messages relayed to the acting chief
+    judged_by: qa-judge
+    model_lane: deepseek-default
+  - id: jake-van-clief
+    role: process architect and council secretary (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/jake-van-clief.md
+    done_means: every workflow has stage files that pass the walk test; council decisions recorded
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: skeptic
+    role: final reviewer on decisions and releases (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/skeptic.example.md
+    done_means: every review names the failure mode and the hidden cost
+    judged_by: owner
+    model_lane: subscription-review

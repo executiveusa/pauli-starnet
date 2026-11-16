@@ -1,0 +1,24 @@
+version: 1
+district: intelligence
+includes: [districts/jev/citizens.yaml]
+citizens:
+  - id: seth-godin
+    role: positioning and brand (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/seth-godin.md
+    done_means: positioning brief with cited principles
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: cody-schneider
+    role: search and AI-visibility (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/cody-schneider.md
+    done_means: visibility audit with evidence per finding
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: maus-auditor
+    role: browser research and site audits (OpenMausBot worker)
+    status: READY
+    done_means: audit artifact with screenshots or fetched evidence
+    judged_by: skeptic
+    model_lane: deepseek-default

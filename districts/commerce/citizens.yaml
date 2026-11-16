@@ -1,0 +1,17 @@
+version: 1
+district: commerce
+citizens:
+  - id: matt-clark
+    role: e-commerce product marketing (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/matt-clark.md
+    done_means: page per buyer with checkable reasons
+    judged_by: skeptic
+    model_lane: deepseek-default
+  - id: store-researcher
+    role: Freedom of Speech store research (test-only)
+    status: PLANNED
+    path: districts/commerce/etsy
+    done_means: product shortlist with sources
+    judged_by: skeptic
+    model_lane: deepseek-default

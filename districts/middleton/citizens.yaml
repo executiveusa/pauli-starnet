@@ -6,31 +6,45 @@ citizens:
     path: districts/middleton/canon/
     role: canon-keeper
     status: LIVE
+    done_means: canon files current with sources
+    judged_by: skeptic
   - id: gap-auditor
     kind: job
     path: districts/middleton/experiments/
     role: market-gap-audit-served-partial-unserved
     status: PLANNED
+    done_means: served/partial/unserved audit with evidence
+    judged_by: skeptic
   - id: reactivation-drafter
     kind: job
     role: sms-reactivation-campaigns-from-canon
     status: PLANNED
+    done_means: reactivation drafts from canon, sent only after consent and approval
+    judged_by: owner
   - id: review-engine
     kind: job
     role: review-referral-flow-runner
     status: PLANNED
+    done_means: review and referral flow drafted, owner-approved before use
+    judged_by: owner
   - id: nurture-drafter
     kind: job
     role: instant-lead-follow-up-flows
     # Candidate project workflow, not a citizen ID; PLANNED jobs do not dispatch.
     first_candidate: dispatchhelper-spatchy-intake
     status: PLANNED
+    done_means: instant follow-up drafts from canon, approval before any send
+    judged_by: owner
   - id: sales-coach-grader
     kind: job
     role: call-grading-vs-canon-script
     status: PLANNED
+    done_means: call graded against the canon script with notes
+    judged_by: king-doe
   - id: experiment-runner
     kind: job
     path: districts/middleton/experiments/loop.md
     role: bounded-experiment-loop
     status: PLANNED
+    done_means: experiment card closed with keep or kill
+    judged_by: skeptic
