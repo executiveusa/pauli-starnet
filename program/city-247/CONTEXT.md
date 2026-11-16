@@ -1,5 +1,9 @@
 # city-247 — every district works around the clock, honestly
 
+> **Superseded (2026-11-16):** the queue moved to Paperclip under `program/one-system` (D3). The pure decision code
+> here (`sidecar/district-foreman.js`) is kept; `scripts/district/foreman.js` and its GitHub-label queue are a
+> fallback only, and its systemd timer should not be enabled on new deployments.
+
 One job: each district has its own queue of approved work, Heisenberg runs it every few minutes on the server,
 and every district shows RUNNING, BLOCKED (with the exact question) or IDLE. Never faked activity.
 Owner decisions (2026-10-15 grill-me): the CitySpec is the one district list; queues are GitHub issues labeled

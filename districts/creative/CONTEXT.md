@@ -62,11 +62,11 @@ Roster: `districts/creative/citizens.yaml` (one home per agent; role, status, do
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| weekdays 11:00 | Draft content due this week | drafts waiting in approvals |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| weekdays 11:00 | Draft content due this week | kallaway | drafts waiting in approvals |
 
 ## Human check
 

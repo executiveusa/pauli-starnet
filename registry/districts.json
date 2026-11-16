@@ -113,7 +113,7 @@
         "REVENUE CENTER"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "offers, pricing and outreach drafts (Mozi, Middleton, Jasper smart sites)",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -175,7 +175,7 @@
         "CREATIVE STUDIO"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "design, video and UGC production behind the design gate",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -234,7 +234,7 @@
         "MEMORY ARCHIVE"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "research, knowledge extraction and the knowledge base",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -259,7 +259,7 @@
         "EXPERIMENT LAB"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "bounded experiments with a written hypothesis and stop rule",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -287,7 +287,7 @@
         "EXECUTIVE FINANCE"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "costs, budgets and the credit department (Monica Main)",
       "queue": {
         "repo": "executiveusa/pauli-starnet",
@@ -312,7 +312,7 @@
         "NIGHT OPERATIONS"
       ],
       "foreman": "heisenberg",
-      "active": false,
+      "active": true,
       "purpose": "night operations, server hygiene, monitoring",
       "queue": {
         "repo": "executiveusa/pauli-starnet",

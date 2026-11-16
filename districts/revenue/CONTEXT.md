@@ -34,13 +34,13 @@ Roster: `districts/revenue/citizens.yaml` (one home per agent; role, status, don
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| weekdays 08:00 | Find 10 prospects (warm network first) | 10 prospect records with source links |
-| weekdays 10:00 | Run scorecards for new prospects | scorecards filed for review |
-| weekdays 16:00 | Draft follow-ups due today | drafts waiting in approvals |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| weekdays 08:00 | Find 10 prospects (warm network first) | boring-marketer | 10 prospect records with source links |
+| weekdays 10:00 | Run scorecards for new prospects | boring-marketer | scorecards filed for review |
+| weekdays 16:00 | Draft follow-ups due today | king-doe | drafts waiting in approvals |
 
 ## Human check
 

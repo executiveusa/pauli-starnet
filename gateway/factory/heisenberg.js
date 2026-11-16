@@ -55,7 +55,7 @@ function parseVerdict(comments) {
   return null;
 }
 
-function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }) {
+function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {}, districtIds = null }) {
   if (!roles || !roles.heisenberg || !roles.pi || !roles.qa) throw new Error('roles heisenberg, pi and qa are required');
   const locks = new Set();
 
@@ -87,13 +87,20 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
     const existing = await findMissionIssue(mid);
     if (existing) return { code: 200, body: { mission_id: mid, issueId: existing.id, status: existing.status, duplicate: true } };
 
+    // one-system: every mission belongs to a district and names its builder and its independent judge.
+    const district = env.district || 'command';
+    if (districtIds && !districtIds.includes(district)) return { code: 400, body: { error: 'UNKNOWN_DISTRICT', districts: districtIds } };
+    const builder = env.builder || 'pi';
+    const judge = env.judge || 'qa';
+    if (builder === judge) return { code: 400, body: { error: 'BUILDER_CANNOT_JUDGE' } };
+    for (const k of [builder, judge]) if (!roles[k] || !roles[k].agentId) return { code: 409, body: { error: 'AGENT_NOT_REGISTERED', agent: k, hint: 'add it to FACTORY_ROLES with its Paperclip agent id' } };
     const restricted = restrictedOf(env.permissions);
     const needsApproval = restricted === null || restricted.length > 0;
     const spec = {
       v: 1, mission_id: mid, owner: env.owner || 'owner', project_id: env.project_id || null, repositories: env.repositories || [],
       acceptance_criteria: env.acceptance_criteria || [], budget_usd: Number(env.budget_usd) || 0, priority: env.priority || 'medium',
       permissions: Array.isArray(env.permissions) ? env.permissions : null, restricted: restricted === null ? ['undeclared'] : restricted,
-      max_repairs: maxRepairs
+      max_repairs: maxRepairs, district, builder, judge, standing: env.standing || null
     };
     const issue = await client.createIssue({
       title: missionTitle(mid, (needsApproval ? AUTH_TAG + ' ' : '') + env.user_intent),
@@ -128,6 +135,15 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
     return { code: 200, body: { mission_id: mid, authorized: want, next: r } };
   }
 
+  // The mission's builder and judge, from its spec (full issue; list views may omit the description).
+  async function crewOf(m) {
+    let spec = readSpec(m);
+    if (!spec && m && m.id && client.getIssue) spec = readSpec(await client.getIssue(m.id).catch(() => null));
+    const b = (spec && spec.builder && roles[spec.builder]) ? spec.builder : 'pi';
+    const j = (spec && spec.judge && roles[spec.judge]) ? spec.judge : 'qa';
+    return { builder: b, judge: j, builderId: roles[b].agentId, judgeId: roles[j].agentId, district: (spec && spec.district) || 'command' };
+  }
+
   function readSpec(issue) {
     const m = /```starfactory-spec\n([\s\S]*?)\n```/.exec(String((issue && issue.description) || ''));
     if (!m) return null;
@@ -145,12 +161,13 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
       if (m.status === 'blocked') return { type: 'blocked' };
       const children = await childrenOf(m);
       const verdicts = await verdictsFor(children);
-      const plan = planNext({ children, verdicts, qaAgentId: roles.qa.agentId, maxRepairs });
+      const who = await crewOf(m);
+      const plan = planNext({ children, verdicts, qaAgentId: who.judgeId, maxRepairs });
       if (plan.type === 'create') {
         // Re-read right before writing: two reconcilers must never create the same stage twice.
         const fresh = await childrenOf(m);
         if (fresh.some(c => { const p = parseStageTitle(c.title); return p && p.seq === plan.seq; })) return { type: 'wait', on: 'concurrent-create' };
-        const agentId = roles[plan.role].agentId;
+        const agentId = plan.role === 'qa' ? who.judgeId : plan.role === 'pi' ? who.builderId : roles[plan.role].agentId;
         // Full intent + spec from the description, never the 100-char title.
         const { intent, spec } = missionSpec(m);
         const brief = specBrief(spec);
@@ -185,7 +202,7 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
     const m = await findMissionIssue(mid);
     if (!m) return { code: 404, body: { error: 'MISSION_NOT_FOUND' } };
     const children = await childrenOf(m);
-    const plan = planNext({ children, verdicts: await verdictsFor(children), qaAgentId: roles.qa.agentId, maxRepairs });
+    const plan = planNext({ children, verdicts: await verdictsFor(children), qaAgentId: (await crewOf(m)).judgeId, maxRepairs });
     if (plan.type !== 'await_acceptance') return { code: 409, body: { error: 'NO_INDEPENDENT_PASS', state: plan.type } };
     await client.patchIssue(m.id, { status: 'done', comment: 'Accepted by ' + (approver || 'owner') + ' after independent QA PASS (' + plan.reviewId + ').' });
     return { code: 200, body: { mission_id: mid, status: 'done' } };
@@ -196,7 +213,7 @@ function makeHeisenberg({ client, roles, store, maxRepairs = 2, log = () => {} }
     if (!m) return null;
     const children = await childrenOf(m);
     const verdicts = await verdictsFor(children);
-    const plan = planNext({ children, verdicts, qaAgentId: roles.qa.agentId, maxRepairs });
+    const plan = planNext({ children, verdicts, qaAgentId: (await crewOf(m)).judgeId, maxRepairs });
     return {
       mission_id: mid, issueId: m.id, status: m.status, next: plan,
       tasks: children.map(c => Object.assign({ id: c.id, status: c.status, assigneeAgentId: c.assigneeAgentId || null }, parseStageTitle(c.title))),

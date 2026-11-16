@@ -69,11 +69,11 @@ Roster: `districts/pauli/citizens.yaml` (one home per agent; role, status, done-
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| weekly Sun 18:00 | ICM walk-test review | failures listed with the fix |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| weekly Sun 18:00 | ICM walk-test review | icm-architect | failures listed with the fix |
 
 ## Human check
 

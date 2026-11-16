@@ -27,11 +27,11 @@ Roster: `districts/experiment/citizens.yaml` (one home per agent; role, status, 
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| weekly Fri 15:00 | Experiment review | keep/kill recorded for each running card |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| weekly Fri 15:00 | Experiment review | taishan | keep/kill recorded for each running card |
 
 ## Human check
 

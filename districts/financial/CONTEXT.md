@@ -31,12 +31,12 @@ Roster: `districts/financial/citizens.yaml` (one home per agent; role, status, d
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| daily 23:00 | Cost roll-up | daily spend per agent and district |
-| monthly 1st | Close prep | close package for review |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| daily 23:00 | Cost roll-up | financial-controller | daily spend per agent and district |
+| monthly 1st | Close prep | financial-controller | close package for review |
 
 ## Human check
 

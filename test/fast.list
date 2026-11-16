@@ -754,3 +754,4 @@ test/owner-command-center.test.js
 test/factory-status.test.js
 test/command-chain.test.js
 test/icm-walk.test.js
+test/one-queue.test.js

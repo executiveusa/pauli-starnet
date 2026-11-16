@@ -47,11 +47,11 @@ Roster: `districts/production/citizens.yaml` (one home per agent; role, status, 
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| every 30 min | Pick up approved build issues | work started or blocked with a question |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| every 15 min | Pick up approved build issues | heisenberg | work started or blocked with a question |
 
 ## Human check
 

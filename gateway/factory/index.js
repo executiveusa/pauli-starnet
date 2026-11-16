@@ -19,6 +19,7 @@ const { makeWorkerBridge } = require('./worker-bridge.js');
 const { makeProjection } = require('./projection.js');
 const { makeSidecarExecutor, makeHttpExecutor } = require('./executors.js');
 const { actingChief, findStalls, DEFAULT_STALE_MS } = require('./command-chain.js');
+const { loadCity, dueStanding, districtBoard } = require('./districts.js');
 
 function tokenOk(req, expected) {
   if (!expected) return false; // fail closed when unconfigured
@@ -41,7 +42,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   const client = overrides.client || makePaperclipClient({ baseUrl: env.PAPERCLIP_URL, token: env.PAPERCLIP_TOKEN, companyId: env.PAPERCLIP_COMPANY_ID, fetchImpl });
   const store = overrides.store || makeStateStore(env.FACTORY_STATE_DIR || path.join(process.cwd(), '.starfactory-state'));
   let projection; // created below; Heisenberg reports handoffs to it as he creates them
-  const heisenberg = makeHeisenberg({ client, roles, store, log: (e, d) => { if (e === 'handoff' && projection) projection.noteHandoff({ mission: d.mission, stage: d.stage, seq: d.seq, to: d.to, issueId: d.issueId }); log(e, d); } });
+  const heisenberg = makeHeisenberg({ client, roles, store, districtIds: overrides.districtIds || loadCity().map(d => d.id), log: (e, d) => { if (e === 'handoff' && projection) projection.noteHandoff({ mission: d.mission, stage: d.stage, seq: d.seq, to: d.to, issueId: d.issueId }); log(e, d); } });
   const clientCache = new Map();
   const clientFor = overrides.clientFor || ((key) => {
     const r = roles[key];
@@ -99,6 +100,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       if (req.method === 'POST' && urlPath === '/v1/factory/stop') { const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {}; send(200, await heisenberg.emergencyStop(body)); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/resume') { send(200, await heisenberg.resumeAll()); return true; }
       if (req.method === 'GET' && urlPath === '/v1/factory/chief') { send(200, chiefNow()); return true; }
+      if (req.method === 'GET' && urlPath === '/v1/factory/districts') { send(200, { districts: await boardNow(), chief: chiefNow() }); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/chief/heartbeat') {
         const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
         if (body.by !== 'instinct') { send(400, { error: 'ONLY_INSTINCT_HEARTBEATS' }); return true; }
@@ -139,7 +141,47 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       store.putControl(key, { issueId: s.issueId, agentId: s.agentId });
       log('foreman_' + s.action, s); done.push(s);
     }
-    return { stalls: done, acting: chief.acting };
+    const standing = await runStanding();
+    return { stalls: done, acting: chief.acting, standing };
+  }
+
+  // Standing jobs from each district's contract: one mission per period for the named agent, judged by its roster
+  // judge. Recorded once per period, so a restart never repeats one. Unready or unregistered agents are reported.
+  async function runStanding(now = new Date().toISOString()) {
+    const city = overrides.city || loadCity();
+    const ran = new Set();
+    const due = dueStanding(city, now, { has: (k) => ran.has(k) || !!store.getControl(standingKey(k)) });
+    const out = [];
+    for (const j of due) {
+      ran.add(j.key);
+      if (j.skip) { store.putControl(standingKey(j.key), { skipped: j.skip }); out.push({ key: j.key, skipped: j.skip }); continue; }
+      const slug = j.job.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+      const mid = (j.district + '.' + slug + '.' + j.key.split('|')[2]).slice(0, 100);
+      const r = await heisenberg.submitMission({ mission_id: mid, user_intent: j.job + '. Done means: ' + j.outcome + '.', district: j.district,
+        builder: j.builder, judge: j.judge, permissions: ['research'], budget_usd: Number(env.STANDING_JOB_BUDGET_USD) || 0.25,
+        acceptance_criteria: [j.outcome], standing: j.key });
+      store.putControl(standingKey(j.key), { mission_id: mid, code: r.code, error: r.body && r.body.error || null });
+      out.push({ key: j.key, mission_id: mid, code: r.code, error: r.body && r.body.error || null });
+      log('standing_job', { key: j.key, code: r.code });
+    }
+    return out;
+  }
+  function standingKey(k) { return 'standing-' + require('crypto').createHash('sha256').update(k).digest('hex').slice(0, 32); }
+
+  // District board from Paperclip: the mission id prefix names the district; otherwise the spec does.
+  async function boardNow() {
+    const city = overrides.city || loadCity();
+    const ids = new Set(city.map(d => d.id));
+    const missions = await heisenberg.listMissions();
+    const withSpec = [];
+    for (const m of missions) {
+      if (!['todo', 'in_progress', 'blocked', 'in_review'].includes(m.status)) continue;
+      const prefix = String(m.mission_id).split('.')[0];
+      let district = ids.has(prefix) ? prefix : null;
+      if (!district) { const full = await client.getIssue(m.issueId).catch(() => null); const sp = full && /```starfactory-spec\n([\s\S]*?)\n```/.exec(String(full.description || '')); try { district = sp ? JSON.parse(sp[1]).district : null; } catch { district = null; } }
+      withSpec.push({ id: m.issueId, title: '[sf:' + m.mission_id + ']', status: m.status, spec: { district } });
+    }
+    return districtBoard(city, withSpec);
   }
 
   async function start({ reconcileMs = Number(env.FACTORY_RECONCILE_MS) || 60000, pollMs = Number(env.FACTORY_POLL_MS) || 3000 } = {}) {
@@ -152,7 +194,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   }
   function stop() { timers.forEach(clearInterval); timers = []; }
 
-  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep };
+  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow };
 }
 
 module.exports = { makeFactory, tokenOk };

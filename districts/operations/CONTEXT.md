@@ -31,13 +31,13 @@ Roster: `districts/operations/citizens.yaml` (one home per agent; role, status, 
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| every 15 min | Heartbeat check | stale services listed |
-| nightly 02:00 | Hygiene pass | cleanup log |
-| nightly 03:00 | Failed-run triage | triage notes on issues |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| every 15 min | Heartbeat check | green-guardian | stale services listed |
+| nightly 02:00 | Hygiene pass | janitor | cleanup log |
+| nightly 03:00 | Failed-run triage | indydevdan | triage notes on issues |
 
 ## Human check
 

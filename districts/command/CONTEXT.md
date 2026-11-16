@@ -34,13 +34,13 @@ Roster: `districts/command/citizens.yaml` (one home per agent; role, status, don
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| every 5 min | Heisenberg stall sweep | nudges and escalations recorded on issues |
-| daily 07:00 | Instinct priority pass | top 3 revenue issues assigned |
-| daily 19:00 | Scoreboard | owner receives the five lines |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| every 5 min | Heisenberg stall sweep | heisenberg | nudges and escalations recorded on issues |
+| daily 07:00 | Instinct priority pass | instinct | top 3 revenue issues assigned |
+| daily 19:00 | Scoreboard | instinct | owner receives the five lines |
 
 ## Human check
 

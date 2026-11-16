@@ -69,11 +69,11 @@ Roster: `districts/crypto-cuties/citizens.yaml` (one home per agent; role, statu
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| parked | No schedule while the lane is inactive | none |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| parked | No schedule while the lane is inactive | none | none |
 
 ## Human check
 

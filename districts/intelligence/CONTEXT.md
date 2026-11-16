@@ -30,11 +30,11 @@ Roster: `districts/intelligence/citizens.yaml` (one home per agent; role, status
 
 ## Standing jobs
 
-Schedules fire only if the outcome is real; with nothing to do the agents sleep.
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
 
-| When | Job | Outcome |
-|---|---|---|
-| daily 06:00 | Research seeds refresh | new findings appended with sources |
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| daily 06:00 | Research seeds refresh | jev-researcher | new findings appended with sources |
 
 ## Human check
 
