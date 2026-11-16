@@ -7,13 +7,17 @@ Server facts from Instinct's census: two 2 CPU / 8 GB boxes; .209 (prod-city-1) 
 `feat/jmo-skills-picks-clean`; .212 runs `feat/harness-backend`. Both checkouts have uncommitted runtime changes.
 
 ## Before anything (owner decisions and gates)
-1. **Reviewer.** A GitHub account that did not build this work (not `executiveusa`, not an unrelated account such as
-   Stash) is set in the repository variable `REVIEW_GATE_REVIEWERS`. A person creates that account. It reviews PR #109
-   and approves its latest commit. Changing that variable is an owner action.
-2. **What merging #109 deploys.** Merging into `feat/harness-backend` triggers the Vercel production build of the
+1. **Reviewer (owner decision 2026-11-16: Claude on the owner's subscription, model picked per review).** Merge
+   `executiveusa/pauli-starnet#110` first (the Claude Review workflow; GitHub only runs workflows from the default
+   branch). Owner setup, once: secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`), variable
+   `REVIEW_GATE_REVIEWERS=github-actions[bot]`, and "allow GitHub Actions to create and approve pull requests". Then the
+   owner runs Actions → Claude Review on #109, picking the model. It reviews the exact head commit and posts the verdict.
+2. **What merging deploys.** Merging into `feat/harness-backend` triggers the Vercel production build of the
    `pauli-starnet` project. PR #109 changes no file under `frontend/` or `website/` (the folders that project
    serves), so the served site should not change; confirm in the Vercel dashboard which branch each StarNet project
-   (`pauli-starnet`, `starnet-paulis-place-gateway`) treats as production before merging.
+   (`pauli-starnet`, `starnet-paulis-place-gateway`) treats as production before merging. Vercel built previews of
+   Command Center PR #45 on 2026-11-16, so its Git integration answers for that repository; check its production branch
+   before merging #45, because a merge to it may release the Command Center.
 3. **Merge approval.** One request to Bambú after 1 and 2 are settled, naming both PRs and their head commits. Merge
    order: `executiveusa/pauli-starnet#109`, then `executiveusa/pauli-command-center#45`.
 4. **Tests on the merged commit** (record the full list, not just a count):
@@ -27,7 +31,7 @@ Server facts from Instinct's census: two 2 CPU / 8 GB boxes; .209 (prod-city-1) 
 1. **Memory check on the chosen box.** Paperclip (~900 MB) + workforce gateway (~600 MB) must fit without pushing
    swap further. If they do not, stop and report; do not stop other services.
 2. **A new checkout, never the existing ones.** Clone the merged commit into a new directory (for example
-   `/opt/starnet/one-system`) as a non-root user. Do not pull, reset, switch branches in, or overwrite the existing
+   `/opt/starnet/one-system`) as a non-root user, on the box chosen in step 1. Do not pull, reset, switch branches in, or overwrite the existing
    backend checkouts on .209 or .212; their uncommitted changes stay as they are. A checkout's HEAD is not proof of
    what is running.
 3. **Postgres for Paperclip.** A new database and role on the existing self-hosted Postgres on .209, or a dedicated
@@ -38,20 +42,28 @@ Server facts from Instinct's census: two 2 CPU / 8 GB boxes; .209 (prod-city-1) 
 5. **Roles file.** `/etc/starnet/factory-roles.json` (root-owned, 0600), passing
    `node scripts/one-system/roles-template.mjs --check /etc/starnet/factory-roles.json`.
 6. **Models.** Default `deepseek/deepseek-v4.1-flash-1017` with OpenRouter fallbacks. The subscription review lane is
-   not wired (no CLI executor), so review runs use DeepSeek and say so on the receipt; that is metered spend.
+   not wired (no CLI executor), so mission review runs use DeepSeek and say so on the receipt; that is metered spend,
+   approved by the owner on 2026-11-16 ("we just need this to work right now").
    Optional: a free key (Groq, Gemini or Mistral) for test and light work, then `node scripts/models/free-pool.js`.
 7. **Workforce gateway.** `/etc/starnet/workforce.env` from `deploy/one-system/env.example`, with
-   `STANDING_AUTOMATION=off`. Install `deploy/one-system/starnet-workforce.service` pointing at the new checkout;
+   `STANDING_AUTOMATION=approved` (the default: a standing job runs only after the owner approves it on the phone,
+   then on its schedule until stopped; `off` stops them all). Install `deploy/one-system/starnet-workforce.service` pointing at the new checkout;
    start it. Do not enable `deploy/systemd/starnet-foreman.timer`.
 8. **City gateway.** `FACTORY_BASE_URL=http://127.0.0.1:4000` and `FACTORY_OWNER_TOKEN` so `/v1/districts` serves the
    Paperclip board. If the city gateway runs from an existing checkout, change only its environment and ask first.
 9. **HTTPS on thepaulieffect.com.** `hq.` (city gateway) and `factory.` (workforce gateway) per
    `deploy/one-system/Caddyfile.example`. Paperclip stays private.
-10. **Command Center.** No automatic deploy path was found (Vercel Git disconnected, no webhooks, build-only
-    workflows, runners inactive, nothing listening on 18979). Choose and approve a deploy path first; then set
-    `STARNET_FACTORY_URL=https://factory.thepaulieffect.com` and `STARNET_FACTORY_TOKEN`, and redeploy. A production
-    redeploy needs Bambú's tap.
-11. **Instinct heartbeat.** `POST /v1/factory/chief/heartbeat` with `{"by":"instinct"}` every minute.
+10. **Command Center on Vercel (owner decision 2026-11-16).** The phone app is the Vercel frontend; it reaches StarNet
+    over HTTPS at `factory.thepaulieffect.com` and refreshes every 10 seconds. In the Vercel project set
+    `STARNET_FACTORY_URL=https://factory.thepaulieffect.com`, `STARNET_FACTORY_TOKEN` (the workforce bearer) and
+    `STARNET_OWNER_APPROVAL_TOKEN` (the same value as StarNet's `OWNER_APPROVAL_TOKEN`), production only. The owner
+    approval key never goes to Instinct or any agent: Instinct holds the bearer for its heartbeat, and this second key
+    is what keeps approvals the owner's. Confirm which branch Vercel releases to production, then release. The production release needs
+    Bambú's tap. Nothing on 18979 is needed: the Command Center talks to StarNet, not to a local upstream.
+11. **Instinct heartbeat and orders.** `POST /v1/factory/chief/heartbeat` with `{"by":"instinct"}` every minute. The
+    reply carries `open_orders`: the owner's orders and "you went direct" notices. Instinct hands each order to
+    Heisenberg as missions, then acknowledges it with `POST /v1/factory/chief/orders/<id>/ack` and `{"by":"instinct"}`.
+    An order not acknowledged within 15 minutes shows as overdue on the phone, and the sweep logs it once.
 
 ## Live tests (record each as PASS, FAIL or NOT_RUN with what was seen)
 | # | Test | Pass when |
@@ -59,16 +71,16 @@ Server facts from Instinct's census: two 2 CPU / 8 GB boxes; .209 (prod-city-1) 
 | L1 | `FACTORY_GATEWAY_URL=... FACTORY_OWNER_TOKEN=... node scripts/factory-live-acceptance.mjs` | exits 0; evidence file saved |
 | L2 | Walk test on the new checkout: `node scripts/icm/walk.js` | 12/12 districts |
 | L3 | `GET /v1/factory/chief` with heartbeats on, then off for 6 minutes | `instinct`, then `heisenberg` |
-| L4a | Standing jobs while `STANDING_AUTOMATION=off` (the default), across one scheduled time | no standing missions created in any district |
-| L4b | Only if Bambú approves revenue-only automation: set `STANDING_AUTOMATION=revenue` for one weekday | revenue standing missions appear once each, assigned to the named agents; no other district schedules anything; nothing repeats. Otherwise NOT_RUN |
+| L4a | Before any approval, across one scheduled time | no standing missions created in any district |
+| L4b | Bambú approves one revenue standing job on the phone (Scheduled jobs → Approve), one weekday | that job's mission appears once, assigned to the named agent; unapproved jobs and other districts schedule nothing; Stop ends it the next period |
 | L5 | Start `found-first-launch` for a test subject from the phone | stage 1 assigned to boring-marketer; stops at the owner gate after outreach-draft |
-| L6 | Phone: STARNET → Control | acting chief, district board and agents shown; a direct task to one agent becomes a mission |
+| L6 | Phone: STARNET → Control | acting chief, district board and agents shown; "Tell Instinct" creates an open order Instinct acknowledges; a direct task to one agent becomes a mission and leaves a "you went direct" notice for the chief |
 | L7 | A mission needing `publish` | parks; the phone shows the exact permissions; authorizing releases it |
 | L8 | Emergency stop from the phone (type STOP), then Resume all | all workers paused, then resumed |
 | L9 | Spend check after 24 hours | receipts show lanes and route notes (including any subscription-lane fallback); month-to-date spend under budget |
 | L10 | Overnight soak | no duplicate missions, no stuck run without a nudge or escalation |
 
-L5 to L8 need the Command Center deployed (step 10); without an approved deploy path they are NOT_RUN.
+L5 to L8 need the Command Center released (step 10); until then they are NOT_RUN.
 
 ## Known test failures (fail on the untouched base too; fix in their own PRs, not waived)
 | Test | Cause (verified in the build session) | Fix |
@@ -85,6 +97,15 @@ existing backend checkouts were never touched, so nothing else needs undoing.
 ## Report back
 Box chosen and memory before and after, each step's result, L1 to L10 with evidence, the full test list result, and
 anything that needs Bambú.
+
+## Owner decisions, 2026-11-16 (after the review)
+1. Reviewer: Claude on the owner's subscription, model chosen per review (PR #110).
+2. Mission reviews run on DeepSeek for now (metered).
+3. Standing jobs: the owner approves each one; it then runs by itself until stopped.
+4. Command Center: Vercel frontend connected to StarNet; the owner normally talks only to Instinct, Instinct to
+   Heisenberg, Heisenberg runs the crew, and the chain of command is the backup. Hardened with ideas from
+   kunchenguid/firstmate (MIT): one human interface, orders closed by records (acknowledged by id), direct owner input
+   to a worker treated as an override and reconciled by the chain, overdue orders flagged once.
 
 ## Changes from the first hand-off (2026-11-16 review)
 - Subscription review lane marked not wired; it uses `deepseek-default` and records why. The sidecar executor refuses a

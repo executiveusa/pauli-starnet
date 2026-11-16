@@ -23,6 +23,11 @@ const { actingChief, findStalls, DEFAULT_STALE_MS } = require('./command-chain.j
 const { loadCity, dueStanding, districtBoard } = require('./districts.js');
 const { nextStep } = require('./pipelines.js');
 
+// Routes only the owner may call (docs/DECISIONS.md, command chain): authorizing a mission's restricted permissions,
+// passing a pipeline's owner gate, and approving a standing job. Accepting after an independent pass, resuming and
+// stopping a standing job stay open to the chain.
+const OWNER_APPROVAL_RE = /^\/v1\/factory\/(missions\/[^/]+\/authorize|pipelines\/[^/]+\/[^/]+\/advance|standing\/[^/]+\/approve)$/;
+
 function tokenOk(req, expected) {
   if (!expected) return false; // fail closed when unconfigured
   const raw = String(req.headers.authorization || '');
@@ -88,6 +93,15 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     // Everything below is owner-only; the gateway's bearer gate has already run unless this is a test harness.
     if (helpers.requireOwner && !helpers.requireOwner(req)) { send(401, { error: 'UNAUTHORIZED' }); return true; }
 
+    // Owner approvals need a second key that only the Command Center holds (OWNER_APPROVAL_TOKEN, header
+    // X-Owner-Approval), because Instinct also holds the gateway bearer for its heartbeat. Unset: approvals use the
+    // bearer alone, as before.
+    if (req.method === 'POST' && OWNER_APPROVAL_RE.test(urlPath) && env.OWNER_APPROVAL_TOKEN) {
+      const got = String(req.headers['x-owner-approval'] || '');
+      const ok = got && crypto.timingSafeEqual(crypto.createHash('sha256').update(got).digest(), crypto.createHash('sha256').update(env.OWNER_APPROVAL_TOKEN).digest());
+      if (!ok) { send(403, { error: 'OWNER_APPROVAL_REQUIRED' }); return true; }
+    }
+
     try {
       if (req.method === 'GET' && urlPath === '/v1/factory/state') { send(200, await projection.snapshot()); return true; }
       if (req.method === 'GET' && urlPath === '/v1/factory/events') { projection.subscribe(req, res); return true; }
@@ -122,12 +136,29 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
         const body = await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) })); if (body === undefined) return true;
         const r = await directTask(at[1], body); send(r.code, r.body); return true;
       }
+      if (req.method === 'GET' && urlPath === '/v1/factory/standing') { send(200, { mode: String(env.STANDING_AUTOMATION || 'approved'), jobs: standingCatalog() }); return true; }
+      const st = /^\/v1\/factory\/standing\/([a-f0-9]{16})\/(approve|revoke)$/.exec(urlPath);
+      if (req.method === 'POST' && st) {
+        const body = await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) })); if (body === undefined) return true;
+        const r = approveStanding(st[1], body, st[2] === 'approve'); send(r.code, r.body); return true;
+      }
       if (req.method === 'GET' && urlPath === '/v1/factory/districts') { send(200, { districts: await boardNow(), chief: chiefNow() }); return true; }
       if (req.method === 'POST' && urlPath === '/v1/factory/chief/heartbeat') {
         const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
         if (body.by !== 'instinct') { send(400, { error: 'ONLY_INSTINCT_HEARTBEATS' }); return true; }
         store.putControl('chief', { instinctLastSeen: new Date().toISOString(), note: typeof body.note === 'string' ? body.note.slice(0, 200) : null });
-        send(200, chiefNow()); return true;
+        send(200, Object.assign({}, chiefNow(), { open_orders: openOrders() })); return true;
+      }
+      if (req.method === 'GET' && urlPath === '/v1/factory/chief/orders') { send(200, { acting: chiefNow().acting, orders: openOrders() }); return true; }
+      if (req.method === 'POST' && urlPath === '/v1/factory/chief/orders') {
+        const body = await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) })); if (body === undefined) return true;
+        if (typeof body.text !== 'string' || !body.text.trim()) { send(400, { error: 'text is required' }); return true; }
+        send(202, addOrder('order', body.text)); return true;
+      }
+      const oa = /^\/v1\/factory\/chief\/orders\/([a-z0-9]{6,30})\/ack$/.exec(urlPath);
+      if (req.method === 'POST' && oa) {
+        const body = (await readJson(req, Object.assign({}, helpers, { send: (_r, c, b) => send(c, b) }))) || {};
+        const r = ackOrder(oa[1], body.by); send(r.code, r.body); return true;
       }
       const ag = /^\/v1\/factory\/agents\/([a-z0-9_-]{1,32})\/(pause|resume)$/.exec(urlPath);
       if (req.method === 'POST' && ag) {
@@ -144,6 +175,32 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   function chiefNow() {
     const rec = store.getControl ? store.getControl('chief') : null;
     return actingChief({ now: new Date().toISOString(), instinctLastSeen: rec && rec.instinctLastSeen, staleAfterMs });
+  }
+
+  // The chain of command (borrowed from firstmate's "captain talks to the first mate"): the owner's orders go to the
+  // acting chief's inbox, never straight to workers. An order stays open until the chief acknowledges it by id; the
+  // heartbeat re-delivers open orders (the doorbell), and the sweep flags any order unacknowledged past ORDER_ACK_MS.
+  // A direct task from the owner to one agent is an override: it runs, and a notice lands in the chief's inbox so the
+  // chain reconciles it at the next review.
+  const orderAckMs = Number(env.ORDER_ACK_MS) || 15 * 60000;
+  function addOrder(kind, text, extra = {}) {
+    const id = Date.now().toString(36) + require('crypto').randomBytes(3).toString('hex');
+    const rec = Object.assign({ id, kind, text: String(text).slice(0, 4000), from: 'owner', to: chiefNow().acting, at: new Date().toISOString(), acked: null }, extra);
+    store.putControl('order-' + id, rec);
+    log('owner_' + kind, { id, to: rec.to });
+    return rec;
+  }
+  function openOrders() {
+    const now = Date.now();
+    return store.listControl('order-').filter(o => !o.acked).sort((a, b) => String(a.at).localeCompare(String(b.at)))
+      .map(o => Object.assign({}, o, { overdue: now - Date.parse(o.at) > orderAckMs }));
+  }
+  function ackOrder(id, by) {
+    const o = store.getControl('order-' + id);
+    if (!o) return { code: 404, body: { error: 'UNKNOWN_ORDER' } };
+    if (!['instinct', 'heisenberg'].includes(by)) return { code: 400, body: { error: 'ONLY_THE_CHAIN_ACKNOWLEDGES' } };
+    if (!o.acked) store.putControl('order-' + id, Object.assign({}, o, { acked: { by, at: new Date().toISOString() } }));
+    return { code: 200, body: store.getControl('order-' + id) };
   }
 
   // Heisenberg's foreman sweep: assigned work that is not moving gets one nudge (re-wake), then an escalation to the
@@ -163,25 +220,45 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
       store.putControl(key, { issueId: s.issueId, agentId: s.agentId });
       log('foreman_' + s.action, s); done.push(s);
     }
+    const overdueOrders = [];
+    for (const o of openOrders()) {
+      if (!o.overdue || store.getControl('order-overdue-' + o.id)) continue;
+      store.putControl('order-overdue-' + o.id, { id: o.id, at: new Date().toISOString(), acting: chief.acting });
+      log('order_overdue', { id: o.id, to: o.to, acting: chief.acting }); overdueOrders.push(o.id);
+    }
     const standing = await runStanding();
     const pipelines = await advanceAllPipelines();
-    return { stalls: done, acting: chief.acting, standing, pipelines };
+    return { stalls: done, acting: chief.acting, overdue_orders: overdueOrders, standing, pipelines };
   }
 
   // Standing jobs from each district's contract: one mission per period for the named agent, judged by its roster
   // judge. Recorded once per period, so a restart never repeats one. Unready or unregistered agents are reported.
-  // Off by default (owner decision pending). STANDING_AUTOMATION names the districts whose standing jobs may run:
-  // "off" (default), a list such as "revenue", or "all" for every active district. District registries, explicit
+  // The owner approves each standing job once; after that it runs on its schedule by itself, until revoked.
+  // STANDING_AUTOMATION=off is the master switch (nothing runs, approvals are kept). District registries, explicit
   // missions and pipelines are unaffected either way.
-  function standingScope() {
-    const v = String(env.STANDING_AUTOMATION || 'off').trim().toLowerCase();
-    if (!v || v === 'off') return null;
-    return v === 'all' ? 'all' : new Set(v.split(',').map(s => s.trim()).filter(Boolean));
+  const standingId = (district, job) => require('crypto').createHash('sha256').update(district + '|' + job).digest('hex').slice(0, 16);
+  function standingCatalog() {
+    const out = [];
+    for (const d of (overrides.city || loadCity())) for (const s of d.standing) {
+      const id = standingId(d.id, s.job);
+      const a = store.getControl('standing-approval-' + id);
+      out.push({ id, district: d.id, district_active: d.active, job: s.job, when: s.when, agent: s.agent, outcome: s.outcome,
+        approved: !!(a && a.approved), approved_at: a && a.approved ? a.at : null });
+    }
+    return out;
+  }
+  function approveStanding(id, body, approve) {
+    if (!body || body.approver !== 'owner') return { code: 403, body: { error: 'OWNER_APPROVAL_REQUIRED' } };
+    const job = standingCatalog().find(j => j.id === id);
+    if (!job) return { code: 404, body: { error: 'UNKNOWN_STANDING_JOB' } };
+    store.putControl('standing-approval-' + id, { approved: approve, at: new Date().toISOString(), district: job.district, job: job.job });
+    log('standing_' + (approve ? 'approved' : 'revoked'), { id, district: job.district, job: job.job });
+    return { code: 200, body: Object.assign({}, job, { approved: approve }) };
   }
   async function runStanding(now = new Date().toISOString()) {
-    const scope = standingScope();
-    if (!scope) return [];
-    const city = (overrides.city || loadCity()).filter(d => scope === 'all' || scope.has(d.id));
+    if (String(env.STANDING_AUTOMATION || 'approved').trim().toLowerCase() === 'off') return [];
+    const approved = (district, job) => { const a = store.getControl('standing-approval-' + standingId(district, job)); return !!(a && a.approved); };
+    const city = (overrides.city || loadCity()).map(d => Object.assign({}, d, { standing: d.standing.filter(s => approved(d.id, s.job)) }));
     const ran = new Set();
     const due = dueStanding(city, now, { has: (k) => ran.has(k) || !!store.getControl(standingKey(k)) });
     const out = [];
@@ -220,9 +297,12 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
     if (!body || typeof body.intent !== 'string' || !body.intent.trim()) return { code: 400, body: { error: 'intent is required' } };
     const judgeKey = roles[a.judged_by] ? a.judged_by : ({ 'qa-judge': 'qa' }[a.judged_by] || 'qa');
     const mid = (a.district + '.direct.' + a.control_key + '.' + Date.now().toString(36)).slice(0, 100);
-    return heisenberg.submitMission({ mission_id: mid, user_intent: body.intent.slice(0, 8000), district: a.district, builder: a.control_key,
+    const r = await heisenberg.submitMission({ mission_id: mid, user_intent: body.intent.slice(0, 8000), district: a.district, builder: a.control_key,
       judge: judgeKey === a.control_key ? 'qa' : judgeKey, permissions: Array.isArray(body.permissions) ? body.permissions : ['research'],
       budget_usd: Number(body.budget_usd) || 0.5, acceptance_criteria: body.done_means ? [String(body.done_means).slice(0, 500)] : [] });
+    // Owner override: the chain is told, so Instinct and Heisenberg reconcile it instead of being bypassed.
+    if (r.code === 202) addOrder('override_notice', 'The owner tasked ' + a.id + ' directly (mission ' + mid + '): ' + body.intent.slice(0, 500), { mission_id: mid, agent: a.id });
+    return r;
   }
 
   // Pipelines (registry/pipelines.json): start a run, and advance it when a stage is done. Owner gates wait for
@@ -294,7 +374,7 @@ function makeFactory({ env = process.env, fetchImpl, log = () => {}, overrides =
   }
   function stop() { timers.forEach(clearInterval); timers = []; }
 
-  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, boardNow, startPipeline, advancePipeline, advanceAllPipelines, agentsNow, directTask };
+  return { handle, start, stop, heisenberg, bridge, projection, store, client, roles, chiefNow, foremanSweep, runStanding, standingCatalog, approveStanding, addOrder, openOrders, ackOrder, boardNow, startPipeline, advancePipeline, advanceAllPipelines, agentsNow, directTask };
 }
 
 module.exports = { makeFactory, tokenOk };

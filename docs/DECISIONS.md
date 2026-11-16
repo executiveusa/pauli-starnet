@@ -144,3 +144,17 @@ many of these — they win on any wording conflict.
 - **Paperclip is the only queue** (supersedes the GitHub-label queue in `program/city-247`).
 - **ICM is the default structure** for every app, product, district and agent, and everything must work the same
   on any model (`START_HERE.md`, `.agents/skills/icm-architect/`).
+
+## Chain of command hardening and activation decisions (2026-11-16)
+- The owner talks to the acting chief (Instinct, or Heisenberg as next man up). Owner orders go to the chief's inbox
+  (`/v1/factory/chief/orders`), stay open until the chief acknowledges them by id, and are re-delivered with every
+  heartbeat. An order unacknowledged after `ORDER_ACK_MS` is flagged once. A direct owner task to one agent is an
+  override: it runs, and a notice goes to the chief so the chain reconciles it. Pattern from kunchenguid/firstmate (MIT):
+  one human interface, obligations closed by records, direct captain input treated as authoritative and reconciled.
+- Standing jobs run only after the owner approves each one (`/v1/factory/standing/<id>/approve`), then on schedule
+  until stopped. `STANDING_AUTOMATION=off` stops all of them without forgetting approvals.
+- Independent PR review: the Claude Review workflow on the owner's subscription, model picked per run.
+- Mission reviews use `deepseek-default` until a Claude CLI executor exists (metered; owner accepted).
+- Instinct holds the workforce bearer for its heartbeat, so owner approvals (authorize a mission's permissions, pass a
+  pipeline owner gate, approve a standing job) also need `OWNER_APPROVAL_TOKEN`, sent as `X-Owner-Approval` only by
+  the Command Center. Accepting after an independent pass, resuming and stopping stay with the chain.

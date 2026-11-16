@@ -49,13 +49,14 @@ async function main() {
     { id: 'command', active: true, citizens: [], standing: [] }
   ];
   const store = makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-')));
-  const off = makeFactory({ env: {}, overrides: { client: memoryPaperclip(), roles, store: makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-off-'))), executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
-  eq(await off.runStanding('2026-11-16T10:00:00Z'), [], 'standing automation is off by default: nothing is scheduled');
-  const scoped = makeFactory({ env: { STANDING_AUTOMATION: 'command' }, overrides: { client: memoryPaperclip(), roles, store: makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-sc-'))), executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
-  eq(await scoped.runStanding('2026-11-16T10:00:00Z'), [], 'standing automation runs only the districts it names');
+  const fresh = makeFactory({ env: {}, overrides: { client: memoryPaperclip(), roles, store: makeStateStore(fs.mkdtempSync(path.join(os.tmpdir(), 'oneq-new-'))), executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  eq(await fresh.runStanding('2026-11-16T10:00:00Z'), [], 'no standing job runs until the owner approves it');
+  const jobId = fresh.standingCatalog().find(j => j.job === 'Find prospects').id;
+  eq(fresh.approveStanding(jobId, { approver: 'instinct' }, true).code, 403, 'only the owner approves a standing job');
 
-  const f = makeFactory({ env: { STANDING_AUTOMATION: 'revenue' }, overrides: { client, roles, store, executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  const f = makeFactory({ env: {}, overrides: { client, roles, store, executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
 
+  for (const j of f.standingCatalog()) if (j.district !== 'pauli') f.approveStanding(j.id, { approver: 'owner' }, true);
   const t = '2026-11-16T10:00:00Z';
   const first = await f.runStanding(t);
   const created = first.filter(x => x.code === 202);
@@ -76,6 +77,14 @@ async function main() {
   const rev = board.find(b => b.id === 'revenue');
   eq([rev.state, rev.running], ['RUNNING', 2], 'the board shows revenue running its two missions, from Paperclip only');
   eq(board.find(b => b.id === 'pauli').state, 'PARKED', 'a parked district with nothing to do shows PARKED');
+
+  // Revoking stops a job; the master switch stops everything without forgetting approvals.
+  const fpId = f.standingCatalog().find(j => j.job === 'Find prospects').id;
+  f.approveStanding(fpId, { approver: 'owner' }, false);
+  eq((await f.runStanding('2026-11-18T10:00:00Z')).filter(x => x.code === 202).length, 0, 'a revoked job no longer runs');
+  const offSwitch = makeFactory({ env: { STANDING_AUTOMATION: 'off' }, overrides: { client: memoryPaperclip(), roles, store, executors: {}, city: smallCity, districtIds: ['revenue', 'pauli', 'command'] } });
+  offSwitch.approveStanding(fpId, { approver: 'owner' }, true);
+  eq(await offSwitch.runStanding('2026-11-19T10:00:00Z'), [], 'STANDING_AUTOMATION=off stops every standing job');
 
   // Builder and judge must differ, and the judge must be registered.
   const same = await f.heisenberg.submitMission({ mission_id: 'x1', user_intent: 'x', district: 'revenue', builder: 'skeptic', judge: 'skeptic', permissions: ['research'] });
