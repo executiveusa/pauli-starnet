@@ -759,3 +759,4 @@ test/model-routing.test.js
 test/pipelines.test.js
 test/tools-policy.test.js
 test/control-routes.test.js
+test/prune-plan.test.mjs

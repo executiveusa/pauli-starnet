@@ -1,0 +1,147 @@
+{
+  "_contract": "program/one-system/09_focus/CONTEXT.md. One home for what runs on the two servers. Built from Instinct's server inventory of 2026-11-06 (54+44 containers, 41 host services). Rules are matched in order; the first match wins. core, client and migrate are never stopped by the prune plan. park and retire are stopped reversibly in phase 1 and removed only in phase 2, after 7 days and Bambu's approval. Anything that matches no rule is unknown: it is listed and never touched.",
+  "servers": {
+    "prod-city-1": "2.25.241.209: headquarters. StarNet, Paperclip, Coolify (control), Supabase, agents (Hermes, Pi, BARS/TARS, Terabithia), TryPost, Parallax.",
+    "srv1099662": "31.220.58.212: production apps and media. Genfeed, MACS and Kupuri business apps, the Command Center fallback. Managed from the Coolify on prod-city-1."
+  },
+  "rules": [
+    {
+      "class": "core",
+      "system": "Coolify (deploy control)",
+      "role": "deploys and restarts every app on both servers",
+      "match": "^coolify(-db|-redis|-proxy|-sentinel)?$",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Supabase (shared data)",
+      "role": "auth and data for business apps; one instance only",
+      "match": "^supabase-(db|kong|auth|rest|storage|imgproxy|meta|analytics|vector)$",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "StarNet HQ",
+      "role": "city and workforce gateways, sidecar, Paperclip queue",
+      "match": "^(starnet-sidecar|starnet-workforce|paperclip|paulis-place-gw|paulis-place-city|pauli-gateway|pauli-starnet|pauli-starnet-gateway)$"
+    },
+    {
+      "class": "core",
+      "system": "Hermes",
+      "role": "agent runtime and Instinct's WhatsApp fallback",
+      "match": "^(pauli-hermes|hermes-api|bars-hermes)$"
+    },
+    {
+      "class": "core",
+      "system": "Pi (private)",
+      "role": "owner's private personal and financial agent; never agency work",
+      "match": "^(pauli-pi-agent|pauli-pi-adapter|pi-postgres)$"
+    },
+    {
+      "class": "core",
+      "system": "BARS/TARS",
+      "role": "voice and demo front door",
+      "match": "^(bars|bars-tail|pauli-bars-bridge)$",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Terabithia",
+      "role": "private relay between StarNet and the factory and laptop bridges",
+      "match": "^(pauli-terabithia|terabithia-relay)$"
+    },
+    {
+      "class": "core",
+      "system": "TryPost",
+      "role": "social scheduling and publishing (owner approves each post)",
+      "match": "^trypost(-db|-redis)?$",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Parallax",
+      "role": "private image studio (artwork for Motion Master and Genfeed)",
+      "match": "^parallax",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Genfeed",
+      "role": "content generation pipeline",
+      "match": "^genfeed-(api|mcp|notifications|files|redis)$",
+      "servers": [
+        "srv1099662"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Instinct voice and phone",
+      "role": "Instinct's phone and voice line",
+      "match": "^(instinct-phone-agent|instinct-voice-agent)$",
+      "servers": [
+        "prod-city-1"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "MACS business apps",
+      "role": "MACS client portal and client desk",
+      "match": "^(macs-agent-portal|macs-client-desk)$",
+      "servers": [
+        "srv1099662"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Command Center (fallback until Vercel production is verified)",
+      "role": "phone control; Vercel is primary",
+      "match": "^pauli-command-center$",
+      "servers": [
+        "srv1099662"
+      ]
+    },
+    {
+      "class": "core",
+      "system": "Host basics",
+      "role": "operating system services",
+      "match": "^(docker|containerd|ssh|sshd|tailscaled|cron|systemd-.*|caddy|nginx|ufw|fail2ban|unattended-upgrades|logrotate|man-db)$"
+    },
+    {
+      "class": "client",
+      "system": "Client production sites",
+      "role": "paying or prospective client work; owner decides each one",
+      "match": "^(tila-(bridge|dashboard-20261011|preview)|spatchy-(intake|web)|kitchen-creations-prod|breathe-international|coachtyrone|postastudios-app|redis-postastudios|ray-luxury-review-app|ray-review-app|kupuri-media-cdmx-fallback|botanicmemories-fallback|dos2a-fallback|asc3nd-org-fallback|macsdigitalmedia-fallback)$"
+    },
+    {
+      "class": "park",
+      "system": "Experiments kept for later",
+      "role": "stopped until a business job needs them",
+      "match": "^(montage-testcopy-(api|web|worker|redis)|foundry-control-plane|foundry-landing|factory-office-(auth|guard)|factorydemo-(office|bridge)-1|laptop-bridge-broker|buzz-bridge|pauli-dojo|pauli-skills-api|pauli-observe|pauli-mission-control|pauli-admin|pauli-mailer|pauli-stripe|macs-command-city|macs-founders-preview|stavarai-(api|frontend|money-loop-worker|redis)-1|social-drops(-tunnel)?|design-library-design-library-1|nwkids-hermes-webui|impact-city|city-cosmos|pauli-control|pauli-cosmos-(brain|pi)|pauli-jev-shadow|jev-chrome|app-jev-runner-1|local-registry|pauli-hermes-canary|starnet-design|starnet-cc-(control-plane-tunnel|read-proxy)|commandcenter-ai-fallback|sweet-starnet|kam-preview-app)$"
+    },
+    {
+      "class": "retire",
+      "system": "Broken, duplicate or stale",
+      "role": "unhealthy, restart-looping, superseded or old copies",
+      "match": "^(montage-staging-(web|worker|api|postgres|redis)-1|montage-preview-web|jetty-waves-preview|jetty-utah-pilot|factory-offline-preview-.*|starnet-cc-(failed-crew|operating)-preview|starnet-city-preview|kupuri-monarch-preview|botanic-sandbox-preview|astra-3d-preview|pauli-city-public|jarvis(2)?-web|jarvis-(rest|db|gw)|posta-staging-(pgsql|redis)|.*-old|.*\\.pre-fold\\d|genfeed-api-prev|factorytest-(bridge|office)-1|indigo-supabase-.*|bars-pre-gate-.*|vv-preview|kb|foundry-pilot|buffer-blaster-fallback|spatchy|pare-daemon|hermes-nim-proxy|council-graph-(batch|pilot|pilot2)-20261020|run-[pu]\\d+(-i\\d+)?|pr-agent-manual-timeout-test|montage-testcopy-failclosed-test|bk-rclone-h212b|supabase-deploy|starnet-foreman|heisenberg-sweep|pauli-watchdog|voice-agent-keepalive|pauli-starnet-sidecar|factory-office-cert-renew)$"
+    },
+    {
+      "class": "migrate",
+      "system": "Second Coolify and Supabase on srv1099662",
+      "role": "duplicates of the prod-city-1 control plane and data; apps on srv1099662 may still use them. Back up, repoint, then retire. Never stopped by the prune plan.",
+      "match": "^(coolify(-db|-redis|-sentinel)?|supabase-(db|kong|auth|rest|storage|imgproxy|analytics|vector))$",
+      "servers": [
+        "srv1099662"
+      ]
+    }
+  ]
+}

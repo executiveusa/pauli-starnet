@@ -35,6 +35,8 @@ Each row becomes one Paperclip mission per period for its agent (rows for Instin
 | When | Job | Agent | Outcome |
 |---|---|---|---|
 | daily 06:00 | Research seeds refresh | jev-researcher | new findings appended with sources |
+| weekdays 07:00 | Audit the day's 5 newest prospect sites as a buyer would (mobile, offer, contact path, speed) | maus-auditor | 5 audits with screenshots and the 3 biggest sale-losing issues each, attached to the prospect's scorecard |
+| weekly mon 09:00 | Audit macsdigitalmedia.com and the Kupuri site as a buyer would | maus-auditor | one audit per site with screenshots and the 3 biggest sale-losing issues |
 
 ## Human check
 
