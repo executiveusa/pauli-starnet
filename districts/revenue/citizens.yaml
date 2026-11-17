@@ -23,6 +23,12 @@ citizens:
     done_means: Launch checklist delivered with live test inquiry
     judged_by: qa-judge
     model_lane: deepseek-default
+  - id: tila-scout
+    role: Tila (Plantas Tila, air plants, Mexico) buyer finder; Spanish; goal one wholesale client
+    status: READY
+    done_means: scored wholesale buyer leads with sources and owner-approved Spanish outreach drafts in program/tila/output
+    judged_by: king-doe
+    model_lane: deepseek-default
   - id: boring-marketer
     role: prospect audits and private demos (council seat)
     status: READY

@@ -50,9 +50,13 @@ money at risk or a client waiting.
 
 ## The three projects (nothing else until one closes)
 1. **MACS / Found First (English, Seattle and the Northwest).** 3 pilot clients at $497 in 30 days.
-2. **Kupuri (Spanish, US and Mexico).** The same offer in Spanish, first pilot in 30 days.
-3. **One side slot**, my choice each month. New ideas and links go into `backlog.md` with a one-line value
-   estimate. You tell me what would be paused if I promote one.
+2. **Kupuri (Spanish, US and Mexico), with Tila.** The same offer in Spanish, first pilot in 30 days. Tila (Plantas
+   Tila, air plants) is promoted: the goal is one paying wholesale client. `tila-scout` works `program/tila/` every
+   weekday once I approve its standing jobs; Ivette sends and calls.
+3. **Ground Work (my personal side offer).** Managed Instinct agents for nonprofits and social-purpose companies,
+   trained on their own documents: `program/ground-work/`. 3 paid setups in 30 days; part of every fee funds New
+   World Kids. New ideas and links go into `backlog.md` with a one-line value estimate; you tell me what would be
+   paused if I promote one.
 
 ## How we sell and serve (King Doe lens, from the Chris Do corpus)
 Discovery before pitch (Story Sells grid prepared by the bots, call run by me); sell the outcome, not the
@@ -71,10 +75,12 @@ business day, a weekly one-screen outcome report per client, and a captured befo
 
 ## This week, in order
 1. Finish go-live: the unlazy gates in `program/one-system/08_activation/finish/`, stage by stage.
-2. Security: make `pauli-sercets-vault-` private or delete it (ask me), rotate its keys, start the credential
-   register, and replace the rejected OpenRouter key.
+2. Security: make `pauli-sercets-vault-` **private** (my decision 2026-11-17), rotate every key it ever held, start
+   the credential register, and replace the rejected OpenRouter key (the free PR reviewer needs it too).
 3. Prune: run `scripts/one-system/prune-plan.mjs` on both servers, send me both plans, and run phase 1 after I
-   approve. Disk on prod-city-1 must drop below 80%.
+   approve. Disk on prod-city-1 must drop below 80%. Client sites (my decisions 2026-11-17): Tila is core; Kitchen
+   Creations and Breathe move to Vercel as frontends only, Coach Tyrone as a static frontend only, then their server
+   copies park; PostaStudios and both Ray review apps are removed for space (back up their data first).
 4. Clean up PRs: in the 13 core repos, merge or close every PR older than 14 days (from about 125 to 30 or fewer).
 5. Sell: 20 prospects scored and audited for Found First, discovery calls offered to the best 5 (I approve each
    message), and the first pilot booked.

@@ -10,6 +10,7 @@ close their first paying Found First clients.
 - Go-live: ../08_activation/HANDOFF.md and ../08_activation/finish/*.md (unlazy gates)
 - Offer: executiveusa/found-first business/offer/FOUND-FIRST-OFFER.md; sales lens: districts/pauli/board/seats/king-doe.md
 - Chief's orders: INSTINCT-V2-PROMPT.md (this folder)
+- The three projects: Found First (above), Tila (../../tila/CONTEXT.md) and Ground Work (../../ground-work/CONTEXT.md)
 
 ## Process
 1. Finish go-live first: the 27 gates in ../08_activation/finish/ reach ALL MET or a written handoff.

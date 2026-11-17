@@ -136,8 +136,9 @@ What the topics say: content tooling, servers and credentials got the most atten
 | Cloudroom, T3 Code | coding tools | laptop | park until a job needs them |
 | Montage, factory/foundry, Jarvis, previews, fallbacks | experiments and copies | both | park or retire per the prune plan |
 
-From the Nov 6 inventory, the prune plan keeps 42 core items and 17 client sites, stops 46 parked and 68 retired
-items, and leaves 12 duplicates for migration: about 60% fewer running things. Nothing is deleted without a 7-day
+From the Nov 6 inventory, after the owner's client-site decisions of Nov 17, the prune plan keeps 45 core items and
+7 undecided client items, stops 46 parked and 72 retired items, and leaves 15 for migration (12 duplicates and 3 sites
+moving to Vercel): about 60% fewer running things. Nothing is deleted without a 7-day
 wait and your approval. See `scripts/one-system/prune-plan.mjs`.
 
 ### 3. Repositories
@@ -190,3 +191,11 @@ wanted, otherwise close with a one-line reason. Keep one Synthia and one Posta r
 | Running containers + services | ≤ 80 (from 139) | prune plan |
 | Approval requests to you | ≤ 2 batched windows a day | Command Center |
 | Monthly AI and hosting spend | ≤ $100 | receipts + bills |
+
+## Owner decisions, 2026-11-17
+1. `pauli-sercets-vault-` becomes private; every key it held is rotated.
+2. Rebuild or prune headquarters: explained first, decision pending.
+3. Third project slot: Ground Work, the owner's personal offer for nonprofits (`program/ground-work/`).
+4. Client sites: Tila promoted to core with `tila-scout` (`program/tila/`); Kitchen Creations and Breathe frontends only
+   on Vercel; Coach Tyrone static frontend only; PostaStudios and the Ray review apps removed for space.
+5. Independent PR reviews run on a free OpenRouter model for now; upgrade later (`docs/DECISIONS.md`, "Free reviewer").

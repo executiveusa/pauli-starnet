@@ -28,6 +28,7 @@ Roster: `districts/revenue/citizens.yaml` (one home per agent; role, status, don
 ## Knowledge
 
 - `districts/sales/CONTEXT.md` (sales seats and the mozi knowledge base)
+- `program/tila/CONTEXT.md` (Tila: one wholesale client for Plantas Tila; tila-scout's brief)
 - `districts/middleton/canon/scripts.md` (local-service method)
 - `missions/revenue/README.md` (revenue mission rules)
 - `districts/pauli/board/seats/king-doe.md`, `districts/pauli/board/seats/michele-torti.md`, `districts/pauli/board/seats/phlash.md`
@@ -41,6 +42,8 @@ Each row becomes one Paperclip mission per period for its agent (rows for Instin
 | weekdays 08:00 | Find 10 prospects (warm network first) | boring-marketer | 10 prospect records with source links |
 | weekdays 10:00 | Run scorecards for new prospects | boring-marketer | scorecards filed for review |
 | weekdays 16:00 | Draft follow-ups due today | king-doe | drafts waiting in approvals |
+| weekdays 09:00 | Tila: find 5 Mexican wholesale buyers for air plants (nurseries, florists, garden centers, event and hotel decorators), score them per program/tila/CONTEXT.md | tila-scout | 5 scored leads with source links added to program/tila/output/leads.md |
+| weekdays 11:00 | Tila: draft Spanish outreach for the best scored lead | tila-scout | one draft waiting in approvals; nothing sent without the owner |
 
 ## Human check
 

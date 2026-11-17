@@ -14,7 +14,8 @@ const p1 = classify([...parseDocker(dockerOf(s1Docker)), ...parseServices(s1Serv
 const cls = (plan, name) => plan.find(i => i.name === name).class;
 
 for (const x of ['coolify', 'coolify-proxy', 'supabase-db', 'paulis-place-gw', 'trypost-db', 'bars', 'bars-hermes', 'pi-postgres', 'hermes-api', 'pauli-pi-agent', 'starnet-sidecar', 'pauli-terabithia', 'instinct-voice-agent', 'ssh']) eq(cls(p1, x), 'core', x + ' is core and keeps running');
-eq([cls(p1, 'tila-bridge'), cls(p1, 'postastudios-app'), cls(p1, 'spatchy-intake')], ['client', 'client', 'client'], 'client sites are never pruned');
+eq([cls(p1, 'tila-bridge'), cls(p1, 'spatchy-intake'), cls(p1, 'postastudios-app')], ['core', 'client', 'retire'], 'Tila is core, undecided client sites are never pruned, PostaStudios is removed for space');
+eq(cls(classify(parseDocker(dockerOf(['kitchen-creations-prod'])), rules, 'srv1099662'), 'kitchen-creations-prod'), 'migrate', 'a site moving to Vercel is never stopped before it moves');
 eq([cls(p1, 'montage-staging-web-1'), cls(p1, 'jarvis2-web'), cls(p1, 'jetty-waves-preview'), cls(p1, 'starnet-foreman')], ['retire', 'retire', 'retire', 'retire'], 'broken and superseded items retire');
 eq(cls(p1, 'kam-preview-app'), 'park', 'experiments park');
 eq(cls(p1, 'worker'), 'unknown', 'an unidentified container is unknown, never guessed');

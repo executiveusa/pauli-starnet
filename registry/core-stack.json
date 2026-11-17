@@ -117,10 +117,28 @@
       "match": "^(docker|containerd|ssh|sshd|tailscaled|cron|systemd-.*|caddy|nginx|ufw|fail2ban|unattended-upgrades|logrotate|man-db)$"
     },
     {
+      "class": "core",
+      "system": "Tila (Plantas Tila)",
+      "role": "promoted 2026-11-17: clearest path to a client; tila-scout works program/tila",
+      "match": "^(tila-(bridge|dashboard-20261011|preview))$"
+    },
+    {
+      "class": "migrate",
+      "system": "Static frontends moving to Vercel, then parked",
+      "role": "owner decision 2026-11-17: Kitchen Creations and Breathe live as frontends only on Vercel; Coach Tyrone as a static frontend only. Never stopped by the prune plan: deploy on Vercel, check the live site, repoint DNS, then reclassify as park.",
+      "match": "^(kitchen-creations-prod|breathe-international|coachtyrone)$"
+    },
+    {
+      "class": "retire",
+      "system": "Removed for space (owner decision 2026-11-17)",
+      "role": "PostaStudios and the two Ray review apps: stopped in phase 1, removed in phase 2 after 7 days and a second approval. Back up their data first.",
+      "match": "^(postastudios-app|redis-postastudios|ray-luxury-review-app|ray-review-app)$"
+    },
+    {
       "class": "client",
       "system": "Client production sites",
-      "role": "paying or prospective client work; owner decides each one",
-      "match": "^(tila-(bridge|dashboard-20261011|preview)|spatchy-(intake|web)|kitchen-creations-prod|breathe-international|coachtyrone|postastudios-app|redis-postastudios|ray-luxury-review-app|ray-review-app|kupuri-media-cdmx-fallback|botanicmemories-fallback|dos2a-fallback|asc3nd-org-fallback|macsdigitalmedia-fallback)$"
+      "role": "client or prospective client work not yet decided; owner decides each one",
+      "match": "^(spatchy-(intake|web)|kupuri-media-cdmx-fallback|botanicmemories-fallback|dos2a-fallback|asc3nd-org-fallback|macsdigitalmedia-fallback)$"
     },
     {
       "class": "park",
