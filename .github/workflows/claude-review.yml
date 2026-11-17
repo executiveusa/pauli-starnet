@@ -62,6 +62,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # GitHub access for the action itself. Without it the action tries the Claude GitHub App's OIDC exchange,
+          # which needs id-token: write; the workflow token is enough for a read-only review.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             You are the independent reviewer for pull request #${{ github.event.inputs.pr }} in ${{ github.repository }}.
             You did not build this change. Review exactly commit ${{ steps.head.outputs.sha }} against origin/${{ steps.head.outputs.base }}.
