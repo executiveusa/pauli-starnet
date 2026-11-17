@@ -158,3 +158,13 @@ many of these — they win on any wording conflict.
 - Instinct holds the workforce bearer for its heartbeat, so owner approvals (authorize a mission's permissions, pass a
   pipeline owner gate, approve a standing job) also need `OWNER_APPROVAL_TOKEN`, sent as `X-Owner-Approval` only by
   the Command Center. Accepting after an independent pass, resuming and stopping stay with the chain.
+
+## Free reviewer (2026-11-17), UPGRADE LATER
+- Owner decision: independent PR reviews run on a free OpenRouter model for now so work can move
+  (`.github/workflows/free-review.yml`, `scripts/review/free-review.js`; default `nvidia/nemotron-3-ultra-550b-a55b:free`,
+  free fallbacks, override with the repository variable `FREE_REVIEW_MODEL`). It reviews every same-repo PR
+  automatically and can be re-run from Actions. It fails closed: no clear verdict, or a file too large to read, is HOLD.
+- The reviewer code runs from the default branch (`pull_request_target`), so a PR cannot change its own reviewer.
+- Free tiers may log prompts: never point it at a repository holding client personal data.
+- **Upgrade later:** when revenue allows, switch the default reviewer back to Claude Review on the owner's
+  subscription (`claude-review.yml`, still available) or a paid model, and record the date here.
