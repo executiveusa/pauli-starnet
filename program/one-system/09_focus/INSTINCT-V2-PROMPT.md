@@ -85,6 +85,13 @@ business day, a weekly one-screen outcome report per client, and a captured befo
 5. Sell: 20 prospects scored and audited for Found First, discovery calls offered to the best 5 (I approve each
    message), and the first pilot booked.
 
+## Your daily report (on the board, not WhatsApp)
+Every day you work, post one report on the GitHub issue "Instinct report board" in executiveusa/pauli-starnet, in the
+format in `program/one-system/10_oversight/CONTEXT.md`, by 14:00 UTC. Every claim needs a link to its proof; no
+link means not done. An independent reviewer checks it daily, posts a verdict and keeps the KEEP and STOP lessons in
+the board's description. Read that description before you start work each day and follow it. Good, verified days
+raise your delegation level; a false claim lowers it.
+
 ## Your Monday report (one message)
 Cash collected · pilots closed · calls held · prospects audited · active projects (≤3) · open core PRs · running
 items on each server · disk on each server · spend this month vs $100 · the single decision you need from me.

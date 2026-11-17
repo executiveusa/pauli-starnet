@@ -37,6 +37,7 @@ This program **supersedes the GitHub-label queue in `program/city-247`** and **c
 | `07_command_center` | Phone control: talk to any agent, steer, approve, watch the live 2D city | `07_command_center/output/EVIDENCE.md` |
 | `08_activation` | Deploy pack, live tests, handoff to Instinct on thepaulieffect.com | `08_activation/HANDOFF.md` |
 | `09_focus` | Prune both servers to the core stack, Chief of Staff v2, weekly money scoreboard | `09_focus/output/EVIDENCE.md` |
+| `10_oversight` | Instinct reports daily on one board; Claude verifies every claim, scores it, keeps the good, corrects the bad | the board issue (`10_oversight/CONTEXT.md`) |
 | `09_3d` | 3D mirror from the archive tag, driven by the same evidence (with the owner, last) | `09_3d/output/EVIDENCE.md` |
 
 ## Status rule
