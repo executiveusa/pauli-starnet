@@ -1,0 +1,10 @@
+# one-system on thepaulieffect.com. TLS by Caddy. Every route here also checks its own bearer or session.
+hq.thepaulieffect.com {
+	# StarNet city gateway: 2D city, /v1/city/*, /v1/districts (serves the Paperclip board)
+	reverse_proxy 127.0.0.1:4100
+}
+factory.thepaulieffect.com {
+	# Workforce gateway: /v1/factory/* (owner bearer). The Command Center calls this.
+	reverse_proxy 127.0.0.1:4000
+}
+# Paperclip stays on 127.0.0.1 and the tailnet only; it is never published.

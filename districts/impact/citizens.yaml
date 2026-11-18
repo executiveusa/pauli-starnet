@@ -1,0 +1,9 @@
+version: 1
+district: impact
+citizens:
+  - id: nwkids-readiness
+    role: grant and profile readiness
+    status: PLANNED
+    done_means: readiness checklist with evidence per item
+    judged_by: skeptic
+    model_lane: deepseek-default

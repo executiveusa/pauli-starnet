@@ -1,5 +1,7 @@
 # Crypto Cuties District (CUTIES PENTHOUSE) - context routing (Layer 1)
 
+One job: run the Crypto Cuties synthetic creators from their own penthouse rooms, inside their canon.
+
 Where do I go? Work about the Crypto Cuties synthetic creators - Mila (CC-001), Fanni (CC-003), and future cuties - routes through this file. Read on entry to any crypto-cuties seat or task.
 
 Status: PLANNED (declared in registry/districts.json, generated from the CitySpec). The penthouse is where the Cuties operate freely inside StarNet; their canon, identity locks, and production law live in their own repos and win on any conflict.
@@ -41,3 +43,38 @@ Each cutie has her own room in the penthouse. A room = her sandbox:
 ## Boundaries
 
 All operating boundaries come from cryptocuties icm/wiki/operations/BOUNDARIES.md. This file adds none and overrides none. The four owner gates (money, messages to people, publishing, irreversible deletes) apply in full inside this district.
+
+## Agents
+
+Roster: `districts/crypto-cuties/citizens.yaml` (one home per agent; role, status, done-means and judge for each). Each cutie has her own room and sandbox; canon wins on conflict.
+
+## Jobs and done-means
+
+| Job | Done means | Judged by |
+|---|---|---|
+| Content draft | draft that passes the cutie's identity lock | owner |
+
+## Rules
+
+- Paperclip is the only queue: work starts only from an issue in this district with an owner, done-means, budget and stop condition.
+- No agent theatre: an agent with no assigned work sleeps until its heartbeat or schedule finds work.
+- The builder never judges its own work; the judge named in `citizens.yaml` decides.
+- Owner gates (`gateway/factory/command-chain.js`): production releases, spending over the delegation, outbound email, texts and posts, destructive changes.
+- Canon and identity locks in this folder win on any conflict.
+
+## Knowledge
+
+- `districts/crypto-cuties/characters/`
+- `districts/crypto-cuties/playbooks/`
+
+## Standing jobs
+
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
+
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| parked | No schedule while the lane is inactive | none | none |
+
+## Human check
+
+Bambú approves anything a cutie would publish.

@@ -1,0 +1,43 @@
+# 05_models evidence
+
+built_by: Claude (build session, 2026-11-16) · verified_by: (pending an independent reviewer)
+
+- `node test/model-routing.test.js` → 11 passed (unverified ids refused, default lane, subscription cap fallback,
+  Instinct external, warn at 80%, stop at 100% except revenue, month-only spend).
+- Bridge wiring: every receipt records `lane` and `route_note`; a monthly-budget stop blocks the task with a comment.
+  Factory integration (66), one-queue (34) and command-chain (20) still pass.
+
+## Not done here (needs the owner or the server)
+- Wiring the uncensored lane (Venice or Hermes); until then it falls back to the default.
+- A CLI executor for the subscription lane (Claude Code or Codex signed in on the $20 plans). Until it exists, review
+  runs use the configured executor model. The $20 plans have usage caps; Opus availability on them is unverified.
+- The sidecar must honor `reasoning.effort`; check one live DeepSeek run's request.
+
+## 2026-11-16 update: DeepSeek 1017 id and the free pool
+- Owner named the id: `deepseek/deepseek-v4.1-flash-1017`. Checked in OpenRouter's public model list the same day
+  ($0.00000015 per input token, $0.0000006 per output token). OpenRouter has no uncensored build; that is the
+  `uncensored` lane (Venice or Hermes), which falls back to the default until wired.
+- Free pool from github.com/open-free-llm-api/awesome-freellm-apis (MIT, list of 2026-11-16): OpenRouter
+  `nvidia/nemotron-3-ultra-550b-a55b:free`, Groq `qwen/qwen3.8-27b`, Gemini `gemini-3.6-flash`, Mistral
+  `mistral-medium-3-5-128b`. `node scripts/models/free-pool.js` run live: all four OK; OpenRouter id confirmed free.
+- `node test/model-routing.test.js` → 23 passed (adds: light/test work to free, no free key keeps default, private
+  and protected districts never free, WARN and STOP move non-revenue work to free, revenue stays paid, key names only,
+  the checker flags a removed id and a degraded provider). Factory integration 66, one-queue 34 still pass.
+
+## 2026-11-16 update: OpenRouter model fallbacks
+- Source: openrouter.ai/docs/guides/routing/model-fallbacks (a `models` array in priority order; OpenRouter tries the
+  next model on any error, including rate limits and moderation refusals).
+- Sidecar OpenRouter provider sends `models` = primary plus up to 3 alternates when `/api/run` carries `routerModels`;
+  without it, the request is unchanged. The factory executor passes each route's `fallback_models` as `routerModels`,
+  and the free route's other providers as `fallbackProviders` (the sidecar's existing cross-provider fallback).
+- Tests: `provider.openrouter` 59 (adds the `models` body), `model-routing` 27 (lane fallbacks, free-only fallbacks,
+  the executor hand-off over HTTP). Factory integration 66, one-queue 34, orchestration 257, e2e.run 49 pass.
+- `node scripts/models/free-pool.js` run live: all 9 rows OK (every OpenRouter id and fallback listed; free fallbacks
+  still free).
+
+## 2026-11-16 correction after Instinct's activation review
+- Finding confirmed: `subscription-review` named provider `claude-code-cli`, which has no executor; the sidecar executor
+  sent its model id to the configured provider. Now the lane is `wired: false` and routes to `deepseek-default` with
+  the reason on the receipt, and the executor refuses any `claude-code-cli` route without sending anything.
+- `node test/model-routing.test.js` → 29 passed (adds: unwired lane falls back and says why; a wired copy keeps the
+  daily cap; the executor refuses a CLI-only lane and sends nothing).

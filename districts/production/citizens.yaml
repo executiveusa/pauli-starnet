@@ -1,0 +1,30 @@
+version: 1
+district: production
+citizens:
+  - id: pi-foundry
+    role: builder (factory role key `pi`; not the private Pi personal agent)
+    status: READY
+    path: gateway/factory/executors.js
+    done_means: branch with passing tests and an artifact reference
+    judged_by: qa-judge
+    model_lane: deepseek-default
+  - id: qa-judge
+    role: independent reviewer (factory role key `qa`)
+    status: READY
+    path: gateway/factory/worker-bridge.js
+    done_means: PASS or FAIL verdict with findings on the exact commit
+    judged_by: instinct
+    model_lane: subscription-review
+  - id: cloudroom-coder
+    role: sandboxed coding executor (Claude Code or Codex in Cloudroom)
+    status: PLANNED
+    done_means: pull request with tests from an isolated sandbox
+    judged_by: qa-judge
+    model_lane: subscription-review
+  - id: matt-pocock
+    role: code review standards (council seat)
+    status: READY
+    seat: districts/pauli/board/seats/matt-pocock.md
+    done_means: review notes on test quality and small changes
+    judged_by: skeptic
+    model_lane: deepseek-default

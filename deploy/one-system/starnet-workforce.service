@@ -1,0 +1,22 @@
+# one-system: the workforce gateway with Paperclip as the queue. Runs as an unprivileged user.
+[Unit]
+Description=StarNet workforce gateway (Paperclip queue, Heisenberg foreman)
+After=network-online.target paperclip.service
+Wants=network-online.target
+
+[Service]
+User=starnet
+Group=starnet
+WorkingDirectory=/opt/pauli-starnet
+EnvironmentFile=/etc/starnet/workforce.env
+# FACTORY_ROLES is read from a root-owned file so per-agent keys never sit in the unit or the shell history.
+ExecStart=/bin/sh -c 'FACTORY_ROLES="$(cat "$FACTORY_ROLES_FILE")" exec /usr/bin/node gateway/workforce-server.js'
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/starnet
+MemoryMax=600M
+
+[Install]
+WantedBy=multi-user.target

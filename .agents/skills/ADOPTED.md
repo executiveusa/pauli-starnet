@@ -56,3 +56,10 @@ LICENSE files ride along in better-ui/ and animate/. Skipped from the repo: agen
 SkillSpector (static): 7/100 risk, no executables. Only the SKILL.md is adopted - the CLI,
 action and site stay in the upstream repo. Known limit (memory, Oct 14): it does not extract
 design or roast by itself; zero findings does not clear a site.
+
+## icm-architect (adopted 2026-11-16, owner instruction)
+
+Source: Jake Van Clief's `icm-architect` skill (MIT, LICENSE kept in the folder), supplied by the owner as a zip.
+Status: copied unmodified into `.agents/skills/icm-architect/`. **The SkillSpector guard has not run yet** (it runs on
+prod-city-1, unreachable from the build session). Run `skill-guard .agents/skills/icm-architect` before merge; the
+gate rule above applies. Owner rule: ICM is the default structure for every app, product, district and agent.

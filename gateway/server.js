@@ -627,11 +627,21 @@ async function handleRequest(req, res) {
     // GET /v1/districts — Heisenberg's last tick: each district RUNNING / BLOCKED (with the exact question) / IDLE.
     // Written by scripts/district/foreman.js; a board older than 15 minutes says so instead of looking current.
     if (method === 'GET' && url === '/v1/districts') {
+      // one-system D3: Paperclip is the only queue. When the workforce gateway is configured, its Paperclip-derived
+      // board is the answer; the old GitHub-label board below is only a fallback and says so.
+      if (process.env.FACTORY_BASE_URL && process.env.FACTORY_OWNER_TOKEN) {
+        try {
+          const r = await fetch(process.env.FACTORY_BASE_URL.replace(/\/+$/, '') + '/v1/factory/districts', { headers: { Authorization: 'Bearer ' + process.env.FACTORY_OWNER_TOKEN }, signal: AbortSignal.timeout(8000) });
+          if (r.ok) { const b = await r.json(); return send(200, { source: 'paperclip', at: new Date().toISOString(), districts: b.districts, chief: b.chief, stale: false }); }
+          log('warn', 'factory districts answered ' + r.status);
+        } catch (e) { log('warn', 'factory districts unreachable', { error: e.message }); }
+        return send(503, { error: 'FACTORY_UNREACHABLE', source: 'paperclip', hint: 'the workforce gateway did not answer; nothing is shown rather than an old board' });
+      }
       let board = null;
       try { board = JSON.parse(fs.readFileSync(DISTRICT_STATE_FILE, 'utf8')).board || null; } catch (_) { /* no tick yet */ }
       if (!board) return send(503, { error: 'NO_FOREMAN_TICK', hint: 'the foreman has not run yet (scripts/district/foreman.js)' });
       const ageMs = Date.now() - Date.parse(board.at);
-      return send(200, { ...board, age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
+      return send(200, { ...board, source: 'github-labels (superseded by program/one-system)', age_seconds: Math.round(ageMs / 1000), stale: !(ageMs < 15 * 60 * 1000) });
     }
 
     // GET /v1/knowledge/{search,insights,sources} — what a district knows (knowledge/CONTEXT.md)

@@ -35,7 +35,7 @@ function req(method, port, p, headers) {
   const reg = buildRegistry();
   A.eq(reg.districts.length, 12, 'the registry has the 12 CitySpec districts');
   A.eq(render(reg), fs.readFileSync(path.join(ROOT, 'registry', 'districts.json'), 'utf8'), 'registry/districts.json is current (run scripts/city/build-registry.js)');
-  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'commerce', 'impact', 'production'], 'the active lanes are command (owner, 2026-10-16), commerce, impact and production; the rest are honest IDLE');
+  A.eq(reg.districts.filter(d => d.active).map(d => d.id).sort(), ['command', 'commerce', 'creative', 'experiment', 'financial', 'impact', 'intelligence', 'operations', 'production', 'revenue'], 'active lanes per the owner (2026-11-16, program/one-system D10): every working district; crypto-cuties and pauli stay parked');
   A.ok(reg.districts.every(d => d.queue.label === 'district:' + d.id && d.foreman === 'heisenberg'), 'every district has a queue label and Heisenberg as foreman');
   A.ok(reg.districts.find(d => d.id === 'impact').knowledge.includes('cause-specialist'), 'districts carry their knowledge sources');
   A.ok(reg.districts.find(d => d.id === 'production').aliases.includes('factory'), 'old ids map by alias (factory -> production)');
@@ -129,7 +129,7 @@ function req(method, port, p, headers) {
     A.ok(by1.impact.action === 'DISPATCH' && by1.impact.mission_id === 'd-impact-21-a1', 'tick 1: Impact dispatched the approved issue as a city mission');
     A.ok(by1.commerce.action === 'BLOCKED' && /Approve #22/.test(by1.commerce.question), 'tick 1: Commerce asks for approval of its unapproved issue');
     A.ok(by1.production.action === 'BLOCKED' && /repo.write/.test(by1.production.question), 'tick 1: Production will not run repo.write unattended');
-    A.ok(by1.revenue.action === 'IDLE' && /not active/.test(by1.revenue.reason), 'tick 1: inactive districts are IDLE, not faked busy');
+    A.ok(by1['crypto-cuties'].action === 'IDLE' && /not active/.test(by1['crypto-cuties'].reason), 'tick 1: inactive districts are IDLE, not faked busy');
 
     let missionStatus = null;
     for (let i = 0; i < 40; i++) { missionStatus = JSON.parse((await req('GET', GW, '/v1/missions/d-impact-21-a1', auth)).body).status; if (missionStatus !== 'working') break; await new Promise(r => setTimeout(r, 100)); }

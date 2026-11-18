@@ -60,7 +60,8 @@
         key: opts.key,
         baseUrl: opts.baseUrl || profile.baseUrl,
         referer: opts.referer,
-        reasoningEffort: opts.reasoningEffort
+        reasoningEffort: opts.reasoningEffort,
+        models: opts.models   // OpenRouter-native fallback list (routerModels on /api/run)
       });
     }
     if (profile.adapter === 'openai-compatible') {

@@ -1,0 +1,10 @@
+version: 1
+district: experiment
+citizens:
+  - id: taishan
+    role: experiment design seat
+    status: PLANNED
+    knowledge: districts/sales/mozi/playbooks
+    done_means: experiment card with hypothesis, metric and stop rule
+    judged_by: skeptic
+    model_lane: deepseek-default

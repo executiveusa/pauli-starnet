@@ -699,6 +699,7 @@ test/knowledge.test.js
 test/knowledge-wiki.test.js
 test/district-foreman.test.js
 test/review-gate.test.js
+test/free-review.test.js
 test/first-lanes.test.js
 test/gateway-hardening.test.js
 test/supervisor.test.js
@@ -752,3 +753,11 @@ test/youtube-icm-walk.test.js
 test/command-center.test.js
 test/owner-command-center.test.js
 test/factory-status.test.js
+test/command-chain.test.js
+test/icm-walk.test.js
+test/one-queue.test.js
+test/model-routing.test.js
+test/pipelines.test.js
+test/tools-policy.test.js
+test/control-routes.test.js
+test/prune-plan.test.mjs

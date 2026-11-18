@@ -1,0 +1,21 @@
+# one-system: Paperclip as a NON-ROOT user with an EXTERNAL Postgres. The STARFACTORY-001 build failed because the
+# embedded Postgres refuses to run as root; this avoids both. Fill the database setting from Paperclip's own docs
+# (docs.paperclip.ing) for the installed version; do not guess its variable name.
+[Unit]
+Description=Paperclip (StarNet mission authority)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=paperclip
+Group=paperclip
+WorkingDirectory=/opt/paperclip
+EnvironmentFile=/etc/paperclip/paperclip.env
+ExecStart=/usr/bin/npx --yes paperclipai@PINNED_VERSION start
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+MemoryMax=900M
+
+[Install]
+WantedBy=multi-user.target

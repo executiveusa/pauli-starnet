@@ -40,17 +40,28 @@ function parseVerdictText(text) {
 function makeSidecarExecutor({ port = 8787, host = '127.0.0.1', token = '', agentId, model, provider, system, idempotent = true, timeoutMs = 600000 }) {
   return {
     idempotent,
-    async run({ issue, role, mission, runId }) {
-      if (!model) return { ok: false, summary: 'sidecar executor misconfigured: FACTORY_ROLES[*].executor.model is required by /api/run', artifacts: [], usd: 0 };
+    async run({ issue, role, mission, runId, route }) {
+      // one-system 05: the routed lane's model wins over the configured one; an unverified lane keeps the configured model.
+      // A CLI-only lane (claude-code-cli) can't run through the sidecar: refuse rather than send its model id to
+      // another provider.
+      if (route && route.provider === 'claude-code-cli') return { ok: false, summary: 'lane ' + route.lane + ' needs a CLI executor, which does not exist yet', artifacts: [], usd: 0 };
+      const useModel = (route && route.model) || model;
+      const useProvider = (route && route.provider && route.provider !== 'claude-code-cli') ? route.provider : provider;
+      if (!useModel) return { ok: false, summary: 'sidecar executor misconfigured: FACTORY_ROLES[*].executor.model is required by /api/run', artifacts: [], usd: 0 };
       const headers = token ? { 'X-StarNet-Token': token, Authorization: 'Bearer ' + token } : {};
       const prompt = [
         issue.description || issue.title,
         '',
         'Factory context: mission=' + mission + ' role=' + role + ' issue=' + issue.id
       ].join('\n');
-      const body = { model, agentId: agentId || 'agent', messages: [{ role: 'user', content: prompt }], isTask: true };
+      const body = { model: useModel, agentId: agentId || 'agent', messages: [{ role: 'user', content: prompt }], isTask: true };
+      if (route && route.reasoning) body.reasoning = { effort: route.reasoning };
       if (system) body.system = system;
-      if (provider) body.provider = provider;
+      if (useProvider) body.provider = useProvider;
+      // Fallbacks from registry/models.json: OpenRouter tries its list itself in one request (routerModels); other
+      // providers are tried by the sidecar in order, and any without a key are skipped (fallbackProviders).
+      if (route && route.model && useProvider === 'openrouter' && Array.isArray(route.fallback_models) && route.fallback_models.length) body.routerModels = route.fallback_models;
+      if (route && route.model && Array.isArray(route.fallback_providers) && route.fallback_providers.length) body.fallbackProviders = route.fallback_providers;
       const r = await postJson({ host, port, path: '/api/run', headers, timeoutMs, body });
       if (r.status >= 400) return { ok: false, summary: 'sidecar returned ' + r.status + ': ' + String(r.text || '').slice(0, 200), artifacts: [], usd: 0 };
       let text = ''; let usd = 0; let error = null; let ended = false;

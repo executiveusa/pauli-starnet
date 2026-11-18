@@ -17,3 +17,42 @@ by a separate reviewer on the exact commit) → RELEASE (owner) → LEARN.
 ## First work (seeded issues, waiting for approval)
 Smart-site factory from the Jasper logic (HVAC demo first, then roofing and the GOAT directory), and a
 brownfield inspection of each target repo before any build.
+
+## Agents
+
+Roster: `districts/production/citizens.yaml` (one home per agent; role, status, done-means and judge for each). The software-factory stages are above; this charter adds who does each.
+
+## Jobs and done-means
+
+| Job | Done means | Judged by |
+|---|---|---|
+| Spec | written spec with acceptance criteria, approved by Instinct | instinct |
+| Build slice | branch with tests passing, never on main | qa-judge |
+| Independent review | SHIP or HOLD on the exact commit by someone who did not build it | skeptic |
+| Release | owner approval recorded; rollback written | owner |
+
+## Rules
+
+- Paperclip is the only queue: work starts only from an issue in this district with an owner, done-means, budget and stop condition.
+- No agent theatre: an agent with no assigned work sleeps until its heartbeat or schedule finds work.
+- The builder never judges its own work; the judge named in `citizens.yaml` decides.
+- Owner gates (`gateway/factory/command-chain.js`): production releases, spending over the delegation, outbound email, texts and posts, destructive changes.
+- Coding runs in an isolated sandbox (Cloudroom) until StarNet's own sandbox is qualified.
+- Standard: `executiveusa/vibe-engineering`.
+
+## Knowledge
+
+- `docs/starfactory/12_ACCEPTANCE_AND_HANDOFF.md`
+- `districts/pauli/board/seats/matt-pocock.md`
+
+## Standing jobs
+
+Each row becomes one Paperclip mission per period for its agent (rows for Instinct or Heisenberg, and anything every 15 minutes or less, run in the gateway instead). With nothing to do, agents sleep.
+
+| When | Job | Agent | Outcome |
+|---|---|---|---|
+| every 15 min | Pick up approved build issues | heisenberg | work started or blocked with a question |
+
+## Human check
+
+Bambú approves releases to production and reads the rollback note.
