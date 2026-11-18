@@ -138,6 +138,6 @@ many of these — they win on any wording conflict.
   free fallbacks, override with the repository variable `FREE_REVIEW_MODEL`). It reviews every same-repo PR
   automatically and can be re-run from Actions. It fails closed: no clear verdict, or a file too large to read, is HOLD.
 - The reviewer code runs from the default branch (`pull_request_target`), so a PR cannot change its own reviewer.
-- Free tiers may log prompts: never point it at a repository holding client personal data.
+- Free tiers may log prompts or train on them: run it only on public repositories (pauli-starnet is public, so its diffs are already public). Private repositories keep Claude Review. It refuses any model id not ending in `:free`, so a repository variable cannot make it spend money.
 - **Upgrade later:** when revenue allows, switch the default reviewer back to Claude Review on the owner's
   subscription (`claude-review.yml`, still available) or a paid model, and record the date here.

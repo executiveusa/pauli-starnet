@@ -30,6 +30,11 @@ const env = { OPENROUTER_API_KEY: 'k', FREE_REVIEW_BATCH_CHARS: '400' };
     fetchImpl: async () => reply('{"verdict":"SHIP","summary":"ok","findings":[]}') });
   A.ok(unseen.verdict === 'HOLD' && unseen.findings.some(f => /big\.js.*not reviewed/.test(f)), 'a file too large to review is never shipped');
 
+  let paid = '';
+  try { await review({ diff: file('a.js', 10), sha: 'abc', env: Object.assign({}, env, { FREE_REVIEW_MODEL: 'anthropic/claude-opus' }), fetchImpl: async () => { throw new Error('no network call expected'); } }); }
+  catch (e) { paid = e.message; }
+  A.ok(/refuses non-free models: anthropic\/claude-opus/.test(paid), 'a paid model set by variable is refused before any request');
+
   let threw = false;
   try { await review({ diff: file('a.js', 10), sha: 'abc', env: {} }); } catch { threw = true; }
   A.ok(threw, 'no key, no review');

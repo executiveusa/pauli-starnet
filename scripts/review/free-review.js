@@ -66,6 +66,9 @@ async function review({ diff, sha, env = process.env, fetchImpl = globalThis.fet
   if (!env.OPENROUTER_API_KEY) throw new Error('OPENROUTER_API_KEY is not set');
   const model = env.FREE_REVIEW_MODEL || MODEL;
   const fallbacks = env.FREE_REVIEW_FALLBACKS ? env.FREE_REVIEW_FALLBACKS.split(',').map(s => s.trim()).filter(Boolean) : FALLBACKS;
+  // Free models only: a paid model here would spend money no one approved. Upgrading means changing this code, on purpose.
+  const paid = [model, ...fallbacks].filter(m => !m.endsWith(':free'));
+  if (paid.length) throw new Error('free reviewer refuses non-free models: ' + paid.join(', '));
   const { batches: parts, tooBig } = batches(diff, Number(env.FREE_REVIEW_BATCH_CHARS) || 200000);
   const results = [], used = new Set();
   for (let i = 0; i < parts.length; i++) {
