@@ -1,0 +1,113 @@
+name: Free Review
+
+# Independent PR review on a FREE OpenRouter model (scripts/review/free-review.js). Owner decision 2026-11-17: a free
+# model reviews for now so work can move; UPGRADE LATER to Claude Review (claude-review.yml, owner's subscription) or a
+# paid model. The note lives in docs/DECISIONS.md, "Free reviewer".
+#
+# Safety: pull_request_target runs THIS file and the reviewer script from the default branch, so a pull request cannot
+# change its own reviewer. The PR's code is fetched only to diff it; it is never run.
+# Owner setup, once: secret OPENROUTER_API_KEY (a working key; free models need no credit), variable
+# REVIEW_GATE_REVIEWERS including github-actions[bot], and Settings > Actions > General: allow GitHub Actions to create
+# and approve pull requests.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+
+concurrency:
+  group: free-review-${{ github.event.pull_request.number || github.event.inputs.pr }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: write
+
+jobs:
+  free-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      pr: ${{ steps.head.outputs.pr }}
+    steps:
+      - name: Pin the head commit under review
+        id: head
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number || github.event.inputs.pr }}
+        run: |
+          set -euo pipefail
+          [[ "$PR" =~ ^[0-9]+$ ]] || { echo "pr must be a number"; exit 1; }
+          same=$(gh api "repos/${{ github.repository }}/pulls/$PR" --jq '.head.repo.full_name == .base.repo.full_name')
+          [ "$same" = "true" ] || { echo "fork PRs are not reviewed here"; exit 1; }
+          echo "pr=$PR" >> "$GITHUB_OUTPUT"
+          echo "sha=$(gh api "repos/${{ github.repository }}/pulls/$PR" --jq .head.sha)" >> "$GITHUB_OUTPUT"
+          echo "base=$(gh api "repos/${{ github.repository }}/pulls/$PR" --jq .base.ref)" >> "$GITHUB_OUTPUT"
+
+      # Default-branch checkout: the reviewer code comes from here, never from the PR.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Diff the PR (data only, never executed)
+        env:
+          PR: ${{ steps.head.outputs.pr }}
+          SHA: ${{ steps.head.outputs.sha }}
+          BASE: ${{ steps.head.outputs.base }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "+refs/pull/$PR/head:refs/remotes/pr/head" "+refs/heads/$BASE:refs/remotes/pr/base"
+          [ "$(git rev-parse refs/remotes/pr/head)" = "$SHA" ] || { echo "the PR moved; run the review again"; exit 1; }
+          git diff refs/remotes/pr/base...refs/remotes/pr/head > "$RUNNER_TEMP/pr.diff"
+          git diff --stat refs/remotes/pr/base...refs/remotes/pr/head | tail -1
+
+      - name: Review on a free model
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FREE_REVIEW_MODEL: ${{ vars.FREE_REVIEW_MODEL }}
+        run: node scripts/review/free-review.js --diff "$RUNNER_TEMP/pr.diff" --sha "${{ steps.head.outputs.sha }}" --out "$RUNNER_TEMP/verdict.json"
+
+      - name: Post the verdict on the reviewed commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.head.outputs.pr }}
+          SHA: ${{ steps.head.outputs.sha }}
+        run: |
+          set -euo pipefail
+          now=$(gh api "repos/${{ github.repository }}/pulls/$PR" --jq .head.sha)
+          [ "$now" = "$SHA" ] || { echo "the PR moved to $now during the review; nothing posted"; exit 1; }
+          out="$RUNNER_TEMP/verdict.json"
+          case "$(jq -r .verdict "$out")" in SHIP) event=APPROVE ;; HOLD) event=REQUEST_CHANGES ;; *) echo "no verdict"; exit 1 ;; esac
+          body=$(jq -r '"Independent review on a free model (\(.models | join(", "))) of \(.sha), \(.parts) part(s). Stopgap until the paid reviewer is back.\n\nVerdict: \(.verdict)\n\n\(.summary)\n\n" + (.findings | map("- " + .) | join("\n"))' "$out")
+          jq -n --arg c "$SHA" --arg e "$event" --arg b "$body" '{commit_id:$c, event:$e, body:$b}' \
+            | gh api "repos/${{ github.repository }}/pulls/$PR/reviews" --method POST --input - > /dev/null
+          echo "posted $event on $SHA"
+
+  # A review posted with GITHUB_TOKEN doesn't trigger other workflows, so the gate is re-run here, after the review job
+  # has finished (the job is named review-gate so the gate never waits on itself).
+  review-gate:
+    needs: free-review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Re-run the review gate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW_GATE_REVIEWERS: ${{ vars.REVIEW_GATE_REVIEWERS }}
+          REVIEW_GATE_REQUIRED_CHECKS: ${{ vars.REVIEW_GATE_REQUIRED_CHECKS }}
+        run: node scripts/review/gate.js --repo "${{ github.repository }}" --pr "${{ needs.free-review.outputs.pr }}"
