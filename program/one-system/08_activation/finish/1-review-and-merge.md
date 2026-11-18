@@ -7,12 +7,12 @@ Scope: Stage 1: the independent Claude review passes and both PRs are merged. Re
   EXPECT: /^MERGED\s*$/
   EVIDENCE: pending
 
-- [ ] G2: the Claude subscription token is a repository secret (value never shown)
+- [ ] G2: a reviewer credential is a repository secret (value never shown): OPENROUTER_API_KEY for the free reviewer (owner decision 2026-11-17, #111) or CLAUDE_CODE_OAUTH_TOKEN for Claude Review; that it works is proven by G5
   CHECK: gh secret list -R executiveusa/pauli-starnet
-  EXPECT: /^CLAUDE_CODE_OAUTH_TOKEN\s/m
+  EXPECT: /^(OPENROUTER_API_KEY|CLAUDE_CODE_OAUTH_TOKEN)\s/m
   EVIDENCE: pending
 
-- [ ] G3: the review gate counts the Claude Review workflow as the reviewer
+- [ ] G3: the review gate counts the review workflows (Free Review or Claude Review, both post as github-actions[bot]) as the reviewer
   CHECK: gh variable get REVIEW_GATE_REVIEWERS -R executiveusa/pauli-starnet
   EXPECT: /^github-actions\[bot\]\s*$/
   EVIDENCE: pending
