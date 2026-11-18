@@ -77,8 +77,45 @@ jobs:
           claude_args: |
             --model ${{ github.event.inputs.model }}
             --max-turns 60
-            --allowedTools Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(node test/*)
+            --allowedTools "Read,Glob,Grep,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(node test/*)"
             --json-schema '{"type":"object","properties":{"verdict":{"type":"string","enum":["SHIP","HOLD"]},"summary":{"type":"string"},"findings":{"type":"array","items":{"type":"string"}}},"required":["verdict","summary","findings"]}'
+
+      # Fixed metadata only. Never enable full output or upload the raw execution file.
+      - name: Classify review failure without exposing execution text
+        if: ${{ failure() && steps.claude.outcome == 'failure' }}
+        run: |
+          python3 - <<'PY_DIAGNOSTIC'
+          #!/usr/bin/env python3
+          """Emit fixed failure metadata only. Never print vendor messages, IDs, prompts or tokens."""
+          import json,sys,re,pathlib,os
+
+          def classify(messages):
+           if not isinstance(messages,list):return {'diagnostic':'invalid_execution_shape'}
+           results=[m for m in messages if isinstance(m,dict) and m.get('type')=='result']
+           if len(results)!=1:return {'diagnostic':'missing_or_ambiguous_result'}
+           r=results[0]
+           # Internal text is used for fixed categories only. No arbitrary value is emitted.
+           texts=[]
+           for m in messages:
+            if isinstance(m,dict) and m.get('type') in ('assistant','result'):
+             for k in ('error','errors','result','message'):
+              if k in m:texts.append(json.dumps(m[k],ensure_ascii=True))
+           text=' '.join(texts).lower()
+           categories={
+           'authentication':r'authentication|unauthorized|invalid.{0,30}(?:token|credential)|token.{0,30}expired|401',
+           'rate_limit':r'rate.limit|usage.limit|quota|429',
+           'model_access':r'model.{0,50}(?:not.found|not.available|access|unsupported)|404',
+           'invalid_arguments':r'invalid.{0,40}(?:argument|permission|tool)|unknown.{0,30}(?:flag|option)|allowedtools',
+           'network':r'timeout|econn|enotfound|network|connection',
+           }
+           hits=[name for name,pattern in categories.items() if re.search(pattern,text)]
+           return {'diagnostic':'execution_result','error':r.get('is_error') is True,'successSubtype':r.get('subtype')=='success','hasStructuredOutput':isinstance(r.get('structured_output'),dict),'categoryHints':hits or ['unclassified']}
+
+          if __name__=='__main__':
+           try:out=classify(json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'claude-execution-output.json').read_text()))
+           except Exception:out={'diagnostic':'unavailable_or_invalid_execution_file'}
+           print(json.dumps(out,sort_keys=True))
+          PY_DIAGNOSTIC
 
       - name: Post the verdict on the reviewed commit
         env:
