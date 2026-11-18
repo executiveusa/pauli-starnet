@@ -31,7 +31,11 @@ jobs:
         with:
           node-version: 22
 
+      # onnxruntime-node (via kokoro-js) downloads optional CUDA binaries on Linux; the v1.21.0 release asset now
+      # returns 404, which fails npm ci. These jobs run on CPU, so skip the CUDA download.
       - run: npm ci
+        env:
+          ONNXRUNTIME_NODE_INSTALL_CUDA: skip
 
       - name: Credential-free eval gate (contract, quality, fault x100, parity-offline)
         run: npm run eval:gate
