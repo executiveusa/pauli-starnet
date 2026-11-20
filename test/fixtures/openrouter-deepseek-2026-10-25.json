@@ -1,0 +1,302 @@
+{
+ "note": "Subset of the public OpenRouter /api/v1/models listing, captured 2026-10-25 for tests.",
+ "data": [
+  {
+   "id": "deepseek/deepseek-v4.1-flash-1017",
+   "created": 1792225624,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000015",
+    "completion": "0.0000006"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-5.5",
+   "created": 1790094732,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000004",
+    "completion": "0.00002"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-5.5:batch",
+   "created": 1790094732,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000002",
+    "completion": "0.00001"
+   }
+  },
+  {
+   "id": "~deepseek/deepseek-pro-latest",
+   "created": 1789399174,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.0000001188",
+    "completion": "0.000008"
+   }
+  },
+  {
+   "id": "~deepseek/deepseek-flash-latest",
+   "created": 1789399150,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000002",
+    "completion": "0.000001"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4.1-flash",
+   "created": 1789021285,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000002",
+    "completion": "0.000001"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4.1-flash:batch",
+   "created": 1789021285,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000005",
+    "completion": "0.00000015"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-flash-vision-exp",
+   "created": 1787311563,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.0000002156",
+    "completion": "0.0000006468"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-pro-0813",
+   "created": 1786549364,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000066",
+    "completion": "0.00000198"
+   }
+  },
+  {
+   "id": "~deepseek/deepseek-v4-flash-latest",
+   "created": 1785606009,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.0000000422",
+    "completion": "0.0000001763"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-flash-0731",
+   "created": 1785478908,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.00000004444",
+    "completion": "0.00000013332"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-5",
+   "created": 1784912544,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-5:batch",
+   "created": 1784912544,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.0000125"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.8",
+   "created": 1779905091,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.8:batch",
+   "created": 1779905091,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.0000125"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-pro",
+   "created": 1777000679,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.0000002088",
+    "completion": "0.0000004176"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-flash",
+   "created": 1777000666,
+   "context_length": 1048576,
+   "pricing": {
+    "prompt": "0.000000091",
+    "completion": "0.000000182"
+   }
+  },
+  {
+   "id": "~anthropic/claude-opus-latest",
+   "created": 1776795361,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000004",
+    "completion": "0.00002"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.7",
+   "created": 1776351100,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.7:batch",
+   "created": 1776351100,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.0000125"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.6",
+   "created": 1770219050,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.6:batch",
+   "created": 1770219050,
+   "context_length": 1000000,
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.0000125"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v3.2",
+   "created": 1764594642,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.00000028",
+    "completion": "0.00000042"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.5",
+   "created": 1764010580,
+   "context_length": 200000,
+   "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.5:batch",
+   "created": 1764010580,
+   "context_length": 200000,
+   "pricing": {
+    "prompt": "0.0000025",
+    "completion": "0.0000125"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v3.2-exp",
+   "created": 1759150481,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.00000027",
+    "completion": "0.00000041"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v3.1-terminus",
+   "created": 1758548275,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.00000027",
+    "completion": "0.000001"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-chat-v3.1",
+   "created": 1755779628,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.00000025",
+    "completion": "0.00000095"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.1",
+   "created": 1754411591,
+   "context_length": 200000,
+   "pricing": {
+    "prompt": "0.000015",
+    "completion": "0.000075"
+   }
+  },
+  {
+   "id": "anthropic/claude-opus-4.1:batch",
+   "created": 1754411591,
+   "context_length": 200000,
+   "pricing": {
+    "prompt": "0.0000075",
+    "completion": "0.0000375"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-r1-0528",
+   "created": 1748455170,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.0000005",
+    "completion": "0.00000215"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-chat-v3-0324",
+   "created": 1742824755,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.00000029",
+    "completion": "0.00000114"
+   }
+  },
+  {
+   "id": "deepseek/deepseek-chat",
+   "created": 1735241320,
+   "context_length": 163840,
+   "pricing": {
+    "prompt": "0.0000002574",
+    "completion": "0.0000010287"
+   }
+  }
+ ]
+}

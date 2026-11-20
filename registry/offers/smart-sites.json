@@ -1,0 +1,31 @@
+{
+  "format": "starnet-offer-template/v1",
+  "id": "smart-sites",
+  "label": "Client smart-site",
+  "inputs": [
+    { "name": "job_id", "required": true, "pattern": "^[a-z0-9-]{3,40}$" },
+    { "name": "business_type", "required": true, "pattern": "^[A-Za-z0-9 ,&'-]{2,60}$" },
+    { "name": "repo", "required": true, "pattern": "^[A-Za-z0-9_.-]{1,39}/[A-Za-z0-9_.-]{1,100}$" }
+  ],
+  "steps": [
+    { "id": "brief", "title": "Business brief from public information", "district": "revenue", "persona": "sales/sales-discovery-coach", "tier": "green",
+      "intent": "Job {{job_id}}: from jobs/{{job_id}}/brief and the business's PUBLIC pages only, write who the customers are, what they need from a {{business_type}} site, and the three actions the site must drive.", "deliverables": ["brief.md"] },
+    { "id": "prd", "title": "Site PRD", "district": "production", "persona": "product/product-manager", "tier": "green",
+      "intent": "Job {{job_id}}: write the PRD for the {{business_type}} site: pages, forms, backend (bookings/leads/payments as needed), data model, auth, and the 80% exit bar (backend complete).", "deliverables": ["PRD.md"] },
+    { "id": "design", "title": "Design direction", "district": "creative", "persona": "design/design-ux-architect", "tier": "green",
+      "intent": "Job {{job_id}}: propose the design direction (layout, type, colour, motion) that passes the vibe-engineering design bar for a {{business_type}}.", "deliverables": ["design-direction.md"] },
+    { "id": "factory-intake", "title": "Send the repo to the factory", "district": "command", "persona": null, "tier": "yellow", "gate_owner": "captain",
+      "intent": "Job {{job_id}}: queue {{repo}} on the factory intake (POST /v1/factory/intake, counts against the 5-a-day cap) with the PRD and design direction.", "deliverables": [] },
+    { "id": "build", "title": "Factory build to the PRD", "district": "production", "persona": "engineering/engineering-frontend-developer", "tier": "green", "via": "factory",
+      "intent": "Job {{job_id}}: the factory builds {{repo}} to its PRD in the sandbox (program/starnet-v2/06).", "deliverables": ["branch + PR"] },
+    { "id": "security", "title": "Security district attack runs", "district": "security", "persona": null, "tier": "green", "via": "factory",
+      "intent": "Job {{job_id}}: two attack runs against the private preview (districts/security/CONTEXT.md); HIGH/CRITICAL blocks.", "deliverables": ["evidence/<sha>/07-security-run-1.json", "evidence/<sha>/07-security-run-2.json"] },
+    { "id": "judge", "title": "Judge by a different model family", "district": "production", "persona": "specialized/specialized-model-qa", "tier": "green", "judge": true,
+      "intent": "Job {{job_id}}: check the private preview against the PRD's exit bar and the design direction; report pass/fail per requirement.", "deliverables": ["evidence/<sha>/06-judge.json"] },
+    { "id": "client-preview", "title": "Share the preview with the client", "district": "command", "persona": null, "tier": "yellow", "gate_owner": "captain",
+      "intent": "Job {{job_id}}: share the client-visible preview link.", "deliverables": [] },
+    { "id": "go-live", "title": "Pricing, contact and go-live", "district": "command", "persona": null, "tier": "red", "gate_owner": "captain",
+      "intent": "Job {{job_id}}: price, contract and go-live are the captain's.", "deliverables": [] }
+  ],
+  "red": ["pricing", "contacting the business", "go-live / DNS", "payments"]
+}

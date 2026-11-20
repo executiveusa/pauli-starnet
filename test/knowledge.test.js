@@ -57,7 +57,7 @@ function req(method, port, p, headers) {
   const citySrc = fs.readFileSync(path.join(ROOT, 'frontend', 'app', 'cityos.js'), 'utf8');
   const block = citySrc.slice(citySrc.indexOf('districts: ['), citySrc.indexOf(']', citySrc.indexOf("id: 'operations'")));
   const cityDistricts = new Set([...block.matchAll(/\{ id: '([a-z-]+)'/g)].map(m => m[1]));
-  A.eq(cityDistricts.size, 12, 'the CitySpec names 12 districts');
+  A.eq(cityDistricts.size, 13, 'the CitySpec names 13 districts');
   const ids = registry.sources.map(s => s.id);
   A.eq(new Set(ids).size, ids.length, 'source ids are unique');
   for (const s of registry.sources) {

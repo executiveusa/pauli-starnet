@@ -1,0 +1,28 @@
+{
+  "format": "starnet-offer-template/v1",
+  "id": "ai-employee",
+  "label": "AI Employee (Foundry)",
+  "inputs": [
+    { "name": "job_id", "required": true, "pattern": "^[a-z0-9-]{3,40}$" },
+    { "name": "role", "required": true, "pattern": "^[A-Za-z0-9 ,&'-]{2,60}$" }
+  ],
+  "steps": [
+    { "id": "discovery", "title": "Discovery from the client's own documents", "district": "revenue", "persona": "sales/sales-discovery-coach", "tier": "green",
+      "intent": "Job {{job_id}}: from the documents in jobs/{{job_id}}/sources only, list the {{role}} tasks the AI Employee will take, what it must never do, and the questions for the client.", "deliverables": ["discovery.md"] },
+    { "id": "wiki", "title": "The client's LLM wiki", "district": "production", "persona": "engineering/engineering-ai-engineer", "tier": "green",
+      "intent": "Job {{job_id}}: build the client's wiki in ICM folders (every folder passes the walk test) from jobs/{{job_id}}/sources, with citations back to each source file.", "deliverables": ["wiki/"] },
+    { "id": "instinct-persona", "title": "Instinct front-desk persona", "district": "creative", "persona": "design/design-brand-guardian", "tier": "green",
+      "intent": "Job {{job_id}}: write the client-facing Instinct persona for a {{role}}: voice, what it answers from the wiki, and when it hands off to a human.", "deliverables": ["instinct-persona.md"] },
+    { "id": "crew", "title": "Crew under Instinct", "district": "production", "persona": "engineering/engineering-ai-engineer", "tier": "green",
+      "intent": "Job {{job_id}}: configure the firstmate-style crew (one supervisor, visible crewmates, worktrees; Relay off, tmux backend) for the {{role}} tasks, each with a green/yellow/red tier.", "deliverables": ["crew.json", "tiers.md"] },
+    { "id": "whatsapp-guide", "title": "WhatsApp Business Cloud API setup guide", "district": "revenue", "persona": "support/support-support-responder", "tier": "green",
+      "intent": "Job {{job_id}}: write the setup guide for the client's OWN WhatsApp Business Cloud API account and number (we never hold their credentials).", "deliverables": ["whatsapp-setup.md"] },
+    { "id": "judge", "title": "Rehearsal judged by a different model family", "district": "production", "persona": "specialized/specialized-model-qa", "tier": "green", "judge": true,
+      "intent": "Job {{job_id}}: run 20 rehearsal conversations against the wiki and persona; report wrong answers, made-up facts and missed hand-offs.", "deliverables": ["rehearsal-report.md"] },
+    { "id": "client-number", "title": "Connect the client's WhatsApp number", "district": "command", "persona": null, "tier": "red", "gate_owner": "client",
+      "intent": "Job {{job_id}}: the client connects their own number.", "deliverables": [] },
+    { "id": "contract", "title": "Pricing and contract", "district": "command", "persona": null, "tier": "red", "gate_owner": "captain",
+      "intent": "Job {{job_id}}: pricing and the contract are the captain's.", "deliverables": [] }
+  ],
+  "red": ["pricing", "the client's WhatsApp number", "contracts", "contacting the client"]
+}

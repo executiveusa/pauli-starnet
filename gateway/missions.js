@@ -31,7 +31,7 @@ function validate(envelope) {
   return null;
 }
 
-function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOString(), revision = 'unknown' }) {
+function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOString(), revision = 'unknown', spend = null }) {
   fs.mkdirSync(stateDir, { recursive: true, mode: 0o700 });
   // ':' is the only allowed id character that is unsafe in a filename; '~' is never in an id, so the map is one-to-one.
   const fileOf = id => path.join(stateDir, id.replace(/:/g, '~') + '.json');
@@ -88,13 +88,20 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
         summary: 'This mission asks for more than read-only research, so it waits for the captain.',
         human_blocker: { type: 'sensitive_approval', title: 'Captain approval needed', why: 'permissions beyond read-only research: ' + (envelope.permissions || []).join(', '), action: 'Approve or deny in the Command Center', resume_token: envelope.mission_id }
       });
-      save({ mission_id: envelope.mission_id, envelope, result });
+      save({ mission_id: envelope.mission_id, envelope, result, district: (/^\[district:([a-z0-9-]+)\]/.exec(envelope.user_intent) || [])[1] || 'direct', accepted_at: now() });
       return { code: 200, body: result };
     }
+    // Money brakes (program/starnet-v2/03): the kill switch and the month cap stop a dispatch before it starts; nothing is
+    // saved, so the same mission can be sent again once the captain releases the brake.
+    const gate = spend ? spend.check() : { ok: true, budget_usd: null };
+    if (!gate.ok) return { code: gate.code, body: { error: gate.reason, detail: gate.detail, mission_id: envelope.mission_id } };
+    const district = (/^\[district:([a-z0-9-]+)\]/.exec(envelope.user_intent) || [])[1] || 'direct';
     const result = envelopeFor(envelope, { status: 'working', summary: 'Heisenberg has the mission.' });
-    save({ mission_id: envelope.mission_id, envelope, result });
+    const accepted_at = now();
+    save({ mission_id: envelope.mission_id, envelope, result, district, accepted_at });
     const done = Promise.resolve()
-      .then(() => runForeman({ mission_id: envelope.mission_id, intent: envelope.user_intent, tier: 'GREEN' }))
+      .then(() => runForeman({ mission_id: envelope.mission_id, intent: envelope.user_intent, tier: 'GREEN', budget_usd: gate.budget_usd }))
+      .then(out => { if (spend && out && typeof out.usd === 'number') spend.record({ mission_id: envelope.mission_id, district, usd: out.usd, model: out.model }); return out; })
       .then(out => envelopeFor(envelope, {
         status: out && out.status === 'done' ? 'done' : 'failed',
         summary: out && out.status === 'done' ? out.summary : '',
@@ -102,7 +109,7 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
         crew: (out && out.crew) || [], solo: out ? out.solo : null, run_id: out && out.run_id, usd: out && out.usd
       }))
       .catch(e => envelopeFor(envelope, { status: 'failed', failures: ['foreman run failed: ' + (e && e.message ? e.message : String(e))] }))
-      .then(final => save({ mission_id: envelope.mission_id, envelope, result: final }).result);
+      .then(final => save({ mission_id: envelope.mission_id, envelope, result: final, district, accepted_at }).result);
     return { code: 202, body: result, done };
   }
 
@@ -126,7 +133,31 @@ function makeMissionDesk({ stateDir, runForeman, now = () => new Date().toISOStr
     return n;
   }
 
-  return { accept, get, recoverOnBoot };
+  // Every mission the desk holds, newest first: what the city view walks agents on and the board counts.
+  // A row is the desk's own record (district from the "[district:x]" prefix, the accepted time, the result status).
+  function list() {
+    const out = [];
+    let files = [];
+    try { files = fs.readdirSync(stateDir); } catch { return out; }
+    for (const f of files) {
+      if (!f.endsWith('.json')) continue;
+      let rec; try { rec = JSON.parse(fs.readFileSync(path.join(stateDir, f), 'utf8')); } catch { continue; }
+      if (!rec || !rec.result || !MISSION_ID_RE.test(String(rec.mission_id || ''))) continue;
+      out.push({
+        mission_id: rec.mission_id,
+        district: rec.district || (/^\[district:([a-z0-9-]+)\]/.exec((rec.envelope && rec.envelope.user_intent) || '') || [])[1] || 'direct',
+        status: rec.result.status,
+        accepted_at: rec.accepted_at || null,
+        completed_at: rec.result.completed_at || null,
+        crew: (rec.result.crew || []).map(c => c && c.agent_id).filter(Boolean),
+        usd: rec.result.runtime ? Number(rec.result.runtime.usd) || 0 : 0
+      });
+    }
+    out.sort((a, b) => String(b.accepted_at || b.completed_at || '').localeCompare(String(a.accepted_at || a.completed_at || '')));
+    return out;
+  }
+
+  return { accept, get, list, recoverOnBoot };
 }
 
 module.exports = { makeMissionDesk, tierOf, validate, GREEN_PERMISSIONS };
